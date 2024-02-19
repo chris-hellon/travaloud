@@ -1,0 +1,45 @@
+﻿@page "/error/{StatusCode}"
+@using System.Diagnostics
+
+@inject IStringLocalizer<Error> L
+
+<TravaloudPageTitle Title="@L[StatusCodeLabel]" Description="@L[StatusCodeDescription]"/>
+
+@code{
+    [CascadingParameter] private HttpContext? HttpContext { get; set; }
+
+    [Parameter] public string StatusCode { get; set; } = default!;
+    
+    private string StatusCodeLabel => int.Parse(StatusCode) switch
+    {
+        400 => "Bad Request",
+        401 => "Unauthorized",
+        403 => "Forbidden",
+        404 => "Not Found",
+        500 => "Internal Server Error",
+        502 => "Bad Gateway",
+        503 => "Service Unavailable",
+        504 => "Gateway Timeout",
+        _ => "Internal Server Error"
+    };
+
+    private string StatusCodeDescription => int.Parse(StatusCode) switch
+    {
+        400 => "Your browser sent a request that this server could not understand.",
+        401 => "You are not authorized to view this page.",
+        403 => "The page or resource you were trying to reach is absolutely forbidden for some reason.",
+        404 => "It appears the page or resource you were looking for doesn't exist or has been moved.",
+        500 => "The server encountered an error and could not complete your request.",
+        502 => "The server encountered a temporary error and could not complete your request.",
+        503 => "The service you requested is not available at this stime.",
+        504 => "The server encountered a temporary error and could not complete your request.",
+        _ => "The server encountered an error and could not complete your request."
+    };
+    
+    private string? RequestId { get; set; }
+    private bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
+
+    protected override void OnInitialized() =>
+        RequestId = Activity.Current?.Id ?? HttpContext?.TraceIdentifier;
+
+}

@@ -1,0 +1,33 @@
+@page "/management/job-vacancies"
+@using Travaloud.Application.Catalog.JobVacancies.Dto
+@using Travaloud.Application.Catalog.JobVacancies.Commands
+
+
+@attribute [MustHavePermission(TravaloudAction.View, TravaloudResource.JobVacancies)]
+
+@inject IStringLocalizer<JobVacancies> L
+
+<TravaloudPageTitle Title="@L["Job Vacancies"]" Description="@L["Manage Job Vacancies."]"/>
+
+<EntityTable @ref="_table" TEntity="JobVacancyDto" TId="Guid" TRequest="UpdateJobVacancyRequest" Context="@Context" ModalWidth="MaxWidth.Medium">
+    <EditFormContent>
+        <MudGrid>
+            <MudItem xs="12" md="12">
+                <MudTextField Label="@L["Job Title"]" For="@(() => context.JobTitle)" @bind-Value="context.JobTitle" Required="true" HelperText="Enter a Job Title" Variant="Variant.Outlined"/>
+            </MudItem>
+            <MudItem xs="12" md="12">
+                <MudTextField Label="@L["Location"]" For="@(() => context.Location)" @bind-Value="context.Location" Required="true" HelperText="Enter a Location" Variant="Variant.Outlined"/>
+            </MudItem>
+            <MudItem xs="12" md="12">
+                <MudTextField Label="@L["Call To Action"]" For="@(() => context.CallToAction)" @bind-Value="context.CallToAction" HelperText="Enter a Call To Action eg. a Job Application website or an email address" Variant="Variant.Outlined"/>
+            </MudItem>
+            <MudItem xs="12" md="12">
+                <MudInputLabel Class="mb-3">@L["Description"]</MudInputLabel>
+                <Editor @bind-Value="context.Description" Field="@(() => context.Description)" Conf="@TinyMceConfig.Styles()" ApiKey="@TinyMceConfig.ApiKey"  />
+                <div class="mud-input-helper-text mud-input-error">
+                    <ValidationMessage For="() => context.Description"></ValidationMessage>
+                </div>
+            </MudItem>
+        </MudGrid>
+    </EditFormContent>
+</EntityTable>

@@ -1,0 +1,46 @@
+﻿@using Travaloud.Infrastructure.Common
+@typeparam TRequest
+
+@inject IStringLocalizer<SharedResource> L
+
+<EditForm Model="@RequestModel" OnValidSubmit="SaveAsync" Context="_editContext">
+    <MudDialog>
+        <TitleContent>
+            <MudText Typo="Typo.h6">
+                @if (IsCreate)
+                {
+                    <MudIcon Icon="@Icons.Material.Filled.Add" Class="mr-3 mb-n1" />
+                    @($"{L["Create"]} "); @L[EntityName];
+                }
+                else
+                {
+                    <MudIcon Icon="@Icons.Material.Filled.Update" Class="mr-3 mb-n1" />
+                    @($"{L["Edit"]} "); @L[EntityName]
+                }
+            </MudText>
+        </TitleContent>
+
+        <DialogContent>
+            <FluentValidationValidator @ref="_fluentValidationValidator"/>
+            
+            <MudGrid>
+                @if (!IsCreate)
+                {
+                    <MudInput InputType="InputType.Hidden" Value="Id"></MudInput>
+                }
+
+                @EditFormContent(RequestModel)
+            </MudGrid>
+        </DialogContent>
+        <DialogActions>
+            @if (AdditionalAction != null && AdditionalActionText != null)
+            {
+                <MudButton DisableElevation Variant="Variant.Filled" OnClick="@(() => AdditionalAction(RequestModel))" IconColor="Color.Surface" StartIcon="@Icons.Material.Filled.Add">@L[AdditionalActionText]</MudButton>
+            }
+
+            <MudButton DisableElevation Variant="Variant.Filled" OnClick="Cancel" StartIcon="@Icons.Material.Filled.Cancel">@L["Cancel"]</MudButton>
+            <MudButton DisableElevation Variant="Variant.Filled" ButtonType="ButtonType.Submit" Color="Color.Success" StartIcon="@Icons.Material.Filled.Save">@L["Confirm"]</MudButton>
+        </DialogActions>
+    </MudDialog>
+</EditForm>
+

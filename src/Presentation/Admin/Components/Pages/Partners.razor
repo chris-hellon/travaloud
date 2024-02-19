@@ -1,0 +1,73 @@
+@page "/partners"
+@using Travaloud.Application.Catalog.Partners.Dto
+@using Travaloud.Application.Catalog.Partners.Commands
+
+@attribute [MustHavePermission(TravaloudAction.View, TravaloudResource.Partners)]
+
+@inject IStringLocalizer<Partners> L
+
+<TravaloudPageTitle Title="@L["Partners"]" Description="@L["Manage Partners."]" />
+
+<EntityTable @ref="_table" TEntity="PartnerDto" TId="Guid" TRequest="UpdatePartnerRequest" Context="@Context" IsWizard="true" WizardSteps="WizardSteps">
+    <WizardStep1Content>
+        <MudGrid>
+            <MudItem xs="12" md="12">
+                <MudTextField Label="@L["Name"]" For="@(() => context.Name)" @bind-Value="context.Name" Required="true" Placeholder="Enter a Partner name" Variant="Variant.Outlined" />
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudTextField Label="@L["Address"]" For="@(() => context.Address)" @bind-Value="context.Address" Required="true" Placeholder="Enter a Partner Address" Variant="Variant.Outlined" />
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudTextField Label="@L["City"]" For="@(() => context.City)" @bind-Value="context.City" Required="true" Placeholder="Enter a Partner City" Variant="Variant.Outlined" />
+            </MudItem>
+            <MudItem xs="12" md="4">
+                <MudTextField Label="@L["Primary Contact Name"]" For="@(() => context.PrimaryContactName)" Required="true" @bind-Value="context.PrimaryContactName" Placeholder="Enter a Partner Primary Contact Name" Variant="Variant.Outlined" />
+            </MudItem>
+            <MudItem xs="12" md="4">
+                <MudTextField Label="@L["Primary Contact Number"]" For="@(() => context.PrimaryContactNumber)" Required="true" @bind-Value="context.PrimaryContactNumber" Placeholder="Enter a Partner Primary Contact Number" Variant="Variant.Outlined" />
+            </MudItem>
+            <MudItem xs="12" md="4">
+                <MudTextField Label="@L["Primary Email Address"]" For="@(() => context.PrimaryEmailAddress)" Required="true" @bind-Value="context.PrimaryEmailAddress" Placeholder="Enter a Partner Primary Email Address" Variant="Variant.Outlined" />
+            </MudItem>
+            <MudItem xs="12" md="12">
+                <MudInputLabel Class="mb-3">@L["Description"]</MudInputLabel>
+                <Editor @bind-Value="context.Description" Field="@(() => context.Description)"  Conf="@TinyMceConfig.Styles()" ApiKey="@TinyMceConfig.ApiKey"></Editor>
+            </MudItem>
+        </MudGrid>
+    </WizardStep1Content>
+    <WizardStep2Content>
+        @if (context.PartnerContacts == null || !context.PartnerContacts.Any())
+        {
+            <MudButton DisableElevation Size="Size.Small" Variant="Variant.Filled" Color="Color.Primary" OnClick="(() => InvokeContactDialog(new UpdatePartnerContactRequest(), context, true))" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Surface" Class="mb-2">@L["Add New Contact"]</MudButton>
+        }
+        else
+        {
+            <MudTable T="UpdatePartnerContactRequest" @ref="PartnerContactsTable" Style="table-layout:auto; padding:0px !important;" Items="@context.PartnerContacts" Context="contactContext" Hover="false" HorizontalScrollbar="true" Elevation="0" Breakpoint="Breakpoint.Sm" LoadingProgressColor="Color.Info" CanCancelEdit="true" ReadOnly="false">
+                <ToolBarContent>
+                    <MudButton DisableElevation Size="Size.Small" Variant="Variant.Filled" Color="Color.Primary" OnClick="(() => InvokeContactDialog(new UpdatePartnerContactRequest(), context, true))" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Surface" Class="mb-2">@L["Add New Contact"]</MudButton>
+                </ToolBarContent>
+                <ColGroup>
+                    <col />
+                    <col />
+                    <col />
+                    <col style="width:20px;" />
+                </ColGroup>
+                <HeaderContent>
+                    <MudTh>Name</MudTh>
+                    <MudTh>Email Address</MudTh>
+                    <MudTh>Contact Number</MudTh>
+                    <MudTh Style="min-width: 0; width: 100px; text-align: right;"></MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Name">@contactContext.Name</MudTd>
+                    <MudTd DataLabel="Email Address">@contactContext.EmailAddress</MudTd>
+                    <MudTd DataLabel="Contact Number">@contactContext.ContactNumber</MudTd>
+                    <MudTd DataLabel="Edit" Style="min-width: 0; width: 270px; text-align: right;">
+                        <MudButton Variant="Variant.Filled" Size="Size.Small" StartIcon="@Icons.Material.Filled.Edit" Color="Color.Tertiary" OnClick="(() => InvokeContactDialog(contactContext, context))">Edit</MudButton>
+                        <MudButton Variant="Variant.Filled" Size="Size.Small" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="(() => RemoveContact(context, contactContext))">Delete</MudButton>
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+        }
+    </WizardStep2Content>
+</EntityTable>

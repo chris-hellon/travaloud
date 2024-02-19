@@ -1,0 +1,14 @@
+﻿@page "/account"
+
+@inject IStringLocalizer<Index> L
+
+<TravaloudPageTitle Title="@L["Account"]" Description="@L["Manage your account"]"/>
+
+<MudTabs Elevation="25" Color="Color.Transparent" Rounded="true" PanelClass="mt-6">
+    <MudTabPanel Text="@L["Profile"]">
+        <Profile/>
+    </MudTabPanel>
+    <MudTabPanel Text="@L["Security"]">
+        <Security/>
+    </MudTabPanel>
+</MudTabs>

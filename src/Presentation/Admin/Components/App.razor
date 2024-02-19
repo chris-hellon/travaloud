@@ -1,0 +1,67 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <base href="/"/>
+    
+    <link href="@Favicon" rel="icon">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+
+    <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet"/>
+    @* <link href="_content/CodeBeam.MudExtensions/MudExtensions.min.css" rel="stylesheet" /> *@
+    <link rel="stylesheet" href="app.css"/>
+    <HeadOutlet @rendermode="RenderModeForPage" />
+</head>
+
+<body>
+<Routes @rendermode="RenderModeForPage" />
+<script src="_framework/blazor.web.js"></script>
+<script src="_content/MudBlazor/MudBlazor.min.js"></script>
+<script src="_content/TinyMCE.Blazor/tinymce-blazor.js"></script>
+<script>Blazor.defaultReconnectionHandler._reconnectCallback = function (d) {document.location.reload();}</script>
+<script>
+     async function downloadFileFromStream(fileName, contentStreamReference) {
+                const arrayBuffer = await contentStreamReference.arrayBuffer();
+                const blob = new Blob([arrayBuffer]);
+                const url = URL.createObjectURL(blob);
+    
+                triggerFileDownload(fileName, url);
+    
+                URL.revokeObjectURL(url);
+            }
+    
+            function triggerFileDownload(fileName, url) {
+                const anchorElement = document.createElement('a');
+                anchorElement.href = url;
+                anchorElement.download = fileName ?? '';
+                anchorElement.click();
+                anchorElement.remove();
+            }
+</script>
+
+@if (RenderModeForPage != InteractiveServer)
+{
+    <script src="app.js"></script>
+}
+
+</body>
+
+</html>
+
+@code {
+    private IComponentRenderMode? RenderModeForPage =>
+        HttpContextAccessor is {HttpContext: not null} && (HttpContextAccessor.HttpContext.Request.Path.StartsWithSegments("/account/login")
+            || HttpContextAccessor.HttpContext.Request.Path.StartsWithSegments("/account/forgot-password")
+            || HttpContextAccessor.HttpContext.Request.Path.StartsWithSegments("/account/reset-password")
+            || HttpContextAccessor.HttpContext.Request.Path.StartsWithSegments("/account/forgot-password-confirmation")
+            || HttpContextAccessor.HttpContext.Request.Path.StartsWithSegments("/account/reset-password-confirmation"))
+            ? null
+            : new InteractiveServerRenderMode(prerender:false);
+    private TravaloudTenantInfo? TenantInfo =>  MultiTenantContextAccessor.MultiTenantContext?.TenantInfo;
+    private string Favicon => !string.IsNullOrEmpty(TenantInfo?.LogoImageUrl) ? TenantInfo.LogoImageUrl : "https://ik.imagekit.io/rqlzhe7ko/travaloud-logo.webp?ik-sdk-version=javascript-1.4.3&updatedAt=1677654151281";
+}

@@ -1,0 +1,100 @@
+﻿@inject IStringLocalizer<SharedResource> L
+@using Travaloud.Infrastructure.Common
+
+<EditForm @ref="EditForm" Model="@RequestModel" OnValidSubmit="SaveAsync" Context="editContext">
+    <MudDialog>
+        <TitleContent>
+            <MudText Typo="Typo.h6">
+                @if (IsCreate)
+                {
+                    <MudIcon Icon="@Icons.Material.Filled.Add" Class="mr-3 mb-n1" />
+                    @($"{L["Create"]} "); @L["Room"];
+                }
+                else
+                {
+                    <MudIcon Icon="@Icons.Material.Filled.Update" Class="mr-3 mb-n1" />
+                    @($"{L["Edit"]} "); @L["Room"]
+                }
+            </MudText>
+        </TitleContent>
+
+        <DialogContent>
+           <FluentValidationValidator @ref="_fluentValidationValidator"/>
+
+            <MudGrid>
+                @if (!IsCreate)
+                {
+                    <MudInput InputType="InputType.Hidden" Value="Id"></MudInput>
+                }
+
+            <MudGrid>
+                <MudItem xs="12" md="12">
+                    <MudStack>
+                        @if (!string.IsNullOrEmpty(RequestModel.ImageInBytes) || !string.IsNullOrEmpty(RequestModel.ImagePath))
+                        {
+                            <MudItem xs="12" md="12">
+
+                                @if (!string.IsNullOrEmpty(RequestModel.ImageInBytes))
+                                {
+                                    <MudAvatar Image="@RequestModel.ImageInBytes" Square="true" Style="height: auto; width: auto; max-height: 100%; max-width:100%"> </MudAvatar>
+                                }
+                                else
+                                {
+                                    <MudAvatar Image="@(string.IsNullOrEmpty(RequestModel.ImagePath) ? string.Empty : (RequestModel.ImagePath))" Square="true" Style="height: auto; width: auto; max-height: 100%; max-width:100%"> </MudAvatar>
+                                }
+                            </MudItem>
+                        }
+                        <MudItem xs="12" md="12">
+                            <div>
+                                <MudButton HtmlTag="label" DisableElevation Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
+                                           StartIcon="@Icons.Material.Filled.CloudUpload" for="propertyRoomFileInput">
+                                    @L["Select Image"]
+                                </MudButton>
+                                @if (!string.IsNullOrEmpty(RequestModel.ImagePath) && string.IsNullOrEmpty(RequestModel.ImageInBytes))
+                                {
+                                    <MudButton HtmlTag="label" DisableElevation Variant="Variant.Filled" Color="Color.Info" Size="Size.Small" Target="_blank"
+                                               StartIcon="@Icons.Material.Filled.RemoveRedEye" Link="@(RequestModel.ImagePath)" Style="margin-left: 5px;">
+                                        @L["View"]
+                                    </MudButton>
+
+                                    <MudButton HtmlTag="label" DisableElevation Variant="Variant.Filled" Color="Color.Error" Size="Size.Small"
+                                               StartIcon="@Icons.Material.Filled.Delete" OnClick="SetDeleteCurrentImageFlag" Style="margin-left: 5px;">
+                                        @L["Delete"]
+                                    </MudButton>
+                                }
+                                @if (!string.IsNullOrEmpty(RequestModel.ImageInBytes))
+                                {
+                                    <MudButton HtmlTag="label" DisableElevation OnClick="ClearImageInBytes" Variant="Variant.Filled" Color="Color.Warning" Size="Size.Small" Target="_blank"
+                                               StartIcon="@Icons.Material.Filled.Clear" Style="margin-left: 5px;">
+                                        @L["Clear"]
+                                    </MudButton>
+                                }
+                            </div>
+                            <InputFile id="propertyRoomFileInput" hidden OnChange="UploadFiles" />
+                        </MudItem>
+                    </MudStack>
+                </MudItem>
+                <MudItem xs="12" md="12">
+                    <MudTextField Label="@L["Name"]" For="@(() => RequestModel.Name)" @bind-Value="RequestModel.Name" Required="true" HelperText="Enter a Room name" Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12" md="12">
+                    <MudTabs Elevation="0" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6" Outlined="true">
+                        <MudTabPanel Text="@L["Short Description"]">
+                            <MudInputLabel Class="mb-3">@L["Short Description"]</MudInputLabel>
+                            <Editor @bind-Value="RequestModel.ShortDescription" Field="@(() => RequestModel.ShortDescription)" Conf="@TinyMceConfig.Styles()" ApiKey="@TinyMceConfig.ApiKey"></Editor>
+                        </MudTabPanel>
+                        <MudTabPanel Text="@L["Full Description"]">
+                            <MudInputLabel Class="mb-3">@L["Full Description"]</MudInputLabel>
+                            <Editor @bind-Value="RequestModel.Description" Field="@(() => RequestModel.Description)" Conf="@TinyMceConfig.Styles()" ApiKey="@TinyMceConfig.ApiKey"></Editor>
+                        </MudTabPanel>
+                    </MudTabs>
+                </MudItem>
+            </MudGrid>
+            </MudGrid>
+        </DialogContent>
+        <DialogActions>
+            <MudButton DisableElevation Variant="Variant.Filled" OnClick="Cancel" StartIcon="@Icons.Material.Filled.Cancel">@L["Cancel"]</MudButton>
+            <MudButton DisableElevation Variant="Variant.Filled" ButtonType="ButtonType.Submit" Color="Color.Success" StartIcon="@Icons.Material.Filled.Save">@L["Confirm"]</MudButton>
+        </DialogActions>
+    </MudDialog>
+</EditForm>

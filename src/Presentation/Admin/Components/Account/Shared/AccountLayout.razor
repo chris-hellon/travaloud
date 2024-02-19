@@ -1,0 +1,34 @@
+﻿@inherits LayoutComponentBase
+@layout Layout.MainLayout
+@inject NavigationManager NavigationManager
+
+@if (HttpContext is null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    @Body
+}
+
+@code {
+    [CascadingParameter] private HttpContext? HttpContext { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        if (HttpContext is null && HttpContextAccessor.HttpContext is null)
+        {
+            
+        }
+        
+        if (HttpContext is null && HttpContextAccessor.HttpContext is not null)
+        {
+            HttpContext = HttpContextAccessor.HttpContext;
+            // // If this code runs, we're currently rendering in interactive mode, so there is no HttpContext.
+            // // The identity pages need to set cookies, so they require an HttpContext. To achieve this we
+            // // must transition back from interactive mode to a server-rendered page.
+            // NavigationManager.Refresh(forceReload: true);
+        }
+    }
+
+}

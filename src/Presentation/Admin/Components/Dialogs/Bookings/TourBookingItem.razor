@@ -1,0 +1,54 @@
+﻿@inject IStringLocalizer<SharedResource> L
+
+@using Travaloud.Infrastructure.Common
+
+<EditForm @ref="EditForm" Model="@RequestModel" OnValidSubmit="SaveAsync" Context="_editContext">
+    <MudDialog>
+        <TitleContent>
+            <MudText Typo="Typo.h6">
+                @if (IsCreate)
+                {
+                    <MudIcon Icon="@Icons.Material.Filled.Add" Class="mr-3 mb-n1"/>
+                    @($"{L["Create"]} ")
+                    ;
+                    @L["Booking Tour"]
+                    ;
+                }
+                else
+                {
+                    <MudIcon Icon="@Icons.Material.Filled.Update" Class="mr-3 mb-n1"/>
+                    @($"{L["Edit"]} ")
+                    ;
+                    @L["Booking Tour"]
+                }
+            </MudText>
+        </TitleContent>
+
+        <DialogContent>
+            <FluentValidationValidator @ref="_fluentValidationValidator"/>
+
+            <MudGrid>
+                <MudItem xs="12" md="12">
+                    <MudSelect T="Guid?" For="@(() => RequestModel.TourId)" Label="Tour" Clearable="true" Required="true" HelperText="Select a Tour" Variant="Variant.Outlined" ValueChanged="@(async (Guid? s) => await OnTourValueChanged(s))">
+                        @foreach (var tour in Tours)
+                        {
+                            <MudSelectItem T="Guid?" Value="@tour.Id">@tour.Name</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12" md="12">
+                    <MudSelect T="Guid?" For="@(() => RequestModel.TourDateId)" Label="Tour Date" Clearable="true" Required="true" HelperText="Select a Tour Date" Variant="Variant.Outlined" ValueChanged="@((Guid? s) => OnTourDateValueChanged(s))">
+                        @foreach (var tourDate in TourDates)
+                        {
+                            <MudSelectItem T="Guid?" Value="@tourDate.Id">@tourDate.StartDate ($@(tourDate.TourPrice?.Price)) - @tourDate.AvailableSpaces spaces available</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+            </MudGrid>
+        </DialogContent>
+        <DialogActions>
+            <MudButton DisableElevation Variant="Variant.Filled" OnClick="Cancel" StartIcon="@Icons.Material.Filled.Cancel">@L["Cancel"]</MudButton>
+            <MudButton DisableElevation Variant="Variant.Filled" ButtonType="ButtonType.Submit" Color="Color.Success" StartIcon="@Icons.Material.Filled.Save">@L["Confirm"]</MudButton>
+        </DialogActions>
+    </MudDialog>
+</EditForm>

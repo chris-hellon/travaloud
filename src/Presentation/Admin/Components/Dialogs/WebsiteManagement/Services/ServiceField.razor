@@ -1,0 +1,86 @@
+﻿@inject IStringLocalizer<SharedResource> L
+
+@using Travaloud.Application.Catalog.Services.Commands
+@using Travaloud.Infrastructure.Common
+
+<EditForm @ref="EditForm" Model="@RequestModel" OnValidSubmit="SaveAsync" Context="editContext">
+    <MudDialog>
+        <TitleContent>
+            <MudText Typo="Typo.h6">
+                @if (IsCreate)
+                {
+                    <MudIcon Icon="@Icons.Material.Filled.Add" Class="mr-3 mb-n1" />
+                    @($"{L["Create"]} "); @L["Field"];
+                }
+                else
+                {
+                    <MudIcon Icon="@Icons.Material.Filled.Update" Class="mr-3 mb-n1" />
+                    @($"{L["Edit"]} "); @L["Field"]
+                }
+            </MudText>
+        </TitleContent>
+
+        <DialogContent>
+            <FluentValidationValidator @ref="_fluentValidationValidator"/>
+
+            <MudGrid>
+                <MudItem xs="12" md="8">
+                    <MudTextField Label="@L["Label"]" For="@(() => RequestModel.Label)" @bind-Value="RequestModel.Label" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudItem>
+                <MudItem xs="12" md="4">
+                    <MudCheckBox Label="@L["Required?"]" For="@(() => RequestModel.IsRequired)" @bind-Checked="@RequestModel.IsRequired"></MudCheckBox>
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudSelect T="string" For="@(() => RequestModel.FieldType)" Label="Field Type" Clearable="true" @bind-Value="@RequestModel.FieldType" Variant="Variant.Outlined" Margin="Margin.Dense">
+                        <MudSelectItem T="string" Value="@(L["text"])">Text Field</MudSelectItem>
+                        <MudSelectItem T="string" Value="@(L["email"])">Email Field</MudSelectItem>
+                        <MudSelectItem T="string" Value="@(L["phone"])">Telephone Field</MudSelectItem>
+                        <MudSelectItem T="string" Value="@(L["textarea"])">Multi-line Text Field</MudSelectItem>
+                        <MudSelectItem T="string" Value="@(L["date"])">Date Field</MudSelectItem>
+                        <MudSelectItem T="string" Value="@(L["select"])">Drop Down List Field</MudSelectItem>
+                        <MudSelectItem T="string" Value="@(L["radiobuttonlist"])">Button Select List Field</MudSelectItem>
+                        <MudSelectItem T="string" Value="@(L["nationality"])">Nationality Field</MudSelectItem>
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudSelect T="int" Label="Width" For="@(() => RequestModel.Width)" @bind-Value="@RequestModel.Width" Clearable="true" Variant="Variant.Outlined" Margin="Margin.Dense">
+                        <MudSelectItem T="int" Value="12">@L["Full Width"]</MudSelectItem>
+                        <MudSelectItem T="int" Value="6">@L["Half Width"]</MudSelectItem>
+                        <MudSelectItem T="int" Value="4">@L["Third Width"]</MudSelectItem>
+                    </MudSelect>
+                </MudItem>
+
+                @if (RequestModel.FieldType == "select" || RequestModel.FieldType == "radiobuttonlist")
+                {
+                    <MudItem xs="12" md="12">
+                        <div class="d-flex" style="align-items:baseline; justify-content:space-between;">
+                            <MudInputLabel Class="mb-3">@L["Values"]</MudInputLabel>
+                            <MudButton Variant="Variant.Filled" Size="Size.Small" Color="Color.Tertiary" OnClick="@(() => AddNewFieldOption())">Add New Value</MudButton>
+                        </div>
+                        @if (RequestModel.SelectOptionsParsed?.Any() == true)
+                        {
+                            <MudTable Outlined="true" T="ServiceFieldSelectOption" @ref="ServiceFieldOptionsTable" Style="table-layout: auto; padding: 0px !important;" Items="@RequestModel.SelectOptionsParsed" Context="optionContext" Hover="false" HorizontalScrollbar="true" Elevation="0" Breakpoint="Breakpoint.Sm" LoadingProgressColor="Color.Info" CanCancelEdit="true" ReadOnly="false">
+                                <ColGroup>
+                                    <col />
+                                    <col style="width:20px;" />
+                                </ColGroup>
+                                <RowTemplate>
+                                    <MudTd DataLabel="Title"><MudTextField For="() => optionContext.Key" @bind-Value="@optionContext.Key" Variant="Variant.Outlined" Margin="Margin.Dense" /></MudTd>
+                                    <MudTd DataLabel="Edit" Style="min-width: 0; width: 20px; text-align: right;">
+                                        <MudButton Variant="Variant.Filled" Size="Size.Small" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="(() => RemoveFieldOption(optionContext))">Delete</MudButton>
+                                    </MudTd>
+                                </RowTemplate>
+                            </MudTable>
+                        }
+                    </MudItem>
+                }
+            </MudGrid>
+        </DialogContent>
+        <DialogActions>
+            <MudButton DisableElevation Variant="Variant.Filled" OnClick="Cancel" StartIcon="@Icons.Material.Filled.Cancel">@L["Cancel"]</MudButton>
+            <MudButton DisableElevation Variant="Variant.Filled" ButtonType="ButtonType.Submit" Color="Color.Success" StartIcon="@Icons.Material.Filled.Save">@L["Confirm"]</MudButton>
+        </DialogActions>
+    </MudDialog>
+</EditForm>
+
+

@@ -1,0 +1,71 @@
+@page "/management/events"
+@using Travaloud.Application.Catalog.Events.DTO
+
+@attribute [MustHavePermission(TravaloudAction.View, TravaloudResource.Events)]
+
+@inject IStringLocalizer<Events> L
+
+<TravaloudPageTitle Title="@L["Events"]" Description="@L["Manage Events."]"/>
+
+<EntityTable @ref="_table" TEntity="EventDto" TId="Guid" TRequest="EventViewModel" Context="@Context" ModalWidth="MaxWidth.Large">
+    <EditFormContent>
+        <MudGrid>
+            <MudItem xs="12" md="8">
+                <MudGrid>
+                    <MudItem xs="12" md="12">
+                        <MudTextField Label="@L["Name"]" For="@(() => context.Name)" Required="true" @bind-Value="context.Name"  HelperText="Enter an Event name" Variant="Variant.Outlined" />
+                    </MudItem>
+                    <MudItem xs="12" md="12">
+                        <MudColorPicker @ref="ColorPicker" Label="@L["Background Color"]" @bind-Text="context.BackgroundColor" For="@(() => context.MudBackgroundColor)"  ColorPickerMode="ColorPickerMode.RGB" ColorPickerView="ColorPickerView.Palette" Palette="CustomPalette" />
+                    </MudItem>
+                    <MudItem xs="12" md="12">
+                        <MudInputLabel Class="mb-3">@L["Description"]</MudInputLabel>
+                        <Editor @bind-Value="context.Description" Field="@(() => context.Description)" Conf="@TinyMceConfig.Styles()" ApiKey="@TinyMceConfig.ApiKey"></Editor>
+                    </MudItem>
+                </MudGrid>
+            </MudItem>
+            <MudItem xs="12" md="4">
+                <MudStack>
+                    <MudItem xs="12" md="12">
+                        <div>
+                            <MudButton HtmlTag="label" DisableElevation Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
+                                       StartIcon="@Icons.Material.Filled.CloudUpload" for="fileInput">
+                                @L["Select Background Image"]
+                            </MudButton>
+                            @if (Context.AddEditModal is {IsCreate: false} && !string.IsNullOrEmpty(context.ImagePath) && string.IsNullOrEmpty(context.ImageInBytes))
+                            {
+                                <MudButton HtmlTag="label" DisableElevation Variant="Variant.Filled" Color="Color.Info" Size="Size.Small" Target="_blank"
+                                           StartIcon="@Icons.Material.Filled.RemoveRedEye" Link="@(context.ImagePath)" Style="margin-left: 5px;">
+                                    @L["View"]
+                                </MudButton>
+
+                                <MudButton HtmlTag="label" DisableElevation Variant="Variant.Filled" Color="Color.Error" Size="Size.Small"
+                                           StartIcon="@Icons.Material.Filled.Delete" OnClick="SetDeleteCurrentImageFlag" Style="margin-left: 5px;">
+                                    @L["Delete"]
+                                </MudButton>
+                            }
+                            @if (!string.IsNullOrEmpty(context.ImageInBytes))
+                            {
+                                <MudButton HtmlTag="label" DisableElevation OnClick="ClearImageInBytes" Variant="Variant.Filled" Color="Color.Warning" Size="Size.Small" Target="_blank"
+                                           StartIcon="@Icons.Material.Filled.Clear" Style="margin-left: 5px;">
+                                    @L["Clear"]
+                                </MudButton>
+                            }
+                        </div>
+                        <InputFile id="fileInput" hidden OnChange="UploadFiles" />
+                    </MudItem>
+                    <MudItem xs="12" md="12">
+                        @if (!string.IsNullOrEmpty(context.ImageInBytes))
+                        {
+                            <MudImage ObjectFit="ObjectFit.Cover" Height="588" Style="width:100%;" Src="@context.ImageInBytes" Elevation="25" Class="rounded-lg" />
+                        }
+                        else if (!string.IsNullOrEmpty(@context.ImagePath))
+                        {
+                            <MudImage ObjectFit="ObjectFit.Cover" Height="588" Style="width:100%;" Src="@(string.IsNullOrEmpty(@context.ImagePath) ? string.Empty : (@context.ImagePath))" Elevation="25" Class="rounded-lg" />
+                        }
+                    </MudItem>
+                </MudStack>
+            </MudItem>
+        </MudGrid>
+    </EditFormContent>
+</EntityTable>

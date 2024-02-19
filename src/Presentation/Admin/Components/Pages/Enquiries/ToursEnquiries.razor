@@ -1,0 +1,37 @@
+@page "/enquiries/tours-enquiries"
+@using Travaloud.Application.Catalog.TourEnquiries.Dto
+@using Travaloud.Application.Catalog.TourEnquiries.Commands
+
+@attribute [MustHavePermission(TravaloudAction.View, TravaloudResource.Enquiries)]
+
+@inject IStringLocalizer<ToursEnquiries> L
+
+<TravaloudPageTitle Title="@L["Tour Enquiries"]" Description="@L["Manage Tour Enquiries."]"/>
+
+<EntityTable @ref="_table" TEntity="TourEnquiryDto" TId="Guid" TRequest="UpdateTourEnquiryRequest" Context="@Context" ModalWidth="MudBlazor.MaxWidth.Medium">
+    <EditFormContent>
+        <MudGrid>
+            <MudItem xs="12" md="12">
+                <MudTextField Label="@L["Tour"]" ReadOnly="true" @bind-Value="Tour.Name" Required="true" Placeholder="Enter a Name" Variant="Variant.Outlined" />
+            </MudItem>
+            <MudItem xs="12" md="12">
+                <MudTextField Label="@L["Name"]" For="@(() => context.Name)" ReadOnly="true" @bind-Value="context.Name" Required="true" Placeholder="Enter a Name" Variant="Variant.Outlined" />
+            </MudItem>
+            <MudItem xs="12" md="12">
+                <MudTextField Label="@L["Email"]" For="@(() => context.Email)" ReadOnly="true" InputType="InputType.Email" @bind-Value="context.Email" Required="true" Placeholder="Enter a Email Address" Variant="Variant.Outlined" />
+            </MudItem>
+            <MudItem xs="12" md="12">
+                <MudTextField Label="@L["Contact Number"]" For="@(() => context.ContactNumber)" ReadOnly="true" InputType="InputType.Telephone" @bind-Value="context.ContactNumber" Required="true" Placeholder="Enter a Contact Number" Variant="Variant.Outlined" />
+            </MudItem>
+            <MudItem xs="12" md="12">
+                <MudTextField Label="@L["Number Of People"]" For="@(() => context.NumberOfPeople)" ReadOnly="true" InputType="InputType.Telephone" @bind-Value="context.NumberOfPeople" Required="true" Placeholder="Enter a Contact Number" Variant="Variant.Outlined" />
+            </MudItem>
+            <MudItem xs="12" md="12">
+                <MudTextField Label="@L["Requested Date"]" For="@(() => context.RequestedDate)" ReadOnly="true" InputType="InputType.Telephone" @bind-Value="context.RequestedDate" Required="true" Placeholder="Enter a Contact Number" Variant="Variant.Outlined" />
+            </MudItem>
+            <MudItem xs="12" md="12">
+                <MudTextField Label="@L["Additional Information"]" For="@(() => context.AdditionalInformation)" ReadOnly="true" Lines="5" @bind-Value="context.AdditionalInformation" Required="true" Placeholder="Enter a Message" Variant="Variant.Outlined" />
+            </MudItem>
+        </MudGrid>
+    </EditFormContent>
+</EntityTable>

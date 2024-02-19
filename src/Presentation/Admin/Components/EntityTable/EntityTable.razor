@@ -1,0 +1,206 @@
+﻿@typeparam TEntity
+@typeparam TId
+@using Travaloud.Infrastructure.Common
+@using Microsoft.Extensions.Localization
+@typeparam TRequest
+
+@inject IJSRuntime JS
+@inject IStringLocalizer<SharedResource> L
+
+<style>
+    .mud-table-container {
+        overflow: auto;
+    }
+</style>
+
+<ErrorBoundary>
+    <ChildContent>
+
+        @if (_canSearch && (Context.AdvancedSearchEnabled || AdvancedSearchContent is not null))
+        {
+            <MudExpansionPanel @bind-IsExpanded="_advancedSearchExpanded"
+                               Style="padding:10px!important; margin-bottom:10px!important;border-radius: var(--mud-default-borderradius) !important;"
+                               Class="mud-elevation-25" Text="@L["Advanced Search"]">
+                <MudTextField @bind-Value="SearchString" Immediate="true"
+                              Placeholder="@($"{L["Search for"]} {Context.EntityNamePlural}")" Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium"
+                              Style="flex:none!important;margin:0px!important" TextChanged="OnSearchStringChanged">
+                </MudTextField>
+                @if (Context.AdvancedSearchEnabled)
+                {
+                    <div style="margin-top:10px!important">
+                        <MudCheckBox Label="All Columns" T="bool" Checked="Context.AllColumnsChecked"
+                                     CheckedChanged="Context.AllColumnsCheckChanged">
+                        </MudCheckBox>
+                        @foreach (var field in Context.Fields)
+                        {
+                            <MudCheckBox @bind-Checked="@field.CheckedForSearch" Label="@(field.DisplayName)"></MudCheckBox>
+                        }
+                    </div>
+                }
+                @AdvancedSearchContent
+
+            </MudExpansionPanel>
+        }
+
+        <MudTable @ref="_table" Elevation="25" ServerData="@ServerReloadFunc" Items="@EntityList" Filter="LocalSearch"
+                  Loading="@Loading" LoadingProgressColor="@Color.Secondary" ChildRowContent="@ChildRowContent">
+
+            <ToolBarContent>
+                <div class="justify-center mud-text-align-center">
+                    @if (_canCreate)
+                    {
+                        if (LoadCreatePage())
+                        {
+                            <MudButton DisableElevation Variant="Variant.Filled" Color="Color.Primary"
+                                       OnClick="(() => InvokeCreatePage())" StartIcon="@Icons.Material.Filled.Add"
+                                       IconColor="Color.Surface">
+                                @L["Create"]
+                            </MudButton>
+                        }
+                        else
+                        {
+                            <MudButton DisableElevation Variant="Variant.Filled" Color="Color.Primary"
+                                       OnClick="(() => InvokeModal())" StartIcon="@Icons.Material.Filled.Add"
+                                       IconColor="Color.Surface">
+                                @L["Create"]
+                            </MudButton>
+                        }
+                    }
+                    @if (_canExport)
+                    {
+                        <MudButton DisableElevation Variant="Variant.Filled" Color="Color.Secondary"
+                                   OnClick="(() => ExportAsync())" StartIcon="@Icons.Material.Filled.ImportExport"
+                                   Style="margin-left: 5px;" IconColor="Color.Surface">
+                            @L["Export"]
+                        </MudButton>
+                    }
+                    <MudButton DisableElevation Variant="Variant.Filled" OnClick="ReloadDataAsync"
+                               StartIcon="@Icons.Material.Filled.Refresh" IconColor="Color.Surface" Color="Color.Tertiary"
+                               Style="margin-left: 5px;">
+                        @L["Reload"]
+                    </MudButton>
+                </div>
+                <MudSpacer/>
+                @if (_canSearch && !_advancedSearchExpanded)
+                {
+                    <MudTextField @bind-Value="SearchString" Immediate="true" FullWidth="false"
+                                  Placeholder="@($"{L["Search for"]} {Context.EntityNamePlural}")" Adornment="Adornment.End"
+                                  AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0 mb-3"
+                                  TextChanged="OnSearchStringChanged">
+                    </MudTextField>
+                }
+            </ToolBarContent>
+
+            <HeaderContent>
+                @if (Context.Fields is not null)
+                {
+                    foreach (var field in Context.Fields)
+                    {
+                        <MudTh>
+                            @if (Context.IsClientContext)
+                            {
+                                <MudTableSortLabel SortBy="@field.ValueFunc">@field.DisplayName</MudTableSortLabel>
+                            }
+                            else
+                            {
+                                <MudTableSortLabel T="TEntity" SortLabel="@field.SortLabel">@field.DisplayName</MudTableSortLabel>
+                            }
+                        </MudTh>
+                    }
+                }
+                <MudTh Style="text-align:right">@L["Actions"]</MudTh>
+            </HeaderContent>
+
+            <RowTemplate>
+                @foreach (var field in Context.Fields)
+                {
+                    <MudTd DataLabel="@field.DisplayName">
+                        @if (field.Template is not null)
+                        {
+                            @field.Template(context)
+                        }
+                        else if (field.Type == typeof(bool))
+                        {
+                            <MudCheckBox Checked="@field.ValueFunc(context)" ReadOnly Color="Color.Secondary"></MudCheckBox>
+                        }
+                        else
+                        {
+                            <MudHighlighter Text="@field.ValueFunc(context)?.ToString()" HighlightedText="@SearchString"/>
+                        }
+                    </MudTd>
+                }
+                <MudTd DataLabel="Actions" Style="text-align: right">
+                    @if (ActionsContent is not null && !HasActions)
+                    {
+                        @ActionsContent(context)
+                    }
+
+                    @if (HasActions)
+                    {
+                        if (ActionsContent is not null)
+                        {
+                            @ActionsContent(context)
+                        }
+
+                        var canEditEntity = CanUpdateEntity(context);
+                        var canDeleteEntity = CanDeleteEntity(context);
+                        var canViewEntity = CanViewEntity(context);
+                        var hasExtraActions = ExtraActions is not null;
+
+                        if (canEditEntity || canDeleteEntity || canViewEntity || hasExtraActions)
+                        {
+                            <MudMenu Label="@L["Actions"]" Variant="Variant.Filled" DisableElevation="true"
+                                     EndIcon="@Icons.Material.Filled.KeyboardArrowDown" IconColor="Color.Secondary" Direction="Direction.Left"
+                                     OffsetX="true">
+                                @if (canEditEntity)
+                                {
+                                    if (LoadEditPage(context))
+                                    {
+                                        <MudMenuItem @onclick="@(() => InvokeEditPage(context))">@L["Edit"]</MudMenuItem>
+                                    }
+                                    else
+                                    {
+                                        <MudMenuItem @onclick="@(() => InvokeModal(context))">@L["Edit"]</MudMenuItem>
+                                    }
+                                }
+                                else if (canViewEntity)
+                                {
+                                    <MudMenuItem @onclick="@(() => InvokeModal(context))">@L["View"]</MudMenuItem>
+                                }
+                                @if (canDeleteEntity)
+                                {
+                                    <MudMenuItem Style="color:red!important" @onclick="@(() => Delete(context))">@L["Delete"]</MudMenuItem>
+                                }
+                                @if (ExtraActions is not null)
+                                {
+                                    @ExtraActions(context)
+                                }
+                            </MudMenu>
+                        }
+                    }
+                    else if (HasExtraActions)
+                    {
+                        <MudMenu Label="@L["Actions"]" Variant="Variant.Filled" DisableElevation="true"
+                                 EndIcon="@Icons.Material.Filled.KeyboardArrowDown" IconColor="Color.Secondary" Direction="Direction.Left"
+                                 OffsetX="true">
+                            @if (ExtraActions is not null)
+                            {
+                                @ExtraActions(context)
+                            }
+                        </MudMenu>
+                    }
+                </MudTd>
+            </RowTemplate>
+
+            <PagerContent>
+                <TablePager/>
+            </PagerContent>
+
+        </MudTable>
+
+    </ChildContent>
+    <ErrorContent>
+        <TravaloudCustomError/>
+    </ErrorContent>
+</ErrorBoundary>

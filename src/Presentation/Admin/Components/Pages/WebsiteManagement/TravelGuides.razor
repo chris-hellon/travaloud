@@ -1,0 +1,7 @@
+@page "/management/travel-guides"
+
+@attribute [MustHavePermission(TravaloudAction.View, TravaloudResource.TravelGuides)]
+
+@inject IStringLocalizer<TravelGuides> L
+
+<TravaloudPageTitle Title="@L["Travel Guides"]" Description="@L["Coming Soon"]"/>

@@ -1,0 +1,41 @@
+@page "/management/page-management/page-modals"
+@using Travaloud.Application.Catalog.PageModals.Dto
+@using Travaloud.Application.Catalog.PageModals.Commands
+
+@attribute [MustHavePermission(TravaloudAction.View, TravaloudResource.Pages)]
+
+@inject IStringLocalizer<PageModals> L
+
+<TravaloudPageTitle Title="@L["Page Modals"]" Description="@L["Manage Page Modals."]"/>
+
+<EntityTable @ref="_table" TEntity="PageModalDto" TId="Guid" TRequest="UpdatePageModalRequest" Context="@Context" ModalWidth="MaxWidth.Medium">
+    <EditFormContent>
+        <MudGrid>
+            <MudItem xs="12" md="12">
+                <MudTextField Label="@L["Title"]" For="@(() => context.Title)" @bind-Value="context.Title" Required="true" Placeholder="Enter a Title" Variant="Variant.Outlined"/>
+            </MudItem>
+            <MudItem xs="12" md="12">
+                <MudDateRangePicker Label="@L["Date Range"]" HelperText="Leave blank if you don't require a Date Range" @bind-DateRange="context.StartEndDateRange" DateFormat="dddd, MMM dd, yyyy" Clearable="true" Variant="Variant.Outlined" AutoClose="true"/>
+            </MudItem>
+            <MudItem xs="12" md="12">
+                <MudSelect @ref="@_pagesSelect" T="PageModalPageRequest" For="@(() => context.ValidationSelectedPages)" SelectedValuesChanged="@SelectedValuesChanged" SelectedValues="@context.SelectedPages" HelperText="Select any Pages from the above list to assign to the Modal" Required="true" MultiSelection="true" Label="Assign Pages" Placeholder="Please Select" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
+                    @if (Pages != null)
+                    {
+                        foreach (var product in Pages)
+                        {
+                            <MudSelectItem Value="@product"></MudSelectItem>
+                        }
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" md="12">
+                <MudTextField Label="@L["Call To Action"]" For="@(() => context.CallToAction)" @bind-Value="context.CallToAction" Placeholder="Enter a Call To Action" Variant="Variant.Outlined"/>
+            </MudItem>
+            <MudItem xs="12" md="12">
+                <MudInputLabel Class="mb-3">@L["Description"]</MudInputLabel>
+                <Editor @bind-Value="context.Description" Field="@(() => context.Description)" Conf="@TinyMceConfig.Styles(300)" ApiKey="@TinyMceConfig.ApiKey"></Editor>
+            </MudItem>
+
+        </MudGrid>
+    </EditFormContent>
+</EntityTable>

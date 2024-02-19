@@ -1,0 +1,79 @@
+﻿@page "/Account/Login"
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@inject ILogger<Login> Logger
+@inject IdentityRedirectManager RedirectManager
+@inject IStringLocalizer<Login> L
+
+@attribute [AllowAnonymous]
+
+<PageTitle>Log in</PageTitle>
+
+<div class="d-flex justify-center">
+    <MudImage Src="@(TenantInfo?.LogoImageUrl ?? "https://ik.imagekit.io/rqlzhe7ko/travaloud-logo.webp?ik-sdk-version=javascript-1.4.3&updatedAt=1677654151281")" Height="120"/>
+</div>
+<div class="d-flex justify-center">
+    <MudText Typo="Typo.h4" GutterBottom="true" Class="mt-3" Align="Align.Center">@TenantInfo?.Name</MudText>
+</div>
+<div class="fsh-center-text">
+    <MudText Typo="Typo.h5" GutterBottom="true">Sign In</MudText>
+    <MudText>
+        @L["Enter your credentials to get started."]
+    </MudText>
+</div>
+
+<br/>
+
+<EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login">
+    <MudGrid>
+        <DataAnnotationsValidator/>
+
+        <MudItem xs="12">
+            <div class="mud-input-control mud-input-input-control">
+                <div class="mud-input-control-input-container">
+                    <div class="mud-input mud-input-outlined">
+                        <InputText @bind-Value="Input.Email" class="mud-input-slot mud-input-root mud-input-root-outlined" autocomplete="username" aria-required="true" placeholder="Email"/>
+                        <div class="mud-input-adornment mud-input-adornment-end"></div>
+                        <div class="mud-input-outlined-border"></div>
+                    </div>
+                </div>
+            </div>
+        </MudItem>
+        <MudItem xs="12">
+            <div class="mud-input-control mud-input-input-control">
+                <div class="mud-input-control-input-container">
+                    <div class="mud-input mud-input-outlined">
+                        <InputText @bind-Value="Input.Password" type="password"s class="mud-input-slot mud-input-root mud-input-root-outlined" autocomplete="password" aria-required="true" placeholder="Password"/>
+                        <div class="mud-input-adornment mud-input-adornment-end"></div>
+                        <div class="mud-input-outlined-border"></div>
+                    </div>
+                </div>
+            </div>
+        </MudItem>
+
+        @* @if (!TenantExists || IsLocalHost || TenantId == "root") *@
+        @* { *@
+        @*     <MudItem xs="12"> *@
+        @*         <MudTextField T="string" Label="@L["Tenant"]" Variant="Variant.Outlined" @bind-Value="TenantId" *@
+        @*                       For="@(() => TenantId)" Required /> *@
+        @*     </MudItem> *@
+        @* } *@
+
+        <MudItem xs="12" md="6">
+            <MudButton StartIcon="@Icons.Material.Filled.LockReset" Link="/account/forgot-password">@L["Forgot password?"]</MudButton>
+        </MudItem>
+        <MudItem xs="12" Class="d-flex justify-center">
+            <MudButton ButtonType="ButtonType.Submit" Disabled="BusySubmitting" Variant="Variant.Filled"
+                       Color="Color.Primary" Size="Size.Large" StartIcon="@Icons.Material.Filled.Login" Style="width: 100%;">
+                @L["Sign In"]
+            </MudButton>
+        </MudItem>
+        @* @if (IsLocalHost) *@
+        @* { *@
+        @*     <MudItem xs="12"> *@
+        @*         <MudButton StartIcon="@Icons.Material.Filled.Password" OnClick="FillAdministratorCredentials">@L["Fill Administrator Credentials"]</MudButton> *@
+        @*     </MudItem> *@
+        @* } *@
+    </MudGrid>
+</EditForm>

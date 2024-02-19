@@ -1,0 +1,24 @@
+@inject IStringLocalizer<InteractiveMudButton> L
+
+@if (!string.IsNullOrEmpty(StartIcon))
+{
+   <MudButton @rendermode="InteractiveServer" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@StartIcon" ButtonType="ButtonType.Submit" Disabled="@InteractiveSubmittingService.BusySubmitting" Class="ml-auto">
+      @L[Label]
+   </MudButton>
+}
+else
+{
+   <MudButton @rendermode="InteractiveServer" Variant="Variant.Filled" Color="Color.Primary" ButtonType="ButtonType.Submit" Disabled="@InteractiveSubmittingService.BusySubmitting" Class="ml-auto">
+      @L[Label]
+   </MudButton>
+}
+
+@if (InteractiveSubmittingService.BusySubmitting)
+{
+   <p>twat</p>
+}
+
+@code {
+   [Parameter] public string Label { get; set; } = default!;
+   [Parameter] public string? StartIcon { get; set; }
+}

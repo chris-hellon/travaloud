@@ -1,0 +1,36 @@
+@page "/management/page-management/pages"
+@using Travaloud.Application.Catalog.Pages.Dto
+@using Travaloud.Application.Catalog.Pages.Commands
+
+@attribute [MustHavePermission(TravaloudAction.View, TravaloudResource.Pages)]
+
+@inject IStringLocalizer<Pages> L
+
+<TravaloudPageTitle Title="@L["Pages"]" Description="@L["Manage Pages."]"/>
+
+<EntityTable @ref="_table" TEntity="PageDto" TId="Guid" TRequest="UpdatePageRequest" Context="@Context" ModalWidth="MaxWidth.Medium">
+    <EditFormContent>
+        <MudGrid>
+            @if (context.Title.Contains("Tours - ") || context.Title.Contains("Hostels - "))
+            {
+                <MudItem xs="12" md="12">
+                    <MudText Typo="Typo.body2">Tours & Properties information are managed in the Tours or Properties section</MudText>
+                </MudItem>
+            }
+            <MudItem xs="12" md="12">
+                <MudTextField Label="@L["Title"]" For="@(() => context.Title)" Disabled="true" @bind-Value="context.Title" Required="true" Placeholder="Enter a Title" Variant="Variant.Outlined"/>
+            </MudItem>
+            
+            @if (!context.Title.Contains("Tours - ") && !context.Title.Contains("Hostels - "))
+            {
+                <MudItem xs="12" md="12">
+                    <MudTextField Label="@L["Meta Keywords"]" For="@(() => context.MetaKeywords)" Disabled="@(context.Title.Contains("Tours - ") || context.Title.Contains("Hostels - "))" AutoGrow Lines="3" @bind-Value="context.MetaKeywords" Placeholder="Enter some Meta Keywords, comma separated." Variant="Variant.Outlined"/>
+                </MudItem>
+                <MudItem xs="12" md="12">
+                    <MudTextField Label="@L["Meta Description"]" For="@(() => context.MetaDescription)" Disabled="@(context.Title.Contains("Tours - ") || context.Title.Contains("Hostels - "))" AutoGrow Lines="4" @bind-Value="context.MetaDescription" Placeholder="Enter a Meta Description" Variant="Variant.Outlined"/>
+                </MudItem>
+            }
+
+        </MudGrid>
+    </EditFormContent>
+</EntityTable>

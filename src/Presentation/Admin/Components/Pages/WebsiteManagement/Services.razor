@@ -1,0 +1,134 @@
+@page "/management/services"
+@using Travaloud.Application.Catalog.Services.Dto
+@using Travaloud.Application.Catalog.Services.Commands
+@using System.Text.Json
+
+@attribute [MustHavePermission(TravaloudAction.View, TravaloudResource.Services)]
+
+@inject IStringLocalizer<Services> L
+
+<TravaloudPageTitle Title="@L["Services"]" Description="@L["Services."]"/>
+
+<EntityTable @ref="_table" TEntity="ServiceDto" TId="Guid" TRequest="UpdateServiceRequest" Context="@Context" IsWizard="true" WizardSteps="_wizardSteps">
+    <WizardStep1Content>
+        <MudGrid>
+            <MudItem xs="12" md="12">
+                <MudTextField Label="@L["Title"]" For="@(() => context.Title)" @bind-Value="context.Title" Required="true" Placeholder="Enter a Service title" Variant="Variant.Outlined" />
+            </MudItem>
+            <MudItem xs="12" md="12">
+                <MudTextField Label="@L["Sub-title"]" For="@(() => context.SubTitle)" @bind-Value="context.SubTitle" Placeholder="Enter a Service sub-title" Variant="Variant.Outlined" />
+            </MudItem>
+        </MudGrid>
+        <MudGrid>
+            <MudItem xs="12" md="12">
+                <MudTabs Elevation="0" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6" Outlined="true">
+                    <MudTabPanel Text="@L["Short Description"]">
+                        <MudInputLabel Class="mb-3">@L["Short Description"]</MudInputLabel>
+                        <Editor @bind-Value="context.ShortDescription" Field="@(() => context.ShortDescription)" Conf="@TinyMceConfig.Styles()" ApiKey="@TinyMceConfig.ApiKey"></Editor>
+                    </MudTabPanel>
+                    <MudTabPanel Text="@L["Full Description"]">
+                        <MudInputLabel Class="mb-3">@L["Full Description"]</MudInputLabel>
+                        <Editor @bind-Value="context.Description" Field="@(() => context.Description)" Conf="@TinyMceConfig.Styles()" ApiKey="@TinyMceConfig.ApiKey"></Editor>
+                    </MudTabPanel>
+                </MudTabs>
+            </MudItem>
+        </MudGrid>
+    </WizardStep1Content>
+    <WizardStep2Content>
+        <MudButton DisableElevation Size="Size.Small" Variant="Variant.Filled" Color="Color.Primary" OnClick="(() => InvokeFieldDialog(new UpdateServiceFieldRequest(), context, true))" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Surface" Class="mb-2">@L["Add New Field"]</MudButton>
+        <MudGrid>
+            @if (context.ServiceFields?.Any() == true)
+            {
+                foreach (var serviceField in context.ServiceFields)
+                {
+                    int width = serviceField.Width;
+
+                    <MudItem xs="12" md="@width" Style="position:relative;">
+                        @switch (serviceField.FieldType)
+                        {
+                            case "text":
+                                <MudTextField Label="@L[serviceField.Label]" ReadOnly="true" For="() => serviceField.Label" Required="serviceField.IsRequired" Variant="Variant.Outlined" />
+                                break;
+                            case "email":
+                                <MudTextField Label="@L[serviceField.Label]" ReadOnly="true" InputType="InputType.Email" For="() => serviceField.Label" Required="serviceField.IsRequired" Variant="Variant.Outlined" />
+                                break;
+                            case "phone":
+                                <MudTextField Label="@L[serviceField.Label]" ReadOnly="true" InputType="InputType.Telephone" For="() => serviceField.Label" Required="serviceField.IsRequired" Variant="Variant.Outlined" />
+                                break;
+                            case "textarea":
+                                <MudTextField T="string" Label="@L[serviceField.Label]" ReadOnly="true" Variant="Variant.Outlined" For="() => serviceField.Label" Lines="5" Required="serviceField.IsRequired" />
+                                break;
+                            case "date":
+                                <MudTextField Label="@L[serviceField.Label]" ReadOnly="true" InputType="InputType.Date" For="() => serviceField.Label" Required="serviceField.IsRequired" Variant="Variant.Outlined" />
+                                break;
+                            case "nationality":
+                            case "select":
+                                <MudSelect T="string" Label="@serviceField.Label" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter" ReadOnly="true" Required="serviceField.IsRequired">
+                                    @{
+                                        if (!string.IsNullOrEmpty(serviceField.SelectOptions))
+                                        {
+                                            var parsedSelectOptions = JsonSerializer.Deserialize<List<ServiceFieldSelectOption>>(serviceField.SelectOptions);
+
+                                            if (parsedSelectOptions != null)
+                                            {
+                                                foreach (var option in parsedSelectOptions)
+                                                {
+                                                    <MudSelectItem T="string" Value="option.Key">@option.Value</MudSelectItem>
+                                                }
+                                            }
+                                        }
+                                    }
+                                </MudSelect>
+                                break;
+                            case "radiobuttonlist":
+                                <MudCard Outlined="true" Elevation="0" Style="height:100%;">
+                                    <MudCardContent>
+                                        <MudInputLabel Class="mb-3">@L[serviceField.Label]</MudInputLabel>
+                                        <MudRadioGroup @bind-SelectedOption="@serviceField.Label" ReadOnly="true" Required="serviceField.IsRequired">
+                                            @{
+                                                if (!string.IsNullOrEmpty(serviceField.SelectOptions))
+                                                {
+                                                    var parsedSelectOptions = JsonSerializer.Deserialize<List<ServiceFieldSelectOption>>(serviceField.SelectOptions);
+
+                                                    if (parsedSelectOptions != null)
+                                                    {
+                                                        foreach (var option in parsedSelectOptions)
+                                                        {
+                                                            <MudRadio Color="Color.Primary" Option="@option.Key" Style="width:100%;">@option.Value</MudRadio>
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        </MudRadioGroup>
+                                    </MudCardContent>
+                                </MudCard>
+                                break;
+                            case "checkboxlist":
+                                <MudInputLabel Class="mb-3">@L[serviceField.Label]</MudInputLabel>
+                                <div>
+                                    @{
+                                        if (!string.IsNullOrEmpty(serviceField.SelectOptions))
+                                        {
+                                            var parsedSelectOptions = JsonSerializer.Deserialize<List<ServiceFieldSelectOption>>(serviceField.SelectOptions);
+
+                                            if (parsedSelectOptions != null)
+                                            {
+                                                foreach (var option in parsedSelectOptions)
+                                                {
+                                                    <MudCheckBox @bind-Checked="@option.Key" Label="@option.Value" Color="Color.Primary"></MudCheckBox>
+                                                }
+                                            }
+                                        }
+                                    }
+                                </div>
+                                break;
+                        }
+
+                        <MudButton Variant="Variant.Filled" Size="Size.Small" Color="Color.Tertiary" OnClick="@(() => InvokeFieldDialog(serviceField, context))" Style="position: absolute; bottom: 25px; right: 90px;">Edit</MudButton>
+                        <MudButton Variant="Variant.Filled" Size="Size.Small" Color="Color.Error" OnClick="@(() => RemoveField(context, serviceField.Id))" Style="position: absolute; bottom: 25px; right: 20px;">Delete</MudButton>
+                    </MudItem>
+                }
+            }
+        </MudGrid>
+    </WizardStep2Content>
+</EntityTable>

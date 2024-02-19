@@ -1,0 +1,59 @@
+﻿@using Travaloud.Infrastructure.Common
+@inject IStringLocalizer<SharedResource> L
+
+<EditForm Model="@RequestModel" OnValidSubmit="SaveAsync" Context="editContext">
+    <MudDialog>
+        <TitleContent>
+            <MudText Typo="Typo.h6">
+                @if (IsCreate)
+                {
+                    <MudIcon Icon="@Icons.Material.Filled.Add" Class="mr-3 mb-n1"/>
+                    @($"{L["Create"]} ")
+                    ;
+                    @L["Tour Itinerary Section Images"]
+                    ;
+                }
+                else
+                {
+                    <MudIcon Icon="@Icons.Material.Filled.Update" Class="mr-3 mb-n1"/>
+                    @($"{L["Edit"]} ")
+                    ;
+                    @L["Tour Itinerary Section Images"]
+                }
+            </MudText>
+        </TitleContent>
+
+        <DialogContent>
+            <FluentValidationValidator @ref="_fluentValidationValidator"/>
+
+            <MudGrid>
+                @if (!IsCreate)
+                {
+                    <MudInput InputType="InputType.Hidden" Value="Id"></MudInput>
+                }
+
+                <MudToolBar>
+                    <ChildContent>
+                        <MudButton HtmlTag="label" DisableElevation Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small" StartIcon="@Icons.Material.Filled.CloudUpload" for="tourItineraryFileInput" IconColor="Color.Surface" Class="mb-2">@L["Add New Image"]</MudButton>
+                        <InputFile id="tourItineraryFileInput" hidden OnChange="UploadFiles"/>
+                    </ChildContent>
+                </MudToolBar>
+            </MudGrid>
+            <MudGrid >
+                @if (RequestModel.Images != null)
+                {
+                    foreach (var image in RequestModel.Images)
+                    {
+                        <MudItem xs="12" md="4" Style="height:300px;">
+                            <MudImage ObjectFit="ObjectFit.Cover" Style="width:100%; height:100%;" Src="@image.ImagePath" Alt="Örebro Slott" Elevation="25" Class="rounded-lg"/>
+                        </MudItem>
+                    }
+                }
+            </MudGrid>
+        </DialogContent>
+        <DialogActions>
+            <MudButton DisableElevation Variant="Variant.Filled" OnClick="Cancel" StartIcon="@Icons.Material.Filled.Cancel">@L["Cancel"]</MudButton>
+            <MudButton DisableElevation Variant="Variant.Filled" ButtonType="ButtonType.Submit" Color="Color.Success" StartIcon="@Icons.Material.Filled.Save">@L["Confirm"]</MudButton>
+        </DialogActions>
+    </MudDialog>
+</EditForm>

@@ -1,0 +1,28 @@
+@page "/enquiries/general-enquiries"
+@using Travaloud.Application.Catalog.Enquiries.Dto
+@using Travaloud.Application.Catalog.Enquiries.Commands
+
+@attribute [MustHavePermission(TravaloudAction.View, TravaloudResource.Enquiries)]
+
+@inject IStringLocalizer<GeneralEnquiries> L
+
+<TravaloudPageTitle Title="@L["General Enquiries"]" Description="@L["Manage General Enquiries."]"/>
+
+<EntityTable @ref="_table" TEntity="GeneralEnquiryDto" TId="Guid" TRequest="UpdateGeneralEnquiryRequest" Context="@Context" ModalWidth="MaxWidth.Medium">
+    <EditFormContent>
+        <MudGrid>
+            <MudItem xs="12" md="12">
+                <MudTextField Label="@L["Name"]" For="@(() => context.Name)" ReadOnly="true" @bind-Value="context.Name" Required="true" Placeholder="Enter a Name" Variant="Variant.Outlined" />
+            </MudItem>
+            <MudItem xs="12" md="12">
+                <MudTextField Label="@L["Email"]" For="@(() => context.Email)" ReadOnly="true" InputType="InputType.Email" @bind-Value="context.Email" Required="true" Placeholder="Enter a Email Address" Variant="Variant.Outlined" />
+            </MudItem>
+            <MudItem xs="12" md="12">
+                <MudTextField Label="@L["Contact Number"]" For="@(() => context.ContactNumber)" ReadOnly="true" InputType="InputType.Telephone" @bind-Value="context.ContactNumber" Required="true" Placeholder="Enter a Contact Number" Variant="Variant.Outlined" />
+            </MudItem>
+            <MudItem xs="12" md="12">
+                <MudTextField Label="@L["Message"]" For="@(() => context.Message)" ReadOnly="true" Lines="5" @bind-Value="context.Message" Required="true" Placeholder="Enter a Message" Variant="Variant.Outlined" />
+            </MudItem>
+        </MudGrid>
+    </EditFormContent>
+</EntityTable>

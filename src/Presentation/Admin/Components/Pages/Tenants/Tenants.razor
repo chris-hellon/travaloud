@@ -1,0 +1,135 @@
+@page "/tenants"
+
+@using Travaloud.Application.Multitenancy
+
+@attribute [MustHavePermission(TravaloudAction.View, TravaloudResource.Tenants)]
+
+@inject IStringLocalizer<Tenants> L
+
+<TravaloudPageTitle Title="@L["Tenants"]" Description="@L["Manage Tenants."]" />
+
+<EntityTable @ref="EntityTable" TEntity="TenantDetail" TId="string" TRequest="UpdateTenantRequest" Context="@Context"
+    @bind-SearchString="_searchString">
+    <EditFormContent>
+        <MudItem xs="12" md="6">
+            <MudTextField T="string" For="@(() => context.Id)" @bind-Value="context.Id" Label="@L["Key"]" />
+        </MudItem>
+        <MudItem xs="12" md="6">
+            <MudTextField T="string" For="@(() => context.Name)" @bind-Value="context.Name" Label="@L["Name"]" />
+        </MudItem>
+        <MudItem xs="12" md="6">
+            <MudTextField T="string" For="@(() => context.ConnectionString)" HelperText="@L["To use default connection string, leave this field blank."]" @bind-Value="context.ConnectionString"
+                          Label="@L["Connection String"]" />
+        </MudItem>
+        <MudItem xs="12" md="6">
+            <MudTextField T="string" For="@(() => context.AdminEmail)" @bind-Value="context.AdminEmail"
+                          Label="@L["Admin Email"]" />
+        </MudItem>
+        <MudItem xs="12" md="4">
+            <MudTextField T="string" For="@(() => context.Url)" @bind-Value="context.Url" Label="@L["Url"]" />
+        </MudItem>
+        <MudItem xs="12" md="4">
+            <MudTextField T="string" For="@(() => context.WebsiteUrl)" @bind-Value="context.WebsiteUrl" Label="@L["Website Url"]" />
+        </MudItem>
+        <MudItem xs="12" md="4">
+            <MudTextField T="string" For="@(() => context.LogoImageUrl)" @bind-Value="context.LogoImageUrl" Label="@L["Logo Image Url"]" />
+        </MudItem>
+        <MudItem xs="12" md="4">
+            <MudTextField T="string" For="@(() => context.BodyFont)" @bind-Value="context.BodyFont" Label="@L["Body Font"]" />
+        </MudItem>
+        <MudItem xs="12" md="4">
+            <MudTextField T="string" For="@(() => context.BodyFontWoffUrl)" @bind-Value="context.BodyFontWoffUrl" Label="@L["Body Font Woff Url"]" />
+        </MudItem>
+        <MudItem xs="12" md="4">
+            <MudTextField T="string" For="@(() => context.BodyFontWoff2Url)" @bind-Value="context.BodyFontWoff2Url" Label="@L["Body Font Woff2 Url"]" />
+        </MudItem>
+        <MudItem xs="12" md="4">
+            <MudTextField T="string" For="@(() => context.HeaderFont)" @bind-Value="context.HeaderFont" Label="@L["Header Font"]" />
+        </MudItem>
+        <MudItem xs="12" md="4">
+            <MudTextField T="string" For="@(() => context.HeaderFontWoffUrl)" @bind-Value="context.HeaderFontWoffUrl" Label="@L["Header Font Woff Url"]" />
+        </MudItem>
+        <MudItem xs="12" md="4">
+            <MudTextField T="string" For="@(() => context.HeaderFontWoff2Url)" @bind-Value="context.HeaderFontWoff2Url" Label="@L["Header Font Woff2 Url"]" />
+        </MudItem>
+        <MudItem xs="12" md="6">
+            <MudTextField T="string" For="@(() => context.PrimaryColor)" @bind-Value="context.PrimaryColor" Label="@L["Primary Color"]" />
+        </MudItem>
+        <MudItem xs="12" md="6">
+            <MudTextField T="string" For="@(() => context.PrimaryHoverColor)" @bind-Value="context.PrimaryHoverColor" Label="@L["Primary Hover Color"]" />
+        </MudItem>
+        <MudItem xs="12" md="6">
+            <MudTextField T="string" For="@(() => context.SecondaryColor)" @bind-Value="context.SecondaryColor" Label="@L["Secondary Color"]" />
+        </MudItem>
+        <MudItem xs="12" md="6">
+            <MudTextField T="string" For="@(() => context.SecondaryHoverColor)" @bind-Value="context.SecondaryHoverColor" Label="@L["Secondary Hover Color"]" />
+        </MudItem>
+        <MudItem xs="12" md="6">
+            <MudTextField T="string" For="@(() => context.TeritaryColor)" @bind-Value="context.TeritaryColor" Label="@L["Teritary Color"]" />
+        </MudItem>
+        <MudItem xs="12" md="6">
+            <MudTextField T="string" For="@(() => context.TeritaryHoverColor)" @bind-Value="context.TeritaryHoverColor" Label="@L["Teritary Hover Color"]" />
+        </MudItem>
+    </EditFormContent>
+    <ExtraActions>
+        @if(_canUpgrade)
+        {
+            <MudMenuItem OnClick="@(() => ViewUpgradeSubscriptionModalAsync(context.Id))">@L["Upgrade Subscription"]</MudMenuItem>
+        }
+        <MudMenuItem OnClick="@(() => ViewTenantDetails(context.Id))">
+            @((context.ShowDetails == true) ? L["Hide"] : L["Show"]) @L["Tenant Details"]
+        </MudMenuItem>
+        @if (_canModify)
+        {
+            @if (!context.IsActive)
+            {
+                <MudMenuItem Style="color:limegreen!important" OnClick="@(() => ActivateTenantAsync(context.Id))">@L["Activate Tenant"]</MudMenuItem>
+            }
+            else
+            {
+                <MudMenuItem Style="color:red!important" OnClick="@(() => DeactivateTenantAsync(context.Id))">@L["Deactivate Tenant"]</MudMenuItem>
+            }
+        }
+    </ExtraActions>
+
+    <ChildRowContent>
+        @if (context.ShowDetails)
+        {
+            <MudTr>
+                <td colspan="6">
+                    <MudCard Elevation="25" style="margin: 10px !important;">
+                        <MudCardHeader>
+                            <CardHeaderContent>
+                                <MudAlert Severity="Severity.Info" Typo="Typo.body1">@L["Details for Tenant"] :
+                                    <strong>@context.Id</strong>
+                                </MudAlert>
+                            </CardHeaderContent>
+                        </MudCardHeader>
+                        <MudCardContent>
+                            <table class="mud-table-root">
+                                <tbody class="mud-table-body">
+                                    <tr class="mud-table-row">
+                                        @if(string.IsNullOrEmpty(context.ConnectionString?.Trim()))
+                                        {
+                                            <MudChip Label="true" Color="Color.Secondary">@L["Shared Database"]</MudChip>
+                                        }
+                                        else
+                                        {
+                                            <td>@L["Connection String"]</td>
+                                            <td>
+                                                <MudItem>
+                                                        <MudChip Label="true" Color="Color.Primary">@context.ConnectionString?.Trim()</MudChip>
+                                                </MudItem>
+                                            </td>
+                                        }
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </MudCardContent>
+                    </MudCard>
+                </td>
+            </MudTr>
+        }
+    </ChildRowContent>
+
+</EntityTable>

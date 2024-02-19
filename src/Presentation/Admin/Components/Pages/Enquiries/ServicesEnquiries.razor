@@ -1,0 +1,28 @@
+@page "/enquiries/services-enquiries"
+@using Travaloud.Application.Catalog.ServicesEnquiries.Dto
+@using Travaloud.Application.Catalog.ServicesEnquiries.Commands
+
+@attribute [MustHavePermission(TravaloudAction.View, TravaloudResource.Enquiries)]
+
+@inject IStringLocalizer<ServicesEnquiries> L
+
+<TravaloudPageTitle Title="@L["Services Enquiries"]" Description="@L["Manage Services Enquiries."]"/>
+
+<EntityTable @ref="_table" TEntity="ServiceEnquiryDto" TId="Guid" TRequest="UpdateServiceEnquiryRequest" Context="@Context" ModalWidth="MudBlazor.MaxWidth.Medium">
+    <EditFormContent>
+        <MudGrid>
+            <MudItem xs="12" md="12">
+                <MudTextField Label="@L["Service"]" ReadOnly="true" @bind-Value="Service.Title" Required="true" Placeholder="Enter a Name" Variant="Variant.Outlined" />
+            </MudItem>
+            @if (context.Fields != null)
+            {
+                foreach (var field in context.Fields)
+                {
+                    <MudItem xs="12" md="12">
+                        <MudTextField Label="@L[field.Field]" For="@(() => field.Field)" ReadOnly="true" InputType="InputType.Email" @bind-Value="field.Value" Required="true" Placeholder="Enter a Email Address" Variant="Variant.Outlined" />
+                    </MudItem>
+                } 
+            }
+        </MudGrid>
+    </EditFormContent>
+</EntityTable>

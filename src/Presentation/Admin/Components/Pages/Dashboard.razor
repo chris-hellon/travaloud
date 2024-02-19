@@ -1,0 +1,69 @@
+@page "/"
+@attribute [MustHavePermission(TravaloudAction.View, TravaloudResource.Dashboard)]
+
+@inject IStringLocalizer<Dashboard> L
+
+<TravaloudPageTitle Title="@L["Dashboard"]" />
+
+@if (!_loaded)
+{
+    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+}
+else
+{
+<MudGrid>
+    <MudItem xs="12" sm="6" md="3">
+        <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+            <MudIcon Icon="@Icons.Material.Filled.Payments" Color="Color.Primary" Class="mx-4"
+                     Style="width:54px; height:54px;"></MudIcon>
+            <div>
+                <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">@L["Bookings"]</MudText>
+                <MudText Typo="Typo.h5">@BookingsCount</MudText>
+            </div>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="6" md="3">
+        <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+            <MudIcon Icon="@Icons.Material.Filled.Groups" Color="Color.Success" Class="mx-4"
+                     Style="width:54px; height:54px;"></MudIcon>
+            <div>
+                <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">
+                    @L["Guests"]
+                </MudText>
+                <MudText Typo="Typo.h5">@GuestsCount</MudText>
+            </div>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="6" md="3">
+        <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+            <MudIcon Icon="@Icons.Material.Filled.Route" Color="Color.Success" Class="mx-4"
+                     Style="width:54px; height:54px;"></MudIcon>
+            <div>
+                <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">
+                    @L["Tours"]
+                </MudText>
+                <MudText Typo="Typo.h5">@ToursCount</MudText>
+            </div>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="6" md="3">
+        <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+            <MudIcon Icon="@Icons.Material.Filled.LocationCity" Color="Color.Success" Class="mx-4"
+                     Style="width:54px; height:54px;"></MudIcon>
+            <div>
+                <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">
+                    @L["Properties"]
+                </MudText>
+                <MudText Typo="Typo.h5">@PropertiesCount</MudText>
+            </div>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="12">
+        <MudPaper Elevation="25" Class="pa-4" Style="height:500px;">
+            <MudChart ChartType="ChartType.Bar" ChartSeries="@_dataEnterBarChartSeries"
+                      XAxisLabels="@_dataEnterBarChartXAxisLabels.Select(a => L[a].Value).ToArray()" Width="100%"
+                      Height="400px"></MudChart>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+}

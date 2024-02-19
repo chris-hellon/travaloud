@@ -1,0 +1,339 @@
+@page "/management/properties"
+
+@attribute [MustHavePermission(TravaloudAction.View, TravaloudResource.Properties)]
+
+@using Travaloud.Application.Catalog.Properties.Dto
+@using Travaloud.Application.Catalog.Properties.Commands
+
+@inject IStringLocalizer<Properties> L
+
+<TravaloudPageTitle Title="@L["Properties"]" Description="@L["Manage Properties."]"/>
+
+<EntityTable @ref="_table" TEntity="PropertyDto" TId="Guid" TRequest="PropertyViewModel" Context="@Context" IsWizard="true" WizardSteps="@WizardSteps">
+<WizardStep1Content>
+    <MudGrid>
+        <MudItem xs="12" md="5">
+            <MudTextField Label="@L["Name"]" For="@(() => context.Name)" @bind-Value="context.Name" Required="true" HelperText="Enter a Tour name" Variant="Variant.Outlined"/>
+        </MudItem>
+        <MudItem xs="12" md="5">
+            <MudTextField Label="@L["Email Address"]" For="@(() => context.EmailAddress)" @bind-Value="context.EmailAddress" InputType="InputType.Email" HelperText="Enter an Email Address" Variant="Variant.Outlined"/>
+        </MudItem>
+        <MudItem xs="12" md="2">
+            <MudSwitch @bind-Checked="@context.PublishToSite" Color="Color.Primary" Label="Publish to Website?" LabelPosition="LabelPosition.Start"/>
+        </MudItem>
+
+        @{
+            var destinationsExist = Destinations?.Any() == true;
+            var width = 6;
+
+            if (destinationsExist)
+            {
+                width = 4;
+            }
+
+            <MudItem xs="12" md="width">
+                <MudTextField Label="@L["Address Line 1"]" For="@(() => context.AddressLine1)" @bind-Value="context.AddressLine1" Required="true" HelperText="Enter an Address" Variant="Variant.Outlined"/>
+            </MudItem>
+            <MudItem xs="12" md="width">
+                <MudTextField Label="@L["Address Line 2"]" For="@(() => context.AddressLine2)" @bind-Value="context.AddressLine2" HelperText="Enter an Address" Variant="Variant.Outlined"/>
+            </MudItem>
+
+            if (destinationsExist)
+            {
+                <MudItem xs="12" md="4">
+                    <MudSelect T="Guid?" Label="Destination" Variant="Variant.Outlined" @bind-Value="context.DestinationId" Clearable="true" For="@(() => context.DestinationId)" HelperText="Does this Property belong to a Destination?">
+                        @if (Destinations != null)
+                        {
+                            foreach (var tourCategory in Destinations)
+                            {
+                                <MudSelectItem T="Guid?" Value="@tourCategory.Id">@tourCategory.Name</MudSelectItem>
+                            }
+                        }
+                    </MudSelect>
+                </MudItem>
+            }
+        }
+
+        <MudItem xs="12" md="4">
+            <MudTextField Label="@L["Telephone Number"]" Required="true" For="@(() => context.TelephoneNumber)" @bind-Value="context.TelephoneNumber" InputType="InputType.Telephone" HelperText="Enter a Telephone Number" Variant="Variant.Outlined"/>
+        </MudItem>
+        <MudItem xs="12" md="4">
+            <MudTextField Label="@L["Cloudbeds Key"]" For="@(() => context.CloudbedsKey)" @bind-Value="context.CloudbedsKey" HelperText="Enter a Cloudbeds Key" Variant="Variant.Outlined"/>
+        </MudItem>
+        <MudItem xs="12" md="4">
+            <MudTextField Label="@L["Google Maps Place Id"]" For="@(() => context.GoogleMapsPlaceId)" @bind-Value="context.GoogleMapsPlaceId" HelperText="Enter a Google Maps Place Id" Variant="Variant.Outlined"/>
+        </MudItem>
+    </MudGrid>
+</WizardStep1Content>
+<WizardStep2Content>
+    <MudGrid>
+        <MudItem xs="12" md="6">
+            <MudTabs Elevation="0" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6" Outlined="true">
+                <MudTabPanel Text="@L["Short Description"]">
+                    <MudInputLabel Class="mb-3">@L["Short Description"]</MudInputLabel>
+                    <Editor @bind-Value="context.ShortDescription" Field="@(() => context.ShortDescription)" Conf="@TinyMceConfig.Styles()" ApiKey="@TinyMceConfig.ApiKey"></Editor>
+                </MudTabPanel>
+                <MudTabPanel Text="@L["Full Description"]">
+                    <MudInputLabel Class="mb-3">@L["Full Description"]</MudInputLabel>
+                    <Editor @bind-Value="context.Description" JsConfSrc="mceStyle" Field="@(() => context.Description)" Conf="@TinyMceConfig.Styles()" ApiKey="@TinyMceConfig.ApiKey"></Editor>
+                </MudTabPanel>
+            </MudTabs>
+        </MudItem>
+        <MudItem xs="12" md="6">
+            <MudStack>
+                <MudItem xs="6" md="12">
+                    <div>
+                        <MudButton HtmlTag="label" DisableElevation Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
+                                   StartIcon="@Icons.Material.Filled.CloudUpload" for="videoInput">
+                            @L["Select Video"]
+                        </MudButton>
+                        @if (Context.AddEditModal != null && !Context.AddEditModal.IsCreate && !string.IsNullOrEmpty(context.VideoPath) && string.IsNullOrEmpty(context.VideoInBytes))
+                        {
+                            <MudButton HtmlTag="label" DisableElevation Variant="Variant.Filled" Color="Color.Info" Size="Size.Small" Target="_blank"
+                                       StartIcon="@Icons.Material.Filled.RemoveRedEye" Link="@(context.VideoPath)" Style="margin-left: 5px;">
+                                @L["View"]
+                            </MudButton>
+
+                            <MudButton HtmlTag="label" DisableElevation Variant="Variant.Filled" Color="Color.Error" Size="Size.Small"
+                                       StartIcon="@Icons.Material.Filled.Delete" OnClick="SetDeleteCurrentVideoFlag" Style="margin-left: 5px;">
+                                @L["Delete"]
+                            </MudButton>
+                        }
+                        @if (!string.IsNullOrEmpty(context.VideoInBytes))
+                        {
+                            <MudButton HtmlTag="label" DisableElevation OnClick="ClearVideoInBytes" Variant="Variant.Filled" Color="Color.Warning" Size="Size.Small" Target="_blank"
+                                       StartIcon="@Icons.Material.Filled.Clear" Style="margin-left: 5px;">
+                                @L["Clear"]
+                            </MudButton>
+                        }
+                    </div>
+                    <InputFile id="videoInput" hidden OnChange="UploadVideo"/>
+                </MudItem>
+                <MudItem xs="12" md="12">
+                    @if (!string.IsNullOrEmpty(context.VideoInBytes))
+                    {
+                        <video controls style="height: auto; max-width: 100%; max-height: 100%">
+                            <source src="@context.VideoInBytes">
+                        </video>
+                    }
+                    else if (!string.IsNullOrEmpty(context.VideoPath))
+                    {
+                        <video controls style="height: auto; max-width: 100%; max-height: 100%">
+                            <source src="@context.VideoPath">
+                        </video>
+                    }
+                </MudItem>
+            </MudStack>
+        </MudItem>
+    </MudGrid>
+</WizardStep2Content>
+<WizardStep3Content>
+    @if (context.Directions == null || !context.Directions.Any())
+    {
+        <MudButton DisableElevation Size="Size.Small" Variant="Variant.Filled" Color="Color.Primary" OnClick="(() => InvokeDirectionsDialog(new UpdatePropertyDirectionRequest() {Content = new List<UpdatePropertyDirectionContentRequest>() {new UpdatePropertyDirectionContentRequest()}}, context, true))" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Surface" Class="mb-2">@L["Add New Directions"]</MudButton>
+    }
+    else
+    {
+        <MudTable T="UpdatePropertyDirectionRequest" @ref="_directionsTable" Style="table-layout:auto; padding:0px !important;" Items="@context.Directions" Context="directionContext" Hover="false" HorizontalScrollbar="true" Elevation="0" Breakpoint="Breakpoint.Sm" LoadingProgressColor="Color.Info" CanCancelEdit="true" ReadOnly="false">
+            <ToolBarContent>
+                <MudButton DisableElevation Size="Size.Small" Variant="Variant.Filled" Color="Color.Primary" OnClick="(() => InvokeDirectionsDialog(new UpdatePropertyDirectionRequest() {Content = new List<UpdatePropertyDirectionContentRequest>() {new UpdatePropertyDirectionContentRequest()}}, context, true))" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Surface" Class="mb-2">@L["Add New Directions"]</MudButton>
+            </ToolBarContent>
+            <ColGroup>
+                <col/>
+
+                <col style="width:20px;"/>
+            </ColGroup>
+            <HeaderContent>
+                <MudTh>Name</MudTh>
+                <MudTh Style="min-width: 0; width: 100px; text-align: right;"></MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Name">@directionContext.Title</MudTd>
+                <MudTd DataLabel="Edit" Style="min-width: 0; width: 270px; text-align: right;">
+                    <MudButton Variant="Variant.Filled" Size="Size.Small" StartIcon="@Icons.Material.Filled.Edit" Color="Color.Tertiary" OnClick="(() => InvokeDirectionsDialog(directionContext, context))">Edit</MudButton>
+                    <MudButton Variant="Variant.Filled" Size="Size.Small" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="(() => RemoveDirectionRow(context, directionContext.Id))">Delete</MudButton>
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+    }
+</WizardStep3Content>
+<WizardStep4Content>
+    @if (context.Rooms == null || !context.Rooms.Any())
+    {
+        <MudButton DisableElevation Size="Size.Small" Variant="Variant.Filled" Color="Color.Primary" OnClick="(() => InvokeRoomDialog(new UpdatePropertyRoomRequest(), context, true))" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Surface" Class="mb-2">@L["Add New Room"]</MudButton>
+    }
+    else
+    {
+        <MudTable T="UpdatePropertyRoomRequest" @ref="_roomsTable" Style="table-layout:auto; padding:0px !important;" Items="@context.Rooms" Context="roomContext" Hover="false" HorizontalScrollbar="true" Elevation="0" Breakpoint="Breakpoint.Sm" LoadingProgressColor="Color.Info" CanCancelEdit="true" ReadOnly="false">
+            <ToolBarContent>
+                <MudButton DisableElevation Size="Size.Small" Variant="Variant.Filled" Color="Color.Primary" OnClick="(() => InvokeRoomDialog(new UpdatePropertyRoomRequest(), context, true))" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Surface" Class="mb-2">@L["Add New Room"]</MudButton>
+            </ToolBarContent>
+            <ColGroup>
+                <col/>
+
+                <col style="width:20px;"/>
+            </ColGroup>
+            <HeaderContent>
+                <MudTh>Name</MudTh>
+                <MudTh Style="min-width: 0; width: 100px; text-align: right;"></MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Name">@roomContext.Name</MudTd>
+                <MudTd DataLabel="Edit" Style="min-width: 0; width: 270px; text-align: right;">
+                    <MudButton Variant="Variant.Filled" Size="Size.Small" StartIcon="@Icons.Material.Filled.Edit" Color="Color.Tertiary" OnClick="(() => InvokeRoomDialog(roomContext, context))">Edit</MudButton>
+                    <MudButton Variant="Variant.Filled" Size="Size.Small" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="(() => RemoveRoomRow(context, roomContext.Id))">Delete</MudButton>
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+    }
+</WizardStep4Content>
+<WizardStep5Content>
+    <MudGrid>
+        <MudItem xs="12" md="12">
+            <MudTextField Label="@L["Meta Keywords"]" For="@(() => context.MetaKeywords)" @bind-Value="context.MetaKeywords" HelperText="Enter Meta Keywords (recommended max limit of 20)" Variant="Variant.Outlined"/>
+        </MudItem>
+        <MudItem xs="12" md="12">
+            <MudTextField Label="@L["Meta Description"]" Lines="5" For="@(() => context.MetaDescription)" @bind-Value="context.MetaDescription" HelperText="Enter a Meta Description" Variant="Variant.Outlined"/>
+        </MudItem>
+        <MudItem xs="12" md="4">
+            <MudTextField Label="@L["Url Slug"]" For="@(() => context.UrlSlug)" @bind-Value="context.UrlSlug" HelperText="Enter a Url Slug eg. this-property" Variant="Variant.Outlined"/>
+        </MudItem>
+        <MudItem xs="12" md="4">
+            <MudTextField Label="@L["H1 Tag"]" For="@(() => context.H1)" @bind-Value="context.H1" HelperText="Enter a H1 tag (the page title)" Variant="Variant.Outlined"/>
+        </MudItem>
+        <MudItem xs="12" md="4">
+            <MudTextField Label="@L["H2 Tag"]" For="@(() => context.H2)" @bind-Value="context.H2" HelperText="Enter a H2 tag (the page sub title)" Variant="Variant.Outlined"/>
+        </MudItem>
+    </MudGrid>
+</WizardStep5Content>
+<WizardStep6Content>
+    <MudGrid>
+        <MudItem xs="12" md="6">
+            <MudStack>
+                <MudItem xs="12" md="12">
+                    <div>
+                        <MudButton HtmlTag="label" DisableElevation Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
+                                   StartIcon="@Icons.Material.Filled.CloudUpload" for="fileInput">
+                            @L["Select Banner Image"]
+                        </MudButton>
+                        @if (Context.AddEditModal != null && !Context.AddEditModal.IsCreate && !string.IsNullOrEmpty(context.ImagePath) && string.IsNullOrEmpty(context.ImageInBytes))
+                        {
+                            <MudButton HtmlTag="label" DisableElevation Variant="Variant.Filled" Color="Color.Info" Size="Size.Small" Target="_blank"
+                                       StartIcon="@Icons.Material.Filled.RemoveRedEye" Link="@(context.ImagePath)" Style="margin-left: 5px;">
+                                @L["View"]
+                            </MudButton>
+
+                            <MudButton HtmlTag="label" DisableElevation Variant="Variant.Filled" Color="Color.Error" Size="Size.Small"
+                                       StartIcon="@Icons.Material.Filled.Delete" OnClick="SetDeleteCurrentImageFlag" Style="margin-left: 5px;">
+                                @L["Delete"]
+                            </MudButton>
+                        }
+                        @if (!string.IsNullOrEmpty(context.ImageInBytes))
+                        {
+                            <MudButton HtmlTag="label" DisableElevation OnClick="ClearImageInBytes" Variant="Variant.Filled" Color="Color.Warning" Size="Size.Small" Target="_blank"
+                                       StartIcon="@Icons.Material.Filled.Clear" Style="margin-left: 5px;">
+                                @L["Clear"]
+                            </MudButton>
+                        }
+                    </div>
+                    <InputFile id="fileInput" hidden OnChange="UploadFiles"/>
+                </MudItem>
+                <MudItem xs="12" md="12">
+                    @if (!string.IsNullOrEmpty(context.ImageInBytes))
+                    {
+                        <MudAvatar Image="@context.ImageInBytes" Square="true" Style="height: auto; width: auto; max-height: 100%"> </MudAvatar>
+                    }
+                    else
+                    {
+                        <MudAvatar Image="@(string.IsNullOrEmpty(@context.ImagePath) ? string.Empty : (@context.ImagePath))" Square="true" Style="height: auto; width: auto; max-height: 100%"> </MudAvatar>
+                    }
+                </MudItem>
+            </MudStack>
+        </MudItem>
+        <MudItem xs="12" md="6">
+            <MudStack>
+                <MudItem xs="12" md="12">
+                    <MudButton HtmlTag="label" DisableElevation Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
+                               StartIcon="@Icons.Material.Filled.CloudUpload" for="slideshowImageFileInput">
+                        @L["Add Slideshow Image"]
+                    </MudButton>
+                    <InputFile id="slideshowImageFileInput" hidden OnChange="UploadSlideshowImage"/>
+                </MudItem>
+                <MudItem xs="12" md="12">
+                    @if (context.Images != null)
+                    {
+                        @* <MudDropContainer T="UpdatePropertyImageRequest" Items="context.Images" ItemsSelector="@((item, dropzone) => item.SlideshowSelector == dropzone)" Class="d-flex flex-wrap flex-grow-1"> *@
+                        @*     <ChildContent> *@
+                        @*         <MudGrid> *@
+                        @*             <MudList Clickable="true" Class="d-flex flex-column mud-height-full"> *@
+                        @*                 <MudDropZone T="UpdatePropertyImageRequest" Identifier="1" Class="flex-grow-1" AllowReorder="true"/> *@
+                        @*             </MudList> *@
+                        @*         </MudGrid> *@
+                        @*     </ChildContent> *@
+                        @*     <ItemRenderer Context="imageContext"> *@
+                        @*         <MudItem xs="12" md="6" Style="height:220px;"> *@
+                        @*             @if (!string.IsNullOrEmpty(imageContext.ImageInBytes)) *@
+                        @*             { *@
+                        @*                 <MudImage ObjectFit="ObjectFit.Cover" Style="width:100%; height:85%;" Src="@imageContext.ImageInBytes" Alt="Property image" Elevation="25" Class="rounded-lg"/> *@
+                        @*             } *@
+                        @*             else *@
+                        @*             { *@
+                        @*                 <MudImage ObjectFit="ObjectFit.Cover" Style="width:100%; height:85%;" Src="@imageContext.ImagePath" Alt="Property image" Elevation="25" Class="rounded-lg"/> *@
+                        @*             } *@
+                        @*         </MudItem> *@
+                        @*     </ItemRenderer> *@
+                        @* </MudDropContainer> *@
+
+
+                        <MudGrid>
+                            @foreach (var image in context.Images)
+                            {
+                                <MudItem xs="12" md="6" Style="height:220px;">
+                                    @if (!string.IsNullOrEmpty(image.ImageInBytes))
+                                    {
+                                        <MudImage ObjectFit="ObjectFit.Cover" Style="width:100%; height:85%;" Src="@image.ImageInBytes" Alt="Örebro Slott" Elevation="25" Class="rounded-lg"/>
+                                    }
+                                    else
+                                    {
+                                        <MudImage ObjectFit="ObjectFit.Cover" Style="width:100%; height:85%;" Src="@image.ImagePath" Alt="Örebro Slott" Elevation="25" Class="rounded-lg"/>
+                                    }
+
+                                    @if (image != context.Images.First())
+                                    {
+                                        <MudIconButton Icon="@Icons.Material.Filled.ArrowCircleLeft" OnClick="@(() => SetSlideshowImagesSortOrder(image))" Color="Color.Primary" aria-label="left" Style="margin-right: 5px;"></MudIconButton>
+                                    }
+
+                                    @if (!string.IsNullOrEmpty(image.ImageInBytes))
+                                    {
+                                        <MudButton HtmlTag="label" DisableElevation OnClick="@(() => ClearSlideshowImageInBytes(image))" Variant="Variant.Filled" Color="Color.Warning" Size="Size.Small" Target="_blank"
+                                                   StartIcon="@Icons.Material.Filled.Clear" Style="margin-left: 5px;">
+                                            @L["Clear"]
+                                        </MudButton>
+                                    }
+                                    else
+                                    {
+                                        <MudButton HtmlTag="label" DisableElevation Variant="Variant.Filled" Color="Color.Info" Size="Size.Small" Target="_blank"
+                                                   StartIcon="@Icons.Material.Filled.RemoveRedEye" Link="@(image.ImagePath)" Style="margin-left: 5px;">
+                                            @L["View"]
+                                        </MudButton>
+
+                                        <MudButton HtmlTag="label" DisableElevation Variant="Variant.Filled" Color="Color.Error" Size="Size.Small"
+                                                   StartIcon="@Icons.Material.Filled.Delete" OnClick="@(() => SetDeleteSlideshowImageFlag(image))" Style="margin-left: 5px;">
+                                            @L["Delete"]
+                                        </MudButton>
+                                    }
+
+                                    @if (image != context.Images.Last())
+                                    {
+                                        <MudIconButton Icon="@Icons.Material.Filled.ArrowCircleRight" OnClick="@(() => SetSlideshowImagesSortOrder(image, true))" Color="Color.Primary" aria-label="right" Style="margin-left: 5px;"></MudIconButton>
+                                    }
+                                </MudItem>
+                            }
+                        </MudGrid>
+                    }
+                </MudItem>
+            </MudStack>
+        </MudItem>
+    </MudGrid>
+</WizardStep6Content>
+</EntityTable>

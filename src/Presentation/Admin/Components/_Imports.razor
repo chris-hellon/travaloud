@@ -1,0 +1,55 @@
+﻿@using System.Net.Http
+@using System.Net.Http.Json
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Http
+@using Microsoft.Extensions.Configuration
+@using static Microsoft.AspNetCore.Components.Web.RenderMode
+@using Microsoft.AspNetCore.Components.Web.Virtualization
+@using Microsoft.JSInterop
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@using Microsoft.AspNetCore.Identity
+@using Travaloud.Admin
+@using Travaloud.Admin.Components
+@using Travaloud.Admin.Components.Common
+@using Travaloud.Admin.Components.EntityTable
+@using Travaloud.Application.Common.Editor
+@using Travaloud.Application.Common.Interfaces
+@using Travaloud.Infrastructure.Auth
+@using Travaloud.Infrastructure.Multitenancy
+@using Travaloud.Shared.Authorization
+@using Travaloud.Infrastructure.Auth.Permissions
+@using Travaloud.Admin.Theme
+@using Travaloud.Infrastructure.Identity
+@using MudBlazor
+@using MudBlazor.Extensions
+@using MudBlazor.Extensions.Components
+@using MudExtensions
+@using MudExtensions.Enums
+@using MudExtensions.Utilities
+@using Blazored.TextEditor
+@using CG.Blazor.Wizard
+@using Blazored.FluentValidation
+@using Finbuckle.MultiTenant
+@using MediatR
+@using TinyMCE.Blazor
+@using InputTinyMCEEditor.Blazor
+
+@attribute [Authorize]
+
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthState
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+@inject IConfiguration Config
+@inject ICurrentUser CurrentUser
+@inject ICurrentUserInitializer CurrentUserInitializer
+@inject IHttpContextAccessor HttpContextAccessor
+@inject ISender Mediatr
+@inject IMultiTenantContextAccessor<TravaloudTenantInfo> MultiTenantContextAccessor
+@inject ILoadingService LoadingService
+@inject IInteractiveSubmittingService InteractiveSubmittingService 
+@inject Serilog.ILogger Logger
