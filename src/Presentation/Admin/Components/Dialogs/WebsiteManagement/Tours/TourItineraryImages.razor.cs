@@ -46,6 +46,8 @@ public partial class TourItineraryImages : ComponentBase
 
     private async Task SaveAsync()
     {
+        await LoadingService.ToggleLoaderVisibility(true);
+        
         if (await _fluentValidationValidator!.ValidateAsync())
         {
             if (await ServiceHelper.ExecuteCallGuardedAsync(
@@ -61,6 +63,8 @@ public partial class TourItineraryImages : ComponentBase
         {
             Snackbar.Add("One or more validation errors occurred.");
         }
+        
+        await LoadingService.ToggleLoaderVisibility(false);
     }
 
     private async Task UploadFiles(InputFileChangeEventArgs e)
@@ -79,7 +83,7 @@ public partial class TourItineraryImages : ComponentBase
             
             RequestModel.Images ??= new List<TourItinerarySectionImageRequest>();
 
-            RequestModel.Images.ToList().Insert(0, newImageRequest);
+            RequestModel.Images.Insert(0, newImageRequest);
 
             StateHasChanged();
         }

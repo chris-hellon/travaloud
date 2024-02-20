@@ -14,7 +14,7 @@ public class UpdatePageModalRequestValidator : CustomValidator<UpdatePageModalRe
             .MustAsync(async (pageModal, name, ct) =>
                 await repo.SingleOrDefaultAsync(new PageModalByTitleSpec(name), ct)
                     is not { } existingPageModal || existingPageModal.Id == pageModal.Id)
-            .WithMessage((_, name) => string.Format(localizer["pageModal.alreadyexists"], name));
+            .WithMessage((_, name) => string.Format(localizer["pagemodal.alreadyexists"], name));
 
         RuleFor(x => x.SelectedPages)
             .NotEmpty()

@@ -22,11 +22,13 @@ public class UpdateTravelGuideRequestHandler : IRequestHandler<UpdateTravelGuide
 {
     private readonly IRepositoryFactory<TravelGuide> _repository;
     private readonly IFileStorageService _file;
-
-    public UpdateTravelGuideRequestHandler(IRepositoryFactory<TravelGuide> repository, IFileStorageService file)
+    private readonly ICurrentUser _currentUser;
+    
+    public UpdateTravelGuideRequestHandler(IRepositoryFactory<TravelGuide> repository, IFileStorageService file, ICurrentUser currentUser)
     {
         _repository = repository;
         _file = file;
+        _currentUser = currentUser;
     }
 
     public async Task<DefaultIdType> Handle(UpdateTravelGuideRequest request, CancellationToken cancellationToken)
@@ -62,7 +64,7 @@ public class UpdateTravelGuideRequestHandler : IRequestHandler<UpdateTravelGuide
             request.MetaKeywords,
             request.MetaDescription);
 
-        await updatedTravelGuide.AddImages(request, _file, cancellationToken);
+        await updatedTravelGuide.ProcessImages(request.TravelGuideGalleryImages, _currentUser.GetUserId(), _file, cancellationToken);
         
         updatedTravelGuide.DomainEvents.Add(EntityCreatedEvent.WithEntity(updatedTravelGuide));
         

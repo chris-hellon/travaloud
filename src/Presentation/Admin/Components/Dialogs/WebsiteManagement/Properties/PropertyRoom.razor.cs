@@ -12,7 +12,7 @@ namespace Travaloud.Admin.Components.Dialogs.WebsiteManagement.Properties;
 
 public partial class PropertyRoom : ComponentBase
 {
-    [Parameter] [EditorRequired] public UpdatePropertyRoomRequest RequestModel { get; set; } = default!;
+    [Parameter] [EditorRequired] public PropertyRoomRequest RequestModel { get; set; } = default!;
 
     [Parameter] public PropertyViewModel Property { get; set; } = default!;
 
@@ -42,13 +42,15 @@ public partial class PropertyRoom : ComponentBase
 
     private async Task SaveAsync()
     {
+        await LoadingService.ToggleLoaderVisibility(true);
+        
         if (await _fluentValidationValidator!.ValidateAsync())
         {
             if (await ServiceHelper.ExecuteCallGuardedAsync(
                     () =>
                     {
                         if (!IsCreate) return Task.CompletedTask;
-                        Property.Rooms ??= new List<UpdatePropertyRoomRequest>();
+                        Property.Rooms ??= new List<PropertyRoomRequest>();
 
                         if (Property.Rooms.Any())
                         {
@@ -76,6 +78,8 @@ public partial class PropertyRoom : ComponentBase
         {
             Snackbar.Add("One or more validation errors occurred.");
         }
+        
+        await LoadingService.ToggleLoaderVisibility(false);
     }
 
     public void ClearImageInBytes()

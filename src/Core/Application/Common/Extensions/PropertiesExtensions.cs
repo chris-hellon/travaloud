@@ -1,133 +1,89 @@
 using Travaloud.Application.Catalog.Properties.Commands;
 using Travaloud.Domain.Catalog.Properties;
+using Travaloud.Domain.Common.Events;
 
 namespace Travaloud.Application.Common.Extensions;
 
 public static class PropertiesExtensions
 {
-    public static void AddDirections(this Property property, CreatePropertyRequest request)
+    public static void ProcessDirections(this Property property, IList<PropertyDirectionRequest>? request, DefaultIdType userId)
     {
-        if (request.Directions?.Any() != true) return;
         var directions = new List<PropertyDirection>();
-
-        foreach (var direction in request.Directions)
-        {
-            var newDirection = new PropertyDirection(direction.Title);
-
-            if (direction.Content?.Any() == true)
-            {
-                newDirection.Content = direction.Content
-                    .Select(content => new PropertyDirectionContent(content.Body, content.Style)).ToList();
-            }
-
-            directions.Add(newDirection);
-        }
-
-        property.Directions = directions;
-    }
-
-    public static async Task AddRooms(this Property property, CreatePropertyRequest request, IFileStorageService file,
-        CancellationToken cancellationToken)
-    {
-        if (request.Rooms?.Any() == true)
-        {
-            var rooms = new List<PropertyRoom>();
-
-            foreach (var room in request.Rooms)
-            {
-                var roomImagePath = await file.UploadAsync<PropertyRoom>(room.Image, FileType.Image, cancellationToken);
-                rooms.Add(new PropertyRoom(room.Name, room.Description, room.ShortDescription, roomImagePath));
-            }
-
-            property.Rooms = rooms;
-        }
-    }
-
-    public static void AddFacilities(this Property property, CreatePropertyRequest request)
-    {
-        if (request.Facilities?.Any() != true) return;
-        var facilities = request.Facilities.Select(facility => new PropertyFacility(facility.Title)).ToList();
-
-        property.Facilities = facilities;
-    }
-
-    public static void AddDestinations(this Property property, CreatePropertyRequest request)
-    {
-        if (request.PropertyDestinationLookups?.Any() != true) return;
-        var destinations = new List<PropertyDestinationLookup>();
-
-        foreach (var destination in destinations)
-        {
-            destinations.Add(new PropertyDestinationLookup(destination.DestinationId));
-        }
-
-        property.PropertyDestinationLookups = destinations;
-    }
-
-    public static async Task AddImages(this Property property, CreatePropertyRequest request, IFileStorageService file,
-        CancellationToken cancellationToken)
-    {
-        if (request.Images?.Any() == true)
-        {
-            var images = new List<PropertyImage>();
-
-            foreach (var image in request.Images)
-            {
-                var roomImagePath =
-                    await file.UploadAsync<PropertyImage>(image.Image, FileType.Image, cancellationToken);
-                images.Add(new PropertyImage(roomImagePath, roomImagePath, image.SortOrder));
-            }
-
-            property.Images = images;
-        }
-    }
-
-    public static void AddDirections(this Property property, UpdatePropertyRequest request)
-    {
-        if (request.Directions?.Any() != true) return;
         
-        var directions = new List<PropertyDirection>();
-        foreach (var directionRequest in request.Directions)
+        if (request?.Any() == true)
         {
-            var direction = property.Directions.FirstOrDefault(i => i.Id == directionRequest.Id);
-
-            if (direction == null)
+            foreach (var directionRequest in request)
             {
-                var newDirection = new PropertyDirection(directionRequest.Title);
+                var direction = property.Directions?.FirstOrDefault(i => i.Id == directionRequest.Id);
 
-                if (directionRequest.Content?.Any() == true)
+                if (direction == null)
                 {
-                    var contents = directionRequest.Content.Select(content => new PropertyDirectionContent(content.Body, content.Style)).ToList();
+                    var newDirection = new PropertyDirection(directionRequest.Title);
 
-                    newDirection.Content = contents;
-                }
-
-                directions.Add(newDirection);
-            }
-            else
-            {
-                direction.Update(directionRequest.Title);
-
-                if (directionRequest.Content?.Any() == true)
-                {
-                    var contents = new List<PropertyDirectionContent>();
-
-                    foreach (var contentRequest in directionRequest.Content)
+                    if (directionRequest.Content?.Any() == true)
                     {
-                        var content = direction.Content.FirstOrDefault(i => i.Id == contentRequest.Id);
+                        var contents = directionRequest.Content.Select(content => new PropertyDirectionContent(content.Body, content.Style)).ToList();
 
-                        if (content == null)
+                        newDirection.Content = contents;
+                    }
+
+                    directions.Add(newDirection);
+                }
+                else
+                {
+                    direction.Update(directionRequest.Title);
+
+                    var contents = new List<PropertyDirectionContent>();
+                    
+                    if (directionRequest.Content?.Any() == true)
+                    {
+                        foreach (var contentRequest in directionRequest.Content)
                         {
-                            contents.Add(new PropertyDirectionContent(contentRequest.Body, contentRequest.Style));
-                        }
-                        else
-                        {
-                            content.Update(contentRequest.Body, contentRequest.Style);
-                            contents.Add(content);
+                            var content = direction.Content?.FirstOrDefault(i => i.Id == contentRequest.Id);
+
+                            if (content == null)
+                            {
+                                contents.Add(new PropertyDirectionContent(contentRequest.Body, contentRequest.Style));
+                            }
+                            else
+                            {
+                                content.Update(contentRequest.Body, contentRequest.Style);
+                                contents.Add(content);
+                            }
                         }
                     }
-                }
+                    
+                    var directionsContentToRemove = direction.Content?
+                        .Where(existingContent => contents.All(newRoom => newRoom.Id != existingContent.Id))
+                        .ToList();
 
+                    if (directionsContentToRemove != null)
+                    {
+                        foreach (var directionContent in directionsContentToRemove)
+                        {
+                            directionContent.DomainEvents.Add(EntityDeletedEvent.WithEntity(directionContent));
+                            directionContent.FlagAsDeleted(userId);
+                            contents.Add(directionContent);
+                        }   
+                    }
+                    
+                    direction.Content = contents;
+
+                    directions.Add(direction);
+                }
+            }
+        }
+        
+        var directionsToRemove = property.Directions?
+            .Where(existingRoom => directions.All(newRoom => newRoom.Id != existingRoom.Id))
+            .ToList();
+
+        if (directionsToRemove != null && directionsToRemove.Count != 0)
+        {
+            foreach (var direction in directionsToRemove)
+            {
+                direction.DomainEvents.Add(EntityDeletedEvent.WithEntity(direction));
+                direction.FlagAsDeleted(userId);
                 directions.Add(direction);
             }
         }
@@ -135,51 +91,80 @@ public static class PropertiesExtensions
         property.Directions = directions;
     }
     
-    public static void AddFacilities(this Property property, UpdatePropertyRequest request)
+    public static void ProcessFacilities(this Property property, IList<PropertyFacilityRequest>? request, DefaultIdType userId)
     {
-        if (request.Facilities?.Any() != true) return;
+        var requestFacilities = new List<PropertyFacility>();
         
-        var facilities = new List<PropertyFacility>();
-
-        foreach (var facilityRequest in request.Facilities)
+        if (request?.Any() == true)
         {
-            var facility = property.Facilities.FirstOrDefault(x => x.Id == facilityRequest.Id);
+            foreach (var facilityRequest in request)
+            {
+                var facility = property.Facilities?.FirstOrDefault(x => x.Id == facilityRequest.Id);
 
-            if (facility == null)
-            {
-                facilities.Add(new PropertyFacility(facilityRequest.Title));
+                if (facility == null)
+                {
+                    requestFacilities.Add(new PropertyFacility(facilityRequest.Title));
+                }
+                else
+                {
+                    facility.Update(facilityRequest.Title);
+                    requestFacilities.Add(facility);
+                }
             }
-            else
+        }
+        
+        var facilitiesToRemove = property.Facilities?
+            .Where(existingRoom => requestFacilities.All(newRoom => newRoom.Id != existingRoom.Id))
+            .ToList();
+
+        if (facilitiesToRemove != null && facilitiesToRemove.Count != 0)
+        {
+            foreach (var facility in facilitiesToRemove)
             {
-                facility.Update(facilityRequest.Title);
-                facilities.Add(facility);
+                facility.DomainEvents.Add(EntityDeletedEvent.WithEntity(facility));
+                facility.FlagAsDeleted(userId);
+                requestFacilities.Add(facility);
+            }
+        }
+        
+        property.Facilities = requestFacilities;
+    }
+    
+    public static void ProcessDestinations(this Property property, IEnumerable<PropertyDestinationLookupRequest> request, DefaultIdType userId)
+    {
+        var requestDestinations = (from destinationRequest in request let destination = property.PropertyDestinationLookups?.FirstOrDefault(x => x.Id == destinationRequest.Id) select destination ?? new PropertyDestinationLookup(destinationRequest.DestinationId)).ToList();
+
+        var destinationsToRemove = property.PropertyDestinationLookups?
+            .Where(existingRoom => requestDestinations.All(newRoom => newRoom.Id != existingRoom.Id))
+            .ToList();
+
+        if (destinationsToRemove != null && destinationsToRemove.Count != 0)
+        {
+            foreach (var destination in destinationsToRemove)
+            {
+                destination.DomainEvents.Add(EntityDeletedEvent.WithEntity(destination));
+                destination.FlagAsDeleted(userId);
+                requestDestinations.Add(destination);
             }
         }
 
-        property.Facilities = facilities;
+        property.PropertyDestinationLookups = requestDestinations;
     }
     
-    public static void AddDestinations(this Property property, UpdatePropertyRequest request)
+    public static async Task ProcessRooms(this Property property, IList<PropertyRoomRequest>? request, DefaultIdType userId, IFileStorageService file, CancellationToken cancellationToken)
     {
-        if (request.PropertyDestinationLookups?.Any() != true) return;
-        var destinationLookups = (from destinationRequest in request.PropertyDestinationLookups let destination = property.PropertyDestinationLookups.FirstOrDefault(x => x.Id == destinationRequest.Id) where destination == null select new PropertyDestinationLookup(destinationRequest.DestinationId)).ToList();
-
-        property.PropertyDestinationLookups = destinationLookups;
-    }
-
-    public static async Task AddRooms(this Property property, UpdatePropertyRequest request, IFileStorageService file, CancellationToken cancellationToken)
-    {
-        if (request.Rooms?.Any() == true)
+        var requestRooms = new List<PropertyRoom>();
+        
+        if (request?.Any() == true)
         {
-            var rooms = new List<PropertyRoom>();
-            foreach (var roomRequest in request.Rooms)
+            foreach (var roomRequest in request)
             {
-                var room = property.Rooms.FirstOrDefault(x => x.Id == roomRequest.Id);
+                var room = property.Rooms?.FirstOrDefault(x => x.Id == roomRequest.Id);
 
                 if (room == null)
                 {
                     var roomImagePath = await file.UploadAsync<PropertyRoom>(roomRequest.Image, FileType.Image, cancellationToken);
-                    rooms.Add(new PropertyRoom(roomRequest.Name, roomRequest.Description, roomRequest.ShortDescription, roomImagePath));
+                    requestRooms.Add(new PropertyRoom(roomRequest.Name, roomRequest.Description, roomRequest.ShortDescription, roomImagePath));
                 }
                 else
                 {
@@ -200,52 +185,66 @@ public static class PropertiesExtensions
                         : null;
 
                     room.Update(roomRequest.Name, roomRequest.Description, roomRequest.ShortDescription, roomImagePath);
-                    rooms.Add(room);
+                    requestRooms.Add(room);
                 }
             }
-
-            property.Rooms = rooms;
         }
-    }
+        
+        var roomsToRemove = property.Rooms?
+            .Where(existingRoom => requestRooms.All(newRoom => newRoom.Id != existingRoom.Id))
+            .ToList();
 
-    public static async Task AddImages(this Property property,UpdatePropertyRequest request, IFileStorageService file, CancellationToken cancellationToken)
-    {
-        if (request.Images?.Any() == true)
+        if (roomsToRemove != null && roomsToRemove.Count != 0)
         {
-            var images = new List<PropertyImage>();
-            foreach (var imageRequest in request.Images)
+            foreach (var room in roomsToRemove)
             {
-                var image = property.Images?.FirstOrDefault(x => x.Id == imageRequest.Id);
+                room.DomainEvents.Add(EntityDeletedEvent.WithEntity(room));
+                room.FlagAsDeleted(userId);
+                requestRooms.Add(room);
+            }
+        }
+
+        property.Rooms = requestRooms;
+    }
+    
+    public static async Task ProcessImages(this Property property, IList<PropertyImageRequest>? request, DefaultIdType userId, IFileStorageService file, CancellationToken cancellationToken)
+    {
+        var requestImages = new List<PropertyImage>();
+        
+        if (request?.Any() == true)
+        {
+            foreach (var requestImage in request)
+            {
+                var image = property.Images?.FirstOrDefault(x => x.Id == requestImage.Id);
 
                 if (image == null)
                 {
-                    var imagePath = await file.UploadAsync<PropertyImage>(imageRequest.Image, FileType.Image, cancellationToken);
-                    images.Add(new PropertyImage(imagePath, imagePath, imageRequest.SortOrder, property.Id));
+                    var imagePath = await file.UploadAsync<PropertyImage>(requestImage.Image, FileType.Image, cancellationToken);
+                    requestImages.Add(new PropertyImage(imagePath, imagePath, requestImage.SortOrder, property.Id));
                 }
                 else
                 {
-                    if (imageRequest.DeleteCurrentImage)
-                    {
-                        var currentProductImagePath = imageRequest.ImagePath;
-                        if (!string.IsNullOrEmpty(currentProductImagePath))
-                        {
-                            var root = Directory.GetCurrentDirectory();
-                            await file.Remove(Path.Combine(root, currentProductImagePath));
-                        }
-
-                        image = image.ClearImagePath();
-                    }
-
-                    var imagePath = imageRequest.Image is not null
-                        ? image.ImagePath
-                        : null;
-
-                    image.Update(imagePath, imagePath, imageRequest.SortOrder, property.Id);
-                    images.Add(image);
+                    image.Update(image.ImagePath, image.ThumbnailImagePath, requestImage.SortOrder);
+                    requestImages.Add(image);
                 }
             }
-
-            property.Images = images;
         }
+        
+        
+        var imagesToRemove = property.Images?
+            .Where(existingImage => requestImages.All(newImage => newImage.Id != existingImage.Id))
+            .ToList();
+
+        if (imagesToRemove != null && imagesToRemove.Count != 0)
+        {
+            foreach (var image in imagesToRemove)
+            {
+                image.DomainEvents.Add(EntityDeletedEvent.WithEntity(image));
+                image.FlagAsDeleted(userId);
+                requestImages.Add(image);
+            }
+        }
+
+        property.Images = requestImages;
     }
 }

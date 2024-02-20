@@ -53,7 +53,7 @@
             }
 </script>
 
-@if (RenderModeForPage != InteractiveServer)
+@if (IsServerPage)
 {
     <script src="app.js"></script>
 }
@@ -63,12 +63,15 @@
 </html>
 
 @code {
+
+    private bool IsServerPage => HttpContextAccessor is {HttpContext: not null} && (HttpContextAccessor.HttpContext.Request.Path.StartsWithSegments("/account/login")
+                                                                                   || HttpContextAccessor.HttpContext.Request.Path.StartsWithSegments("/account/forgot-password")
+                                                                                   || HttpContextAccessor.HttpContext.Request.Path.StartsWithSegments("/account/reset-password")
+                                                                                   || HttpContextAccessor.HttpContext.Request.Path.StartsWithSegments("/account/forgot-password-confirmation")
+                                                                                   || HttpContextAccessor.HttpContext.Request.Path.StartsWithSegments("/account/reset-password-confirmation"));
+    
     private IComponentRenderMode? RenderModeForPage =>
-        HttpContextAccessor is {HttpContext: not null} && (HttpContextAccessor.HttpContext.Request.Path.StartsWithSegments("/account/login")
-            || HttpContextAccessor.HttpContext.Request.Path.StartsWithSegments("/account/forgot-password")
-            || HttpContextAccessor.HttpContext.Request.Path.StartsWithSegments("/account/reset-password")
-            || HttpContextAccessor.HttpContext.Request.Path.StartsWithSegments("/account/forgot-password-confirmation")
-            || HttpContextAccessor.HttpContext.Request.Path.StartsWithSegments("/account/reset-password-confirmation"))
+        IsServerPage
             ? null
             : new InteractiveServerRenderMode(prerender:false);
     private TravaloudTenantInfo? TenantInfo =>  MultiTenantContextAccessor.MultiTenantContext?.TenantInfo;

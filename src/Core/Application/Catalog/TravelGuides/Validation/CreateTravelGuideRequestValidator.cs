@@ -12,7 +12,7 @@ public class CreateTravelGuideRequestValidator : CustomValidator<CreateTravelGui
             .NotEmpty()
             .MaximumLength(1024)
             .MustAsync(async (name, ct) => await repo.SingleOrDefaultAsync(new TravelGuideByTitleSpec(name), ct) is null)
-            .WithMessage((_, name) => string.Format(localizer["service.alreadyexists"], name));
+            .WithMessage((_, name) => string.Format(localizer["travelguide.alreadyexists"], name));
 
         RuleFor(p => p.SubTitle)
             .NotEmpty();

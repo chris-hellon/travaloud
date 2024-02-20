@@ -45,6 +45,8 @@ public partial class TourItinerary : ComponentBase
 
     private async Task SaveAsync()
     {
+        await LoadingService.ToggleLoaderVisibility(true);
+        
         if (await _fluentValidationValidator!.ValidateAsync())
         {
             if (await ServiceHelper.ExecuteCallGuardedAsync(
@@ -79,6 +81,8 @@ public partial class TourItinerary : ComponentBase
         {
             Snackbar.Add("One or more validation errors occurred.");
         }
+        
+        await LoadingService.ToggleLoaderVisibility(false);
     }
 
     private void AddTourItinerarySection()
@@ -127,7 +131,7 @@ public partial class TourItinerary : ComponentBase
 
     private void DeleteTourItinerarySection(TourItinerarySectionRequest section)
     {
-        RequestModel.Sections?.ToList().Remove(section);
+        RequestModel.Sections?.Remove(section);
         StateHasChanged();
     }
 

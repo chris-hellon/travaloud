@@ -69,7 +69,7 @@ public class ApplicationDbContext : BaseDbContext
     public DbSet<ServiceEnquiryField> ServiceEnquiryFields => Set<ServiceEnquiryField>();
     public DbSet<GeneralEnquiry> GeneralEnquiries => Set<GeneralEnquiry>();
     public DbSet<Gallery> Galleries => Set<Gallery>();
-    public DbSet<GalleryImage> GalleryImage=> Set<GalleryImage>();
+    public DbSet<GalleryImage> GalleryImages => Set<GalleryImage>();
     public DbSet<TravelGuide> TravelGuides => Set<TravelGuide>();
     public DbSet<TravelGuideGalleryImage> TravelGuideGalleryImages => Set<TravelGuideGalleryImage>();
     

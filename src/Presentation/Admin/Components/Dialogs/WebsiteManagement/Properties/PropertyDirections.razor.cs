@@ -12,7 +12,7 @@ namespace Travaloud.Admin.Components.Dialogs.WebsiteManagement.Properties;
 
 public partial class PropertyDirections : ComponentBase
 {
-    [Parameter] [EditorRequired] public UpdatePropertyDirectionRequest RequestModel { get; set; } = default!;
+    [Parameter] [EditorRequired] public PropertyDirectionRequest RequestModel { get; set; } = default!;
 
     [Parameter] public PropertyViewModel Property { get; set; } = default!;
 
@@ -25,7 +25,7 @@ public partial class PropertyDirections : ComponentBase
 
     private bool IsCreate => Id is null;
 
-    [Parameter] public MudCarousel<UpdatePropertyDirectionContentRequest>? DirectionContentsCarousel { get; set; }
+    [Parameter] public MudCarousel<PropertyDirectionContentRequest>? DirectionContentsCarousel { get; set; }
 
     [CascadingParameter] private MudDialogInstance MudDialog { get; set; } = default!;
 
@@ -45,13 +45,15 @@ public partial class PropertyDirections : ComponentBase
 
     private async Task SaveAsync()
     {
+        await LoadingService.ToggleLoaderVisibility(true);
+        
         if (await _fluentValidationValidator!.ValidateAsync())
         {
             if (await ServiceHelper.ExecuteCallGuardedAsync(
                     () =>
                     {
                         if (!IsCreate) return Task.CompletedTask;
-                        Property.Directions ??= new List<UpdatePropertyDirectionRequest>();
+                        Property.Directions ??= new List<PropertyDirectionRequest>();
 
                         if (Property.Directions.Any())
                         {
@@ -79,5 +81,7 @@ public partial class PropertyDirections : ComponentBase
         {
             Snackbar.Add("One or more validation errors occurred.");
         }
+        
+        await LoadingService.ToggleLoaderVisibility(false);
     }
 }

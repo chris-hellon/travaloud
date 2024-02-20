@@ -19,11 +19,13 @@ public class CreateTravelGuideRequestHandler : IRequestHandler<CreateTravelGuide
 {
     private readonly IRepositoryFactory<TravelGuide> _repository;
     private readonly IFileStorageService _file;
+    private readonly ICurrentUser _currentUser;
 
-    public CreateTravelGuideRequestHandler(IRepositoryFactory<TravelGuide> repository, IFileStorageService file)
+    public CreateTravelGuideRequestHandler(IRepositoryFactory<TravelGuide> repository, IFileStorageService file, ICurrentUser currentUser)
     {
         _repository = repository;
         _file = file;
+        _currentUser = currentUser;
     }
 
     public async Task<DefaultIdType> Handle(CreateTravelGuideRequest request, CancellationToken cancellationToken)
@@ -40,23 +42,7 @@ public class CreateTravelGuideRequestHandler : IRequestHandler<CreateTravelGuide
             request.MetaDescription
         );
 
-        if (request.TravelGuideGalleryImages != null && request.TravelGuideGalleryImages.Any())
-        {
-            var galleryImages = new List<TravelGuideGalleryImage>();
-            foreach (var galleryImage in request.TravelGuideGalleryImages)
-            {
-                var galleryImagePath = await _file.UploadAsync<TravelGuideGalleryImage>(request.Image, FileType.Image, cancellationToken);
-                
-                galleryImages.Add(new TravelGuideGalleryImage(
-                    request.Title,
-                    request.Title,
-                    galleryImagePath,
-                    galleryImage.SortOrder
-                    ));
-            }
-
-            travelGuide.TravelGuideGalleryImages = galleryImages;
-        }
+        await travelGuide.ProcessImages(request.TravelGuideGalleryImages, _currentUser.GetUserId(), _file, cancellationToken);
         
         travelGuide.DomainEvents.Add(EntityCreatedEvent.WithEntity(travelGuide));
         

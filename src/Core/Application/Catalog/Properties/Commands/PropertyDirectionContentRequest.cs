@@ -1,6 +1,6 @@
 ﻿namespace Travaloud.Application.Catalog.Properties.Commands;
 
-public class UpdatePropertyDirectionContentRequest : IRequest<DefaultIdType>
+public class PropertyDirectionContentRequest : IRequest<DefaultIdType>
 {
     public DefaultIdType Id { get; set; }
     public string Body { get; set; } = default!;

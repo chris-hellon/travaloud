@@ -4,7 +4,7 @@ using Travaloud.Domain.Catalog.Properties;
 
 namespace Travaloud.Application.Catalog.Properties.Validation;
 
-public class UpdatePropertyRoomRequestValidator : CustomValidator<UpdatePropertyRoomRequest>
+public class UpdatePropertyRoomRequestValidator : CustomValidator<PropertyRoomRequest>
 {
     public UpdatePropertyRoomRequestValidator(IRepositoryFactory<PropertyRoom> repo, IStringLocalizer<UpdatePropertyRoomRequestValidator> localizer)
     {

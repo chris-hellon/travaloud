@@ -447,7 +447,7 @@ public partial class Tours
 
             if (fileUploadDetails != null)
             {
-                var newImageRequest = new UpdateTourImageRequest()
+                var newImageRequest = new TourImageRequest()
                 {
                     ImageExtension = fileUploadDetails.Extension,
                     ImageInBytes = fileUploadDetails.FileInBytes,
@@ -455,13 +455,13 @@ public partial class Tours
                     ThumbnailImagePath = fileUploadDetails.FileInBytes
                 };
                 
-                (Context.AddEditModal.RequestModel.Images ??= new List<UpdateTourImageRequest>()).Insert(0, newImageRequest);
+                (Context.AddEditModal.RequestModel.Images ??= new List<TourImageRequest>()).Insert(0, newImageRequest);
                 SetSlideshowImagesSortOrder();
             }
         }
     }
 
-    private void SetSlideshowImagesSortOrder(UpdateTourImageRequest? imageRequest = null, bool right = false)
+    private void SetSlideshowImagesSortOrder(TourImageRequest? imageRequest = null, bool right = false)
     {
         if (Context.AddEditModal?.RequestModel == null ||
             Context.AddEditModal.RequestModel.Images?.Any() != true) return;
@@ -510,7 +510,7 @@ public partial class Tours
         Context.AddEditModal.ForceRender();
     }
 
-    private void ClearSlideshowImageInBytes(UpdateTourImageRequest image)
+    private void ClearSlideshowImageInBytes(TourImageRequest image)
     {
         if (Context.AddEditModal == null) return;
         
@@ -519,7 +519,7 @@ public partial class Tours
         Context.AddEditModal.ForceRender();
     }
 
-    private void SetDeleteSlideshowImageFlag(UpdateTourImageRequest image)
+    private void SetDeleteSlideshowImageFlag(TourImageRequest image)
     {
         if (Context.AddEditModal?.RequestModel == null) return;
         

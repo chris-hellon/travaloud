@@ -1,0 +1,98 @@
+@page "/management/galleries"
+@using Travaloud.Application.Catalog.Galleries.Dto
+@using Travaloud.Application.Catalog.Galleries.Commands
+
+@attribute [MustHavePermission(TravaloudAction.View, TravaloudResource.Gallery)]
+
+@inject IStringLocalizer<Galleries> L
+
+<TravaloudPageTitle Title="@L["Galleries"]" Description="@L["Manage Galleries"]"/>
+
+<EntityTable @ref="_table" TEntity="GalleryDto" TId="Guid" TRequest="UpdateGalleryRequest" Context="@Context" IsWizard="true" WizardSteps="@WizardSteps">
+    <WizardStep1Content>
+        <MudGrid>
+            <MudItem xs="12" md="12">
+                <MudTextField Label="@L["Title"]" For="@(() => context.Title)" @bind-Value="context.Title" Required="true" HelperText="Enter a Title" Variant="Variant.Outlined"/>
+            </MudItem>
+            <MudItem xs="12" md="12">
+                            <MudInputLabel Class="mb-3">@L["Full Description"]</MudInputLabel>
+                            <Editor @bind-Value="context.Description" JsConfSrc="mceStyle" Field="@(() => context.Description)" Conf="@TinyMceConfig.Styles(500)" ApiKey="@TinyMceConfig.ApiKey"></Editor>
+                        </MudItem>
+        </MudGrid>
+    </WizardStep1Content>
+    <WizardStep2Content>
+        <MudGrid>
+            <MudItem xs="12" md="12">
+                <MudTextField Label="@L["Meta Keywords"]" For="@(() => context.MetaKeywords)" @bind-Value="context.MetaKeywords" HelperText="Enter Meta Keywords (recommended max limit of 20)" Variant="Variant.Outlined"/>
+            </MudItem>
+            <MudItem xs="12" md="12">
+                <MudTextField Label="@L["Meta Description"]" Lines="5" For="@(() => context.MetaDescription)" @bind-Value="context.MetaDescription" HelperText="Enter a Meta Description" Variant="Variant.Outlined"/>
+            </MudItem>
+        </MudGrid>
+    </WizardStep2Content>
+    <WizardStep3Content>
+        <MudGrid>
+            <MudItem xs="12" md="12">
+                <MudStack>
+                    <MudItem xs="12" md="12">
+                        <MudButton HtmlTag="label" DisableElevation Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
+                                   StartIcon="@Icons.Material.Filled.CloudUpload" for="slideshowImageFileInput">
+                            @L["Add Slideshow Image"]
+                        </MudButton>
+                        <InputFile id="slideshowImageFileInput" hidden OnChange="UploadGalleryImage"/>
+                    </MudItem>
+                    <MudItem xs="12" md="12">
+                        @if (context.GalleryImages != null)
+                        {
+                            <MudGrid>
+                                @foreach (var image in context.GalleryImages)
+                                {
+                                    <MudItem xs="12" md="3" Style="height:220px;">
+                                        @if (!string.IsNullOrEmpty(image.ImageInBytes))
+                                        {
+                                            <MudImage ObjectFit="ObjectFit.Cover" Style="width:100%; height:85%;" Src="@image.ImageInBytes" Alt="Gallery image" Elevation="25" Class="rounded-lg"/>
+                                        }
+                                        else
+                                        {
+                                            <MudImage ObjectFit="ObjectFit.Cover" Style="width:100%; height:85%;" Src="@image.ImagePath" Alt="Gallery image" Elevation="25" Class="rounded-lg"/>
+                                        }
+
+                                        @if (image != context.GalleryImages.First())
+                                        {
+                                            <MudIconButton Icon="@Icons.Material.Filled.ArrowCircleLeft" OnClick="@(() => SetGalleryImagesSortOrder(image))" Color="Color.Primary" aria-label="left" Style="margin-right: 5px;"></MudIconButton>
+                                        }
+
+                                        @if (!string.IsNullOrEmpty(image.ImageInBytes))
+                                        {
+                                            <MudButton HtmlTag="label" DisableElevation OnClick="@(() => ClearGalleryImageInBytes(image))" Variant="Variant.Filled" Color="Color.Warning" Size="Size.Small" Target="_blank"
+                                                       StartIcon="@Icons.Material.Filled.Clear" Style="margin-left: 5px;">
+                                                @L["Clear"]
+                                            </MudButton>
+                                        }
+                                        else
+                                        {
+                                            <MudButton HtmlTag="label" DisableElevation Variant="Variant.Filled" Color="Color.Info" Size="Size.Small" Target="_blank"
+                                                       StartIcon="@Icons.Material.Filled.RemoveRedEye" Link="@(image.ImagePath)" Style="margin-left: 5px;">
+                                                @L["View"]
+                                            </MudButton>
+
+                                            <MudButton HtmlTag="label" DisableElevation Variant="Variant.Filled" Color="Color.Error" Size="Size.Small"
+                                                       StartIcon="@Icons.Material.Filled.Delete" OnClick="@(() => SetDeleteGalleryImageFlag(image))" Style="margin-left: 5px;">
+                                                @L["Delete"]
+                                            </MudButton>
+                                        }
+
+                                        @if (image != context.GalleryImages.Last())
+                                        {
+                                            <MudIconButton Icon="@Icons.Material.Filled.ArrowCircleRight" OnClick="@(() => SetGalleryImagesSortOrder(image, true))" Color="Color.Primary" aria-label="right" Style="margin-left: 5px;"></MudIconButton>
+                                        }
+                                    </MudItem>
+                                }
+                            </MudGrid>
+                        }
+                    </MudItem>
+                </MudStack>
+            </MudItem>
+        </MudGrid>
+    </WizardStep3Content>
+</EntityTable>

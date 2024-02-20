@@ -48,6 +48,8 @@ public partial class TourDate : ComponentBase
 
     private async Task SaveAsync()
     {
+        await LoadingService.ToggleLoaderVisibility(true);
+        
         if (await _fluentValidationValidator!.ValidateAsync())
         {
             if (await ServiceHelper.ExecuteCallGuardedAsync(
@@ -116,6 +118,8 @@ public partial class TourDate : ComponentBase
         {
             Snackbar.Add("One or more validation errors occurred.");
         }
+        
+        await LoadingService.ToggleLoaderVisibility(false);
     }
 
     private static DateTime CalculateEndDate(DateTime startDate, decimal? dayDuration, decimal? nightDuration,

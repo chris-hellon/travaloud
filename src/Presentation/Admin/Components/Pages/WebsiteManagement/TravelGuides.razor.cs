@@ -229,7 +229,7 @@ public partial class TravelGuides
         if (Context.AddEditModal == null) return;
 
         image.ImageInBytes = string.Empty;
-        Context.AddEditModal.RequestModel.TravelGuideGalleryImages?.ToList().Remove(image);
+        Context.AddEditModal.RequestModel.TravelGuideGalleryImages?.Remove(image);
         Context.AddEditModal.ForceRender();
     }
 
@@ -240,7 +240,7 @@ public partial class TravelGuides
         image.ImageInBytes = string.Empty;
         image.ImagePath = string.Empty;
         image.DeleteCurrentImage = true;
-        Context.AddEditModal.RequestModel.TravelGuideGalleryImages?.ToList().Remove(image);
+        Context.AddEditModal.RequestModel.TravelGuideGalleryImages?.Remove(image);
         Context.AddEditModal.ForceRender();
     }
 }

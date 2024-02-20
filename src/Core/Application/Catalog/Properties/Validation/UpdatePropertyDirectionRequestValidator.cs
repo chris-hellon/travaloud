@@ -4,7 +4,7 @@ using Travaloud.Domain.Catalog.Properties;
 
 namespace Travaloud.Application.Catalog.Properties.Validation;
 
-public class UpdatePropertyDirectionRequestValidator : CustomValidator<UpdatePropertyDirectionRequest>
+public class UpdatePropertyDirectionRequestValidator : CustomValidator<PropertyDirectionRequest>
 {
     public UpdatePropertyDirectionRequestValidator(IRepositoryFactory<PropertyDirection> repo, IStringLocalizer<UpdatePropertyDirectionRequestValidator> localizer)
     {
@@ -20,7 +20,7 @@ public class UpdatePropertyDirectionRequestValidator : CustomValidator<UpdatePro
             .WithMessage("One or more items have validation errors.");
     }
 
-    private bool ValidateItems(IEnumerable<UpdatePropertyDirectionContentRequest> items)
+    private bool ValidateItems(IEnumerable<PropertyDirectionContentRequest> items)
     {
         var validator = new UpdateBookingDirectionContentValidator();
         var validationResults = items.Select(item => validator.Validate(item));

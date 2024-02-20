@@ -34,11 +34,11 @@ public class CreatePropertyRequest : IRequest<DefaultIdType>
     [Display(Name = "H2 Tag")]
     public string? H2 { get; set; }
 
-    public IList<CreatePropertyDestinationLookupRequest>? PropertyDestinationLookups { get; set; }
-    public IList<CreatePropertyDirectionRequest>? Directions { get; set; }
-    public IList<CreatePropertyRoomRequest>? Rooms { get; set; }
-    public IList<CreatePropertyFacilityRequest>? Facilities { get; set; }
-    public IList<CreatePropertyImageRequest>? Images { get; set; }
+    public IList<PropertyDestinationLookupRequest>? PropertyDestinationLookups { get; set; }
+    public IList<PropertyDirectionRequest>? Directions { get; set; }
+    public IList<PropertyRoomRequest>? Rooms { get; set; }
+    public IList<PropertyFacilityRequest>? Facilities { get; set; }
+    public IList<PropertyImageRequest>? Images { get; set; }
 }
 
 public class CreatePropertyRequestHandler : IRequestHandler<CreatePropertyRequest, DefaultIdType>
@@ -46,12 +46,14 @@ public class CreatePropertyRequestHandler : IRequestHandler<CreatePropertyReques
     private readonly IRepositoryFactory<Property> _repository;
     private readonly IRepositoryFactory<Page> _pageRepository;
     private readonly IFileStorageService _file;
-
-    public CreatePropertyRequestHandler(IRepositoryFactory<Property> repository, IFileStorageService file, IRepositoryFactory<Page> pageRepository)
+    private readonly ICurrentUser _currentUser;
+    
+    public CreatePropertyRequestHandler(IRepositoryFactory<Property> repository, IFileStorageService file, IRepositoryFactory<Page> pageRepository, ICurrentUser currentUser)
     {
         _repository = repository;
         _file = file;
         _pageRepository = pageRepository;
+        _currentUser = currentUser;
     }
 
     public async Task<DefaultIdType> Handle(CreatePropertyRequest request, CancellationToken cancellationToken)
@@ -82,12 +84,14 @@ public class CreatePropertyRequestHandler : IRequestHandler<CreatePropertyReques
             videoPath,
             mobileVideoPath);
 
-        property.AddDirections(request);
-        property.AddFacilities(request);
-        property.AddDestinations(request);
+        var userId = _currentUser.GetUserId();
         
-        await property.AddRooms(request, _file, cancellationToken);
-        await property.AddImages(request, _file, cancellationToken);
+        property.ProcessDirections(request.Directions, userId);
+        property.ProcessFacilities(request.Facilities, userId);
+        property.ProcessDestinations(request.PropertyDestinationLookups, userId);
+        
+        await property.ProcessRooms(request.Rooms, userId, _file, cancellationToken);
+        await property.ProcessImages(request.Images, userId, _file, cancellationToken);
 
         // Add Domain Events to be raised after the commit
         property.DomainEvents.Add(EntityCreatedEvent.WithEntity(property));

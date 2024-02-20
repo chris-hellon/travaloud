@@ -1,48 +1,49 @@
 using Travaloud.Application.Catalog.TravelGuides.Commands;
 using Travaloud.Domain.Catalog.TravelGuides;
+using Travaloud.Domain.Common.Events;
 
 namespace Travaloud.Application.Common.Extensions;
 
 public static class TravelGuidesExtensions
 {
-    public static async Task AddImages(this TravelGuide property, UpdateTravelGuideRequest request, IFileStorageService file, CancellationToken cancellationToken)
+    public static async Task ProcessImages(this TravelGuide travelGuide, IList<TravelGuideGalleryImageRequest>? request, DefaultIdType userId, IFileStorageService file, CancellationToken cancellationToken)
     {
-        if (request.TravelGuideGalleryImages?.Any() == true)
+        if (request?.Any() == true)
         {
-            var images = new List<TravelGuideGalleryImage>();
-            foreach (var imageRequest in request.TravelGuideGalleryImages)
+            var requestImages = new List<TravelGuideGalleryImage>();
+
+            foreach (var requestImage in request)
             {
-                var image = property.TravelGuideGalleryImages?.FirstOrDefault(x => x.Id == imageRequest.Id);
+                var image = travelGuide.TravelGuideGalleryImages?.FirstOrDefault(x => x.Id == requestImage.Id);
 
                 if (image == null)
                 {
-                    var imagePath = await file.UploadAsync<TravelGuideGalleryImage>(imageRequest.Image, FileType.Image, cancellationToken);
-                    images.Add(new TravelGuideGalleryImage(request.Title, request.Title, imagePath, imageRequest.SortOrder, property.Id));
+                    var imagePath = await file.UploadAsync<TravelGuideGalleryImage>(requestImage.Image, FileType.Image, cancellationToken);
+                    requestImages.Add(new TravelGuideGalleryImage(travelGuide.Title, travelGuide.Title, imagePath, requestImage.SortOrder, travelGuide.Id));
                 }
                 else
                 {
-                    if (imageRequest.DeleteCurrentImage)
-                    {
-                        var currentProductImagePath = imageRequest.ImagePath;
-                        if (!string.IsNullOrEmpty(currentProductImagePath))
-                        {
-                            var root = Directory.GetCurrentDirectory();
-                            await file.Remove(Path.Combine(root, currentProductImagePath));
-                        }
-
-                        image = image.ClearImagePath();
-                    }
-
-                    var imagePath = imageRequest.Image is not null
-                        ? image.ImagePath
-                        : null;
-
-                    image.Update(request.Title, request.Title, imagePath, imageRequest.SortOrder, property.Id);
-                    images.Add(image);
+                    requestImages.Add(image);
                 }
             }
 
-            property.TravelGuideGalleryImages = images;
+            var imagesToRemove = travelGuide.TravelGuideGalleryImages?
+                .Where(existingImage => requestImages.All(newImage => newImage.Id != existingImage.Id))
+                .ToList();
+
+            if (imagesToRemove != null && imagesToRemove.Count != 0)
+            {
+                foreach (var image in imagesToRemove)
+                {
+                    image.DomainEvents.Add(EntityDeletedEvent.WithEntity(image));
+                    image.FlagAsDeleted(userId);
+                    requestImages.Add(image);
+                }
+            }
+
+            travelGuide.TravelGuideGalleryImages = requestImages;
         }
+        else
+            travelGuide.TravelGuideGalleryImages = Array.Empty<TravelGuideGalleryImage>();
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace Travaloud.Application.Catalog.Properties.Commands;
 
-public class UpdatePropertyRoomRequest : IRequest<DefaultIdType>
+public class PropertyRoomRequest : IRequest<DefaultIdType>
 {
     public DefaultIdType Id { get; set; }
     public DefaultIdType PropertyId { get; set; }

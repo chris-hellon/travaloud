@@ -32,9 +32,9 @@ public partial class Properties
 
     private ICollection<DestinationDto>? Destinations { get; set; }
 
-    private MudTable<UpdatePropertyDirectionRequest>? _directionsTable;
+    private MudTable<PropertyDirectionRequest>? _directionsTable;
 
-    private MudTable<UpdatePropertyRoomRequest>? _roomsTable;
+    private MudTable<PropertyRoomRequest>? _roomsTable;
 
     private static Dictionary<string, bool> WizardSteps => new()
     {
@@ -134,7 +134,7 @@ public partial class Properties
 
                 if (property.DestinationId.HasValue)
                 {
-                    property.PropertyDestinationLookups = new List<UpdatePropertyDestinationLookupRequest>()
+                    property.PropertyDestinationLookups = new List<PropertyDestinationLookupRequest>()
                     {
                         new() {DestinationId = property.DestinationId.Value}
                     };
@@ -207,7 +207,7 @@ public partial class Properties
 
                 if (property.DestinationId.HasValue)
                 {
-                    property.PropertyDestinationLookups = new List<UpdatePropertyDestinationLookupRequest>()
+                    property.PropertyDestinationLookups = new List<PropertyDestinationLookupRequest>()
                     {
                         new() {DestinationId = property.DestinationId.Value}
                     };
@@ -276,7 +276,7 @@ public partial class Properties
 
             if (fileUploadDetails != null)
             {
-                var newImageRequest = new UpdatePropertyImageRequest()
+                var newImageRequest = new PropertyImageRequest()
                 {
                     ImageExtension = fileUploadDetails.Extension,
                     ImageInBytes = fileUploadDetails.FileInBytes,
@@ -284,7 +284,7 @@ public partial class Properties
                     ThumbnailImagePath = fileUploadDetails.FileInBytes
                 };
                 
-                (Context.AddEditModal.RequestModel.Images ??= new List<UpdatePropertyImageRequest>()).Insert(0, newImageRequest);
+                (Context.AddEditModal.RequestModel.Images ??= new List<PropertyImageRequest>()).Insert(0, newImageRequest);
                 SetSlideshowImagesSortOrder();
             }
         }
@@ -326,29 +326,29 @@ public partial class Properties
         Context.AddEditModal.ForceRender();
     }
 
-    private void ClearSlideshowImageInBytes(UpdatePropertyImageRequest image)
+    private void ClearSlideshowImageInBytes(PropertyImageRequest image)
     {
         if (Context.AddEditModal == null) return;
 
         image.ImageInBytes = string.Empty;
-        Context.AddEditModal.RequestModel.Images?.ToList().Remove(image);
+        Context.AddEditModal.RequestModel.Images?.Remove(image);
         Context.AddEditModal.ForceRender();
     }
 
-    private void SetDeleteSlideshowImageFlag(UpdatePropertyImageRequest image)
+    private void SetDeleteSlideshowImageFlag(PropertyImageRequest image)
     {
         if (Context.AddEditModal == null) return;
 
         image.ImageInBytes = string.Empty;
         image.ImagePath = string.Empty;
         image.DeleteCurrentImage = true;
-        Context.AddEditModal.RequestModel.Images?.ToList().Remove(image);
+        Context.AddEditModal.RequestModel.Images?.Remove(image);
         Context.AddEditModal.ForceRender();
     }
 
-    public async Task InvokeDirectionsDialog(UpdatePropertyDirectionRequest requestModel, PropertyViewModel property, bool isCreate = false)
+    public async Task InvokeDirectionsDialog(PropertyDirectionRequest requestModel, PropertyViewModel property, bool isCreate = false)
     {
-        var initialModel = JsonSerializer.Deserialize<IList<UpdatePropertyDirectionRequest>>(JsonSerializer.Serialize(property.Directions)) ?? new List<UpdatePropertyDirectionRequest>();
+        var initialModel = JsonSerializer.Deserialize<IList<PropertyDirectionRequest>>(JsonSerializer.Serialize(property.Directions)) ?? new List<PropertyDirectionRequest>();
         DialogOptions options = new()
             {CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, DisableBackdropClick = true};
         DialogParameters parameters = new()
@@ -390,16 +390,16 @@ public partial class Properties
             var direction = property.Directions?.FirstOrDefault(x => x.Id == id);
             if (direction != null)
             {
-                property.Directions?.ToList().Remove(direction);
+                property.Directions?.Remove(direction);
             }
 
             Context.AddEditModal?.ForceRender();
         }
     }
 
-    public async Task InvokeRoomDialog(UpdatePropertyRoomRequest requestModel, PropertyViewModel property, bool isCreate = false)
+    public async Task InvokeRoomDialog(PropertyRoomRequest requestModel, PropertyViewModel property, bool isCreate = false)
     {
-        var initialModel = JsonSerializer.Deserialize<IList<UpdatePropertyRoomRequest>>(JsonSerializer.Serialize(property.Rooms)) ?? new List<UpdatePropertyRoomRequest>();
+        var initialModel = JsonSerializer.Deserialize<IList<PropertyRoomRequest>>(JsonSerializer.Serialize(property.Rooms)) ?? new List<PropertyRoomRequest>();
         DialogOptions options = new() {CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, DisableBackdropClick = true};
         DialogParameters parameters = new()
         {
@@ -441,14 +441,14 @@ public partial class Properties
             var room = property.Rooms?.FirstOrDefault(x => x.Id == id);
             if (room != null)
             {
-                property.Rooms?.ToList().Remove(room);
+                property.Rooms?.Remove(room);
             }
 
             Context.AddEditModal?.ForceRender();
         }
     }
 
-    private void SetSlideshowImagesSortOrder(UpdatePropertyImageRequest? imageRequest = null, bool right = false)
+    private void SetSlideshowImagesSortOrder(PropertyImageRequest? imageRequest = null, bool right = false)
     {
         if (Context.AddEditModal?.RequestModel == null ||
             Context.AddEditModal.RequestModel.Images?.Any() != true) return;

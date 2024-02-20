@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Function to check for invalid controls and disable submit buttons if necessary
     function checkAndDisableSubmitButtons() {
-        const submitButtons = document.querySelectorAll('button[type="submit"]');
+        const submitButtons = document.querySelectorAll('button[type="submit"]:not(.dont-disable)');
         const invalidElements = document.querySelectorAll('.invalid');
         if (invalidElements.length === 0) {
             submitButtons.forEach(button => {

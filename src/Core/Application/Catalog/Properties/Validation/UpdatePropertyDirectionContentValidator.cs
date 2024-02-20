@@ -2,7 +2,7 @@
 
 namespace Travaloud.Application.Catalog.Properties.Validation;
 
-public class UpdateBookingDirectionContentValidator : CustomValidator<UpdatePropertyDirectionContentRequest>
+public class UpdateBookingDirectionContentValidator : CustomValidator<PropertyDirectionContentRequest>
 {
     public UpdateBookingDirectionContentValidator()
     {

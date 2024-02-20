@@ -14,7 +14,7 @@ public class UpdateTravelGuideRequestValidator : CustomValidator<UpdateTravelGui
             .MustAsync(async (travelGuide, name, ct) =>
                 await repo.FirstOrDefaultAsync(new TravelGuideByTitleSpec(name), ct)
                     is not TravelGuide existingTravelGuide || existingTravelGuide.Id == travelGuide.Id)
-            .WithMessage((_, name) => string.Format(localizer["travelGuide.alreadyexists"], name));
+            .WithMessage((_, name) => string.Format(localizer["travelguide.alreadyexists"], name));
 
         RuleFor(p => p.SubTitle)
             .NotEmpty();

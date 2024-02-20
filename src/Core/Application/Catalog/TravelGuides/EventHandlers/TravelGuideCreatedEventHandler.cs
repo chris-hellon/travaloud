@@ -3,11 +3,11 @@ using Travaloud.Domain.Common.Events;
 
 namespace Travaloud.Application.Catalog.TravelGuides.EventHandlers;
 
-public class TravelGuidCreatedEventHandler : EventNotificationHandler<EntityCreatedEvent<TravelGuide>>
+public class TravelGuideCreatedEventHandler : EventNotificationHandler<EntityCreatedEvent<TravelGuide>>
 {
-    private readonly ILogger<TravelGuidCreatedEventHandler> _logger;
+    private readonly ILogger<TravelGuideCreatedEventHandler> _logger;
 
-    public TravelGuidCreatedEventHandler(ILogger<TravelGuidCreatedEventHandler> logger)
+    public TravelGuideCreatedEventHandler(ILogger<TravelGuideCreatedEventHandler> logger)
     {
         _logger = logger;
     }

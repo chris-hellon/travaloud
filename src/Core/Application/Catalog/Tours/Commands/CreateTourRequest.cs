@@ -66,7 +66,7 @@ public class CreateTourRequest : IRequest<DefaultIdType>
     public IList<TourCategoryLookupRequest>? TourCategoryLookups { get; set; }
     public IList<TourCategoryRequest>? TourCategories { get; set; }
     public IList<TourCategoryRequest>? ParentTourCategories { get; set; }
-    public IList<CreateTourImageRequest>? Images { get; set; }
+    public IList<TourImageRequest>? Images { get; set; }
 
     public bool? PublishToSite { get; set; }
 }
@@ -76,12 +76,14 @@ public class CreateTourRequestHandler : IRequestHandler<CreateTourRequest, Defau
     private readonly IRepositoryFactory<Tour> _repository;
     private readonly IRepositoryFactory<Page> _pageRepository;
     private readonly IFileStorageService _file;
+    private readonly ICurrentUser _currentUser;
 
-    public CreateTourRequestHandler(IRepositoryFactory<Tour> repository, IFileStorageService file, IRepositoryFactory<Page> pageRepository)
+    public CreateTourRequestHandler(IRepositoryFactory<Tour> repository, IFileStorageService file, IRepositoryFactory<Page> pageRepository, ICurrentUser currentUser)
     {
         _repository = repository;
         _file = file;
         _pageRepository = pageRepository;
+        _currentUser = currentUser;
     }
 
     public async Task<DefaultIdType> Handle(CreateTourRequest request, CancellationToken cancellationToken)
@@ -90,14 +92,16 @@ public class CreateTourRequestHandler : IRequestHandler<CreateTourRequest, Defau
         var videoPath = request.Video != null ? await _file.UploadAsync<Tour>(request.Video, FileType.Video, cancellationToken) : string.Empty;
         var mobileVideoPath = request.MobileVideo != null ? await _file.UploadAsync<Tour>(request.MobileVideo, FileType.Video, cancellationToken) : string.Empty;
 
-        var tourPricesAndDates = GetTourPricesAndDates(request, request.MaxCapacity ?? 99999);
-        var tourItineraries = await AddTourItineraries(request, cancellationToken);
-        var tourCategories = AddTourCategories(request);
-
-        var tour = new Tour(request.Name, request.Description, request.ShortDescription, request.Price, request.PriceLabel, tourImagePath, tourImagePath, request.MaxCapacity ?? 99999, request.MinCapacity, request.DayDuration, request.NightDuration, request.HourDuration, request.AdditionalInformation, request.TelephoneNumber, request.WhatsIncluded, request.WhatsNotIncluded, request.AdditionalInformation, request.MetaKeywords, request.MetaDescription, request.ImportantInformation, tourPricesAndDates.Item2, tourItineraries, tourPricesAndDates.Item1, tourCategories, null, request.PublishToSite, request.UrlSlug, request.H1, request.H2, videoPath, mobileVideoPath);
-
-        await AddImages(request, tour, cancellationToken);
-
+        var userId = _currentUser.GetUserId();
+        
+        var tour = new Tour(request.Name, request.Description, request.ShortDescription, request.Price, request.PriceLabel, tourImagePath, tourImagePath, request.MaxCapacity ?? 99999, request.MinCapacity, request.DayDuration, request.NightDuration, request.HourDuration, request.AdditionalInformation, request.TelephoneNumber, request.WhatsIncluded, request.WhatsNotIncluded, request.AdditionalInformation, request.MetaKeywords, request.MetaDescription, request.ImportantInformation,request.PublishToSite, request.UrlSlug, request.H1, request.H2, videoPath, mobileVideoPath);
+        
+        tour.ProcessTourPricesAndDates(request.TourPrices, request.TourDates, request.MaxCapacity ?? 99999, tour.MaxCapacity, userId);
+        tour.ProcessTourCategories(request.TourCategoryId, request.SelectedParentTourCategories, request.TourCategoryLookups, userId);
+        
+        await tour.ProcessTourItineraries(request.TourItineraries, userId, _file, cancellationToken);
+        await tour.ProcessImages(request.Images, userId, _file, cancellationToken);
+        
         // Add Domain Events to be raised after the commit
         tour.DomainEvents.Add(EntityCreatedEvent.WithEntity(tour));
 
@@ -110,115 +114,5 @@ public class CreateTourRequestHandler : IRequestHandler<CreateTourRequest, Defau
         await _pageRepository.AddAsync(page, cancellationToken);
         
         return tour.Id;
-    }
-
-    private static Tuple<List<TourPrice>, List<TourDate>> GetTourPricesAndDates(CreateTourRequest request, int? availableSpaces)
-    {
-        var newTourPrices = new List<TourPrice>();
-        var newTourDates = new List<TourDate>();
-
-        if (request.TourPrices?.Any() != true || request.TourDates?.Any() != true)
-            
-            return new Tuple<List<TourPrice>, List<TourDate>>(newTourPrices, newTourDates);
-        foreach (var tourPriceRequest in request.TourPrices)
-        {
-            // Create a new TourPrice
-            var price = new TourPrice(tourPriceRequest.Price ?? 0m, tourPriceRequest.Title, tourPriceRequest.Description, tourPriceRequest.MonthFrom, tourPriceRequest.MonthTo, tourPriceRequest.DayDuration, tourPriceRequest.NightDuration, tourPriceRequest.HourDuration, null);
-            newTourPrices.Add(price);
-
-            var priceDates = request.TourDates.Where(x => x.TourPriceId == tourPriceRequest.Id);
-
-            if (!priceDates.Any()) continue;
-            
-            foreach (var tourDateRequest in priceDates)
-            {
-                tourDateRequest.AvailableSpaces = availableSpaces;
-
-                if (!tourDateRequest.StartDate.HasValue || !tourDateRequest.StartTime.HasValue ||
-                    !tourDateRequest.EndDate.HasValue || !tourDateRequest.AvailableSpaces.HasValue) continue;
-                
-                tourDateRequest.StartDate = tourDateRequest.StartDate.Value.Add(tourDateRequest.StartTime.Value);
-                newTourDates.Add(new TourDate(tourDateRequest.StartDate.Value, tourDateRequest.EndDate.Value, tourDateRequest.AvailableSpaces.Value, tourDateRequest.PriceOverride, null, tourDateRequest.TourPriceId, price));
-            }
-        }
-
-        return new Tuple<List<TourPrice>, List<TourDate>>(newTourPrices, newTourDates);
-    }
-
-    private async Task<List<TourItinerary>> AddTourItineraries(CreateTourRequest request, CancellationToken cancellationToken)
-    {
-        var newItineraries = new List<TourItinerary>();
-
-        if (request.TourItineraries?.Any() != true) return newItineraries;
-        
-        foreach (var tourItineraryRequest in request.TourItineraries)
-        {
-            if (string.IsNullOrEmpty(tourItineraryRequest.Header)) continue;
-            
-            var itinerarySections = new List<TourItinerarySection>();
-
-            if (tourItineraryRequest.Sections?.Any() == true)
-            {
-                foreach (var section in tourItineraryRequest.Sections)
-                {
-                    var sectionImages = new List<TourItinerarySectionImage>();
-
-                    if (section.Images?.Any() == true)
-                    {
-                        foreach (var image in section.Images)
-                        {
-                            if (string.IsNullOrEmpty(image.ImageInBytes)) continue;
-                            image.Image = new FileUploadRequest() { Data = image.ImageInBytes, Extension = image.ImageExtension ?? string.Empty, Name = $"{section.Title}_{DefaultIdType.NewGuid():N}" };
-                            var imagePath = await _file.UploadAsync<TourItinerarySectionImageRequest>(image.Image, FileType.Image, cancellationToken);
-
-                            sectionImages.Add(new TourItinerarySectionImage(imagePath, imagePath));
-                        }
-                    }
-
-                    itinerarySections.Add(new TourItinerarySection(section.Title, section.SubTitle, section.Description, section.Highlights, sectionImages));
-                }
-            }
-
-            newItineraries.Add(new TourItinerary(tourItineraryRequest.Header, tourItineraryRequest.Title, tourItineraryRequest.Description, itinerarySections));
-        }
-
-        return newItineraries;
-    }
-
-    private static List<TourCategoryLookup> AddTourCategories(CreateTourRequest request)
-    {
-        var tourCategoryLookups = new List<TourCategoryLookup>();
-
-        if (request.TourCategoryId.HasValue)
-        {
-            tourCategoryLookups.Add(new TourCategoryLookup(request.TourCategoryId.Value, null));
-        }
-
-        if (request.TourCategoryLookups?.Any() == true)
-        {
-            tourCategoryLookups.AddRange(request.TourCategoryLookups.Select(tourCategoryLookupRequest => new TourCategoryLookup(tourCategoryLookupRequest.TourCategoryId, tourCategoryLookupRequest.ParentTourCategoryId)));
-        }
-        else if (request.SelectedParentTourCategories != null)
-        {
-            tourCategoryLookups.AddRange(request.SelectedParentTourCategories.Select(lookup => new TourCategoryLookup(lookup, null)));
-        }
-
-        return tourCategoryLookups;
-    }
-
-    private async Task AddImages(CreateTourRequest request, Tour tour, CancellationToken cancellationToken)
-    {
-        if (request.Images?.Any() == true)
-        {
-            var images = new List<TourImage>();
-
-            foreach (var image in request.Images)
-            {
-                var roomImagePath = await _file.UploadAsync<TourImage>(image.Image, FileType.Image, cancellationToken);
-                images.Add(new TourImage(roomImagePath, roomImagePath, image.SortOrder));
-            }
-
-            tour.Images = images;
-        }
     }
 }

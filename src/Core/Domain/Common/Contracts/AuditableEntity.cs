@@ -12,4 +12,10 @@ public abstract class AuditableEntity<T> : BaseEntity<T>, IAuditableEntity, ISof
     public DateTime? LastModifiedOn { get; set; } = DateTime.UtcNow;
     public DateTime? DeletedOn { get; set; }
     public DefaultIdType? DeletedBy { get; set; }
+
+    public void FlagAsDeleted(DefaultIdType userId)
+    {
+        DeletedOn = DateTime.Now;
+        DeletedBy = userId;
+    }
 }

@@ -130,13 +130,13 @@
 <WizardStep3Content>
     @if (context.Directions == null || !context.Directions.Any())
     {
-        <MudButton DisableElevation Size="Size.Small" Variant="Variant.Filled" Color="Color.Primary" OnClick="(() => InvokeDirectionsDialog(new UpdatePropertyDirectionRequest() {Content = new List<UpdatePropertyDirectionContentRequest>() {new UpdatePropertyDirectionContentRequest()}}, context, true))" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Surface" Class="mb-2">@L["Add New Directions"]</MudButton>
+        <MudButton DisableElevation Size="Size.Small" Variant="Variant.Filled" Color="Color.Primary" OnClick="(() => InvokeDirectionsDialog(new PropertyDirectionRequest() {Content = new List<PropertyDirectionContentRequest>() {new PropertyDirectionContentRequest()}}, context, true))" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Surface" Class="mb-2">@L["Add New Directions"]</MudButton>
     }
     else
     {
-        <MudTable T="UpdatePropertyDirectionRequest" @ref="_directionsTable" Style="table-layout:auto; padding:0px !important;" Items="@context.Directions" Context="directionContext" Hover="false" HorizontalScrollbar="true" Elevation="0" Breakpoint="Breakpoint.Sm" LoadingProgressColor="Color.Info" CanCancelEdit="true" ReadOnly="false">
+        <MudTable T="PropertyDirectionRequest" @ref="_directionsTable" Style="table-layout:auto; padding:0px !important;" Items="@context.Directions" Context="directionContext" Hover="false" HorizontalScrollbar="true" Elevation="0" Breakpoint="Breakpoint.Sm" LoadingProgressColor="Color.Info" CanCancelEdit="true" ReadOnly="false">
             <ToolBarContent>
-                <MudButton DisableElevation Size="Size.Small" Variant="Variant.Filled" Color="Color.Primary" OnClick="(() => InvokeDirectionsDialog(new UpdatePropertyDirectionRequest() {Content = new List<UpdatePropertyDirectionContentRequest>() {new UpdatePropertyDirectionContentRequest()}}, context, true))" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Surface" Class="mb-2">@L["Add New Directions"]</MudButton>
+                <MudButton DisableElevation Size="Size.Small" Variant="Variant.Filled" Color="Color.Primary" OnClick="(() => InvokeDirectionsDialog(new PropertyDirectionRequest() {Content = new List<PropertyDirectionContentRequest>() {new PropertyDirectionContentRequest()}}, context, true))" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Surface" Class="mb-2">@L["Add New Directions"]</MudButton>
             </ToolBarContent>
             <ColGroup>
                 <col/>
@@ -160,13 +160,13 @@
 <WizardStep4Content>
     @if (context.Rooms == null || !context.Rooms.Any())
     {
-        <MudButton DisableElevation Size="Size.Small" Variant="Variant.Filled" Color="Color.Primary" OnClick="(() => InvokeRoomDialog(new UpdatePropertyRoomRequest(), context, true))" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Surface" Class="mb-2">@L["Add New Room"]</MudButton>
+        <MudButton DisableElevation Size="Size.Small" Variant="Variant.Filled" Color="Color.Primary" OnClick="(() => InvokeRoomDialog(new PropertyRoomRequest(), context, true))" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Surface" Class="mb-2">@L["Add New Room"]</MudButton>
     }
     else
     {
-        <MudTable T="UpdatePropertyRoomRequest" @ref="_roomsTable" Style="table-layout:auto; padding:0px !important;" Items="@context.Rooms" Context="roomContext" Hover="false" HorizontalScrollbar="true" Elevation="0" Breakpoint="Breakpoint.Sm" LoadingProgressColor="Color.Info" CanCancelEdit="true" ReadOnly="false">
+        <MudTable T="PropertyRoomRequest" @ref="_roomsTable" Style="table-layout:auto; padding:0px !important;" Items="@context.Rooms" Context="roomContext" Hover="false" HorizontalScrollbar="true" Elevation="0" Breakpoint="Breakpoint.Sm" LoadingProgressColor="Color.Info" CanCancelEdit="true" ReadOnly="false">
             <ToolBarContent>
-                <MudButton DisableElevation Size="Size.Small" Variant="Variant.Filled" Color="Color.Primary" OnClick="(() => InvokeRoomDialog(new UpdatePropertyRoomRequest(), context, true))" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Surface" Class="mb-2">@L["Add New Room"]</MudButton>
+                <MudButton DisableElevation Size="Size.Small" Variant="Variant.Filled" Color="Color.Primary" OnClick="(() => InvokeRoomDialog(new PropertyRoomRequest(), context, true))" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Surface" Class="mb-2">@L["Add New Room"]</MudButton>
             </ToolBarContent>
             <ColGroup>
                 <col/>

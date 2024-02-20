@@ -30,18 +30,18 @@ public class Tour : AuditableEntity, IAggregateRoot
     public string? MobileVideoPath { get; private set; }
 
 
-    public virtual IList<TourCategoryLookup>? TourCategoryLookups { get; private set; }
+    public virtual IList<TourCategoryLookup>? TourCategoryLookups { get; set; }
     public virtual IList<TourPropertyLookup>? TourPropertyLookups { get; private set; }
-    public virtual IList<TourPrice>? TourPrices { get; private set; }
-    public virtual IList<TourDate>? TourDates { get; private set; }
-    public virtual IList<TourItinerary>? TourItineraries { get; private set; }
+    public virtual IList<TourPrice>? TourPrices { get; set; }
+    public virtual IList<TourDate>? TourDates { get; set; }
+    public virtual IList<TourItinerary>? TourItineraries { get; set; }
     public virtual IList<TourImage>? Images { get; set; }
 
     public Tour()
     {
     }
 
-    public Tour(string name, string description, string? shortDescription, decimal? price, string? priceLabel, string? imagePath, string? thumbnailImagePath, int? maxCapacity, int? minCapacity, string? dayDuration, string? nightDuration, string? hourDuration, string? address, string? telephoneNumber, string? whatsIncluded, string? whatsNotIncluded, string? additionalInformation, string? metaKeywords, string? metaDescription, string? importantInformation, IList<TourDate>? tourDates, IList<TourItinerary>? tourItineraries, IList<TourPrice>? tourPrices, IList<TourCategoryLookup>? tourCategoryLookups, IList<TourPropertyLookup>? tourPropertyLookups, bool? publishToSite, string? urlSlug, string? h1, string? h2, string? videoPath, string? mobileVideoPath)
+    public Tour(string name, string description, string? shortDescription, decimal? price, string? priceLabel, string? imagePath, string? thumbnailImagePath, int? maxCapacity, int? minCapacity, string? dayDuration, string? nightDuration, string? hourDuration, string? address, string? telephoneNumber, string? whatsIncluded, string? whatsNotIncluded, string? additionalInformation, string? metaKeywords, string? metaDescription, string? importantInformation, bool? publishToSite, string? urlSlug, string? h1, string? h2, string? videoPath, string? mobileVideoPath)
     {
         Name = name;
         Description = description;
@@ -63,11 +63,6 @@ public class Tour : AuditableEntity, IAggregateRoot
         MetaKeywords = metaKeywords;
         MetaDescription = metaDescription;
         ImportantInformation = importantInformation;
-        TourDates = tourDates;
-        TourPrices = tourPrices;
-        TourItineraries = tourItineraries;
-        TourCategoryLookups = tourCategoryLookups;
-        TourPropertyLookups = tourPropertyLookups;
         PublishToSite = publishToSite;
         UrlSlug = urlSlug;
         H1 = h1;
@@ -76,7 +71,7 @@ public class Tour : AuditableEntity, IAggregateRoot
         MobileVideoPath = mobileVideoPath;
     }
 
-    public Tour Update(string? name, string? description, string? shortDescription, decimal? price, string? priceLabel, string? imagePath, string? thumbnailImagePath, int? maxCapacity, int? minCapacity, string? dayDuration, string? nightDuration, string? hourDuration, string? address, string? telephoneNumber, string? whatsIncluded, string? whatsNotIncluded, string? additionalInformation, string? metaKeywords, string? metaDescription, string? importantInformation, IList<TourDate>? tourDates, IList<TourItinerary>? tourItineraries, IList<TourPrice>? tourPrices, IList<TourCategoryLookup>? tourCategoryLookups, IList<TourPropertyLookup>? tourPropertyLookups, bool? publishToSite, string? urlSlug, string? h1, string? h2, string? videoPath, string? mobileVideoPath)
+    public Tour Update(string? name, string? description, string? shortDescription, decimal? price, string? priceLabel, string? imagePath, string? thumbnailImagePath, int? maxCapacity, int? minCapacity, string? dayDuration, string? nightDuration, string? hourDuration, string? address, string? telephoneNumber, string? whatsIncluded, string? whatsNotIncluded, string? additionalInformation, string? metaKeywords, string? metaDescription, string? importantInformation, bool? publishToSite, string? urlSlug, string? h1, string? h2, string? videoPath, string? mobileVideoPath)
     {
         if (name is not null && Name?.Equals(name) is not true) Name = name;
         if (description is not null && Description?.Equals(description) is not true) Description = description;
@@ -98,11 +93,6 @@ public class Tour : AuditableEntity, IAggregateRoot
         if (metaKeywords is not null && MetaKeywords?.Equals(metaKeywords) is not true) MetaKeywords = metaKeywords;
         if (metaDescription is not null && MetaDescription?.Equals(metaDescription) is not true) MetaDescription = metaDescription;
         if (importantInformation is not null && ImportantInformation?.Equals(importantInformation) is not true) ImportantInformation = importantInformation;
-        if (tourDates != null && TourDates?.SequenceEqual(tourDates) == false) TourDates = tourDates;
-        if (tourItineraries != null && TourItineraries?.SequenceEqual(tourItineraries) == false) TourItineraries = tourItineraries;
-        if (tourPrices != null && TourPrices?.SequenceEqual(tourPrices) == false) TourPrices = tourPrices;
-        if (tourCategoryLookups != null && TourCategoryLookups?.SequenceEqual(tourCategoryLookups) == false) TourCategoryLookups = tourCategoryLookups;
-        if (tourPropertyLookups != null && TourPropertyLookups?.SequenceEqual(tourPropertyLookups) == false) TourPropertyLookups = tourPropertyLookups;
         if (urlSlug is not null && UrlSlug?.Equals(urlSlug) is not true) UrlSlug = urlSlug;
         if (h1 is not null && H1?.Equals(h1) is not true) H1 = h1;
         if (h2 is not null && H2?.Equals(h2) is not true) H2 = h2;

@@ -4,11 +4,9 @@ using System.Text.Encodings.Web;
 using BlazorTemplater;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.WebUtilities;
-using Serilog.Core;
 using Travaloud.Application.Common.Mailing;
 using Travaloud.Infrastructure.Identity;
 using Travaloud.Infrastructure.Multitenancy;
-using ILogger = Serilog.ILogger;
 
 namespace Travaloud.Admin.Components.Account.Pages;
 

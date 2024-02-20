@@ -4,7 +4,7 @@ using Travaloud.Domain.Catalog.Properties;
 
 namespace Travaloud.Application.Catalog.Properties.Validation;
 
-public class UpdatePropertyFacilityRequestValidator : CustomValidator<UpdatePropertyFacilityRequest>
+public class UpdatePropertyFacilityRequestValidator : CustomValidator<PropertyFacilityRequest>
 {
     public UpdatePropertyFacilityRequestValidator(IRepositoryFactory<PropertyFacility> repo, IStringLocalizer<UpdatePropertyFacilityRequestValidator> localizer)
     {

@@ -41,11 +41,11 @@ public class UpdatePropertyRequest : IRequest<DefaultIdType>
     public FileUploadRequest? Video { get; set; }
     public FileUploadRequest? MobileVideo { get; set; }
 
-    public IList<UpdatePropertyDestinationLookupRequest>? PropertyDestinationLookups { get; set; }
-    public IList<UpdatePropertyDirectionRequest>? Directions { get; set; }
-    public IList<UpdatePropertyRoomRequest>? Rooms { get; set; }
-    public IList<UpdatePropertyFacilityRequest>? Facilities { get; set; }
-    public IList<UpdatePropertyImageRequest>? Images { get; set; }
+    public IList<PropertyDestinationLookupRequest>? PropertyDestinationLookups { get; set; }
+    public IList<PropertyDirectionRequest>? Directions { get; set; }
+    public IList<PropertyRoomRequest>? Rooms { get; set; }
+    public IList<PropertyFacilityRequest>? Facilities { get; set; }
+    public IList<PropertyImageRequest>? Images { get; set; }
 }
 
 public class UpdatePropertyRequestHandler : IRequestHandler<UpdatePropertyRequest, DefaultIdType>
@@ -54,15 +54,17 @@ public class UpdatePropertyRequestHandler : IRequestHandler<UpdatePropertyReques
     private readonly IRepositoryFactory<Page> _pageRepository;
     private readonly IStringLocalizer<UpdatePropertyRequestHandler> _localizer;
     private readonly IFileStorageService _file;
-
+    private readonly ICurrentUser _currentUser;
+    
     public UpdatePropertyRequestHandler(IRepositoryFactory<Property> repository,
         IStringLocalizer<UpdatePropertyRequestHandler> localizer,
-        IFileStorageService file, IRepositoryFactory<Page> pageRepository)
+        IFileStorageService file, IRepositoryFactory<Page> pageRepository, ICurrentUser currentUser)
     {
         _repository = repository;
         _localizer = localizer;
         _file = file;
         _pageRepository = pageRepository;
+        _currentUser = currentUser;
     }
 
     public async Task<DefaultIdType> Handle(UpdatePropertyRequest request, CancellationToken cancellationToken)
@@ -124,13 +126,15 @@ public class UpdatePropertyRequestHandler : IRequestHandler<UpdatePropertyReques
 
         var updatedProperty = property.Update(request.Name, request.Description, request.ShortDescription, propertyImagePath, propertyImagePath, request.AddressLine1, request.AddressLine2, request.TelephoneNumber, request.GoogleMapsPlaceId, request.PageTitle, request.PageSubTitle, request.CloudbedsKey, request.MetaKeywords, request.MetaDescription, request.EmailAddress, request.PublishToSite, request.UrlSlug, request.H1, request.H2, propertyVideoPath, propertyMobileVideoPath);
 
-        updatedProperty.AddDirections(request);
-        updatedProperty.AddFacilities(request);
-        updatedProperty.AddDestinations(request);
+        var userId = _currentUser.GetUserId();
         
-        await updatedProperty.AddRooms(request, _file, cancellationToken);
+        updatedProperty.ProcessDirections(request.Directions, userId);
+        updatedProperty.ProcessFacilities(request.Facilities, userId);
+        updatedProperty.ProcessDestinations(request.PropertyDestinationLookups, userId);
+        
+        await updatedProperty.ProcessRooms(request.Rooms, userId, _file, cancellationToken);
 
-        await updatedProperty.AddImages(request, _file, cancellationToken);
+        await updatedProperty.ProcessImages(request.Images, userId, _file, cancellationToken);
 
         // Add Domain Events to be raised after the commit
         property.DomainEvents.Add(EntityUpdatedEvent.WithEntity(property));
