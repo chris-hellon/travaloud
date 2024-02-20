@@ -10,12 +10,12 @@ namespace Travaloud.Infrastructure.Auth;
 
 internal static class Startup
 {
-    internal static IServiceCollection AddAuth(this IServiceCollection services, IConfiguration config)
+    internal static IServiceCollection AddAuth(this IServiceCollection services, string cookieName)
     {
         services
             .AddCurrentUser()
             .AddPermissions()
-            .AddIdentity();
+            .AddIdentity(cookieName);
         
         return services;
     }
