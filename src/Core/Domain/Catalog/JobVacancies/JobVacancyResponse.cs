@@ -12,7 +12,8 @@ public class JobVacancyResponse : AuditableEntity, IAggregateRoot
         string? tikTok,
         string? youTube,
         string? portfolio,
-        string? equipment)
+        string? equipment,
+        DefaultIdType jobVacancyId)
     {
         FirstName = firstName;
         LastName = lastName;
@@ -25,6 +26,7 @@ public class JobVacancyResponse : AuditableEntity, IAggregateRoot
         YouTube = youTube;
         Portfolio = portfolio;
         Equipment = equipment;
+        JobVacancyId = jobVacancyId;
     }
 
     public string FirstName { get; private set; }
@@ -38,5 +40,7 @@ public class JobVacancyResponse : AuditableEntity, IAggregateRoot
     public string? YouTube { get; private set; }
     public string? Portfolio { get; private set; }
     public string? Equipment { get; private set; }
-    public DefaultIdType JobVacancyId { get; set; }
+    public DefaultIdType JobVacancyId { get; private set; }
+    
+    public virtual JobVacancy JobVacancy { get; set; }
 }

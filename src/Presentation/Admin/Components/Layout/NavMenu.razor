@@ -111,6 +111,11 @@
             {
                 <MudNavLink Href="/enquiries/services-enquiries" Match="NavLinkMatch.All">@L["Services"]</MudNavLink>
             }
+            
+            @if (_canViewJobVacancies)
+            {
+                <MudNavLink Href="/enquiries/job-vacancies" Match="NavLinkMatch.All">@L["Job Vacancies"]</MudNavLink>
+            }
         </MudNavGroup>
     }
 

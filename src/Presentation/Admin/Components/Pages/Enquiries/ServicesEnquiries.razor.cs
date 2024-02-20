@@ -22,7 +22,7 @@ public partial class ServicesEnquiries
     private EditContext? EditContext { get; set; }
 
     private EntityTable<ServiceEnquiryDto, Guid, UpdateServiceEnquiryRequest> _table = default!;
-
+    
     protected override void OnInitialized()
     {
         Context = new EntityServerTableContext<ServiceEnquiryDto, Guid, UpdateServiceEnquiryRequest>(

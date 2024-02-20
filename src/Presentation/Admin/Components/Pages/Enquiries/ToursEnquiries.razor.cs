@@ -19,10 +19,10 @@ public partial class ToursEnquiries
 
     protected TourDto Tour { get; set; } = default!;
 
-    private EditContext? _editContext { get; set; }
+    private EditContext? EditContext { get; set; }
 
     private EntityTable<TourEnquiryDto, Guid, UpdateTourEnquiryRequest> _table = default!;
-
+    
     protected override void OnInitialized()
     {
         Context = new EntityServerTableContext<TourEnquiryDto, Guid, UpdateTourEnquiryRequest>(

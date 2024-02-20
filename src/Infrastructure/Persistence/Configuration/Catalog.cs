@@ -5,12 +5,14 @@ using Travaloud.Domain.Catalog.Bookings;
 using Travaloud.Domain.Catalog.Destinations;
 using Travaloud.Domain.Catalog.Enquiries;
 using Travaloud.Domain.Catalog.Events;
+using Travaloud.Domain.Catalog.Galleries;
 using Travaloud.Domain.Catalog.JobVacancies;
 using Travaloud.Domain.Catalog.Pages;
 using Travaloud.Domain.Catalog.Partners;
 using Travaloud.Domain.Catalog.Properties;
 using Travaloud.Domain.Catalog.Services;
 using Travaloud.Domain.Catalog.Tours;
+using Travaloud.Domain.Catalog.TravelGuides;
 
 namespace Travaloud.Infrastructure.Persistence.Configuration;
 
@@ -273,6 +275,22 @@ public class ServiceEnquiriesConfig : IEntityTypeConfiguration<ServiceEnquiry>
 public class GeneralEnquiriesConfig : IEntityTypeConfiguration<GeneralEnquiry>
 {
     public void Configure(EntityTypeBuilder<GeneralEnquiry> builder)
+    {
+        builder.IsMultiTenant();
+    }
+}
+
+public class GalleriesConfig : IEntityTypeConfiguration<Gallery>
+{
+    public void Configure(EntityTypeBuilder<Gallery> builder)
+    {
+        builder.IsMultiTenant();
+    }
+}
+
+public class TravelGuidesConfig : IEntityTypeConfiguration<TravelGuide>
+{
+    public void Configure(EntityTypeBuilder<TravelGuide> builder)
     {
         builder.IsMultiTenant();
     }

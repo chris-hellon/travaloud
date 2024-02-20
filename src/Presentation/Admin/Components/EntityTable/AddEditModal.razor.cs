@@ -117,9 +117,11 @@ public partial class AddEditModal<TRequest> : IAddEditModal<TRequest>
                 LoaderVisible = false;
             }
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             LoaderVisible = false;
+            Snackbar.Add(ex.Message, Severity.Error);
+            
             StateHasChanged();
         }
     }

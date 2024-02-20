@@ -33,7 +33,7 @@ public partial class PropertyBookings
     private MudDateRangePicker _dateRangePicker = default!;
 
     private ICollection<PropertyDto> Properties { get; set; } = default!;
-
+    
     protected override void OnInitialized()
     {
         Context = new EntityServerTableContext<BookingDto, Guid, PropertyBookingViewModel>(

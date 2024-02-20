@@ -19,7 +19,7 @@ public partial class GeneralEnquiries
     private EditContext? EditContext { get; set; }
 
     private EntityTable<GeneralEnquiryDto, Guid, UpdateGeneralEnquiryRequest> _table = default!;
-
+    
     protected override void OnInitialized()
     {
         Context = new EntityServerTableContext<GeneralEnquiryDto, Guid, UpdateGeneralEnquiryRequest>(

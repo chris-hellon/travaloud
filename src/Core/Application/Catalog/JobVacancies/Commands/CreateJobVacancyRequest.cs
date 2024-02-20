@@ -1,4 +1,5 @@
 ﻿using Travaloud.Domain.Catalog.JobVacancies;
+using Travaloud.Domain.Common.Events;
 
 namespace Travaloud.Application.Catalog.JobVacancies.Commands;
 
@@ -23,6 +24,8 @@ public class CreateJobVacancyRequestHandler : IRequestHandler<CreateJobVacancyRe
     {
         var jobVacancy = new JobVacancy(request.Location, request.JobTitle, request.Description, request.CallToAction);
 
+        jobVacancy.DomainEvents.Add(EntityCreatedEvent.WithEntity(jobVacancy));
+        
         await _repository.AddAsync(jobVacancy, cancellationToken);
 
         return jobVacancy.Id;

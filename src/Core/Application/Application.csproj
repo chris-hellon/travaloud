@@ -25,4 +25,13 @@
       <ProjectReference Include="..\Shared\Shared.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Catalog\Galleries\Commands\" />
+      <Folder Include="Catalog\Galleries\Dto\" />
+      <Folder Include="Catalog\Galleries\EventHandlers\" />
+      <Folder Include="Catalog\Galleries\Queries\" />
+      <Folder Include="Catalog\Galleries\Specification\" />
+      <Folder Include="Catalog\Galleries\Validation\" />
+    </ItemGroup>
+
 </Project>

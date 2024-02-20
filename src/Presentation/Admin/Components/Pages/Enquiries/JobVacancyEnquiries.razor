@@ -1,0 +1,32 @@
+@page "/enquiries/job-vacancies"
+
+@using Travaloud.Application.Catalog.JobVacanciesResponses.Commands
+@using Travaloud.Application.Catalog.JobVacanciesResponses.Dto
+
+@attribute [MustHavePermission(TravaloudAction.View, TravaloudResource.Enquiries)]
+
+@inject IStringLocalizer<JobVacancyEnquiries> L
+
+<TravaloudPageTitle Title="@L["Job Vacancy Enquiries"]" Description="@L["Manage Job Vacancy Enquiries."]"/>
+
+<EntityTable @ref="_table" TEntity="JobVacancyResponseDto" TId="Guid" TRequest="JobVacancyResponseViewModel" Context="@Context" ModalWidth="MaxWidth.Medium">
+    <EditFormContent>
+        <MudGrid>
+            <MudItem xs="6" md="6">
+                <MudTextField Label="@L["Name"]" For="@(() => context.FirstName)" ReadOnly="true" @bind-Value="context.FirstName" Required="true" Placeholder="Enter a Name" Variant="Variant.Outlined"/>
+            </MudItem>
+            <MudItem xs="6" md="6">
+                <MudTextField Label="@L["Name"]" For="@(() => context.LastName)" ReadOnly="true" @bind-Value="context.LastName" Required="true" Placeholder="Enter a Name" Variant="Variant.Outlined"/>
+            </MudItem>
+            <MudItem xs="12" md="12">
+                <MudTextField Label="@L["Email"]" For="@(() => context.Email)" ReadOnly="true" InputType="InputType.Email" @bind-Value="context.Email" Required="true" Placeholder="Enter a Email Address" Variant="Variant.Outlined"/>
+            </MudItem>
+            <MudItem xs="12" md="12">
+                <MudTextField Label="@L["Job Title"]" For="@(() => context.JobVacancy.JobTitle)" ReadOnly="true" @bind-Value="context.JobVacancy.JobTitle" Required="true" Placeholder="Enter a Contact Number" Variant="Variant.Outlined"/>
+            </MudItem>
+            <MudItem xs="12" md="12">
+                <MudTextField Label="@L["Created On"]" For="@(() => context.CreatedOn)" ReadOnly="true" @bind-Value="context.CreatedOn" Required="true" Placeholder="Enter a Message" Variant="Variant.Outlined"/>
+            </MudItem>
+        </MudGrid>
+    </EditFormContent>
+</EntityTable>

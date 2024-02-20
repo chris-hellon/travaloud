@@ -23,8 +23,17 @@
 <script src="_framework/blazor.web.js"></script>
 <script src="_content/MudBlazor/MudBlazor.min.js"></script>
 <script src="_content/TinyMCE.Blazor/tinymce-blazor.js"></script>
-<script>Blazor.defaultReconnectionHandler._reconnectCallback = function (d) {document.location.reload();}</script>
 <script>
+   
+     navigator.serviceWorker.register('/service-worker.js')
+            .then(registration => {
+                console.info(`Service worker registration successful (scope: ${registration.scope})`);
+            })
+            .catch(error => {
+                console.error('Service worker registration failed with error:', error);
+                reject(error);
+            });
+
      async function downloadFileFromStream(fileName, contentStreamReference) {
                 const arrayBuffer = await contentStreamReference.arrayBuffer();
                 const blob = new Blob([arrayBuffer]);
