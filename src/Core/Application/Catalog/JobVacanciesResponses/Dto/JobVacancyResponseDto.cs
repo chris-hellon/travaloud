@@ -5,8 +5,8 @@ namespace Travaloud.Application.Catalog.JobVacanciesResponses.Dto;
 public class JobVacancyResponseDto
 {
     public DefaultIdType Id { get; set; }
-    private string FirstName { get; set; } = default!;
-    private string LastName { get; set; } = default!;
+    public string FirstName { get; set; } = default!;
+    public string LastName { get; set; } = default!;
     public string Name => $"{FirstName} {LastName}";
     public string Email { get; set; } = default!;
     public DateTime CreatedOn { get; set; } = default!;

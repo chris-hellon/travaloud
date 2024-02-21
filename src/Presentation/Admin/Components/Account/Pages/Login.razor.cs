@@ -50,14 +50,42 @@ public partial class Login
         
         // This doesn't count login failures towards account lockout
         // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-        //var result = await SignInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
-
+        // var result = await SignInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+        //
+        // if (result.Succeeded)
+        // {
+        //     Logger.LogInformation("User logged in");
+        //
+        //     BusySubmitting = false;
+        //     StateHasChanged();
+        //     
+        //     RedirectManager.RedirectTo(ReturnUrl);
+        // }
+        // else if (result.RequiresTwoFactor)
+        // {
+        //     BusySubmitting = false;
+        //     StateHasChanged();
+        //     
+        //     RedirectManager.RedirectTo(
+        //         "Account/LoginWith2fa",
+        //         new Dictionary<string, object?> {["returnUrl"] = ReturnUrl, ["rememberMe"] = Input.RememberMe});
+        // }
+        // else if (result.IsLockedOut)
+        // {
+        //     Logger.LogWarning("User account locked out");
+        //     RedirectManager.RedirectTo("Account/Lockout");
+        // }
+        // else
+        // {
+        //     ErrorMessage = "Error: Invalid login attempt.";
+        // }
+        
         var user = await UserManager.FindByEmailAsync(Input.Email);
-
+        
         if (user != null)
         {
             var result = await SignInManager.CheckPasswordSignInAsync(user, Input.Password, false);
-
+        
             if (result.Succeeded)
             {
                 if (TenantInfo is {Identifier: not null})
@@ -68,7 +96,7 @@ public partial class Login
                     });   
                     
                     Logger.LogInformation("User logged in");
-
+        
                     BusySubmitting = false;
                     StateHasChanged();
             

@@ -10,7 +10,7 @@ public interface ICurrentUser
 
     string? GetUserEmail();
 
-    string? GetTenant();
+    // string? GetTenant();
 
     bool IsAuthenticated();
 

@@ -29,9 +29,10 @@ public partial class JobVacancyEnquiries
             entityResource: TravaloudResource.Enquiries,
             fields:
             [
-                new EntityField<JobVacancyResponseDto>(enquiry => enquiry.Name, L["Name"], "Name"),
-                new EntityField<JobVacancyResponseDto>(enquiry => enquiry.Email, L["Email Address"], "Email"),
                 new EntityField<JobVacancyResponseDto>(enquiry => enquiry.JobVacancy.JobTitle, L["Job Title"], "JobVacancy.JobTitle"),
+                new EntityField<JobVacancyResponseDto>(enquiry => enquiry.JobVacancy.Location, L["Location"], "JobVacancy.Location"),
+                new EntityField<JobVacancyResponseDto>(enquiry => $"{enquiry.FirstName} {enquiry.LastName}", L["Name"], "FirstName"),
+                new EntityField<JobVacancyResponseDto>(enquiry => enquiry.Email, L["Email Address"], "Email"),
                 new EntityField<JobVacancyResponseDto>(enquiry => enquiry.CreatedOn, L["Submit Date"], "CreatedOn")
             ],
             enableAdvancedSearch: false,

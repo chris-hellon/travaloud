@@ -10,20 +10,47 @@
 <EntityTable @ref="_table" TEntity="JobVacancyResponseDto" TId="Guid" TRequest="JobVacancyResponseViewModel" Context="@Context" ModalWidth="MaxWidth.Medium">
     <EditFormContent>
         <MudGrid>
-            <MudItem xs="6" md="6">
-                <MudTextField Label="@L["Name"]" For="@(() => context.FirstName)" ReadOnly="true" @bind-Value="context.FirstName" Required="true" Placeholder="Enter a Name" Variant="Variant.Outlined"/>
+            <MudItem xs="6" md="4">
+                <MudTextField Label="@L["First Name"]" For="@(() => context.FirstName)" ReadOnly="true" @bind-Value="context.FirstName" Variant="Variant.Outlined"/>
             </MudItem>
-            <MudItem xs="6" md="6">
-                <MudTextField Label="@L["Name"]" For="@(() => context.LastName)" ReadOnly="true" @bind-Value="context.LastName" Required="true" Placeholder="Enter a Name" Variant="Variant.Outlined"/>
+            <MudItem xs="6" md="4">
+                <MudTextField Label="@L["Last Name"]" For="@(() => context.LastName)" ReadOnly="true" @bind-Value="context.LastName" Variant="Variant.Outlined"/>
+            </MudItem>
+            <MudItem xs="12" md="4">
+                <MudTextField Label="@L["Email"]" For="@(() => context.Email)" ReadOnly="true" InputType="InputType.Email" @bind-Value="context.Email" Variant="Variant.Outlined"/>
+            </MudItem>
+            <MudItem xs="12" md="4">
+                <MudTextField Label="@L["Job Title"]" For="@(() => context.JobVacancy.JobTitle)" ReadOnly="true" @bind-Value="context.JobVacancy.JobTitle" Variant="Variant.Outlined"/>
+            </MudItem>
+            <MudItem xs="12" md="4">
+                <MudTextField Label="@L["Location"]" For="@(() => context.JobVacancy.Location)" ReadOnly="true" @bind-Value="context.JobVacancy.Location" Variant="Variant.Outlined"/>
+            </MudItem>
+            <MudItem xs="12" md="4">
+                <MudTextField Label="@L["Created On"]" For="@(() => context.CreatedOn)" ReadOnly="true" @bind-Value="context.CreatedOn" Variant="Variant.Outlined"/>
             </MudItem>
             <MudItem xs="12" md="12">
-                <MudTextField Label="@L["Email"]" For="@(() => context.Email)" ReadOnly="true" InputType="InputType.Email" @bind-Value="context.Email" Required="true" Placeholder="Enter a Email Address" Variant="Variant.Outlined"/>
+                <MudTextField Label="@L["How Can We Collaborate"]" For="@(() => context.HowCanWeCollaborate)" ReadOnly="true" @bind-Value="context.HowCanWeCollaborate" Lines="5" Variant="Variant.Outlined"/>
             </MudItem>
             <MudItem xs="12" md="12">
-                <MudTextField Label="@L["Job Title"]" For="@(() => context.JobVacancy.JobTitle)" ReadOnly="true" @bind-Value="context.JobVacancy.JobTitle" Required="true" Placeholder="Enter a Contact Number" Variant="Variant.Outlined"/>
+                <MudTextField Label="@L["Estimated Dates"]" For="@(() => context.EstimatedDates)" ReadOnly="true" @bind-Value="context.EstimatedDates" Lines="5" Variant="Variant.Outlined"/>
             </MudItem>
             <MudItem xs="12" md="12">
-                <MudTextField Label="@L["Created On"]" For="@(() => context.CreatedOn)" ReadOnly="true" @bind-Value="context.CreatedOn" Required="true" Placeholder="Enter a Message" Variant="Variant.Outlined"/>
+                <MudTextField Label="@L["Destinations Previously Visited"]" For="@(() => context.DestinationsVisited)" ReadOnly="true" @bind-Value="context.DestinationsVisited" Lines="5" Variant="Variant.Outlined"/>
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudTextField Label="@L["Instagram Handle"]" For="@(() => context.Instagram)" ReadOnly="true" @bind-Value="context.Instagram" Variant="Variant.Outlined"/>
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudTextField Label="@L["TikTok Handle"]" For="@(() => context.TikTok)" ReadOnly="true" @bind-Value="context.TikTok" Variant="Variant.Outlined"/>
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudTextField Label="@L["YouTube Handle"]" For="@(() => context.YouTube)" ReadOnly="true" @bind-Value="context.YouTube" Variant="Variant.Outlined"/>
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudTextField Label="@L["Portfolio Handle"]" For="@(() => context.Portfolio)" ReadOnly="true" @bind-Value="context.Portfolio" Variant="Variant.Outlined"/>
+            </MudItem>
+            <MudItem xs="12" md="12">
+                <MudTextField Label="@L["Equipment"]" For="@(() => context.Equipment)" ReadOnly="true" @bind-Value="context.Equipment" Required="true" Lines="5" Variant="Variant.Outlined"/>
             </MudItem>
         </MudGrid>
     </EditFormContent>

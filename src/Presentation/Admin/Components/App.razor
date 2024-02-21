@@ -24,7 +24,6 @@
 <script src="_content/MudBlazor/MudBlazor.min.js"></script>
 <script src="_content/TinyMCE.Blazor/tinymce-blazor.js"></script>
 <script>
-   
      navigator.serviceWorker.register('/service-worker.js')
             .then(registration => {
                 console.info(`Service worker registration successful (scope: ${registration.scope})`);
@@ -70,10 +69,7 @@
                                                                                    || HttpContextAccessor.HttpContext.Request.Path.StartsWithSegments("/account/forgot-password-confirmation")
                                                                                    || HttpContextAccessor.HttpContext.Request.Path.StartsWithSegments("/account/reset-password-confirmation"));
     
-    private IComponentRenderMode? RenderModeForPage =>
-        IsServerPage
-            ? null
-            : new InteractiveServerRenderMode(prerender:false);
+    private IComponentRenderMode? RenderModeForPage => IsServerPage ? null : InteractiveServer;
     private TravaloudTenantInfo? TenantInfo =>  MultiTenantContextAccessor.MultiTenantContext?.TenantInfo;
     private string Favicon => !string.IsNullOrEmpty(TenantInfo?.LogoImageUrl) ? TenantInfo.LogoImageUrl : "https://ik.imagekit.io/rqlzhe7ko/travaloud-logo.webp?ik-sdk-version=javascript-1.4.3&updatedAt=1677654151281";
 }

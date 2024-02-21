@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Components;
 using Travaloud.Application.Identity.Roles;
 using Travaloud.Infrastructure.Auth;
 using Travaloud.Infrastructure.Common.Services;
+using Travaloud.Infrastructure.Multitenancy;
 using Travaloud.Shared.Authorization;
 using Travaloud.Shared.Multitenancy;
 
@@ -12,14 +13,14 @@ namespace Travaloud.Admin.Components.Pages.Permissions;
 
 public partial class Permission
 {
-    [Parameter]
-    public string Id { get; set; } = default!; 
-    [Inject]
-    protected IAuthorizationService AuthService { get; set; } = default!;
-    [Inject]
-    protected IRoleService RoleService { get; set; } = default!;
+    [Parameter] public string Id { get; set; } = default!;
+    [Inject] protected IAuthorizationService AuthService { get; set; } = default!;
+    [Inject] protected IRoleService RoleService { get; set; } = default!;
 
     private Dictionary<string, List<PermissionViewModel>> _groupedRoleClaims = default!;
+
+    [CascadingParameter] private TravaloudTenantInfo? TenantInfo { get; set; }
+
 
     private string _title = string.Empty;
     private string _description = string.Empty;
@@ -30,13 +31,16 @@ public partial class Permission
     private bool _canSearchRoleClaims;
     private bool _loaded;
 
-    static Permission() => TypeAdapterConfig<TravaloudPermission, PermissionViewModel>.NewConfig().MapToConstructor(true);
+    static Permission() =>
+        TypeAdapterConfig<TravaloudPermission, PermissionViewModel>.NewConfig().MapToConstructor(true);
 
     protected override async Task OnInitializedAsync()
     {
         var state = await AuthState.GetAuthenticationStateAsync();
-        _canEditRoleClaims = await AuthService.HasPermissionAsync(state.User, TravaloudAction.Update, TravaloudResource.RoleClaims);
-        _canSearchRoleClaims = await AuthService.HasPermissionAsync(state.User, TravaloudAction.View, TravaloudResource.RoleClaims);
+        _canEditRoleClaims =
+            await AuthService.HasPermissionAsync(state.User, TravaloudAction.Update, TravaloudResource.RoleClaims);
+        _canSearchRoleClaims =
+            await AuthService.HasPermissionAsync(state.User, TravaloudAction.View, TravaloudResource.RoleClaims);
 
         if (await ServiceHelper.ExecuteCallGuardedAsync(
                 () => RoleService.GetByIdWithPermissionsAsync(Id), Snackbar,
@@ -46,7 +50,7 @@ public partial class Permission
             _title = string.Format(L["{0} Permissions"], role.Name);
             _description = string.Format(L["Manage {0} Permissions"], role.Name);
 
-            var permissions = state.User.GetTenant() == MultitenancyConstants.Root.Id
+            var permissions = TenantInfo?.Id == MultitenancyConstants.Root.Id
                 ? TravaloudPermissions.All
                 : TravaloudPermissions.Admin;
 
@@ -86,7 +90,7 @@ public partial class Permission
 
         if (await ServiceHelper.ExecuteCallGuardedAsync(
                 () => RoleService.UpdatePermissionsAsync(request),
-                Snackbar,Logger,
+                Snackbar, Logger,
                 successMessage: L["Updated Permissions."])
             is not null)
         {
@@ -96,15 +100,16 @@ public partial class Permission
 
     private bool Search(PermissionViewModel permission) =>
         string.IsNullOrWhiteSpace(_searchString)
-            || permission.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase) is true
-            || permission.Description.Contains(_searchString, StringComparison.OrdinalIgnoreCase) is true;
+        || permission.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase) is true
+        || permission.Description.Contains(_searchString, StringComparison.OrdinalIgnoreCase) is true;
 }
 
 public record PermissionViewModel : TravaloudPermission
 {
     public bool Enabled { get; set; }
 
-    public PermissionViewModel(string Description, string Action, string Resource, bool IsBasic = false, bool IsRoot = false)
+    public PermissionViewModel(string Description, string Action, string Resource, bool IsBasic = false,
+        bool IsRoot = false)
         : base(Description, Action, Resource, IsBasic, IsRoot)
     {
     }

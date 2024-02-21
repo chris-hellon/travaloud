@@ -20,6 +20,7 @@ internal static class Startup
                 .AddJsonFile($"{configurationsDirectory}/middleware.json", optional: false, reloadOnChange: true)
                 .AddJsonFile($"{configurationsDirectory}/middleware.{env.EnvironmentName}.json", optional: true, reloadOnChange: true)
                 .AddJsonFile($"{configurationsDirectory}/azurestorage.json", optional: false, reloadOnChange: true)
+                .AddJsonFile($"{configurationsDirectory}/signalr.json", optional: false, reloadOnChange: true)
                 .AddEnvironmentVariables();
         });
 #pragma warning restore ASP0013

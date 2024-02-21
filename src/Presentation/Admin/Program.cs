@@ -27,6 +27,8 @@ try
         .AddInteractiveServerComponents().AddHubOptions(options =>
             {
                 options.MaximumReceiveMessageSize = ApplicationConstants.MaxAllowedVideoSize;
+                options.ClientTimeoutInterval = TimeSpan.FromSeconds(60);
+                options.HandshakeTimeout = TimeSpan.FromSeconds(30);
             }).AddCircuitOptions(o =>
         {
             if (builder.Environment.IsDevelopment())
@@ -64,6 +66,11 @@ try
 
     app.MapAdditionalIdentityEndpoints();
     app.UseStatusCodePagesWithRedirects("/error/{0}");
+    
+    if (!app.Environment.IsDevelopment())
+    {
+        app.UseResponseCompression();
+    }
     
     Log.Information("Application running successfully");
 

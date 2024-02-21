@@ -1,14 +1,21 @@
+using Finbuckle.MultiTenant;
 using Serilog;
 using Serilog.Context;
 using Travaloud.Application.Common.Interfaces;
+using Travaloud.Infrastructure.Multitenancy;
 
 namespace Travaloud.Infrastructure.Middleware;
 
 public class ResponseLoggingMiddleware : IMiddleware
 {
     private readonly ICurrentUser _currentUser;
-
-    public ResponseLoggingMiddleware(ICurrentUser currentUser) => _currentUser = currentUser;
+    private readonly IMultiTenantContextAccessor<TravaloudTenantInfo> _multiTenantContextAccessor;
+    
+    public ResponseLoggingMiddleware(ICurrentUser currentUser, IMultiTenantContextAccessor<TravaloudTenantInfo> multiTenantContextAccessor)
+    {
+        _currentUser = currentUser;
+        _multiTenantContextAccessor = multiTenantContextAccessor;
+    }
 
     public async Task InvokeAsync(HttpContext httpContext, RequestDelegate next)
     {
@@ -29,7 +36,7 @@ public class ResponseLoggingMiddleware : IMiddleware
 
         var email = _currentUser.GetUserEmail() is string userEmail ? userEmail : "Anonymous";
         var userId = _currentUser.GetUserId();
-        var tenant = _currentUser.GetTenant() ?? string.Empty;
+        var tenant = _multiTenantContextAccessor.MultiTenantContext?.TenantInfo?.Name ?? string.Empty;
         if (userId != DefaultIdType.Empty) LogContext.PushProperty("UserId", userId);
         LogContext.PushProperty("UserEmail", email);
         if (!string.IsNullOrEmpty(tenant)) LogContext.PushProperty("Tenant", tenant);

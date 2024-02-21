@@ -17,6 +17,7 @@ using Travaloud.Infrastructure.Multitenancy;
 using Travaloud.Infrastructure.Persistence;
 using Travaloud.Infrastructure.Persistence.Context;
 using Travaloud.Infrastructure.Persistence.Initialization;
+using Travaloud.Infrastructure.SignalR;
 
 namespace Travaloud.Infrastructure;
 
@@ -32,7 +33,7 @@ public static class Startup
             .AddLocalization(config)
             .AddMailing(config)
             .AddAzureStorage(config)
-            .AddMediatR(cfg=>cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()))
+            .AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()))
             .AddMultitenancy(config)
             .AddPersistence(config)
             .AddRequestLogging(config)
@@ -40,6 +41,7 @@ public static class Startup
             .AddHttpClient()
             .AddRouting(options => options.LowercaseUrls = true)
             .AddServices();
+            //.AddAzureSignalR(config);
         
         services.AddScoped<UserManager<ApplicationUser>, UserManager<ApplicationUser>>();
     

@@ -1,9 +1,11 @@
 using System.Net;
+using Finbuckle.MultiTenant;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Localization;
 using Serilog;
 using Serilog.Context;
 using Travaloud.Application.Common.Interfaces;
+using Travaloud.Infrastructure.Multitenancy;
 
 namespace Travaloud.Infrastructure.Middleware;
 
@@ -12,15 +14,17 @@ internal class ExceptionMiddleware : IMiddleware
     private readonly ICurrentUser _currentUser;
     private readonly IStringLocalizer<ExceptionMiddleware> _localizer;
     private readonly ISerializerService _jsonSerializer;
-
+    private readonly IMultiTenantContextAccessor<TravaloudTenantInfo> _multiTenantContextAccessor;
+    
     public ExceptionMiddleware(
         ICurrentUser currentUser,
         IStringLocalizer<ExceptionMiddleware> localizer,
-        ISerializerService jsonSerializer)
+        ISerializerService jsonSerializer, IMultiTenantContextAccessor<TravaloudTenantInfo> multiTenantContextAccessor)
     {
         _currentUser = currentUser;
         _localizer = localizer;
         _jsonSerializer = jsonSerializer;
+        _multiTenantContextAccessor = multiTenantContextAccessor;
     }
 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
@@ -46,7 +50,7 @@ internal class ExceptionMiddleware : IMiddleware
             }
 
             var userId = _currentUser.GetUserId();
-            var tenant = _currentUser.GetTenant() ?? string.Empty;
+            var tenant = _multiTenantContextAccessor.MultiTenantContext?.TenantInfo?.Name ?? string.Empty;
             if (userId != DefaultIdType.Empty) LogContext.PushProperty("UserId", userId);
             LogContext.PushProperty("UserEmail", email);
             if (!string.IsNullOrEmpty(tenant)) LogContext.PushProperty("Tenant", tenant);

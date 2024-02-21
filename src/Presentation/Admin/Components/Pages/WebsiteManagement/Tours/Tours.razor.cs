@@ -51,9 +51,9 @@ public partial class Tours
 
     private bool _canViewTourGroups;
 
-    protected override Task OnInitializedAsync()
+    protected override void OnAfterRender(bool firstRender)
     {
-        if (_tenantInfo?.Identifier == "fuse")
+        if (_tenantInfo?.Id == "fuse")
         {
             WizardSteps["Itineraries"] = false;
             _canViewTourGroups = false;
@@ -63,6 +63,12 @@ public partial class Tours
             _canViewTourGroups = true;
         }
 
+        
+        base.OnAfterRender(firstRender);
+    }
+
+    protected override Task OnInitializedAsync()
+    {
         Context = new EntityServerTableContext<TourDto, Guid, TourViewModel>(
             entityName: L["Tour"],
             entityNamePlural: L["Tours"],
