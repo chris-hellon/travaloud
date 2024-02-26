@@ -1,0 +1,101 @@
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model Travaloud.Tenants.SharedRCL.Models.WebComponents.JoinOurCrewComponent 
+
+<form method="post" id="join-our-crew-form mt-3">
+    <div asp-validation-summary="ModelOnly" class="travaloud-validation"></div>
+    <input type="hidden" asp-for="JobVacancyId" value="@Model.JobVacancyId"/>
+    <input type="hidden" asp-for="JobVacancy" value="@Model.JobVacancy"/>
+     <input type="hidden" asp-for="Location" value="@Model.Location"/>
+    <div class="row">
+        <div class="col-lg-6">
+            <!-- Name input -->
+            <div class="form-outline mb-4">
+                <input asp-for="FirstName" class="form-control" autocomplete="username" aria-required="true" maxlength="256"/>
+                <label asp-for="FirstName" class="form-label"></label>
+            </div>
+            <span asp-validation-for="FirstName" class="travaloud-validation"></span>
+        </div>
+        <div class="col-lg-6">
+            <!-- Name input -->
+            <div class="form-outline mb-4">
+                <input asp-for="LastName" class="form-control" autocomplete="username" aria-required="true" maxlength="256"/>
+                <label asp-for="LastName" class="form-label"></label>
+            </div>
+            <span asp-validation-for="LastName" class="travaloud-validation"></span>
+        </div>
+        <div class="col-lg-12">
+            <!-- Email input -->
+            <div class="form-outline mb-4">
+                <input asp-for="Email" class="form-control" autocomplete="username" aria-required="true" maxlength="256"/>
+                <label asp-for="Email" class="form-label"></label>
+            </div>
+            <span asp-validation-for="Email" class="travaloud-validation"></span>
+        </div>
+        <div class="col-lg-12">
+            <!-- Email input -->
+            <div class="form-outline mb-4">
+                <textarea asp-for="HowCanWeCollaborate" rows="6" class="form-control" autocomplete="username" aria-required="true" maxlength="2000"></textarea>
+                <label asp-for="HowCanWeCollaborate" class="form-label"></label>
+            </div>
+            <span asp-validation-for="HowCanWeCollaborate" class="travaloud-validation"></span>
+        </div>
+        <div class="col-lg-12">
+            <!-- Email input -->
+            <div class="form-outline mb-4">
+                <textarea asp-for="EstimatedDates" rows="6" class="form-control" autocomplete="username" aria-required="true" maxlength="500"></textarea>
+                <label asp-for="EstimatedDates" class="form-label"></label>
+            </div>
+            <span asp-validation-for="EstimatedDates" class="travaloud-validation"></span>
+        </div>
+        <div class="col-lg-12">
+            <!-- Email input -->
+            <div class="form-outline mb-4">
+                <textarea asp-for="DestinationsVisited" rows="6" class="form-control" autocomplete="username" aria-required="true" maxlength="500"></textarea>
+                <label asp-for="DestinationsVisited" class="form-label"></label>
+            </div>
+            <span asp-validation-for="DestinationsVisited" class="travaloud-validation"></span>
+        </div>
+        <div class="col-lg-6">
+            <!-- Name input -->
+            <div class="form-outline mb-4">
+                <input asp-for="Instagram" class="form-control" autocomplete="username" aria-required="true" maxlength="256"/>
+                <label asp-for="Instagram" class="form-label"></label>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <!-- Name input -->
+            <div class="form-outline mb-4">
+                <input asp-for="TikTok" class="form-control" autocomplete="username" aria-required="true" maxlength="256"/>
+                <label asp-for="TikTok" class="form-label"></label>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <!-- Name input -->
+            <div class="form-outline mb-4">
+                <input asp-for="YouTube" class="form-control" autocomplete="username" aria-required="true" maxlength="256"/>
+                <label asp-for="YouTube" class="form-label"></label>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <!-- Name input -->
+            <div class="form-outline mb-4">
+                <input asp-for="Portfolio" class="form-control" autocomplete="username" aria-required="true" maxlength="256"/>
+                <label asp-for="Portfolio" class="form-label"></label>
+            </div>
+        </div>
+        <div class="col-lg-12">
+            <!-- Email input -->
+            <div class="form-outline mb-4">
+                <textarea asp-for="Equipment" rows="6" class="form-control" autocomplete="username" aria-required="true" maxlength="500"></textarea>
+                <label asp-for="Equipment" class="form-label"></label>
+            </div>
+            <span asp-validation-for="Equipment" class="travaloud-validation"></span>
+        </div>
+        <div class="col-lg-12 mb-4">
+            <recaptcha/>
+        </div>
+        <input asp-for="HoneyPot" class="d-none"/>
+    </div>
+    <!-- Submit button -->
+    <button type="submit" class="btn btn-primary d-block w-100">Apply Now</button>
+</form>

@@ -75,7 +75,7 @@
                 </MudTabPanel>
                 <MudTabPanel Text="@L["Full Description"]">
                     <MudInputLabel Class="mb-3">@L["Full Description"]</MudInputLabel>
-                    <Editor @bind-Value="context.Description" JsConfSrc="mceStyle" Field="@(() => context.Description)" Conf="@TinyMceConfig.Styles()" ApiKey="@TinyMceConfig.ApiKey"></Editor>
+                    <Editor @bind-Value="context.Description" Field="@(() => context.Description)" Conf="@TinyMceConfig.Styles()" ApiKey="@TinyMceConfig.ApiKey"></Editor>
                 </MudTabPanel>
             </MudTabs>
         </MudItem>

@@ -9,7 +9,6 @@ public class Service : AuditableEntity, IAggregateRoot
     public string? BodyHtml { get; private set; }
     public string? IconClass { get; set; }
     public int? SortOrder { get; set; }
-
     public virtual IList<ServiceField>? ServiceFields { get; set; }
 
     public Service()

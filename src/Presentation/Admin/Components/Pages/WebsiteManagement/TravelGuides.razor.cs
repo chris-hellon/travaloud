@@ -1,12 +1,14 @@
 using Mapster;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.JSInterop;
 using Travaloud.Admin.Components.EntityTable;
 using Travaloud.Application.Catalog.Interfaces;
 using Travaloud.Application.Catalog.TravelGuides.Commands;
 using Travaloud.Application.Catalog.TravelGuides.Dto;
 using Travaloud.Application.Catalog.TravelGuides.Queries;
 using Travaloud.Application.Common.FileStorage;
+using Travaloud.Domain.Common;
 using Travaloud.Infrastructure.Common.Services;
 using Travaloud.Shared.Authorization;
 
@@ -15,7 +17,8 @@ namespace Travaloud.Admin.Components.Pages.WebsiteManagement;
 public partial class TravelGuides
 {
     [Inject] protected ITravelGuidesService TravelGuidesService { get; set; } = default!;
-
+    [Inject] protected IFileStorageService FileStorageService { get; set; } = default!;
+    
     private EntityServerTableContext<TravelGuideDto, Guid, TravelGuideViewModel> Context { get; set; } = default!;
 
     private EditContext? EditContext { get; set; }
@@ -29,7 +32,21 @@ public partial class TravelGuides
         {"SEO", true},
         {"Images", true},
     };
-
+        
+    [JSInvokable]
+    public async Task<string> UploadMceImageHandler(string base64string, string filename)
+    {
+        var extension = Path.GetExtension(filename);
+        var imageUrl = await FileStorageService.UploadAsync<TravelGuides>(new FileUploadRequest()
+        {
+            Extension = extension,
+            Data = base64string,
+            Name = filename
+        }, FileType.Image);
+        
+        return await Task.FromResult(imageUrl);
+    }
+    
     protected override void OnInitialized()
     {
         Context = new EntityServerTableContext<TravelGuideDto, Guid, TravelGuideViewModel>(

@@ -1,0 +1,30 @@
+﻿@page "/hostels"
+@model FuseHostelsAndTravel.Pages.Properties.IndexModel
+
+@section Styles {
+    <style type="text/css">
+        .header-banner-image-background {
+            background-position-y: 0%;
+        }
+    </style>
+}
+
+<section id="headerBanner" class="bg-light">
+    @Html.DisplayFor(x => x.HeaderBanner)
+</section>
+
+<section id="hostels" class="bg-light overflow-hidden">
+    @Html.DisplayFor(x => x.HostelsContainers)
+</section>
+
+<section id="events" class="pt-8">
+    <div class="container">
+        <div class="row gx-4">
+            @Html.DisplayFor(x => x.EventsCards)
+        </div>
+    </div>
+</section>
+
+<section id="bookBanner" class="bg-gray px-3 px-lg-0 py-5">
+    @Html.DisplayFor(x => x.BookNowBanner)
+</section>

@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using Travaloud.Application.Catalog.Services.Commands;
+﻿using Travaloud.Application.Catalog.Services.Commands;
 
 namespace Travaloud.Application.Catalog.Services.Dto;
 
@@ -12,7 +11,7 @@ public class ServiceFieldDto
     public string? Value { get; set; }
     public int Width { get; set; }
     public string? SelectOptions { get; set; }
-    public ICollection<ServiceFieldSelectOption>? SelectOptionsParsed => SelectOptions != null ? JsonSerializer.Deserialize<List<ServiceFieldSelectOption>>(SelectOptions) : default(ICollection<ServiceFieldSelectOption>?);
+    public ICollection<ServiceFieldSelectOption>? SelectOptionsParsed => SelectOptions != null ? JsonConvert.DeserializeObject<List<ServiceFieldSelectOption>>(SelectOptions) : default(ICollection<ServiceFieldSelectOption>?);
 
     public int SortOrder { get; set; }
     public bool IsRequired { get; set; }

@@ -1,0 +1,25 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model Travaloud.Tenants.SharedRCL.Models.WebComponents.ButtonComponent
+
+@if (!string.IsNullOrEmpty(Model.Href))
+{
+    if (Model.Href.Contains("?propertyName="))
+    {
+        var href = Model.Href.Split("?propertyName=");
+        <a class="btn @(Model.CssClass) mt-4 pe-4 ps-4" asp-page="@href[0]" asp-route-propertyName="@href[1]">@(string.IsNullOrEmpty(Model.ButtonText) ? "Find Out More" : Model.ButtonText)</a>
+    }
+    else if (Model.Href.Contains("?tourName="))
+    {
+        var href = Model.Href.Split("?tourName=");
+        <a class="btn @(Model.CssClass) mt-4 pe-4 ps-4" asp-page="@href[0]" asp-route-tourName="@href[1]">@(string.IsNullOrEmpty(Model.ButtonText) ? "Find Out More" : Model.ButtonText)</a>
+    }
+    else if (Model.Href.Contains("?jobVacancy="))
+    {
+        var href = Model.Href.Split("?jobVacancy=");
+        <a class="btn @(Model.CssClass) mt-4 pe-4 ps-4" asp-page="@href[0]" asp-route-jobVacancy="@href[1]">@(string.IsNullOrEmpty(Model.ButtonText) ? "Find Out More" : Model.ButtonText)</a>
+    }
+    else
+    {
+        <a class="btn @(Model.CssClass) mt-4 pe-4 ps-4" asp-page="@Model.Href">@(string.IsNullOrEmpty(Model.ButtonText) ? "Find Out More" : Model.ButtonText)</a>
+    }
+}

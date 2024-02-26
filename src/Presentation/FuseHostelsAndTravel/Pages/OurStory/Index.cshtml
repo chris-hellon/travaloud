@@ -1,0 +1,116 @@
+﻿@page "/our-story"
+@model FuseHostelsAndTravel.Pages.OurStory.IndexModel
+
+@section Styles {
+    <link rel="stylesheet" href="/css/smallheader.css" type="text/css"/>
+}
+
+<section id="headerBanner">
+    @Html.DisplayFor(x => x.HeaderBanner)
+    <partial name="_NavPillsPartial" model="Model.NavPills" />
+</section>
+<section id="who-we-are" class="overflow-hidden inherit-sticky-parent">
+    @Html.DisplayFor(x => x.IntroductionBanner)
+</section>
+<section id="what-we-do" class="overflow-hidden bg-light">
+    @Html.DisplayFor(x => x.AboutBanner)
+</section>
+<section id="our-core-values">
+    <div class="container-fluid p-0 m-0 position-relative">
+        <div class="container pt-8 text-center ovals-container-parent">
+            <div class="row justify-content-lg-center has-parallax-scroll">
+                <div class="col-12">
+                    <h2>OUR CORE VALUES</h2>
+                    <p>
+                        At FUSE Hostels and Travel, we take our values seriously. We believe that every guest who stays with us deserves to have an incredible experience that's full of adventure, fun, and connecting with locals and other travellers, all within a safe and secure environment.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="container pb-8 pt-5">
+            <div class="row g-lg-10 mb-3 mb-lg-0">
+                <div class="col-lg-6 has-parallax-scroll">
+                    <h4 class="tilted display-6 bg-primary mb-4 mb-lg-3">Adventure</h4>
+                    <p>
+                        Adventure is at the heart of everything we do, and as a world traveller, we’re sure it’s important to you too. We love exploring new places, trying new things, and pushing our limits, and we want to share that sense of excitement and discovery with you.
+                    </p><p>
+                        Let’s go climb a mountain, try a new street food, or dive into a crystal-clear ocean…we're always up for an adventure!
+                    </p>
+                </div>
+            </div>
+            <div class="row g-lg-10 mb-3 mb-lg-0">
+                <div class="col-lg-6 offset-lg-6 has-parallax-scroll">
+                    <h4 class="tilted display-6 mt-lg-n5 bg-mustard mt-4 mb-4 mb-lg-3">Fun</h4>
+                    <p>
+                        We believe that life is meant to be enjoyed, don’t you? We want to make sure that when you stay with us, you have such a ridiculously good time that FUSE Hostels becomes an integral part of your travel story. Whether it's dancing the night away, jumping on one of our unique experiences around town, or just chilling with new friends poolside or at the beach, we've got you covered.
+                    </p>
+                </div>
+            </div>
+            <div class="row g-lg-10 mb-3 mb-lg-0">
+                <div class="col-lg-6 has-parallax-scroll">
+                    <h4 class="tilted display-6 bg-red mt-4 mb-4 mb-lg-3">Connection</h4>
+                    <p>
+                        We know you’re not just looking to connect to our WIFI… you want to connect with the local culture, with other travellers, and with yourself. We’ve done a lot of experimenting to ensure that the experiences you have when you stay at FUSE Hostels are the highlight of your trip!
+                        Get to know the local area and people on our bicycle tours and cooking classes, and let's not forget about the connections you'll make with other guests over a cold beer or sharing your snaps from your day out adventuring. Come for the vibe, stay for the friends at FUSE!
+                    </p>
+                </div>
+            </div>
+            <div class="row g-lg-10">
+                <div class="col-lg-6 offset-lg-6 has-parallax-scroll">
+                    <h4 class="tilted display-6 mt-lg-n5 bg-pink mt-4 mb-4 mb-lg-3">Community</h4>
+                    <p>
+                        At FUSE Hostels and Travel, we're more than just a place to stay. We're a community of adventure-seekers, fun-lovers and mates. We can't wait to welcome you to Vietnam, learn some of the language, hang out in our vibrant neighbourhoods, meet the friendly locals, and  of course come hang with the FUSE crew.<br />So, have you packed your bags yet?
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section id="joinOurCrew">
+    <div class="container-fluid bg-gray">
+        <div class="container py-5 px-4 px-lg-0 has-parallax-scroll">
+            <div class="row justify-content-lg-between align-items-center">
+                <div class="col-lg-auto mb-3 mb-lg-0">
+                    <div class="row flex-column">
+                        <h4 class="tilted mt-2">JOIN OUR CREW</h4>
+                    </div>
+                </div>
+                <div class="col-lg-6 mb-3 mb-lg-0">
+                    <div class="row flex-column">
+                        <p class="text-white">
+                            We are always looking for sociable people to host our daily events, pool parties, great tours and more! We have short and more permanent positions available with support for visas, F&B allowances, accommodation and many more perks. If you are fun, social, and love giving great customer service come join our hostel and beach club crew NOW!
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-auto">
+                    <div class="row flex-column">
+                        <a class="btn btn-primary" asp-page="/JoinOurCrew/Index">Join Us</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script type="text/javascript">$(document).ready(function() {
+          // Add a click event handler to elements with class 'nav-link' and 'href' containing '#'
+            $('.nav-link[href*="#"]').click(function (e) {
+
+            e.preventDefault(); // Prevent the default behavior of the link
+
+            // Get the target element's ID from the 'href' attribute
+            var targetId = $(this).attr('href').substring(1);
+
+            // Calculate the target scroll position
+            var $targetElement = $('#' + targetId);
+            var offset = $('.navbar').outerHeight(); // Adjust this value to your desired offset
+            var targetScrollPosition = $targetElement.offset().top - offset;
+
+            // Animate the scroll to the target position
+            $('html, body').animate({
+              scrollTop: targetScrollPosition
+            }, 300); // You can adjust the duration (in milliseconds) as needed
+          });
+        });</script>
+}

@@ -16,7 +16,7 @@ public class UpdatePageModalRequest : IRequest<DefaultIdType>
     public bool DeleteCurrentImage { get; set; }
     public FileUploadRequest? Image { get; set; }
     public IEnumerable<PageModalPageRequest>? SelectedPages { get; set; }
-    public PageModalPageRequest ValidationSelectedPages => SelectedPages is null ? null : SelectedPages.FirstOrDefault();
+    public PageModalPageRequest? ValidationSelectedPages => SelectedPages?.FirstOrDefault();
 }
 
 internal class UpdatePageModalRequestHandler : IRequestHandler<UpdatePageModalRequest, DefaultIdType>

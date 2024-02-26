@@ -1,0 +1,80 @@
+.navbar .nav-link {
+  text-transform: uppercase;
+}
+
+.accordion-body .nav-link {
+  text-transform: none !important;
+}
+
+.navbar-brand-desktop, .navbar-brand-mobile {
+  top: 5px;
+  position: absolute;
+}
+
+.accordion-flush .accordion-item .accordion-button, .accordion-flush .accordion-item .accordion-button.collapsed {
+  text-transform: uppercase;
+}
+
+.carousel-item span {
+  line-height: 3rem;
+}
+
+.carousel-item h1 {
+  font-size:11.5rem;
+  line-height:9rem;
+}
+
+@media (max-width: 991px) {
+  .carousel-item span {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+
+  .carousel-item h1 {
+    font-size: 7rem;
+    line-height: 6rem;
+  }
+
+  .header-banner h1 span {
+    top:-50px !important;
+    left:-10px !important;
+  }
+}
+
+.select-arrow:before {
+  content: "▼";
+}
+
+.videoContainer i {
+  transition: 0.3s;
+}
+
+.videoContainer video {
+  border-radius:50%;
+}
+.videoContainer:hover i {
+  color: #b6b6b6 !important;
+}
+
+/*iphone 5s*/
+@media(max-width:991px) {
+  #fullPageCarousel .carousel-item .d-flex.pt-8 {
+    padding-top: 10rem !important;
+  }
+}
+
+/*iphone 5s*/
+@media(max-width:991px) {
+  .navbar .nav-link {
+    display: inline-block;
+  }
+  #hostelPageHeaderBannerOvals1 {
+    top: -175% !important;
+    left: -60% !important;
+    display: none;
+  }
+}
+.card-full-background .card-text p {
+  margin: 0px;
+  font-size: 1.25rem;
+}

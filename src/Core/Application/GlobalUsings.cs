@@ -1,5 +1,6 @@
 global using Ardalis.Specification;
 global using FluentValidation;
+global using Newtonsoft.Json;
 global using Travaloud.Application.Common.Events;
 global using Travaloud.Application.Common.Exceptions;
 global using Travaloud.Application.Common.FileStorage;

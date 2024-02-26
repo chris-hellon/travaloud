@@ -1,0 +1,42 @@
+﻿@model Travaloud.Tenants.SharedRCL.Models.WebComponents.PageCategoryComponent
+
+@{
+    if (Model != null)
+    {
+        <div class="custom-height mt-n5 py-3 py-lg-5 bg-primary-dark">
+            <div class="container py-5">
+                <div class="row my-4">
+                    <div class="col-12 has-parallax-scroll">
+                        <h1 class="display-4 fw-bold ls-tight text-white">@Model.Title</h1>
+                        @if (Model.SubTitle != null)
+                        {
+                            <h4 class="mb-0 text-secondary text-shadow-0">@Model.SubTitle</h4>
+                        }
+
+                    </div>
+                </div>
+            </div>
+
+            @if (Model.IncludeTextureBanner)
+            {
+                <img src="https://travaloudcdn.azureedge.net/vbh/assets/images/texture-bottom.png" class="w-100 bottom-0 left-0 position-absolute" style="max-height:18px;" alt="Texture border image" />
+            }
+        </div>
+
+        if (Model.Cards != null)
+        {
+            <!--Section: Locations-->
+            <div class="container bg-white rounded-6 position-relative pt-3 px-3 custom-mt">
+
+                @if (ViewData["TourInfo"] != null)
+                {
+                    @Html.Raw(ViewData["TourInfo"])
+                    <hr class="hr" />
+                }
+
+                @Html.DisplayFor(x => x.Cards)
+            </div>
+        }
+    }
+
+}

@@ -1,0 +1,115 @@
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Travaloud.Application.Common.Interfaces
+
+@model Travaloud.Infrastructure.Multitenancy.TenantWebsite.TravaloudSettings
+
+@inject ICurrentUser CurrentUser
+
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+@{
+    var httpContext = HttpContextAccessor.HttpContext;
+
+    if (httpContext != null)
+    {
+        var currentPath = httpContext.Request.Path.Value ?? "/";
+
+        <ul class="navbar-nav mb-2 mb-lg-0 d-flex align-items-lg-center">
+            @if (CurrentUser.IsAuthenticated())
+            {
+                <li class="nav-item dropdown mt-4 mt-lg-0 mb-lg-0">
+                    <a class="nav-link d-none d-lg-block dropdown-toggle @(currentPath.Contains("/my-account") ? "active" : "")" id="navbarDropdownMyAccount" role="button" aria-expanded="false" aria-haspopup="true">MY ACCOUNT</a>
+
+                    <ul class="dropdown-menu" style="right:1rem; left:unset;">
+                        <li class="text-dark float-end">
+                            <a class="dropdown-item text-dark" asp-area="Identity" asp-page="/Account/Manage/Index">Manage</a>
+                        </li>
+                        <li class="text-dark float-end">
+                            <a class="dropdown-item text-dark" asp-area="Identity" asp-page="/Account/Manage/Bookings">My Bookings</a>
+                        </li>
+                        <li class="text-dark">
+                            <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/", new {area = ""})" method="post">
+                                <button type="submit" class="dropdown-item bg-transparent border-0 text-dark float-end text-end" aria-label="Logout">
+                                    Logout
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+
+                    <div class="accordion accordion-flush accordion-borderless d-lg-none d-block" id="myAccountAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="myAccountAccordionHeading">
+                                <button class="accordion-button collapsed @(currentPath.Contains("/my-account") ? "active" : "")" data-mdb-toggle="collapse" data-mdb-target="#myAccountAccordionCollapse" aria-expanded="false" aria-controls="myAccountAccordionCollapse" type="button">
+                                    MY ACCOUNT <i class="fa-solid fa-caret-down ms-3"></i>
+                                </button>
+                            </h2>
+                            <div id="myAccountAccordionCollapse" class="accordion-collapse collapse" aria-labelledby="myAccountAccordionHeading" data-mdb-parent="#myAccountAccordion">
+                                <div class="accordion-body mt-4 mb-1">
+                                    <ul>
+                                        <li class="nav-item mb-0">
+                                            <a class="nav-link"  asp-area="Identity" asp-page="/Account/Manage/Index">Manage</a>
+                                        </li>
+                                        <li class="nav-item mt-4 mb-0">
+                                            <a class="nav-link" asp-area="Identity" asp-page="/Account/Manage/Bookings">My Bookings</a>
+                                        </li>
+                                        <li class="nav-item mt-4 mb-0">
+                                            <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/", new {area = ""})" method="post">
+                                                <button type="submit" class="nav-link me-lg-2 bg-transparent border-0  text-end" aria-label="Logout">
+                                                    Logout
+                                                </button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+
+                @if (Model.NavigationConfiguration is {ShowBookNowButton: true})
+                {
+                    <li class="nav-item mt-4 mt-lg-0">
+                        <button class="btn btn-primary mb-1 pe-5 ps-5 d-none d-lg-block" data-mdb-toggle="modal" data-mdb-target="#bookNowModal" aria-label="Book">Book</button>
+                        <button class="nav-link mb-1 p-0 d-block d-lg-none bg-transparent text-start border-0" data-mdb-toggle="modal" data-mdb-target="#bookNowModal" aria-label="Book">Book</button>
+                    </li>
+                }
+            }
+            else
+            {
+                <li class="nav-item mt-4 mt-lg-0">
+                    <button class="nav-link me-lg-2 border-0 bg-transparent" data-mdb-toggle="modal" data-mdb-target="#logInModal" aria-label="Sign In">Sign In</button>
+                </li>
+                @if (Model.NavigationConfiguration is {ShowBookNowButton: true})
+                {
+                    <li class="nav-item mt-4 mt-lg-0">
+                        <button class="btn btn-primary mb-1 ms-lg-3 pe-5 ps-5 d-none d-lg-block" aria-label="Book" data-mdb-toggle="modal" data-mdb-target="#bookNowModal">Book</button>
+                        <button class="nav-link mb-1 p-0 d-block d-lg-none bg-transparent text-start border-0" aria-label="Book" data-mdb-toggle="modal" data-mdb-target="#bookNowModal">Book</button>
+                    </li>
+                }
+            }
+
+            @{
+                //TODO: implement this
+                @* var basket = httpContext.Session.GetOrCreateObjectFromSession<BasketModel>("tourBookingBasket"); *@
+                @* *@
+                @* if (basket != null && basket.Items.Count > 0) *@
+                @* { *@
+                @*     <li class="nav-item mt-4 mt-lg-0 d-none d-lg-block"> *@
+                @*         <a class="nav-link" href="/basket" rel="nofollow"> *@
+                @*             <i class="fas fa-basket-shopping"></i><span class="badge rounded-pill badge-notification bg-danger basketItemsNavQuantity" style="letter-spacing:0px;">@basket.Items.Count()</span> *@
+                @*         </a> *@
+                @*     </li> *@
+                @* *@
+                @*     <li class="nav-item mt-4 mt-lg-0 d-block d-lg-none"> *@
+                @*         <a class="nav-link" href="/basket" rel="nofollow">Basket <i class="fas fa-basket-shopping"></i><span class="badge rounded-pill badge-notification bg-danger basketItemsNavQuantity" style="letter-spacing:0px;">@basket.Items.Count()</span></a> *@
+                @*     </li> *@
+                @* } *@
+            }
+
+            @if (Model.NavigationConfiguration is {ShowSocialIcons: true})
+            {
+                <partial name="_NavigationSocialIconsPartial" model="Model.Tenant"/>
+            }
+        </ul>
+    }
+}

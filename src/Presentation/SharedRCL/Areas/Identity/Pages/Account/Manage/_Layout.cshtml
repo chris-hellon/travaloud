@@ -1,0 +1,76 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model Travaloud.Tenants.SharedRCL.Models.PageModels.TravaloudBasePageModel
+
+@{
+    if (ViewData.TryGetValue("ParentLayout", out var parentLayout))
+    {
+        Layout = (string)parentLayout;
+    }
+    else
+    {
+        Layout = "/Areas/Identity/Pages/_Layout.cshtml";
+    }
+}
+
+<section id="headerBanner">
+    <div class="container-fluid p-0 header-banner">
+        <div class="header-banner-image-background d-flex justify-content-center align-items-end">
+            <div class="container mb-n5 has-parallax-scroll">
+                <div class="row">
+                    <div class="d-flex align-items-center justify-content-center col-lg-12">
+                        <h1 class="text-white bg-black px-3 pt-2 pb-1 d-inline-block position-relative">
+                            <span class="tilted text-white px-3 py-2" style="left:-5%;">My</span>
+                            @Html.Raw(@ViewData["Title"])
+                        </h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid py-3 mt-7">
+        <partial name="_ManageNav" />
+    </div>
+</section>
+<section id="account" class="overflow-hidden">
+    <div class="container-fluid p-0">
+        @RenderBody()
+    </div>
+</section>
+
+@section Scripts {
+    @RenderSection("Scripts", required: false)
+}
+
+@section Styles {
+    <style type="text/css">
+        .header-banner-image-background {
+            min-height: 240px;
+            background-position-y:25%;
+            background-image:url('@Model.AccountManagementImageUrl');
+        }
+
+        .nav-pills .nav-link {
+            --mdb-nav-pills-link-border-radius: 0.25rem;
+            background-color: transparent;
+        }
+
+            .nav-pills .nav-link.active, .nav-pills .nav-link.active:hover {
+                background-color: var(--mdb-purple) !important;
+
+            }
+            .nav-pills .nav-link:hover {
+                background-color: var( --mdb-light-purple-shadow-color);
+            }
+
+        @@media (max-width: 991px) {
+            .nav-pills:not(.menu-sidebar) {
+                background-color: transparent;
+                padding: 0rem;
+                border-radius: 8px 8px 0px 0px;
+            }
+        }
+    </style>
+
+    @RenderSection("Styles", required: false)
+} 

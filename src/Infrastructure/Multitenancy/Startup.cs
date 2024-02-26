@@ -26,6 +26,7 @@ internal static class Startup
                 , ServiceLifetime.Scoped)
             .AddMultiTenant<TravaloudTenantInfo>()
             .WithPerTenantOptions<IdentityOptions>((options, tenantInfo) => { options.User.RequireUniqueEmail = true; })
+            .WithJsonStrategy(config)
             .WithClaimStrategy(TravaloudClaims.Tenant)
             .WithQueryStringStrategy(MultitenancyConstants.TenantIdName)
             .WithUrlStrategy()
@@ -34,6 +35,13 @@ internal static class Startup
             .AddScoped<ITenantService, TenantService>();
     }
 
+    private static string GetTenantIdentifierFromJson(IConfiguration configuration)
+    {
+        var tenantSettings = GetTenantSettings(configuration);
+
+        return tenantSettings != null ? tenantSettings.Identifier : string.Empty;
+    }
+    
     internal static IApplicationBuilder UseMultiTenancy(this IApplicationBuilder app) =>
         app.UseMultiTenant();
 
@@ -64,9 +72,19 @@ internal static class Startup
 
             // Use the full URL to determine the tenant
             var tenantIdentifier = GetTenantIdentifierFromUrl(fullUrl);
-            
+
             return Task.FromResult(tenantIdentifier)!;
         });
+
+    private static FinbuckleMultiTenantBuilder<TravaloudTenantInfo> WithJsonStrategy(
+        this FinbuckleMultiTenantBuilder<TravaloudTenantInfo> builder, IConfiguration configuration) =>
+        builder.WithDelegateStrategy(context =>
+        {
+            var tenantSettings = GetTenantSettings(configuration);
+
+            return (tenantSettings != null ? Task.FromResult(tenantSettings.Identifier)! : Task.FromResult((string?) null)!)!;
+        });
+
 
     private static string GetTenantIdentifierFromUrl(string url)
     {
@@ -76,4 +94,7 @@ internal static class Startup
 
         return subdomains.Length <= 1 ? "root" : subdomains[0];
     }
+
+    private static TenantSettings? GetTenantSettings(IConfiguration config) =>
+        config.GetSection(nameof(TenantSettings)).Get<TenantSettings>()!;
 }

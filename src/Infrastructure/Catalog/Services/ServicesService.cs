@@ -23,6 +23,11 @@ public class ServicesService : BaseService, IServicesService
         return Mediator.Send(new GetServiceRequest(id));
     }
     
+    public Task<ServiceDetailsDto> GetByNameAsync(string name)
+    {
+        return Mediator.Send(new GetServiceByNameRequest(name));
+    }
+    
     public Task<DefaultIdType> CreateAsync(CreateServiceRequest request)
     {
         return Mediator.Send(request);

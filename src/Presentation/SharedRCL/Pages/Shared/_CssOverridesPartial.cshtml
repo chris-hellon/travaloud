@@ -1,0 +1,506 @@
+@model Travaloud.Infrastructure.Multitenancy.TenantWebsite.TravaloudThemeSettings
+
+<style type="text/css">
+    :root {
+        --mdb-primary: @Model.PrimaryColor;
+        --mdb-secondary: @Model.SecondaryColor;
+        --mdb-body-font-family: @Model.BodyFont;
+        --mdb-headings-font-family: '@Model.HeaderFont';
+        --mdb-button-font-family: '@Model.ButtonFont';
+        --mdb-primary-rgb: @Model.GenerateRgba(Model.PrimaryColor, 1);
+        --mdb-secondary-rgb: @Model.GenerateRgba(Model.SecondaryColor, 1);
+        --mdb-body-font-size: 1rem;
+        --mdb-body-font-weight: 300;
+        --mdb-body-line-height: 1.6;
+        --mdb-nav-link-font-size: 1rem;
+    }
+    .navbar-nav {
+        --mdb-nav-link-padding-x: 0;
+        --mdb-nav-link-padding-y: 0rem;
+    }
+    .navbar-collapse.show {
+        overflow: auto;
+    }
+    html.no-scrollbar, html.no-scrollbar body {
+        overflow: hidden !important;
+    }
+            h1, h2, h3, h4, h5, h6 {
+                font-family:var(--mdb-headings-font-family);
+            }
+
+            .btn {
+                font-family: var(--mdb-button-font-family);
+            }
+
+            .btn-primary {
+                --mdb-btn-bg: @Model.PrimaryColor;
+                --mdb-btn-color: #fff;
+                --mdb-btn-box-shadow: 0 4px 9px -4px rgba(0,0,0,.1);
+                --mdb-btn-hover-bg: @Model.PrimaryHoverColor;
+                --mdb-btn-hover-color: #fff;
+                --mdb-btn-focus-bg: @Model.PrimaryHoverColor;
+                --mdb-btn-focus-color: #fff;
+                --mdb-btn-active-bg: @Model.PrimaryHoverColor;
+                --mdb-btn-active-color: #fff;
+                --mdb-btn-active-border-color: @Model.PrimaryHoverColor;
+                --mdb-btn-border-color: @Model.PrimaryColor;
+                --mdb-btn-hover-border-color: @Model.PrimaryHoverColor;
+                --mdb-btn-focus-shadow-rgb: 0,0,0,.1;
+                --mdb-btn-active-shadow: 0 8px 9px -4px rgba(0,0,0,0.1), 0 4px 18px 0 rgba(0,0,0,0.1);
+                --mdb-btn-disabled-color: #fff;
+                --mdb-btn-disabled-bg:  @Model.PrimaryHoverColor;
+                --mdb-btn-disabled-border-color: @Model.PrimaryHoverColor;
+            }
+
+            .btn-link {
+                --mdb-btn-color: @Model.PrimaryColor;
+                --mdb-btn-hover-color: @Model.PrimaryHoverColor;
+                --mdb-btn-focus-color: @Model.PrimaryHoverColor;
+                --mdb-btn-active-color: @Model.PrimaryHoverColor;
+            }
+
+                .btn-check:active + .btn-primary:hover, .btn-check:checked + .btn-primary:hover, .btn-primary.active:hover, .btn-primary.show:hover, .btn-primary:active:hover {
+                    background-color: @Model.PrimaryHoverColor;
+                }
+
+                .btn-check:focus + .btn-primary, .btn-check:focus-visible + .btn-primary, .btn-primary:focus {
+                    box-shadow: 0 8px 9px -4px rgba(0,0,0,.1), 0 4px 18px 0 rgba(0,0,0,.1);
+                    background-color: @Model.PrimaryHoverColor;
+                }
+
+                .btn-primary:first-child:hover, .btn-primary:focus-visible, .btn-primary:hover, :not(.btn-check) + .btn-primary:hover {
+                    box-shadow: 0 8px 9px -4px rgba(0,0,0,.1), 0 4px 18px 0 rgba(0,0,0,.1);
+                }
+
+    .btn-check:active + .btn-secondary:hover, .btn-secondary:hover, .btn-check:checked + .btn-secondary:hover, .btn-secondary.active:hover, .btn-secondary.show:hover, .btn-secondary:active:hover {
+        background-color: @Model.SecondaryHoverColor;
+    }
+
+                .navbar .nav-link {
+                    font-family: '@Model.NavigationFont';
+                }
+
+                    .form-outline {
+        --mdb-form-outline-select-notch-border-color: @Model.PrimaryColor;
+    }
+
+    .datepicker-main {
+        --mdb-datepicker-cell-selected-background-color: @Model.PrimaryColor;
+        --mdb-datepicker-cell-focused-selected-background-color: @Model.PrimaryColor;
+    }
+
+    .datepicker-modal-container {
+        --mdb-datepicker-header-background-color: @Model.PrimaryColor;
+        --mdb-datepicker-footer-btn-color: @Model.PrimaryColor;
+
+    }
+
+    .form-control:focus {
+        border-color: @Model.PrimaryColor;
+        box-shadow: inset 0 0 0 1px @Model.PrimaryColor;
+    }
+    a {
+        color: @Model.PrimaryColor;
+    }
+    a:hover {color:@Model.PrimaryHoverColor; }
+
+    .btn-outline-primary {
+        --mdb-btn-bg: transparent;
+        --mdb-btn-color: @Model.PrimaryColor;
+        --mdb-btn-hover-bg: transparent;
+        --mdb-btn-hover-color:@Model.PrimaryHoverColor;
+        --mdb-btn-focus-bg: transparent;
+        --mdb-btn-focus-color: @Model.PrimaryHoverColor;
+        --mdb-btn-active-bg: transparent;
+        --mdb-btn-active-color: @Model.PrimaryHoverColor;
+        border-color: @Model.PrimaryColor;
+    }
+
+        .btn-check:focus + .btn-outline-primary, .btn-check:focus-visible + .btn-outline-primary, .btn-outline-primary:first-child:hover, .btn-outline-primary:focus, .btn-outline-primary:focus-visible, .btn-outline-primary:hover, :not(.btn-check) + .btn-outline-primary:hover {
+            border-color: @Model.PrimaryHoverColor;
+        }
+
+    .form-outline .form-control ~ .form-label {
+            text-transform:uppercase;
+            font-family: @Model.NavigationFont;
+            min-height:47px;
+            display:flex;
+            align-items:center;
+            padding-top:0px;
+            font-size:1rem;
+        }
+
+    .booking-banner .select-arrow:before {
+        content: "\f3c5";
+        font-weight: 900;
+    }
+    .select-arrow:before {
+        font-family: "Font Awesome 6 Free";
+    }
+
+    .booking-banner .select-wrapper {
+        --mdb-form-outline-select-arrow-color: var(--mdb-primary);
+        --mdb-form-outline-select-arrow-font-size: 1em;
+        --mdb-form-outline-select-arrow-top: 7px;
+    }
+
+    .select-wrapper {
+        --mdb-form-outline-select-clear-btn-focus-color: @Model.PrimaryColor;
+        --mdb-form-outline-select-label-color: @Model.PrimaryColor;
+        --mdb-form-outline-select-input-focused-arrow-color: @Model.PrimaryColor;
+    }
+    .form-control.select-input, .select-wrapper, .select-wrapper .form-outline {
+        height: 100%;
+    }
+
+        .form-outline, .form-outline .form-control {
+            min-height: 47px;
+        }
+
+
+
+        .form-outline .form-control:focus ~ .form-label, .form-outline .form-control.active ~ .form-label {
+            color: var(--mdb-primary);
+        }
+
+        .form-outline .form-control:focus ~ .form-notch .form-notch-leading, .form-outline .form-control.active ~ .form-notch .form-notch-leading {
+            border-color: var(--mdb-primary);
+            box-shadow: -1px 0 0 0 var(--mdb-primary),0 1px 0 0 var(--mdb-primary),0 -1px 0 0 var(--mdb-primary);
+        }
+
+        .form-outline .form-control:focus ~ .form-notch .form-notch-middle, .form-outline .form-control.active ~ .form-notch .form-notch-middle {
+            border-color: var(--mdb-primary);
+            box-shadow: 0 1px 0 0 var(--mdb-primary);
+            border-top: 1px solid transparent;
+        }
+
+            .form-outline .form-control:focus ~ .form-notch .form-notch-trailing, .form-outline .form-control.active ~ .form-notch .form-notch-trailing {
+                border-color: var(--mdb-primary);
+                box-shadow: 1px 0 0 0 var(--mdb-primary),0 -1px 0 0 var(--mdb-primary),0 1px 0 0 var(--mdb-primary);
+            }
+
+    .cursor-pointer, a[data-mdb-dismiss], a[data-mdb-toggle] {
+        cursor: pointer;
+    }
+
+    .navbar .nav-link { font-size:1rem; }
+    .navbar {
+        box-shadow: none;
+    }
+
+    .modal .btn-close {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+         background: unset;
+    }
+
+    .navbar-dark.bg-dark {
+        background-color:var(--mdb-black);
+    }
+    .container-fluid {
+        padding: 0 !important;
+    }
+    .has-parallax-scroll {
+        opacity: 0;
+        transform: translateY(50px);
+        transition: opacity 1.2s,transform 1.2s;
+        z-index: 2
+    }
+
+        .has-parallax-scroll.fade-in {
+            opacity: 1;
+            transform: translateY(0)
+        }
+
+    .animated-icon1, .animated-icon2, .animated-icon3 {
+        width: 30px;
+        height: 20px;
+        position: relative;
+        margin: 0;
+        -webkit-transform: rotate(0);
+        -moz-transform: rotate(0);
+        -o-transform: rotate(0);
+        transform: rotate(0);
+        -webkit-transition: .5s ease-in-out;
+        -moz-transition: .5s ease-in-out;
+        -o-transition: .5s ease-in-out;
+        transition: .5s ease-in-out;
+        cursor: pointer
+    }
+
+        .animated-icon1 span, .animated-icon2 span, .animated-icon3 span {
+            display: block;
+            position: absolute;
+            height: 2px;
+            width: 100%;
+            border-radius: 9px;
+            opacity: 1;
+            left: 0;
+            -webkit-transform: rotate(0);
+            -moz-transform: rotate(0);
+            -o-transform: rotate(0);
+            transform: rotate(0);
+            -webkit-transition: .25s ease-in-out;
+            -moz-transition: .25s ease-in-out;
+            -o-transition: .25s ease-in-out;
+            transition: .25s ease-in-out
+        }
+
+        .animated-icon1 span {
+            background: #2d7ef7
+        }
+
+        .animated-icon2 span {
+            background: #e3f2fd
+        }
+
+        .animated-icon3 span {
+            background: var(--mdb-white) !important;
+        }
+
+        .animated-icon1 span:first-child, .animated-icon2 span:first-child {
+            top: 0
+        }
+
+        .animated-icon1 span:nth-child(2), .animated-icon2 span:nth-child(2), .animated-icon2 span:nth-child(3) {
+            top: 10px
+        }
+
+        .animated-icon1 span:nth-child(3), .animated-icon2 span:nth-child(4) {
+            top: 20px
+        }
+
+        .animated-icon1.open span:first-child {
+            top: 11px;
+            -webkit-transform: rotate(135deg);
+            -moz-transform: rotate(135deg);
+            -o-transform: rotate(135deg);
+            transform: rotate(135deg)
+        }
+
+        .animated-icon1.open span:nth-child(2) {
+            opacity: 0;
+            left: -60px
+        }
+
+        .animated-icon1.open span:nth-child(3) {
+            top: 11px;
+            -webkit-transform: rotate(-135deg);
+            -moz-transform: rotate(-135deg);
+            -o-transform: rotate(-135deg);
+            transform: rotate(-135deg)
+        }
+
+        .animated-icon2.open span:first-child, .animated-icon2.open span:nth-child(4) {
+            top: 11px;
+            width: 0;
+            left: 50%
+        }
+
+        .animated-icon2.open span:nth-child(2) {
+            -webkit-transform: rotate(45deg);
+            -moz-transform: rotate(45deg);
+            -o-transform: rotate(45deg);
+            transform: rotate(45deg)
+        }
+
+        .animated-icon2.open span:nth-child(3) {
+            -webkit-transform: rotate(-45deg);
+            -moz-transform: rotate(-45deg);
+            -o-transform: rotate(-45deg);
+            transform: rotate(-45deg)
+        }
+
+        .animated-icon3 span:first-child {
+            top: 0;
+            transform-origin: left center
+        }
+
+        .animated-icon3 span:nth-child(2) {
+            top: 10px;
+            transform-origin: left center;
+            width: 80%;
+            margin-left: 20%
+        }
+
+        .animated-icon3 span:nth-child(3) {
+            top: 20px;
+            -webkit-transform-origin: left center;
+            -moz-transform-origin: left center;
+            -o-transform-origin: left center;
+            transform-origin: left center
+        }
+
+        .animated-icon3.open span:first-child {
+            -webkit-transform: rotate(45deg);
+            -moz-transform: rotate(45deg);
+            -o-transform: rotate(45deg);
+            transform: rotate(45deg);
+            top: 0;
+            left: 8px
+        }
+
+        .animated-icon3.open span:nth-child(2) {
+            width: 0;
+            opacity: 0
+        }
+
+        .animated-icon3.open span:nth-child(3) {
+            -webkit-transform: rotate(-45deg);
+            -moz-transform: rotate(-45deg);
+            -o-transform: rotate(-45deg);
+            transform: rotate(-45deg);
+            top: 21px;
+            left: 8px
+        }
+
+
+    .pt-6 {
+        padding-top: 4rem !important
+    }
+
+    .pt-7 {
+        padding-top: 5rem !important
+    }
+
+    .pt-8 {
+        padding-top: 6rem;
+    }
+
+    .pb-6 {
+        padding-bottom: 4rem !important
+    }
+
+    .pb-7 {
+        padding-bottom: 5rem !important
+    }
+
+    .pb-8 {
+        padding-bottom: 6rem !important
+    }
+
+    .travaloud-validation {
+        display: block;
+        color: #f66;
+        font-size: .75rem;
+        position: absolute;
+        bottom: 6px;
+    }
+
+    .strikethrough-text {
+        position: relative;
+        color: #adadad !important;
+    }
+        .strikethrough-text:before {
+            position: absolute;
+            content: "";
+            left: 0;
+            top: 50%;
+            right: 0;
+            border-top:3px solid;
+            border-color: inherit;
+            -webkit-transform: rotate(25deg);
+            -moz-transform: rotate(25deg);
+            -ms-transform: rotate(25deg);
+            -o-transform: rotate(25deg);
+            transform: rotate(25deg);
+            color: white !important;
+        }
+    .dropdown-menu li {
+        position: relative;
+    }
+
+    .dropdown-menu .dropdown-submenu {
+        display: none;
+        position: absolute;
+        left: 100%;
+        top: -7px;
+    }
+
+    .dropdown-menu .dropdown-submenu-left {
+        right: 100%;
+        left: auto;
+    }
+
+    .dropdown-menu > li:hover > .dropdown-submenu {
+        display: block;
+    }
+
+    .dropdown-hover:hover > .dropdown-menu {
+        display: inline-block;
+    }
+
+    .dropdown-hover > .dropdown-toggle:active {
+        /*Without this, clicking will make it sticky*/
+        pointer-events: none;
+    }
+
+    .accordion {
+        --mdb-accordion-color: #4f4f4f;
+        --mdb-accordion-bg: #fff;
+        --mdb-accordion-transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out,border-radius .15s ease;
+        --mdb-accordion-border-color: var(--mdb-border-color);
+        --mdb-accordion-border-width: 1px;
+        --mdb-accordion-border-radius: .5rem;
+        --mdb-accordion-inner-border-radius: calc(0.5rem - 1px);
+        --mdb-accordion-btn-padding-x: 1.5rem;
+        --mdb-accordion-btn-padding-y: 1.15rem;
+        --mdb-accordion-btn-color: #4f4f4f;
+        --mdb-accordion-btn-bg: var(--mdb-accordion-bg);
+        --mdb-accordion-btn-icon: url("data:image/svg+xml;charset=utf-8,%3Csvgxmlns='http://www.w3.org/2000/svg'viewBox='001616'fill='%234f4f4f'%3E%3Cpathfill-rule='evenodd'd='M1.6464.646a.5.5001.7080L810.293l5.646-5.647a.5.5001.708.708l-66a.5.5001-.7080l-6-6a.5.50010-.708z'/%3E%3C/svg%3E");
+        --mdb-accordion-btn-icon-width: 1.25rem;
+        --mdb-accordion-btn-icon-transform: rotate(-180deg);
+        --mdb-accordion-btn-icon-transition: transform .2s ease-in-out;
+        --mdb-accordion-btn-active-icon: url("data:image/svg+xml;charset=utf-8,%3Csvgxmlns='http://www.w3.org/2000/svg'viewBox='001616'fill='%233b71ca'%3E%3Cpathfill-rule='evenodd'd='M1.6464.646a.5.5001.7080L810.293l5.646-5.647a.5.5001.708.708l-66a.5.5001-.7080l-6-6a.5.50010-.708z'/%3E%3C/svg%3E");
+        --mdb-accordion-btn-focus-border-color: var(--mdb-primary);
+        --mdb-accordion-btn-focus-box-shadow: inset 0 -1px 0 rgba(0,0,0,0.125);
+        --mdb-accordion-body-padding-x: 1.5rem;
+        --mdb-accordion-body-padding-y: 1.15rem;
+        --mdb-accordion-active-color: var(--mdb-primary);
+        --mdb-accordion-active-bg: #fff
+    }
+    .accordion-button {
+        padding: 0;
+        color: #fff;
+        font-size: var(--mdb-nav-link-font-size);
+        font-weight: var(--mdb-nav-link-font-weight);
+        text-shadow: none;
+        letter-spacing: .063rem;
+        margin-left: .1rem;
+        margin-right: .1rem;
+        font-family: var(--mdb-nav-link-font-family)
+    }
+
+    .accordion-body ul {
+        list-style-type: none;
+        padding-left: 0;
+    }
+
+    @@media (max-width:968px) {
+        #fullPageCarousel, #fullPageCarousel .carousel-inner, #fullPageCarousel .carousel-item, #fullPageCarousel .carousel-item.active {
+            background-attachment: unset;
+        }
+    }
+
+    .form-control[data-mdb-toggle="datepicker"] {
+        cursor:pointer;
+    }
+
+    .basketItemImage {
+        height: 70px;
+        object-fit: cover;
+    }
+
+        .basketItemImage img {
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
+        }
+
+    @@media(max-width: 992px) {
+        .basketItemImage {
+            height: 150px;
+        }
+    }
+</style>

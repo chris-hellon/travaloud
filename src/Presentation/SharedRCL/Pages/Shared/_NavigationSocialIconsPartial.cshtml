@@ -1,0 +1,22 @@
+@model Travaloud.Infrastructure.Multitenancy.TenantWebsite.TravaloudTenantSettings
+
+@if (!string.IsNullOrEmpty(Model.SocialLinks?.Facebook))
+{
+    <li class="nav-item mt-4 mt-lg-0 d-none d-lg-block">
+        <a class="nav-link" href="@Model.SocialLinks.Facebook" rel="nofollow" target="_blank"> <i class="fab fa-facebook-f"></i></a>
+    </li>
+}
+
+@if (!string.IsNullOrEmpty(Model.SocialLinks?.Instagram))
+{
+    <li class="nav-item mt-4 mt-lg-0 d-none d-lg-block">
+        <a class="nav-link" href="@Model.SocialLinks.Instagram" rel="nofollow" target="_blank"> <i class="fab fa-instagram"></i></a>
+    </li>
+}
+
+@if (!string.IsNullOrEmpty(Model.SocialLinks?.YouTube))
+{
+    <li class="nav-item mt-4 mt-lg-0 d-none d-lg-block">
+        <a class="nav-link" href="@Model.SocialLinks.YouTube" rel="nofollow" target="_blank"> <i class="fab fa-youtube"></i></a>
+    </li>
+}

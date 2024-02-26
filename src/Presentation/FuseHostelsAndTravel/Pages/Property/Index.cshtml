@@ -1,0 +1,123 @@
+﻿@page "/hostels/{propertyName}"
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Travaloud.Application.Common.Extensions
+@using Travaloud.Infrastructure.Common.Extensions
+@model FuseHostelsAndTravel.Pages.Property.IndexModel
+
+@if (Model.Property != null)
+{
+    ViewData["Title"] = Model.Property.Name;
+
+    <section id="headerBanner">
+        @Html.DisplayFor(x => x.HeaderBanner)
+        <partial name="_NavPillsPartial" model="Model.NavPills" />
+    </section>
+
+    <section id="about" class="overflow-hidden inherit-sticky-parent">
+        @Html.DisplayFor(x => x.IntroductionBanner)
+    </section>
+
+    <section id="book-now" class="bg-gray px-3 px-lg-0 py-5">
+        @Html.DisplayFor(x => x.BookNowBanner)
+    </section>
+
+
+    <section id="accommodation" class="pb-8">
+        @Html.DisplayFor(x => x.AccommodationCards)
+    </section>
+
+    <section id="facilities" class="bg-light pb-8 pt-8">
+        @Html.DisplayFor(x => x.FacilitiesTable)
+    </section>
+
+    <section id="@($"{Model.Property.PageTitle?.Replace("Hostel", "").UrlFriendly()}-experiences")">
+        @Html.DisplayFor(x => x.ToursCards)
+    </section>
+
+    <section id="@($"getting-to-{Model.Property.PageTitle?.UrlFriendly()}")" class="bg-light">
+        @Html.DisplayFor(x => x.DirectionsNavPills)
+    </section>
+
+    <section id="events" class="pt-8">
+        <div class="container">
+            <div class="row gx-4">
+                @Html.DisplayFor(x => x.EventsCards)
+            </div>
+        </div>
+    </section>
+
+    if (Model.AccommodationCards != null)
+    {
+        var roomsCount = Model.AccommodationCards.Cards.Count;
+
+        for (var i = 0; i < roomsCount; i++)
+        {
+            var accommodation = Model.AccommodationCards.Cards[i];
+            var isLightbox = accommodation.LightboxImages.Any();
+
+            if (isLightbox)
+            {
+                var id = $"lightbox{accommodation.Title.ConvertToCamelCase()}Modal";
+                var label = $"{id}Label";
+                var url = $"/hostel-booking/{Model.Property.Name.UrlFriendly()}{(Model.UserId != null ? $"/{Model.UserId}" : "")}";
+
+                <div class="modal fade lighbox-modal" id="@id" tabindex="-1" aria-labelledby="@label" aria-hidden="true">
+                    <button type="button" class="text-white btn-close" data-mdb-dismiss="modal" aria-label="Close"><i class="fa fa-xmark"></i></button>
+
+                    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable pt-5 pt-lg-0">
+                        <div class="modal-content rounded-0 bg-transparent">
+                            <div class="modal-body">
+                                <div class="container-fluid">
+                                    <div class="row g-0">
+                                        <div class="col-6 text-start">
+                                            @if (i > 0)
+                                            {
+                                                var previousElement = Model.AccommodationCards.Cards[i - 1];
+                                                var previousId = $"lightbox{previousElement.Title.ConvertToCamelCase()}Modal";
+
+                                                <a class="text-white mb-3" data-mdb-toggle="modal" data-mdb-target="#@previousId"><i class="fas fa-arrow-left-long me-2"></i> PREVIOUS ROOM</a>
+                                            }
+                                        </div>
+                                        <div class="col-6 text-end">
+                                            @if (i + 1 < roomsCount)
+                                            {
+                                                var nextElement = Model.AccommodationCards.Cards[i + 1];
+                                                var nextId = $"lightbox{nextElement.Title.ConvertToCamelCase()}Modal";
+
+                                                <a class="text-white mb-3" data-mdb-toggle="modal" data-mdb-target="#@nextId">NEXT ROOM <i class="fas fa-arrow-right-long ms-2"></i></a>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="row g-0">
+                                        <div class="col-lg-4 py-5 px-4 bg-white">
+                                            <div class="d-flex flex-column h-100">
+                                                <h4 class="tilted mb-5">@accommodation.Title</h4>
+                                                @Html.Raw(accommodation.Body)
+
+                                                <div class="mt-5 mt-lg-auto">
+                                                    <a class="btn btn-primary align-bottom pe-5 ps-5" href="@url">BOOK NOW</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-8">
+                                            @{
+                                                var thumbnailImageSrc = accommodation.ImageSrc.Replace("tr=w-800", $"w=1600").Replace("tr=w-700", $"w=700").Replace("tr=w-1600", $"w=1600").Replace("https://ik.imagekit.io/rqlzhe7ko/", $"https://travaloudcdn.azureedge.net/fuse/assets/images/");
+                                            }
+                
+                                            <img class="img-fluid" src="@thumbnailImageSrc" alt="@accommodation carousel image" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    }
+}
+
+@section Scripts {
+    <script type="text/javascript" src="/js/property.js"></script>
+}

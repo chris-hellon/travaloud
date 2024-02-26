@@ -1,0 +1,23 @@
+﻿@model Travaloud.Tenants.SharedRCL.Models.PageModels.TourItinerarySectionModel
+@{
+    <div class="card h-100">
+        @if (Model.Carousel != null)
+        {
+            @Html.DisplayFor(x => x.Carousel)
+
+        }
+
+        <div class="card-body d-flex flex-column">
+            <h4 class="fw-bold mb-2 text-black">@Model.TourItinerarySectionDto.Title</h4>
+            @if (!string.IsNullOrEmpty(Model.TourItinerarySectionDto.SubTitle))
+            {
+                <h5 class="fw-bold mb-4 text-muted text-shadow-0">@Model.TourItinerarySectionDto.SubTitle</h5>
+            }
+
+            <div class="mb-0">
+                @Html.Raw(Model.TourItinerarySectionDto.Description)
+            </div>
+        </div>
+    </div>
+}
+

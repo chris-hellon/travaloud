@@ -1,3 +1,4 @@
+using Microsoft.JSInterop;
 using MudBlazor;
 using Travaloud.Admin.Theme;
 using Travaloud.Infrastructure.Multitenancy;

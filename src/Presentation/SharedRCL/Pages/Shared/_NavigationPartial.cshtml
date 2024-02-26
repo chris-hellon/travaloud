@@ -1,0 +1,138 @@
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model Travaloud.Tenants.SharedRCL.Models.PageModels.TravaloudBasePageModel
+
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+<header>
+    @{
+        var httpContext = HttpContextAccessor.HttpContext;
+
+        if (httpContext != null && Model is {NavigationSettings: not null})
+        {
+            var navigationConfiguration = Model.NavigationSettings;
+            var currentPath = httpContext.Request.Path.Value ?? "/";
+            var navbarId = $"{Model.TenantName.Replace(" ", "").Replace("&", "").ConvertToCamelCase()}Navbar";
+
+            <!-- Navbar -->
+            <nav class="navbar navbar-expand-lg navbar-dark d-lg-block bg-lg-white fixed-top @(Model.TenantId == "fuse" ? "py-4 py-lg-3" : "py-0") @(currentPath != "/" ? "shadow always-shadow" : "")">
+                <div class="container@(Model.NavigationSettings.FullWidth ? "-fluid" : "")">
+                    <a class="navbar-brand navbar-brand-mobile nav-link d-flex d-lg-none" asp-page="/Home/Index">
+                        <img src="@navigationConfiguration.NavBrandLogo" alt="@($"{Model.TenantName} Brand Logo")" height="@(Model.TenantId == "fuse" ? 85 : 60)" />
+                    </a>
+
+                    <button id="navbarToggler" class="navbar-toggler ms-auto m-0 p-0" type="button" data-mdb-toggle="collapse"
+                            data-mdb-target="#@navbarId"
+                            aria-controls="@navbarId" aria-expanded="false"
+                            aria-label="Toggle navigation">
+                        <div class="animated-icon3"><span></span><span></span><span></span></div>
+                    </button>
+
+                    <div class="collapse navbar-collapse" id="@navbarId">
+                        <div class="col-lg-3 d-none d-lg-flex justify-content-start pt-5 pt-lg-0">
+                            <a class="navbar-brand navbar-brand-desktop nav-link" asp-page="/Home/Index">
+                                <img src="@navigationConfiguration.NavBrandLogo" alt="@($"{Model.TenantName} Brand Logo")" height="@(Model.TenantId == "fuse" ? 90 : 65)" />
+                            </a>
+                        </div>
+                        <div class="col-md-12 col-lg-@(navigationConfiguration.LinksRightAligned ? "9" : "6") d-lg-flex justify-content-lg-@(navigationConfiguration.LinksRightAligned ? "end" : "center") pt-5 pt-lg-0">
+                            <ul class="navbar-nav">
+                                @if (navigationConfiguration.NavigationLinks.Any())
+                                {
+                                    foreach (var navigationLink in navigationConfiguration.NavigationLinks)
+                                    {
+                                        var activeClass = currentPath.Contains(navigationLink.FriendlyUrl) ? "active" : "";
+
+                                        if (navigationLink.Children != null && navigationLink.Children.Any())
+                                        {
+                                            activeClass = navigationLink.Children.Any(x => currentPath.Contains(navigationLink.FriendlyUrl) && currentPath.Contains(navigationLink.FriendlyUrl)) ? "active" : "";
+
+                                            var formattedTitle = navigationLink.Title.Replace("&", "and").ConvertToCamelCase();
+                                            var dropdownId = $"navbarDropdown{formattedTitle}";
+                                            var accordionId = $"navbarAccordion{formattedTitle}";
+                                            var accordionHeadingId = $"{accordionId}Heading";
+                                            var accordionCollapseId = $"{accordionId}Collapse";
+
+                                            <li class="nav-item dropdown mt-4 mt-lg-0 mb-lg-0">
+                                                <a class="nav-link d-none d-lg-block dropdown-toggle @activeClass" asp-page="@navigationLink.Page" asp-all-route-data="@navigationLink.Routes" id="@dropdownId" role="button" aria-expanded="false" aria-haspopup="true">@navigationLink.Title</a>
+                                                <ul class="dropdown-menu">
+                                                    @foreach (var child in navigationLink.Children)
+                                                    {
+                                                        <li>
+                                                            <a class="dropdown-item" asp-page="@child.Page" asp-all-route-data="@child.Routes">
+                                                                @child.Title
+
+                                                                @if (child.Children != null && child.Children.Any())
+                                                                {
+                                                                    <i class="fa-solid fa-angles-right" style="font-size:0.7rem"></i>
+                                                                }
+                                                            </a>
+
+                                                            @if (child.Children != null && child.Children.Any())
+                                                            {
+                                                                <ul class="dropdown-menu dropdown-submenu">
+                                                                    @foreach (var subchild in child.Children)
+                                                                    {
+                                                                        <li>
+                                                                            <a class="dropdown-item" asp-page="@subchild.Page" asp-all-route-data="@subchild.Routes">@subchild.Title</a>
+                                                                        </li>
+                                                                    }
+                                                                </ul>
+                                                            }
+                                                        </li>
+                                                    }
+                                                </ul>
+                                                <div class="accordion accordion-flush accordion-borderless d-lg-none d-block" id="@accordionId">
+                                                    <div class="accordion-item">
+                                                        <h2 class="accordion-header" id="@accordionHeadingId">
+                                                            <button class="accordion-button collapsed @activeClass" data-mdb-toggle="collapse" data-mdb-target="#@accordionCollapseId" aria-expanded="false" aria-controls="@accordionCollapseId" type="button">
+                                                                @navigationLink.Title <i class="fa-solid fa-caret-down ms-3"></i>
+                                                            </button>
+                                                        </h2>
+                                                        <div id="@accordionCollapseId" class="accordion-collapse collapse" aria-labelledby="@accordionHeadingId" data-mdb-parent="#@accordionId">
+                                                            <div class="accordion-body mt-4 mb-1">
+                                                                <ul>
+                                                                    @foreach (var child in navigationLink.Children)
+                                                                    {
+                                                                        <li class="nav-item @(child != navigationLink.Children.First() ? "mt-4" : "") mb-0">
+                                                                            <a class="nav-link" asp-page="@child.Page" asp-all-route-data="@child.Routes">@child.Title</a>
+                                                                        </li>
+                                                                    }
+
+                                                                    <li class="nav-item mt-4">
+                                                                        <a class="nav-link" asp-page="@navigationLink.Page" asp-all-route-data="@navigationLink.Routes">View All</a>
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        }
+                                        else
+                                        {
+                                            <li class="nav-item mt-4 mt-lg-0">
+                                                <a class="nav-link @activeClass" asp-page="@navigationLink.Page">@navigationLink.Title</a>
+                                            </li>
+                                        }
+                                    }
+                                }
+                            </ul>
+
+                            @if (navigationConfiguration.LinksRightAligned)
+                            {
+                                <partial name="_LoginNavigationPartial" model="Model.TravaloudSettings" />
+                            }
+                        </div>
+
+                        @if (navigationConfiguration.LinksCentreAligned)
+                        {
+                            <div class="col-md-12 col-lg-3 d-flex justify-content-lg-end">
+                                <partial name="_LoginNavigationPartial" model="Model.TravaloudSettings" />
+                            </div>
+                        }
+                    </div>
+                </div>
+            </nav>
+            <!-- Navbar -->
+        }
+    }
+</header>

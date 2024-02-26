@@ -41,6 +41,6 @@ public class JobVacancyResponse : AuditableEntity, IAggregateRoot
     public string? Portfolio { get; private set; }
     public string? Equipment { get; private set; }
     public DefaultIdType JobVacancyId { get; private set; }
-    
-    public virtual JobVacancy JobVacancy { get; set; }
+
+    public virtual JobVacancy JobVacancy { get; set; } = default!;
 }

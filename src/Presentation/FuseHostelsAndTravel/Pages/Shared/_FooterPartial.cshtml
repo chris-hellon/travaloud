@@ -1,0 +1,115 @@
+﻿<!-- Footer -->
+<footer class="bg-dark text-white">
+    <!-- Grid container -->
+    <div class="container py-4 p-lg-5 text-start">
+        <!-- Section: Links -->
+        <section class="">
+            <!--Grid row-->
+            <div class="row">
+                <!--Grid column-->
+                <div class="col-lg-3 col-md-6 mb-4 mb-md-0 d-flex justify-content-start">
+                    <a class="navbar-brand" asp-page="/Home/Index">
+                        <strong>FUSE</strong>
+                    </a>
+                </div>
+                <!--Grid column-->
+                <!--Grid column-->
+                <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
+                    <span class="mb-3 display-6 d-block">Sleep & Explore</span>
+
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-3">
+                            <a asp-page="/Properties/Index" asp-route-propertyName="" class="text-white">Hostels</a>
+                        </li>
+                        <li class="mb-3">
+                            <a asp-page="/Tours/Index" asp-route-tourName="" class="text-white">Tours</a>
+                        </li>
+                        <li class="mb-3">
+                            <a asp-page="/Events/Index" class="text-white">Events</a>
+                        </li>
+                        <li class="mb-3">
+                            <a asp-page="/TravelGuides/Index" asp-route-pageNumber="" class="text-white">Travel Guides</a>
+                        </li>
+                        <li>
+                            <a asp-page="/OurStory/Index" class="text-white">Our Story</a>
+                        </li>
+                    </ul>
+                </div>
+                <!--Grid column-->
+                <!--Grid column-->
+                <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
+                    <span class="mb-3 display-6 d-block">FUSE</span>
+
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-3">
+                            <a asp-page="/Contact/Index" class="text-white">Contact</a>
+                        </li>
+                        @if (!User.Identity.IsAuthenticated)
+                        {
+                            <li class="mb-3">
+                                <button class="text-white border-0 bg-transparent p-0 m-0" role="button" data-mdb-toggle="modal" data-mdb-target="#logInModal">Sign In</button>
+                            </li>
+                        }
+                        <li class="mb-3">
+                            <button data-mdb-toggle="modal" data-mdb-target="#bookNowModal" role="button" class="text-white border-0 p-0 m-0 bg-transparent">Book</button>
+                        </li>
+                        <li>
+                            <a asp-page="/JoinOurCrew/Index" asp-route-tourName="" class="text-white">Join Our Crew</a>
+                        </li>
+                    </ul>
+                </div>
+                <!--Grid column-->
+                <!--Grid column-->
+                <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
+                    <span class="mb-3 display-6 d-block">Legal</span>
+
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-3">
+                            <a asp-page="/TermsAndConditions/Index" class="text-white">Terms & Conditions</a>
+                        </li>
+                        <li class="mb-3">
+                            <a asp-page="/PrivacyPolicy/Index" class="text-white">Privacy Policy</a>
+                        </li>
+                        <li>
+                            <a asp-page="/CookiePolicy/Index" class="text-white">Cookie Policy</a>
+                        </li>
+                    </ul>
+                </div>
+                <!--Grid column-->
+            </div>
+            <!--Grid row-->
+        </section>
+        <!-- Section: Links -->
+    </div>
+    <!-- Grid container -->
+    <div class="container text-start">
+        <div class="row">
+            <div class="col-lg-3">
+                <!-- Section: Social media -->
+                <section class="mb-4">
+                    <!-- Facebook -->
+                    <a class="btn btn-floating m-lg-1" href="https://www.facebook.com/fusehostelsandtravel" target="_blank" role="button" aria-label="Fuse Official Facebook page">
+                        <i class="fab fa-facebook"></i>
+                    </a>
+                    <!-- Instagram -->
+                    <a class="btn btn-floating m-lg-1" href="https://www.instagram.com/fusehostels" target="_blank" role="button" aria-label="Fuse Official Instagram page">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                </section>
+                <!-- Section: Social media -->
+            </div>
+            <div class="col-lg-6">
+                <!-- Copyright -->
+                <div class="text-start pb-3 p-lg-3 small">
+                    FUSE Hostels & Travel © @System.DateTime.Now.Year.ToString() | All rights reserved | Designed by <a href="https://www.shuffledesign.co/" class="text-white" target="_blank" aria-label="Shuffle Design official page">Shuffle</a>
+                </div>
+                <!-- Copyright -->
+
+            </div>
+            <div class="col-lg-3">
+            </div>
+        </div>
+    </div>
+
+</footer>
+<!-- Footer -->

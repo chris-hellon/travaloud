@@ -20,6 +20,8 @@ public interface IServicesService : ITransientService
     /// <returns></returns>
     Task<ServiceDetailsDto> GetAsync(DefaultIdType id);
 
+    Task<ServiceDetailsDto> GetByNameAsync(string name);
+    
     /// <summary>
     /// Create a new service.
     /// </summary>

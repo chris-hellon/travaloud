@@ -10,5 +10,5 @@ public class PageModalsBySearchSpec : EntitiesByPaginationFilterSpec<PageModal, 
         : base(request) =>
         Query
             .OrderBy(c => c.Title, !request.HasOrderBy())
-            .Where(p => p.Title.Equals(request.Title), request.Title != null);
+            .Where(p => p.Title != null && p.Title.Equals(request.Title), request.Title != null);
 }

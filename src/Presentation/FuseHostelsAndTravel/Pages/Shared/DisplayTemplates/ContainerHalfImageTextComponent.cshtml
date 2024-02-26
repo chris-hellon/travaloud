@@ -1,0 +1,42 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Travaloud.Infrastructure.Common.Extensions
+@model ContainerHalfImageTextComponent
+@inject Wangkanai.Detection.Services.IDetectionService DetectionService
+
+<div class="container-fluid">
+    <div class="row @Model.CssClass @(Model.SwapDirection ? "flex-row-reverse" : "")@(Model.OvalContainer != null ? " position-relative" : "")">
+        @if (Model.SwapDirection)
+        {
+            <div class="col-lg-1 order-lg-0 order-3">
+
+            </div>
+        }
+        <div class="col-md-12 offset-lg-1 col-lg-4 d-flex align-items-center position-relative px-4 p-lg-0 pb-5 pt-5 order-lg-1 order-2">
+            <div class="has-parallax-scroll">
+                <span class="fw-bold mb-4 mb-lg-5 tilted">@Html.Raw(Model.Title)</span>
+                @Html.Raw(Model.Body)
+                <partial name="_ButtonLinkPartial" model="Model.ButtonComponent" />
+            </div>
+        </div>
+        <div class="col-md-12 @(Model.SwapDirection ? "col-lg-6" : "col-lg-6 offset-lg-1") p-0 offcut-image-border has-parallax-scroll order-lg-2 order-1">
+            @{
+                var isMobile = DetectionService.Device.Type == Wangkanai.Detection.Models.Device.Mobile;
+                var imageWidth = 1300;
+                var imageHeight = 800;
+                if (isMobile)
+                {
+                    imageWidth = 600;
+                    imageHeight = 300;
+                }
+
+                var thumbnailImageSrc = !string.IsNullOrEmpty(Model.ImageSrc) ? Model.ImageSrc.FormatImageUrl(imageWidth, "fuse") : "https://images.unsplash.com/photo-1504699439244-a7e34870c35d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=3540&q=80";
+                <img class="img-fluid shadow-4" width="@imageWidth" height="@imageHeight" src="@(thumbnailImageSrc)" alt="@($"{Model.Title} image")">
+            }
+        </div>
+
+        @if (Model.OvalContainer != null)
+        {
+            @Html.DisplayFor(x => x.OvalContainer)
+        }
+    </div>
+</div>

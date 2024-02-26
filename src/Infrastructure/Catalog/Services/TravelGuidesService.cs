@@ -23,6 +23,11 @@ public class TravelGuidesService : BaseService, ITravelGuidesService
         return Mediator.Send(new GetTravelGuideRequest(id));
     }
     
+    public Task<TravelGuideDto> GetByFriendlyTitleAsync(string title)
+    {
+        return Mediator.Send(new GetTravelGuideByFriendlyTitleRequest(title));
+    }
+    
     public Task<DefaultIdType> CreateAsync(CreateTravelGuideRequest request)
     {
         return Mediator.Send(request);

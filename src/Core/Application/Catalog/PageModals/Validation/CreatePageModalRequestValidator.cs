@@ -10,7 +10,7 @@ public class CreatePageModalRequestValidator : CustomValidator<CreatePageModalRe
     {
         RuleFor(p => p.Title)
             .NotEmpty()
-            .MustAsync(async (title, ct) => await repository.SingleOrDefaultAsync(new PageModalByTitleSpec(title), ct) is null)
+            .MustAsync(async (title, ct) => title != null && await repository.SingleOrDefaultAsync(new PageModalByTitleSpec(title), ct) is null)
             .WithMessage((_, title) => string.Format(localizer["pagemodal.alreadyexists"], title));
 
         RuleFor(x => x.SelectedPages)

@@ -1,0 +1,25 @@
+﻿@model FullImageCardComponent
+
+<div class="container-fluid p-0 m-0 position-relative overflow-hidden">
+    <div class="container pt-8 pb-8 text-center ovals-container-parent has-parallax-scroll">
+        <div class="row justify-content-lg-center">
+            <div class="col-12">
+                <h2>@Html.Raw(Model.Header.Title)</h2>
+            </div>
+            <div class="col-12 col-lg-6">
+                <p class="m-0 p-0">@Html.Raw(Model.Header.Body)</p>
+            </div>
+
+            @if (Model.Header.OvalContainers != null)
+            {
+                @Html.DisplayFor(x => x.Header.OvalContainers)
+            }
+        </div>
+    </div>
+    <div class="container">
+        <div class="row gx-4 gx-lg-10">
+            @Html.DisplayFor(x => x.Cards)
+        </div>
+    </div>
+</div>
+

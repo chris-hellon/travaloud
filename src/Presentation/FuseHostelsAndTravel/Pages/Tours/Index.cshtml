@@ -1,0 +1,34 @@
+﻿@page "/tours"
+@model FuseHostelsAndTravel.Pages.Tours.IndexModel
+
+<section id="headerBanner" class="bg-light">
+    @Html.DisplayFor(x => x.HeaderBanner)
+</section>
+
+<section id="tours" class="bg-light mt-n8">
+    @Html.DisplayFor(x => x.ToursCards)
+</section>
+
+<section id="contactUs">
+    <div class="container-fluid bg-gray">
+        <div class="container pt-5 pb-5" data-mdb-toggle="animation" data-mdb-animation-start="onScroll" data-mdb-animation-on-scroll="once" data-mdb-animation="slide-in-up" data-mdb-animation-delay="0" data-mdb-animation-duration="1000">
+            <div class="row justify-content-lg-between align-items-center">
+                <div class="col-lg-auto mb-3 mb-lg-0">
+                    <div class="row flex-column">
+                        <h4 class="tilted mt-2">GET IN TOUCH</h4>
+                    </div>
+                </div>
+                <div class="col-lg-4 mb-3 mb-lg-0">
+                    <div class="row flex-column">
+                        <p class="text-white">Looking for good people, great times, and gorgeous scenery? Get in touch today!</p>
+                    </div>
+                </div>
+                <div class="col-lg-auto">
+                    <div class="row flex-column">
+                        <a class="btn btn-primary" asp-page="/Contact/Index">Contact Us</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,69 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Travaloud.Infrastructure.Common.Extensions
+@model ContainerHalfImageRoundedTextComponent
+@inject Wangkanai.Detection.Services.IDetectionService DetectionService
+
+<div class="container-fluid position-relative @(!Model.SwapDirecion ? "offset-background" : "")">
+    <div class="container pt-8 pb-8@(Model.OvalContainers != null ? " position-relative" : "")">
+        <div class="row g-lg-10 @(Model.SwapDirecion ? "flex-row-reverse" : "")">
+            <div class="col-md-12 col-lg-6 pb-5 pb-lg-0 d-flex align-items-center position-relative has-parallax-scroll">
+                <div class="mx-auto">
+                    @if (Model.Title != null)
+                    {
+                        <span class="mb-4 tilted display-5">@Html.Raw(Model.Title)</span>
+                    }
+                    else if (Model.Titles != null && Model.Titles.Any())
+                    {
+                        foreach (var title in Model.Titles)
+                        {
+                            <span class="@(title == Model.Titles.Last() ? "mb-5 mt-2" : title == Model.Titles.First() ? "mb-4" : "mb-3") tilted display-5">@Html.Raw(title)</span>
+                        }
+                    }
+                    <p>@Html.Raw(Model.Body)</p>
+
+                    @if (Model.ButtonComponent != null)
+                    {
+                        <partial name="_ButtonLinkPartial" model="Model.ButtonComponent" />
+                    }
+                </div>
+            </div>
+            <div class="col-md-12 col-lg-6 d-flex justify-content-center align-items-center @(Model.SwapDirecion ? "justify-content-lg-start" : "justify-content-lg-end") position-relative has-parallax-scroll">
+                @if (!string.IsNullOrEmpty(Model.VideoSrc))
+                {
+                    <div class="offcut-image-border full-circle videoContainer">
+                        <video class="img-fluid object-fit-cover shadow-4" webkit-playsinline playsinline>
+                            <source src="@Model.VideoSrc" type="video/mp4">
+                        </video>
+                        <div class="mask object-fit-cover" style="background-color: hsla(0, 0%, 0%, 0.6); border-radius:50%; z-index: 100; cursor:pointer; ">
+                            <div class="d-flex justify-content-center align-items-center h-100">
+                                <i class="fa-regular fa-circle-play text-white" style="font-size: 8rem;"></i>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="offcut-image-border full-circle">
+                        @{
+                            var isMobile = DetectionService.Device.Type == Wangkanai.Detection.Models.Device.Mobile;
+                            var imageWidth = 800;
+                            var imageHeight = 400;
+                            if (isMobile)
+                            {
+                                imageWidth = 600;
+                                imageHeight = 300;
+                            }
+
+                            var thumbnailImageSrc = !string.IsNullOrEmpty(Model.ImageSrc) ? Model.ImageSrc.FormatImageUrl(imageWidth, "fuse") : "https://images.unsplash.com/photo-1504699439244-a7e34870c35d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=3540&q=80";
+                            <img class="img-fluid shadow-4 object-fit-cover" width="@imageWidth" height="@imageHeight" src="@(thumbnailImageSrc)" alt="@($"{Model.Title} image")">
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    @if (Model.OvalContainers != null)
+    {
+        @Html.DisplayFor(x => x.OvalContainers)
+    }
+</div>

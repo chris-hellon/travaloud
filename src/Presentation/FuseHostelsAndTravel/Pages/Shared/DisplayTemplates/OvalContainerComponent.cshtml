@@ -1,0 +1,19 @@
+﻿@model OvalContainerComponent
+
+<div class="ovals-container" id="@Model.Id" style="@(Model.Style != null ? Model.Style : "")">
+    @*@{
+        int ovalCount = 900;
+        int itemsPerRow = 30;
+        int rows = (int)Math.Ceiling((double)ovalCount / itemsPerRow);
+
+        @for (int i = 0, itemNum = 0; i < rows; i++)
+        {
+            <div class="oval-row">
+                @for (int j = 0; j < itemsPerRow && itemNum < ovalCount; j++, itemNum++)
+                {
+                    <span class="oval"></span>
+                }
+            </div>
+        }
+    }*@
+</div>

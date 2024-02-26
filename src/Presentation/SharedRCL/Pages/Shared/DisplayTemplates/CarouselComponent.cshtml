@@ -1,0 +1,63 @@
+﻿@model Travaloud.Tenants.SharedRCL.Models.WebComponents.CarouselComponent
+
+@{
+    if (Model.Images != null && Model.Images.Any())
+    {
+        var index = 0;
+
+        <div id="@Model.Id" class="carousel slide small-carousel @(Model.Rounded ? "rounded-6" : "")" data-mdb-ride="carousel">
+            @if (Model.Images.Count > 1)
+            {
+                <!--Section: Header Carousel Indicators -->
+                <div class="carousel-indicators">
+                    @foreach (var immage in Model.Images)
+                    {
+                        <button type="button"
+                                data-mdb-target="#@(Model.Id)"
+                                data-mdb-slide-to="@index"
+                                class="@(index == 0 ? "active" : "")"
+                                aria-current="true"
+                                aria-label="Slide @(index + 1)"></button>
+
+                        index++;
+                    }
+                </div>
+                <!--Section: Header Carousel Indicators -->
+            }
+
+
+            <div class="carousel-inner">
+                @{
+                    if (Model.Images.Any())
+                    {
+                        index = 0;
+                        foreach (var item in Model.Images)
+                        {
+                            var imageSrc = !string.IsNullOrEmpty(item) ? item.FormatImageUrl(800, Model.TenantId) : string.Empty;
+
+                            <div class="carousel-item @(Model.Rounded ? "rounded-6" : "") @(index == 0 ? "active": "")">
+                                <img src="@imageSrc" data-mdb-img="@imageSrc" height="400" width="800" class="d-block w-100 @(Model.Rounded ? "rounded-6" : "")" />
+                            </div>
+
+                            index++;
+                        }
+                    }
+                }
+            </div>
+
+            @if (Model.Images.Count > 1)
+            {
+                <button class="carousel-control-prev" type="button" data-mdb-target="#@Model.Id" data-mdb-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-mdb-target="#@Model.Id" data-mdb-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+            }
+        </div>
+
+    }
+
+}

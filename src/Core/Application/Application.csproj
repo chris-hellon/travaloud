@@ -25,4 +25,14 @@
       <ProjectReference Include="..\Shared\Shared.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Cloudbeds\Commands\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="Travaloud.Infrastructure">
+        <HintPath>..\..\Presentation\Admin\bin\Debug\net8.0\Travaloud.Infrastructure.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
 </Project>

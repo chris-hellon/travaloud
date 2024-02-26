@@ -9,5 +9,5 @@ public class PageModalDetailsDto
     public string? CallToAction { get; set; }
     public DateTime? StartDate { get; set; }
     public DateTime? EndDate { get; set; }
-    public IEnumerable<PageModalLookupDto> PageModalLookups { get; set; }
+    public IEnumerable<PageModalLookupDto> PageModalLookups { get; set; } = default!;
 }

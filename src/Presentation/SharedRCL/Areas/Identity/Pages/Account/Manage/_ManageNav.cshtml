@@ -1,0 +1,32 @@
+@using Travaloud.Tenants.SharedRCL.Areas.Identity.Pages.Account.Manage
+@using Travaloud.Infrastructure.Identity
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@inject SignInManager<ApplicationUser> SignInManager
+@{
+    var hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();
+}
+<ul class="nav nav-pills menu-sidebar justify-content-center text-center">
+    <li class="nav-item mx-3 has-parallax-scroll mb-4 mb-lg-0">
+        <a class="nav-link text-purple @ManageNavPages.BookingsNavClass(ViewContext)" id="bookings" asp-page="./Bookings" asp-route-bookingId="">BOOKINGS</a>
+    </li>
+    <li class="nav-item mx-3 has-parallax-scroll mb-4 mb-lg-0">
+        <a class="nav-link text-purple @ManageNavPages.IndexNavClass(ViewContext)" id="profile" asp-page="./Index">PROFILE</a>
+    </li>
+    <li class="nav-item mx-3 has-parallax-scroll mb-4 mb-lg-0">
+        <a class="nav-link text-purple @ManageNavPages.EmailNavClass(ViewContext)" id="email" asp-page="./Email">EMAIL</a>
+    </li>
+    <li class="nav-item mx-3 has-parallax-scroll mb-4 mb-lg-0">
+        <a class="nav-link text-purple @ManageNavPages.ChangePasswordNavClass(ViewContext)" id="change-password" asp-page="./ChangePassword">PASSWORD</a>
+    </li>
+    <li class="nav-item mx-3 has-parallax-scroll mb-4 mb-lg-0">
+        <a class="nav-link text-purple @ManageNavPages.TwoFactorAuthenticationNavClass(ViewContext)" id="two-factor" asp-page="./TwoFactorAuthentication">SECURITY</a>
+    </li>
+    <li class="nav-item mx-3 has-parallax-scroll mb-0 mb-lg-0">
+        <a class="nav-link text-purple @ManageNavPages.PersonalDataNavClass(ViewContext)" id="personal-data" asp-page="./PersonalData">PERSONAL DATA</a>
+    </li>
+</ul>
+
+
+
+
+

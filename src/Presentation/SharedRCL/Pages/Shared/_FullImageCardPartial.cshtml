@@ -1,0 +1,59 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model Travaloud.Tenants.SharedRCL.Models.WebComponents.CardComponent
+@inject Wangkanai.Detection.Services.IDetectionService DetectionService
+
+<div class="@Model.CssClass has-parallax-scroll">
+    <div class="card rounded-0" style="height:300px !important;">
+        <div class="bg-image hover-zoom rounded-0 h-100">
+            @{
+                var isMobile = DetectionService.Device.Type == Wangkanai.Detection.Models.Device.Mobile;
+                var imageWidth = Model.CssClass.Contains("col-lg-4") || Model.CssClass.Contains("col-lg-12") ? 610 : 700;
+                var imageHeight = 400;
+                if (isMobile)
+                {
+                    imageWidth = 500;
+                    imageHeight = 280;
+                }
+
+                var thumbnailImageSrc = !string.IsNullOrEmpty(Model.ImageSrc) ? Model.ImageSrc.FormatImageUrl(imageWidth, Model.TenantId) : string.Empty;
+                <img src="@thumbnailImageSrc" class="w-100 h-100" alt="@Model.Title background image" width="@imageWidth" height="@imageHeight" />
+            }
+
+            @if (Model.NavigatePage != null)
+            {
+                <a asp-page="@Model.NavigatePage" asp-all-route-data="@Model.NavigatePageRoutes">
+                    <div class="mask" style="background-color: rgba(0, 0, 0, 0.4)">
+                        <div class="d-flex flex-column align-items-center justify-content-center text-center h-100">
+                            <h4 class="header-font text-white">@Model.Title</h4>
+
+                            @if (Model.AdditionalFields != null)
+                            {
+                                <div class="text-white">
+                                    @foreach (var additionalField in Model.AdditionalFields)
+                                    {
+                                        @Html.Raw(additionalField)
+                                    }
+                                </div>
+
+                            }
+                        </div>
+                    </div>
+                    <div class="hover-overlay">
+                        <div class="mask" style="background-color: rgba(251, 251, 251, 0.2)"></div>
+                    </div>
+                </a>
+            }
+            else
+            {
+                <div class="mask" style="background-color: rgba(0, 0, 0, 0.4)">
+                    <div class="d-flex flex-column align-items-center justify-content-center text-center h-100">
+                        <h4 class="header-font text-white">@Model.Title</h4>
+                    </div>
+                </div>
+                <div class="hover-overlay">
+                    <div class="mask" style="background-color: rgba(251, 251, 251, 0.2)"></div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

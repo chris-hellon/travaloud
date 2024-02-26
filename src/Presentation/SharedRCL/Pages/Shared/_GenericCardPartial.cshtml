@@ -1,0 +1,81 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model Travaloud.Tenants.SharedRCL.Models.WebComponents.CardComponent
+@inject Wangkanai.Detection.Services.IDetectionService DetectionService
+
+<div class="@Model.CssClass has-parallax-scroll">
+    <div class="card h-100">
+        @if (!string.IsNullOrEmpty(Model.ThumbnailImageSrc))
+        {
+            var isMobile = DetectionService.Device.Type == Wangkanai.Detection.Models.Device.Mobile;
+            var imageWidth = Model.CssClass.Contains("col-lg-4") || Model.CssClass.Contains("col-lg-12") ? 610 : 700;
+            var imageHeight = 400;
+            if (isMobile)
+            {
+                imageWidth = 500;
+                imageHeight = 280;
+            }
+
+            var thumbnailImageSrc = !string.IsNullOrEmpty(Model.ImageSrc) ? Model.ImageSrc.FormatImageUrl(imageWidth, Model.TenantId) : string.Empty;
+
+            if (!string.IsNullOrEmpty(Model.NavigatePage))
+            {
+                <div class="bg-image hover-zoom">
+                    <a asp-page="@Model.NavigatePage" asp-all-route-data="@Model.NavigatePageRoutes" class="js-gtag-cta">
+                        <img src="@thumbnailImageSrc" class="img-fluid" alt="@Model.Title card image" width="@imageWidth" height="@imageHeight">
+                    </a>
+                </div>
+            }
+            else
+            {
+                <div class="bg-image">
+                    <img src="@thumbnailImageSrc" class="img-fluid" alt="@Model.Title card image" width="@imageWidth" height="@imageHeight">
+                </div>
+            }
+
+        }
+        else if (!string.IsNullOrEmpty(Model.FontawesomeIconClass))
+        {
+            <div class="d-flex justify-content-center align-items-center py-4">
+                <span class="btn-lg btn-floating bg-primary d-flex justify-content-center align-items-center p-5">
+                    <i class="fa @Model.FontawesomeIconClass text-white" style="font-size:2.2rem"></i>
+                </span>
+            </div>
+        }
+
+        <div class="card-body d-flex flex-column">
+            @if (Model.NavigatePage != null)
+            {
+                <h5 class="card-title text-primary-dark @(!string.IsNullOrEmpty(Model.FontawesomeIconClass) ? "text-center" : "")"><a asp-page="@Model.NavigatePage" asp-all-route-data="@Model.NavigatePageRoutes" class="js-gtag-cta">@Model.Title</a></h5>
+
+                <div class="card-text @(!string.IsNullOrEmpty(Model.FontawesomeIconClass) ? "text-center" : "")">
+                    @Html.Raw(Model.Body)
+                </div>
+
+                <div class="mt-auto @(!string.IsNullOrEmpty(Model.FontawesomeIconClass) ? "text-center" : "")">
+                    @if (Model.AdditionalFields != null && Model.AdditionalFields.Any())
+                    {
+                        <div class="mt-3">
+                            @foreach (var additionalField in Model.AdditionalFields)
+                            {
+                                @Html.Raw(additionalField)
+                            }
+                        </div>
+                        <a class="btn btn-primary align-bottom mt-3 js-gtag-cta" asp-page="@Model.NavigatePage" asp-all-route-data="@Model.NavigatePageRoutes">Book Now</a>
+                    }
+                    else
+                    {
+                        <a class="btn btn-primary align-bottom mt-3 js-gtag-cta" asp-page="@Model.NavigatePage" asp-all-route-data="@Model.NavigatePageRoutes">Explore</a>
+                    }
+                </div>
+            }
+            else
+            {
+                <h5 class="card-title text-primary-dark @(!string.IsNullOrEmpty(Model.FontawesomeIconClass) ? "text-center" : "")">@Model.Title</h5>
+
+                <div class="card-text @(!string.IsNullOrEmpty(Model.FontawesomeIconClass) ? "text-center" : "")">
+                    @Html.Raw(Model.Body)
+                </div>
+            }
+        </div>
+    </div>
+</div>

@@ -11,6 +11,8 @@ public interface IBookingsService : ITransientService
 
     Task<BookingDetailsDto> GetAsync(DefaultIdType id);
 
+    Task<IEnumerable<BookingDto>> GetGuestBookingsAsync(GetGuestBookingsRequest request);
+    
     Task<DefaultIdType> CreateAsync(CreateBookingRequest request);
 
     Task<DefaultIdType?> UpdateAsync(DefaultIdType id, UpdateBookingRequest request);

@@ -1,0 +1,87 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model Travaloud.Application.Catalog.Services.Dto.ServiceFieldDto
+
+<div class="@($"col-lg-{Model.Width}")">
+    @{
+        var fieldType = Model.FieldType;
+
+        @if (Model.FieldType == "radiobuttonlist" || Model.FieldType == "checkboxlist" || Model.FieldType == "textarea")
+        {
+            <label asp-for="@Model.Value" class="form-label">@Model.Label</label>
+        }
+
+        <div class="mb-4 @(fieldType == "select" || fieldType == "nationality" ? "position-relative" : fieldType == "date" ? $"form-outline {(Model.Label.ToLower() != "date of birth" ? "datepicker-disable-past" : "datepicker-disable-future")} position-relative" : "form-outline")" @(fieldType == "date" ? "data-mdb-toggle-button=false data-mdb-format=dd/mm/yyyy" : "")>
+            @switch (Model.FieldType)
+            {
+                case "text":
+                    <input asp-for="@Model.Value" class="form-control" aria-required="true" value="" data-val="@(Model.IsRequired ? "true" : "false")" data-val-required="This field is required" />
+                    break;
+                case "email":
+                    <input asp-for="@Model.Value" class="form-control" aria-required="true" value="" type="email" data-val="@(Model.IsRequired ? "true" : "false")" data-val-required="This field is required" />
+                    break;
+                case "phone":
+                    <input asp-for="@Model.Value" class="form-control" aria-required="true" value="" type="tel" data-val="@(Model.IsRequired ? "true" : "false")" data-val-required="This field is required" />
+                    break;
+                case "textarea":
+                    <textarea asp-for="@Model.Value" class="form-control" aria-required="true" value="" type="tel" style="height:150px;" data-val="@(Model.IsRequired ? "true" : "false")" data-val-required="This field is required"></textarea>
+                    break;
+                case "number":
+                    <input asp-for="@Model.Value" class="form-control" aria-required="true" value="" type="number" data-val="@(Model.IsRequired ? "true" : "false")" data-val-required="This field is required" />
+                    break;
+                case "date":
+                    <input asp-for="@Model.Value" type="text" class="form-control" data-mdb-toggle="datepicker" value="" data-val="@(Model.IsRequired ? "true" : "false")" data-val-required="This field is required" />
+                    break;
+                case "nationality":
+                case "select":
+                    <select asp-for="@Model.Value" class="select" data-val="@(Model.IsRequired ? "true" : "false")" data-val-required="This field is required" data-label="@Model.Label">
+                        <option value="" hidden selected></option>
+                        @if (Model.SelectOptionsParsed != null && Model.SelectOptionsParsed.Any())
+                        {
+                            foreach (var option in Model.SelectOptionsParsed)
+                            {
+                                <option value="@option.Key">@option.Value</option>
+                            }
+                        }
+                    </select>
+                    break;
+                case "radiobuttonlist":
+                    @if (Model.SelectOptionsParsed != null && Model.SelectOptionsParsed.Any())
+                    {
+                        foreach (var option in Model.SelectOptionsParsed)
+                        {
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" asp-for="@Model.Value" value="@option.Value" data-val="@(Model.IsRequired ? "true" : "false")" data-val-required="This field is required" />
+                                <label class="form-check-label" asp-for="@Model.Value"> @option.Value </label>
+                            </div>
+                        }
+                    }
+                    break;
+                case "checkboxlist":
+                    @if (Model.SelectOptionsParsed != null && Model.SelectOptionsParsed.Any())
+                    {
+                        foreach (var option in Model.SelectOptionsParsed)
+                        {
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" asp-for="@Model.Value" value="@option.Value" data-val="@(Model.IsRequired ? "true" : "false")" data-val-required="This field is required" />
+                                <label class="form-check-label" asp-for="@Model.Value">@option.Value</label>
+                            </div>
+                        }
+                    }
+                    break;
+            }
+
+            @if (Model.FieldType != "radiobuttonlist" && Model.FieldType != "checkboxlist" && Model.FieldType != "textarea")
+            {
+                <label asp-for="@Model.Value" class="form-label @(Model.FieldType == "select" || Model.FieldType == "nationality" ? "select-label" : "")">@Model.Label</label>
+            }
+        </div>
+
+
+        @if (Model.IsRequired)
+        {
+            <span asp-validation-for="@Model.Value" class="travaloud-validation"></span>
+        }
+
+        <input type="hidden" asp-for="@Model.Label" />
+    }
+</div>

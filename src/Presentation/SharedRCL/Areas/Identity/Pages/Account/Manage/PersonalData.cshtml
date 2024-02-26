@@ -1,0 +1,29 @@
+﻿@page "/my-account/personal-data"
+@using Travaloud.Tenants.SharedRCL.Areas.Identity.Pages.Account.Manage
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model Travaloud.Tenants.SharedRCL.Areas.Identity.Pages.Account.Manage.PersonalDataModel
+@{
+    ViewData["Title"] = "Personal Data";
+    ViewData["ActivePage"] = ManageNavPages.PersonalData;
+}
+
+<div class="container pt-8 pb-5">
+    <div class="row d-flex justify-content-center">
+        <div class="col-lg-8 has-parallax-scroll">
+            <div class="row">
+                <div class="col-lg-12">
+                    <p>Your account contains personal data that you have given us. This page allows you to download or delete that data.</p>
+                    <p>
+                        <strong>Deleting this data will permanently remove your account, and this cannot be recovered.</strong>
+                    </p>
+                    <form id="download-data" class="d-inline-block mt-3 me-2" asp-page="DownloadPersonalData" method="post">
+                        <button class="btn btn-primary d-inline-block" type="submit">Download</button>
+                    </form>
+                    <a id="delete" asp-page="DeletePersonalData" class="btn btn-outline-primary d-inline-block">Delete</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+

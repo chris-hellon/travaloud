@@ -1,0 +1,122 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Travaloud.Infrastructure.Identity
+@model Travaloud.Tenants.SharedRCL.Models.WebComponents.LoginModalComponent
+@inject SignInManager<ApplicationUser> SignInManager
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+@if (!SignInManager.IsSignedIn(User))
+{
+    var externalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+
+    var isBookingPage = false;
+
+    var httpContext = HttpContextAccessor.HttpContext;
+
+    if (httpContext != null)
+    {
+        var currentPath = httpContext.Request.Path.Value ?? "/";
+        if (Model.BookingUrl != null)
+        {
+            isBookingPage = currentPath.Contains(Model.BookingUrl);
+        }
+    }
+
+    <div class="modal fade" id="logInModal" tabindex="-1" aria-labelledby="logInModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content p-5 bg-light">
+                <button type="button" class="btn-close ms-auto" data-mdb-dismiss="modal" aria-label="Close"><i class="fa fa-xmark"></i></button>
+                <div class="modal-body p-0 text-center">
+                    <h2 id="logInModalLabel" class="mb-3 display-5">SIGN IN</h2>
+
+                    @if (isBookingPage)
+                    {
+                        <p class="book-now-login-titles small text-muted">Stayed with us before?<br />Sign in for a faster checkout.</p>
+                    }
+
+                    <form method="post" id="loginModalForm" asp-page-handler="SignIn">
+                        <div class="container-fluid">
+
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <!-- Email input -->
+                                    <div class="form-outline mb-4">
+                                        <input asp-for="Email" class="form-control" />
+                                        <label asp-for="Email" class="form-label"></label>
+                                    </div>
+                                    <span asp-validation-for="Email" class="travaloud-validation"></span>
+                                </div>
+                                <div class="col-lg-12">
+                                    <!-- Password input -->
+                                    <div class="form-outline mb-4">
+                                        <input asp-for="Password" class="form-control" />
+                                        <label asp-for="Password" class="form-label"></label>
+                                    </div>
+                                    <span asp-validation-for="Password" class="travaloud-validation"></span>
+                                </div>
+                                <!-- 2 column grid layout for inline styling -->
+                                <div class="row mb-4">
+                                    <div class="col d-flex justify-content-start">
+                                        <!-- Checkbox -->
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" asp-for="RememberMe" style="margin-top:7px" />
+                                            <label class="form-check-label small" asp-for="RememberMe"> Remember me?</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <input type="hidden" asp-for="ReturnUrl" />
+
+                        <!-- Submit button -->
+                        <button type="submit" id="loginModalButton" class="btn btn-primary btn-block">Sign in</button>
+
+
+                    </form>
+
+                    <div class="mt-4">
+                        @if ((externalLogins?.Count ?? 0) > 0)
+                        {
+                            <div class="text-center">
+                                <p>or log in with:</p>
+
+                                <form id="external-account" asp-page-handler="ExternalSignIn" method="post" class="form-horizontal">
+                                    @foreach (var provider in externalLogins!)
+                                    {
+                                        var buttonClass = string.Empty;
+
+                                        switch (provider.DisplayName)
+                                        {
+                                            case "Facebook":
+                                                buttonClass = "fa-facebook-f";
+                                                break;
+                                            case "Twitter":
+                                                buttonClass = "fa-twitter";
+                                                break;
+                                            case "Google":
+                                                buttonClass = "fa-google";
+                                                break;
+                                            case "Microsoft":
+                                                buttonClass = "fa-microsoft";
+                                                break;
+                                        }
+
+                                        <button type="submit" class="btn btn-link btn-floating mx-1" name="provider" value="@provider.Name">
+                                            <i class="fab @buttonClass"></i>
+                                        </button>
+                                    }
+                                </form>
+                            </div>
+                        }
+                    </div>
+                    <p class="small pt-5 pb-2">Not a member? <button class="text-primary text-decoration-underline border-0 bg-transparent" data-mdb-toggle="modal" data-mdb-target="#registerModal" aria-label="Create an account" formnovalidate="formnovalidate" type="button">Create an account</button></p>
+
+                    @if (isBookingPage)
+                    {
+                        <button class="small mt-5 pb-2 text-primary text-decoration-underline book-now-login-titles border-0 bg-transparent" data-mdb-dismiss="modal" aria-label="Check out as a guest">Check out as a guest</button>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}

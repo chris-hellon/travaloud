@@ -10,6 +10,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="AspNetCore.SEOHelper" Version="1.0.1" />
         <PackageReference Include="Blazored.FluentValidation" Version="2.1.0" />
         <PackageReference Include="Blazored.TextEditor" Version="1.1.0" />
         <PackageReference Include="BlazorTemplater" Version="1.5.1" />
@@ -36,23 +37,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Include="wwwroot\Files\full-stack-hero-logo.png" />
-      <None Include="wwwroot\Files\Images\ApplicationUser\8ddab9968bc14749b53a5d1696505379cee30c6cfa81463d9ddd7d9d05609a3a.jpeg" />
-      <None Include="wwwroot\Files\Images\Destination\DaNang_688c17886ac1442f89e37685c3918109.jpg" />
-      <None Include="wwwroot\Files\Images\Destination\gvfdvf_2da83165029f474fa13605045444c013.jpeg" />
-      <None Include="wwwroot\Files\Images\Destination\HaLongBay_286c94912f0c4fcc94d3088e3704a330.png" />
-      <None Include="wwwroot\Files\Images\Destination\Hanoi_8572577e31a74683a469957594425bbf.jpg" />
-      <None Include="wwwroot\Files\Images\Destination\HoChiMinhCity_b5f4618651334bd6810a0dbc623845da.jpg" />
-      <None Include="wwwroot\Files\Images\Destination\HoiAn_a8863488a17149d091e16c32989e76c8.jpg" />
-      <None Include="wwwroot\Files\Images\Destination\Hue_72d1783f6b64421db9cb3bd387290f02.png" />
-      <None Include="wwwroot\Files\Images\Destination\PhuQuoc_23db7804401c46c2a0e21eb01ea5a070.jpg" />
-      <None Include="wwwroot\Files\Images\Destination\SaPa_c1349f5ba7544dc09ef99666ee6f6766.jpg" />
-      <None Include="wwwroot\Files\Images\Product\DaLat_d8376640200b41b193d6cb9879f6c185.jpg" />
-    </ItemGroup>
-
-    <ItemGroup>
       <_ContentIncludedByDefault Remove="wwwroot\bootstrap\bootstrap.min.css" />
       <_ContentIncludedByDefault Remove="wwwroot\bootstrap\bootstrap.min.css.map" />
     </ItemGroup>
-
 </Project>

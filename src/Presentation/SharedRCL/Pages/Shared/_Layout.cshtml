@@ -1,0 +1,306 @@
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model Travaloud.Tenants.SharedRCL.Models.PageModels.TravaloudBasePageModel
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+<!DOCTYPE html>
+<html lang="en" class="no-scrollbar">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    @{
+        var title = ViewData["Title"] != null && ViewData["Title"]?.ToString()?.Length > 0 ? ViewData["Title"]?.ToString() : "";
+
+        if (ViewData["SubTitle"] != null && ViewData["SubTitle"]?.ToString()?.Length > 0)
+            title += $" - {ViewData["SubTitle"]}";
+
+        if (!string.IsNullOrEmpty(title))
+            title += $" - {Model.TenantName}{(!string.IsNullOrEmpty(Model.TenantTagLine) ? $" - {Model.TenantTagLine}" : "")}";
+        else
+            title = $"{Model.TenantName}{(!string.IsNullOrEmpty(Model.TenantTagLine) ? $" - {Model.TenantTagLine}" : "")}";
+
+        var url = $"{Context.Request.Scheme}://{Context.Request.Host}{Context.Request.PathBase}{Context.Request.Path}{Context.Request.QueryString}";
+        var websiteUrl = Model.WebsiteUrl;
+
+        <title>@title</title>
+
+        <meta name="description" content="@Model.MetaDescription()"/>
+        <meta name="keywords" content="@Model.MetaKeywords()"/>
+        <link href="@websiteUrl" rel="home"/>
+        <link rel="canonical" href="@url"/>
+        <meta property="og:site_name" content="@websiteUrl.Replace("https://", "")">
+        <meta property="og:description" content="@Model.MetaDescription()">
+        <meta property="og:title" content="@title">
+        <meta property="og:url" content="@url">
+        <meta property="og:image" content="@Model.MetaImageUrl()">
+        <meta property="og:type" content="website">
+        <meta property="twitter:url" content="@url">
+        <meta property="twitter:title" content="@title">
+        <meta property="twitter:card" content="summary_large_image">
+        <meta property="twitter:image" content="@Model.MetaImageUrl()">
+        <link href="/favicon.ico" rel="icon">
+
+        var loadCssUrl = Model.GetAzureBlobUrl("load.min.css", "css");
+        var fontsCssUrl = Model.GetAzureBlobUrl("fonts.min.css", "css");
+        var siteCssUrl = Model.GetAzureBlobUrl("site.min.css", "css");
+
+        <link rel="stylesheet" type="text/css" href="/css/daterangepicker.css"/>
+
+        @if (Model.TenantId == "fuse")
+        {
+            <link rel="stylesheet" href="https://fusehostelsandtravel.azureedge.net/assets/load.min.css"/>
+
+            <link rel="preload" href="https://fusehostelsandtravel.azureedge.net/assets/fonts.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+
+            <noscript>
+                <link rel="stylesheet" href="https://fusehostelsandtravel.azureedge.net/assets/fonts.min.css">
+            </noscript>
+
+            <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+            <noscript>
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+            </noscript>
+
+            <link rel="preload" href="https://fusehostelsandtravel.azureedge.net/assets/bundle.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+            <noscript>
+                <link rel="stylesheet" href="https://fusehostelsandtravel.azureedge.net/assets/bundle.css">
+            </noscript>
+
+            <link rel="stylesheet" type="text/css" href="/css/additionalcss.css"/>
+        }
+        else
+        {
+            <link rel="stylesheet" href="@loadCssUrl"/>
+
+            <link rel="preload" href="@fontsCssUrl" as="style" onload="this.onload=null;this.rel='stylesheet'">
+            <noscript>
+                <link rel="stylesheet" href="@fontsCssUrl">
+            </noscript>
+
+            <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+            <noscript>
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+            </noscript>
+
+            <link rel="preload" href="https://travaloud.azureedge.net/mdb/css/mdb.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+            <noscript>
+                <link rel="stylesheet" href="https://travaloud.azureedge.net/mdb/css/mdb.min.css">
+            </noscript>
+
+            <link rel="preload" href="https://travaloud.azureedge.net/assets/css/travaloud.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+            <noscript>
+                <link rel="stylesheet" href="https://travaloudcdn.azureedge.net/assets/css/travaloud.min.css">
+            </noscript>
+
+            <link rel="preload" href="@siteCssUrl" as="style" onload="this.onload=null;this.rel='stylesheet'">
+            <noscript>
+                <link rel="stylesheet" href="@siteCssUrl">
+            </noscript>
+
+            <partial name="_CssOverridesPartial" model="Model.TravaloudSettings?.Theme"/>
+        }
+
+        <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css"/>
+
+        if (url == $"{Model.WebsiteUrl}/" || url == Model.WebsiteUrl)
+        {
+            <meta name="google-site-verification" content="@Model.GoogleSiteVerificationKey"/>
+        }
+    }
+
+    @if (Model.TenantId == "vbh")
+    {
+        <!-- Google Tag Manager -->
+        <script>(function (w, d, s, l, i) {
+                w[l] = w[l] || []; w[l].push({
+                    'gtm.start':
+                        new Date().getTime(), event: 'gtm.js'
+                }); var f = d.getElementsByTagName(s)[0],
+                    j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
+                        'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
+            })(window, document, 'script', 'dataLayer', 'GTM-MW6FWDV');</script>
+        <!-- End Google Tag Manager -->
+    }
+
+    @{
+        var googleTagManagerKey = Model.GoogleTagManagerKey;
+        var googleTagManagerUrl = $"https://www.googletagmanager.com/gtag/js?id={googleTagManagerKey}";
+
+        <!-- Google tag (gtag.js) -->
+        <script async src="@googleTagManagerUrl"></script>
+
+        if (Model.TenantId == "fuse")
+        {
+            <script async src="https://www.googletagmanager.com/gtag/js?id=AW-11265968954"></script>
+
+            <script>window.dataLayer = window.dataLayer || [];
+                function gtag() { dataLayer.push(arguments); }
+                gtag('js', new Date());
+                gtag('config', '@googleTagManagerKey');
+                gtag('config', 'AW-11265968954');
+            </script>
+
+            <!-- Google Tag Manager -->
+            <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+                new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+                j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+                'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+                })(window,document,'script','dataLayer','GTM-54WJ8S3S');</script>
+            <!-- End Google Tag Manager -->
+        }
+        else
+        {
+            <script>window.dataLayer = window.dataLayer || [];
+            function gtag() { dataLayer.push(arguments); }
+                gtag('js', new Date());
+                gtag('config', '@googleTagManagerKey');
+            </script>
+        }
+    }
+
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+@if (Model.TenantId == "fuse")
+{
+    <!-- Google Tag Manager (noscript) -->
+    <noscript>
+        <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-54WJ8S3S"
+                height="0" width="0" style="display:none;visibility:hidden">
+        </iframe>
+    </noscript>
+    <!-- End Google Tag Manager (noscript) -->
+}
+
+@{
+    var httpContext = HttpContextAccessor.HttpContext;
+
+    if (httpContext != null && !string.IsNullOrEmpty(Model.FacebookPageId))
+    {
+        var currentPath = httpContext.Request.Path.Value ?? "/";
+        var currentHost = httpContext.Request.Host.Value ?? "";
+
+        if (!currentPath.Contains(Model.PropertyBookingUrl) && !currentHost.Contains("localhost"))
+        {
+            <!-- Messenger Chat plugin Code -->
+            <div id="fb-root"></div>
+
+            <!-- Your Chat plugin code -->
+            <div id="fb-customer-chat" class="fb-customerchat">
+            </div>
+
+            <script>var chatbox = document.getElementById('fb-customer-chat');
+                    chatbox.setAttribute("page_id", "@Model.FacebookPageId");
+                    chatbox.setAttribute("attribution", "biz_inbox");</script>
+
+            <!-- Your SDK code -->
+            <script>window.fbAsyncInit = function () {
+                        FB.init({
+                            xfbml: true,
+                            version: 'v13.0'
+                        });
+                    };
+
+                    (function (d, s, id) {
+                        var js, fjs = d.getElementsByTagName(s)[0];
+                        if (d.getElementById(id)) return;
+                        js = d.createElement(s); js.id = id;
+                        js.src = 'https://connect.facebook.net/en_US/sdk/xfbml.customerchat.js';
+                        fjs.parentNode.insertBefore(js, fjs);
+                    }(document, 'script', 'facebook-jssdk'));</script>
+        }
+    }
+}
+
+<div class="pre-loader">
+    <div class="spinner-border text-white d-block mb-3" role="status">
+
+    </div>
+</div>
+
+<partial name="_NavigationPartial" model="Model" />
+
+<main role="main" class="container-fluid p-0 m-0">
+    @Html.AntiForgeryToken()
+    @RenderBody()
+</main>
+
+
+<partial name="_FooterPartial" model="Model"/>
+@Html.DisplayFor(x => x.LoginModal)
+@Html.DisplayFor(x => x.RegisterModal)
+<partial name="_BookNowModalPartial" model="new BookNowComponent(Model.Properties) {IsModal = true}"/>
+
+<div class="alert fade mt-3" id="feedbackAlert" data-mdb-position="top-center" data-mdb-hidden="true" data-mdb-width="35%" role="alert" data-mdb-color="danger">
+    <span class="small" id="feedbackAlertMessage"></span>
+    <button type="button" class="btn-close position-absolute" aria-label="Close"></button>
+</div>
+
+<button type="button" class="btn btn-primary btn-floating btn-lg" id="btn-back-to-top" aria-label="Back To Top">
+    <i class="fas fa-arrow-up"></i>
+</button>
+
+<div class="modal bottom" id="cookiesModal" tabindex="-1" aria-labelledby="cookiesModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-frame modal-bottom">
+        <div class="modal-content rounded-0">
+            <div class="modal-body py-1">
+                <div class="container-fluid">
+                    <div class="container">
+                        <div class="row my-3">
+                            <div class="col-lg-6 mb-4 mb-lg-0">
+                                <p class="small">
+                                    We use cookies to improve your website experience.<br/>
+                                    By continuing to browse the site, you are agreeing to our use of cookies.
+                                </p>
+                            </div>
+                            <div class="col-lg-6 d-flex justify-content-center justify-content-lg-end align-items-center">
+                                <a class="small text-primary me-3" style="font-size: .75rem; letter-spacing: 1px; " asp-page="/CookiePolicy/Index">COOKIE POLICY</a>
+                                <button type="button" class="btn btn-primary btn-sm ms-2" onclick="confirmCookie();">
+                                    I Like Cookies
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="daterangepickeroverlay datepicker-backdrop d-none"></div>
+
+@if (Model.StatusMessage != null)
+{
+    <div class="alert alert-dismissible fade show small" role="alert" data-mdb-color="@Model.StatusSeverity" data-mdb-position="bottom-right" data-mdb-append-to-body="true" data-mdb-hidden="false" data-mdb-autohide="true" data-mdb-delay="2500">
+        @Html.Raw(Model.StatusMessage)
+    </div>
+
+    TempData.Remove("StatusMessage");
+    Model.StatusMessage = null;
+}
+
+@if (Model.TenantId == "fuse")
+{
+    <script type="text/javascript" src="https://fusehostelsandtravel.azureedge.net/assets/bundle.min.js"></script>
+}
+else
+{
+    <script type="text/javascript">
+        const $cookieName = "@(Model.TenantName.ToLower().Replace(" ", "-"))";
+        </script>
+
+    <script type="text/javascript" src="https://travaloud.azureedge.net/mdb/js/mdb.min.js"></script>
+    <script type="text/javascript" src="https://travaloud.azureedge.net/assets/js/travaloud.min.js"></script>
+
+    <script type="text/javascript">$(window).on("load", function () {
+                $('.select-input.active, .form-control.active').trigger('focus');
+            });</script>
+}
+
+<script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="/js/daterangepicker.js"></script>
+<script type="text/javascript" src="/js/daterangepickeraddition.js"></script>
+<script type="text/javascript" src="/js/videoplayer.js"></script>
+
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

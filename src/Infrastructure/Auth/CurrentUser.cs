@@ -1,11 +1,28 @@
 using System.Security.Claims;
+using Finbuckle.MultiTenant;
 using Travaloud.Application.Common.Interfaces;
+using Travaloud.Infrastructure.Multitenancy;
 using Travaloud.Shared.Authorization;
 
 namespace Travaloud.Infrastructure.Auth;
 
 public class CurrentUser : ICurrentUser, ICurrentUserInitializer
 {
+    private readonly IMultiTenantContextAccessor<TravaloudTenantInfo>? _multiTenantContextAccessor;
+    private TravaloudTenantInfo? _currentTenant;
+
+    public TravaloudTenantInfo? CurrentTenant
+    {
+        get
+        {
+            if (_currentTenant != null)
+                return _currentTenant;
+
+            _currentTenant = _multiTenantContextAccessor?.MultiTenantContext?.TenantInfo;
+            return _currentTenant;
+        }
+    }
+    
     private ClaimsPrincipal? _user;
 
     public string? Name => _user?.Identity?.Name;

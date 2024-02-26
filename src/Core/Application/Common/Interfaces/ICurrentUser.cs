@@ -5,7 +5,7 @@ namespace Travaloud.Application.Common.Interfaces;
 public interface ICurrentUser
 {
     string? Name { get; }
-
+    
     DefaultIdType GetUserId();
 
     string? GetUserEmail();

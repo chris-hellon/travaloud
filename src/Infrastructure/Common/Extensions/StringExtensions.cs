@@ -152,4 +152,61 @@ public static class StringExtensions
             return string.Empty;
         }
     }
+    
+    public static string ConvertToCamelCase(this string value, string? additionalValue = null)
+    {
+        var textinfo = new CultureInfo("en-US", false).TextInfo;
+        var formattedTitle = "";
+
+        if (value.Contains(' '))
+        {
+            var splitValues = value.Split(" ").ToList();
+
+            for (var i = 0; i < splitValues.Count; i++)
+            {
+                var splitValue = splitValues[i];
+                if (i == 0)
+                    formattedTitle += splitValue.ToLower();
+                else
+                    formattedTitle += textinfo.ToTitleCase(splitValue.ToLower());
+            }
+        }
+        else formattedTitle = value.ToLower();
+
+        if (additionalValue != null)
+            formattedTitle += additionalValue;
+
+        return formattedTitle;
+    }
+    
+    public static string FormatImageUrl(this string imageUrl, int imageWidth, string tenantId)
+    {
+        var formattedImageUrl = imageUrl
+            .Replace("tr=w-2000", $"w={imageWidth}")
+            .Replace("tr=w-1800", $"w={imageWidth}")
+            .Replace("tr=w-1000", $"w={imageWidth}")
+            .Replace("tr=w-900", $"w={imageWidth}")
+            .Replace("tr=w-800", $"w={imageWidth}")
+            .Replace("tr=w-700", $"w={imageWidth}")
+            .Replace("tr=w-600", $"w={imageWidth}")
+            .Replace("tr=w-500", $"w={imageWidth}")
+            .Replace("tr=w-400", $"w={imageWidth}")
+            .Replace("w=2000", $"w={imageWidth}")
+            .Replace("w=1800", $"w={imageWidth}")
+            .Replace("w=1000", $"w={imageWidth}")
+            .Replace("w=900", $"w={imageWidth}")
+            .Replace("w=800", $"w={imageWidth}")
+            .Replace("w=700", $"w={imageWidth}")
+            .Replace("w=600", $"w={imageWidth}")
+            .Replace("w=500", $"w={imageWidth}")
+            .Replace("w=400", $"w={imageWidth}")
+            .Replace($"https://ik.imagekit.io/rqlzhe7ko/{tenantId}/trips/", $"https://travaloud.azureedge.net/{tenantId}/assets/images/")
+            .Replace($"https://ik.imagekit.io/rqlzhe7ko/{tenantId}/", $"https://travaloud.azureedge.net/{tenantId}/assets/images/").
+            Replace($"https://travaloud.azureedge.net/{tenantId}/assets/images/", $"https://travaloudcdn.azureedge.net/{tenantId}/assets/images/");
+
+        if (!formattedImageUrl.Contains("?w="))
+            formattedImageUrl += $"?w={imageWidth}";
+        
+        return formattedImageUrl;
+    }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Serilog;
 
 namespace Travaloud.Infrastructure.Middleware;
 
@@ -25,11 +26,12 @@ internal static class Startup
 
     internal static IApplicationBuilder UseRequestLogging(this IApplicationBuilder app, IConfiguration config)
     {
-        if (GetMiddlewareSettings(config).EnableHttpsLogging)
-        {
-            app.UseMiddleware<RequestLoggingMiddleware>();
-            app.UseMiddleware<ResponseLoggingMiddleware>();
-        }
+        app.UseSerilogRequestLogging();
+
+        if (!GetMiddlewareSettings(config).EnableHttpsLogging) return app;
+        
+        app.UseMiddleware<RequestLoggingMiddleware>();
+        app.UseMiddleware<ResponseLoggingMiddleware>();
 
         return app;
     }

@@ -1,0 +1,49 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+    <AssemblyName>Travaloud.Tenants.SharedRCL</AssemblyName>
+    <RootNamespace>Travaloud.Tenants.SharedRCL</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Areas\MyFeature\Pages\Page1.cshtml" />
+    <UpToDateCheckInput Remove="Pages\Shared\Components\BookNowBanner\Default.cshtml" />
+    <UpToDateCheckInput Remove="Pages\Shared\Components\BookNowForm\Default.cshtml" />
+    <UpToDateCheckInput Remove="Pages\Shared\Components\BookNowBannerdvds\Default.cshtml" />
+    <UpToDateCheckInput Remove="Pages\Shared\Components\BookNowBanner\Default.cshtml" />
+    <UpToDateCheckInput Remove="Pages\User\Account\Index.cshtml" />
+    <UpToDateCheckInput Remove="Pages\User\Account\_ProfilePartial.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="Pages\Shared\_CssOverridesPartial.cshtml" />
+    <AdditionalFiles Include="Pages\Shared\_FooterPartial.cshtml" />
+    <AdditionalFiles Include="Pages\Shared\_Layout.cshtml" />
+    <AdditionalFiles Include="Pages\Shared\_LoginNavigationPartial.cshtml" />
+    <AdditionalFiles Include="Pages\Shared\_NavigationPartial.cshtml" />
+    <AdditionalFiles Include="Pages\Shared\_NavigationSocialIconsPartial.cshtml" />
+    <AdditionalFiles Include="Pages\_ViewImports.cshtml" />
+    <AdditionalFiles Include="Pages\_ViewStart.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Infrastructure\Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AspNetCore.SEOHelper" Version="1.0.1" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.59" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.TagHelpers" Version="2.2.0" />
+  </ItemGroup>
+
+
+
+</Project>

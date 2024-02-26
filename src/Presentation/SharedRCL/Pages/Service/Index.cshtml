@@ -1,0 +1,156 @@
+﻿@page "/services/{serviceName}"
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model Travaloud.Tenants.SharedRCL.Pages.Service.IndexModel
+
+@{
+    ViewData["Title"] = Model.Service != null ? Model.Service.Title : "Services";
+    ViewData["SubTitle"] = Model.Service != null ? "Services" : "";
+
+    <div class="custom-height mt-n5 py-3 py-lg-5 bg-primary-dark">
+        <div class="container py-5">
+            <div class="row my-4">
+                <div class="col-12 has-parallax-scroll">
+                    <h1 class="display-4 fw-bold ls-tight text-white">@ViewData["Title"]</h1>
+                    <h4 class="mb-0 text-secondary">@(Model.Service != null && Model.Service.SubTitle != null ? Model.Service.SubTitle : $"No matter where you are, {Model.TenantName} has got you covered...")</h4>
+                </div>
+            </div>
+        </div>
+
+        @if (Model.TenantId == "vbh")
+        {
+            <img src="https://travaloudcdn.azureedge.net/vbh/assets/images/texture-bottom.png" class="w-100 bottom-0 start-0 position-absolute" style="max-height:18px;" alt="Texture border image" />
+        }
+    </div>
+
+    <div class="container bg-white rounded-6 position-relative pt-3 px-3 custom-mt">
+        <div class="row">
+            @if (Model.Service != null)
+            {
+                if (Model.Service.Id == new Guid("8D752908-E5FA-45A0-930A-890D1D8A7C08"))
+                {
+                    <div class="col-lg-12">
+                        @Html.Raw(Model.Service.Description)
+                    </div>
+                    <div class="col-lg-12 mt-3">
+                        @if (!string.IsNullOrEmpty(Model.Service.BodyHtml))
+                        {
+                            <div class="mb-3">
+                                @Html.Raw(Model.Service.BodyHtml)
+                            </div>
+                        }
+                        else
+                        {
+                            <form method="post">
+                                <div class="row justify-content-lg-center has-parallax-scroll fade-in mt-4 mb-3">
+                                    <div class="col-12 text-center">
+                                        <h2 class="">APPLY NOW</h2>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    @if (Model.Service.ServiceFields != null && Model.Service.ServiceFields.Any())
+                                    {
+                                        @Html.DisplayFor(x => x.Service.ServiceFields)
+
+                                        <div class="col-lg-12">
+                                            <button type="submit" class="btn btn-primary btn-block mb-4">Send</button>
+                                        </div>
+
+                                    }
+
+                                    <input type="hidden" asp-for="ServiceTitle" />
+                                    <input type="hidden" asp-for="ServiceId" />
+                                </div>
+                            </form>
+                        }
+
+                    </div>
+                }
+                else
+                {
+                    <div class="col-lg-6">
+                        @Html.Raw(Model.Service.Description)
+                    </div>
+                    <div class="col-lg-6 mt-3 mt-lg-0">
+                        @if (!string.IsNullOrEmpty(Model.Service.BodyHtml))
+                        {
+                            <div class="mb-3">
+                                @Html.Raw(Model.Service.BodyHtml)
+                            </div>
+                        }
+                        else
+                        {
+                            <form method="post">
+                                <div class="row">
+                                    @if (Model.Service.ServiceFields != null && Model.Service.ServiceFields.Any())
+                                    {
+                                        @*foreach (var serviceField in Model.Service.ServiceFields)
+            {
+                <partial name="Shared/_ServiceFieldPartial" model="serviceField" />
+            }*@
+
+                                        @Html.DisplayFor(x => x.Service.ServiceFields)
+
+                                        <div class="col-lg-12">
+                                            <button type="submit" class="btn btn-primary btn-block mb-4">Send</button>
+                                        </div>
+
+                                    }
+
+                                    <input type="hidden" asp-for="ServiceTitle" />
+                                    <input type="hidden" asp-for="ServiceId" />
+                                </div>
+                            </form>
+                        }
+
+                    </div>
+                }
+
+            }
+        </div>
+    </div>
+    <section id="relatedServices" class="position-relative text-center bg-light container-fluid">
+        @if (Model.TenantId == "vbh")
+        {
+            <img src="https://travaloudcdn.azureedge.net/vbh/assets/images/texture-top.png" class="w-100 top-0 start-0 position-absolute" style="max-height:18px;" alt="Texture border image" />
+        }
+        <div class="container pt-5 pb-3">
+            @Html.DisplayFor(x => x.ServicesCards)
+        </div>
+    </section>
+}
+
+@if (Model.Service != null && Model.Service.Title == "Airport Transfer")
+{
+    @section Scripts {
+
+        <script type="text/javascript">
+            window.onload = function () {
+                $('select[data-label="Type of Transport"]').on('change', function () {
+                    let value = $(this).val();
+                    let maxCapacity = value == "4 Seat Private Car (Max 3 people) $17USD" ? 3 : 6;
+
+                    $('select[data-label="No. of Pax"]').html('<option value="" hidden selected>Select Number of Pax</option>');
+                    for (var i = 0; i < maxCapacity; i++) {
+                        $('select[data-label="No. of Pax"]').append('<option value="' + (i + 1) + '">' + (i + 1) + '</option>');
+                    }
+                });
+            }
+
+            $("form").on("submit", function () {
+
+            });
+        </script>
+    }
+}
+
+@section Styles {
+
+<style type="text/css">
+    #wn-insurance-quote-editor #qqc h1, #wn-insurance-quote-editor #qqc h5 {
+        color: black !important;
+    }
+    .datepicker-show-next-month, .datepicker-show-past-month {
+        z-index: 10 !important;
+    }
+</style>
+}

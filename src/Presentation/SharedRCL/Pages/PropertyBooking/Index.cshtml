@@ -1,0 +1,159 @@
+﻿@page
+@model Travaloud.Tenants.SharedRCL.Pages.PropertyBooking.IndexModel
+
+@{
+    ViewData["Title"] = "Book " + Model.PropertyName;
+
+    <input type="hidden" id="BookingPropertyId" value="@Model.PropertyId" />
+    <input type="hidden" id="BookingUserId" value="@Model.UserId" />
+
+    @if (Model.TenantId == "fuse")
+    {
+        <section id="headerBanner">
+            @Html.DisplayFor(x => x.HeaderBanner)
+        </section>
+
+        <section id="bookingSection">
+            <div class="container">
+                <div class="row pt-8 pb-5">
+                    <iframe class="w-100" id="booking-iframe" src="@Model.IframeUrl" scrolling="no"></iframe>
+                </div>
+            </div>
+        </section>
+    }
+    else
+    {
+        <div class="custom-height mt-n5 py-3 py-lg-5 bg-primary-dark">
+            <div class="container py-5">
+                <div class="row my-4">
+                    <div class="col-12 has-parallax-scroll">
+                        <h1 class="display-4 fw-bold ls-tight text-white">Book a Stay</h1>
+                        <h4 class="mb-0 text-secondary text-shadow-0">@Model.PropertyName</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--Section: Locations-->
+        <div class="container bg-white rounded-6 position-relative pt-3 px-3 custom-mt">
+
+            <iframe class="w-100" id="booking-iframe" src="@Model.IframeUrl" scrolling="no"></iframe>
+        </div>
+    }
+}
+
+
+@section Scripts {
+    <script type="text/javascript">
+        $(window).on('load', function () {
+            var userSignedIn = '@User.Identity.IsAuthenticated';
+            userSignedIn = userSignedIn.toLowerCase()
+
+            //if (userSignedIn == 'false') {
+            //    window.setTimeout(function () {
+            //        $('.book-now-login-titles').show();
+
+            //        const myModalEl = document.getElementById('logInModal');
+            //        const modal = new mdb.Modal(myModalEl);
+            //        modal.show();
+            //    }, 1500);
+            //}
+        });
+
+        let bookingInserted = false;
+        var postPropertyBooking = function (booking) {
+            if (!bookingInserted) {
+                postAjax("CreatePropertyBooking", booking, function (result) {
+                    bookingInserted = true;
+                });
+            }
+        }
+
+        function Booking(description, totalAmount, currencyCode, itemQuantity, isPaid, guestId, items) {
+            this.Id = null;
+            this.Description = description;
+            this.TotalAmount = parseValueToDecimal(totalAmount);
+            this.CurrencyCode = currencyCode;
+            this.ItemQuantity = parseValueToInt(itemQuantity);
+            this.IsPaid = isPaid;
+            this.Items = items;
+            this.InvoiceId = null;
+        }
+
+        function BookingItem(startDate, endDate, amount, currencyCode, cloudbedsReservationId, cloudbedsPropertyId, rooms, propertyId, userId) {
+            this.Id = null;
+            this.StartDate = new Date(startDate);
+            this.EndDate = new Date(endDate);
+            this.Amount = parseValueToDecimal(amount);
+            this.CloudbedsReservationId = parseValue(cloudbedsReservationId);
+            this.CloudbedsPropertyId = parseValueToInt(cloudbedsPropertyId);
+            this.RoomQuantity = rooms.length;
+            this.Rooms = rooms;
+            this.PropertyId = parseValue(propertyId);
+            this.TourId = null;
+        }
+
+        function BookingItemRoom(roomName, amount, nights, checkInDate, checkOutDate, guestFirstName, guestLastName, cloudbedsGuestId) {
+            this.Id = null;
+            this.RoomName = roomName;
+            this.Amount = parseValueToDecimal(amount);
+            this.Nights = parseValueToInt(nights);
+            this.CheckInDate = new Date(checkInDate);
+            this.CheckOutDate = new Date(checkOutDate);
+            this.GuestFirstName = guestFirstName;
+            this.GuestLastName = guestLastName;
+            this.CloudbedsGuestId = cloudbedsGuestId;
+        }
+
+        function parseValue(value) {
+            return value != undefined && value != null && value.toString().length > 0 ? value.toString() : null;
+        }
+        function parseValueToInt(value) {
+            value = parseValue(value);
+            if (value != null) return parseInt(value);
+
+            return value;
+        }
+        function parseValueToDecimal(value) {
+            value = parseValue(value);
+            if (value != null) return parseFloat(value);
+
+            return value;
+        }
+
+        $(window).on('message', function (evt) {
+            var data = evt.originalEvent.data;
+
+            if (data.target == "cloudbeds-booking-widget-iframe-size") {
+                $('iframe').height(data.data);
+
+                //if ($(window).scrollTop() != 0) {
+                //    window.scrollTo(0, 0);
+                //}
+            }
+            else if (data.target == "cloudbeds-booking-confirmation") {
+                let bookingConfirmation = data.data;
+
+                let bookingItemRooms = [];
+                let totalNights = 0;
+                $(bookingConfirmation.resRooms).each(function (i, v) {
+                    bookingItemRooms.push(new BookingItemRoom(v.room_type_name, v.total, v.nights, v.start_date, v.end_date, v.guest_first_name, v.guest_last_name, v.guest_id));
+                    totalNights += v.nights;
+                });
+
+                let bookingItem = new BookingItem(bookingConfirmation.checkin_date, bookingConfirmation.checkout_date, bookingConfirmation.booking_total, bookingConfirmation.currency_code, bookingConfirmation.booking_id, bookingConfirmation.widget_property, bookingItemRooms, $('#BookingPropertyId').val(), $('#BookingUserId').val())
+                let description = 'A stay at @Html.Raw(Model.PropertyName)';
+
+                postPropertyBooking(new Booking(description, bookingConfirmation.booking_total, bookingConfirmation.currency_code, 1, true, $('#BookingUserId').val(), [bookingItem]));
+            }
+        });</script>
+}
+
+@section Styles {
+    <style type="text/css">
+        .header-banner-image-background {
+            min-height: 300px;
+        }
+    </style>
+
+}

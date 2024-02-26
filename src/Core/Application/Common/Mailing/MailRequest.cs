@@ -2,7 +2,7 @@ namespace Travaloud.Application.Common.Mailing;
 
 public class MailRequest
 {
-    public MailRequest(List<string> to, string subject, string? body = null, string? from = null, string? displayName = null, string? replyTo = null, string? replyToName = null, List<string>? bcc = null, List<string>? cc = null, IDictionary<string, byte[]>? attachmentData = null, IDictionary<string, string>? headers = null)
+    public MailRequest(List<string> to, string subject, string? body = null, string? from = null, string? displayName = null, string? replyTo = null, string? replyToName = null, List<string?>? bcc = null, List<string>? cc = null, IDictionary<string, byte[]>? attachmentData = null, IDictionary<string, string>? headers = null)
     {
         To = to;
         Subject = subject;
@@ -11,8 +11,8 @@ public class MailRequest
         DisplayName = displayName;
         ReplyTo = replyTo;
         ReplyToName = replyToName;
-        Bcc = bcc ?? new List<string>();
-        Cc = cc ?? new List<string>();
+        Bcc = bcc ?? [];
+        Cc = cc ?? [];
         AttachmentData = attachmentData ?? new Dictionary<string, byte[]>();
         Headers = headers ?? new Dictionary<string, string>();
     }
@@ -31,7 +31,7 @@ public class MailRequest
 
     public string? ReplyToName { get; }
 
-    public List<string> Bcc { get; }
+    public List<string?> Bcc { get; }
 
     public List<string> Cc { get; }
 

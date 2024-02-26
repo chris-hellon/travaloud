@@ -9,12 +9,12 @@ namespace Travaloud.Infrastructure.Auth;
 
 internal static class Startup
 {
-    internal static IServiceCollection AddAuth(this IServiceCollection services, string cookieName)
+    internal static IServiceCollection AddAuth(this IServiceCollection services, string cookieName, bool isBlazor)
     {
         services
             .AddCurrentUser()
             .AddPermissions()
-            .AddIdentity(cookieName);
+            .AddIdentity(cookieName, isBlazor);
         
         return services;
     }
@@ -30,33 +30,6 @@ internal static class Startup
 
     private static IServiceCollection AddPermissions(this IServiceCollection services)
     {
-        // services.AddAuthorization(config =>
-        // {
-        //     foreach (var permission in TravaloudPermissions.All)
-        //     {
-        //         config.AddPolicy(permission.Name, policy =>
-        //             policy.Requirements.Add(new PermissionRequirement(TravaloudPermission.NameFor(permission.Action, permission.Resource))));
-        //     }
-        // });
-        //
-        // services.AddAuthorizationBuilder()
-        //     .AddPolicy("admin_greetings", policy =>
-        //         policy
-        //             .RequireRole("admin")
-        //             .RequireClaim("scope", "greetings_api"));
-        //
-        //
-        // foreach (var permission in TravaloudPermissions.All)
-        // {
-        //     services.AddAuthorizationBuilder()
-        //         .add
-        //         .AddPolicy("admin_greetings", policy =>
-        //             policy
-        //                 .RequireRole("admin")
-        //                 .RequireClaim("scope", "greetings_api"));
-        //
-        // }
-
         services
             .AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>()
             .AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();

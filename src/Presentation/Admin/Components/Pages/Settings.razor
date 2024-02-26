@@ -1,0 +1,32 @@
+@page "/settings"
+@attribute [MustHavePermission(TravaloudAction.View, TravaloudResource.Settings)]
+
+@inject IStringLocalizer<Settings> L
+
+<TravaloudPageTitle Title="@L["Settings"]" Description="@L[@$"Manage {TenantInfo.Name} settings"]"/>
+
+<EditForm Model="@TenantRequest"  OnValidSubmit="UpdateTenantAsync">
+    <MudGrid Elevation="25">
+        <MudCard Style="width:100%;">
+            <MudCardContent>
+                <MudGrid>
+                    <MudItem xs="12" md="6">
+                        <MudTextField T="string" @bind-Value="TenantRequest.AdminEmail" For="@(() => TenantRequest.AdminEmail)" Label="@L["Admin Email"]" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudTextField T="string" @bind-Value="TenantRequest.SecondaryColor" For="@(() => TenantRequest.SecondaryColor)" Label="@L["Secondary Color"]" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="12" md="4">
+                        <MudColorPicker @bind-Text="TenantRequest.PrimaryColor" For="@(() => TenantRequest.MudPrimaryColor)" Label="@L["Primary Color"]" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="12" md="4">
+                        <MudColorPicker @bind-Text="TenantRequest.SecondaryColor" For="@(() => TenantRequest.MudSecondaryColor)" Label="@L["Secondary Color"]" Variant="Variant.Outlined"/>
+                    </MudItem>
+                    <MudItem xs="12" md="4">
+                        <MudColorPicker @bind-Text="TenantRequest.TeritaryColor" For="@(() => TenantRequest.MudTeritaryColor)" Label="@L["Teritary Color"]" Variant="Variant.Outlined"/>
+                    </MudItem>
+                </MudGrid>
+            </MudCardContent>
+        </MudCard>
+    </MudGrid>
+</EditForm>

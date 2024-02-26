@@ -10,6 +10,8 @@ public interface ITravelGuidesService : ITransientService
 
     Task<TravelGuideDto> GetAsync(DefaultIdType id);
 
+    Task<TravelGuideDto> GetByFriendlyTitleAsync(string title);
+
     Task<DefaultIdType> CreateAsync(CreateTravelGuideRequest request);
 
     Task<DefaultIdType?> UpdateAsync(DefaultIdType id, UpdateTravelGuideRequest request);

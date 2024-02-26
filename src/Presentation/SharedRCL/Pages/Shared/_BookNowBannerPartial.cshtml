@@ -1,0 +1,20 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model Travaloud.Tenants.SharedRCL.Models.WebComponents.BookNowComponent
+
+@if (Model.Floating)
+{
+    <div class="container-fluid position-absolute floating-book-banner" data-mdb-toggle="animation" data-mdb-animation-start="onLoad" data-mdb-animation-on-scroll="once" data-mdb-animation="fade-in" data-mdb-animation-delay="1200" data-mdb-animation-duration="900">
+        <div class="container p-4 booking-banner w-80">
+            <partial name="_BookNowFormPartial" model="Model" />
+        </div>
+    </div>
+}
+else
+{
+    <div class="container bg-white py-4 p-lg-4 rounded booking-banner has-parallax-scroll">
+        <div class="d-flex justify-content-center mb-4 d-lg-none">
+            <h4 class="tilted">Book Your Stay</h4>
+        </div>
+        <partial name="_BookNowFormPartial" model="Model" />
+    </div>
+}

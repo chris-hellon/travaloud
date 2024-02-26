@@ -2,12 +2,12 @@
 
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace Migrators.SqlServer.Migrations.Application
+namespace Migrators.SqlServer.Migrations.Application;
+
+public partial class PageModalLookups2 : Migration
 {
-    public partial class PageModalLookups2 : Migration
+    protected override void Up(MigrationBuilder migrationBuilder)
     {
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
             migrationBuilder.DropForeignKey(
                 name: "FK_PageModalLookup_PageModals_PageModalId",
                 schema: "Catalog",
@@ -68,8 +68,8 @@ namespace Migrators.SqlServer.Migrations.Application
                 onDelete: ReferentialAction.Cascade);
         }
 
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
+    protected override void Down(MigrationBuilder migrationBuilder)
+    {
             migrationBuilder.DropForeignKey(
                 name: "FK_PageModalLookups_PageModals_PageModalId",
                 schema: "Catalog",
@@ -129,5 +129,4 @@ namespace Migrators.SqlServer.Migrations.Application
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Cascade);
         }
-    }
 }

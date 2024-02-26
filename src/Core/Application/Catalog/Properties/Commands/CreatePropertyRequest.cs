@@ -88,8 +88,10 @@ public class CreatePropertyRequestHandler : IRequestHandler<CreatePropertyReques
         
         property.ProcessDirections(request.Directions, userId);
         property.ProcessFacilities(request.Facilities, userId);
-        property.ProcessDestinations(request.PropertyDestinationLookups, userId);
         
+        if (request.PropertyDestinationLookups != null)
+            property.ProcessDestinations(request.PropertyDestinationLookups, userId);
+
         await property.ProcessRooms(request.Rooms, userId, _file, cancellationToken);
         await property.ProcessImages(request.Images, userId, _file, cancellationToken);
 

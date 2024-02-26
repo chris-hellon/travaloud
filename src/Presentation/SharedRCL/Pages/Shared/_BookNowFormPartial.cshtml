@@ -1,0 +1,138 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model Travaloud.Tenants.SharedRCL.Models.WebComponents.BookNowComponent
+
+@if (Model.PropertyId.HasValue && Model.PropertyId.Value == new Guid("E4DCD399-2CAE-4F7A-9041-0D7A27B52773"))
+{
+    <div class="row d-flex justify-content-center align-items-center">
+        <div class="col-lg-10">
+            <p>
+                Hoi An hostel is now operated by Mad Monkey.
+            </p>
+            <p>Check Availability will transfer you to the Mad Monkey website, where you will be able to complete your booking.</p>
+        </div>
+        <div class="col-lg-2 text-center">
+            <a class="btn btn-primary" href="https://madmonkeyhostels.com/hoi-an" target="_blank">Check Availability</a>
+        </div>
+    </div>
+}
+else
+{
+    var isTourBooking = Model.Tours != null && Model.Tours.Any();
+    var isPropertyBooking = Model.Properties != null && Model.Properties.Any();
+    var buttonLabel = Model.Floating || Model.IsModal ? "Book Now" : isPropertyBooking ? "Search For Rooms" : "Book Now";
+
+    <form method="post" id="@(Model.IsModal ? "bookNowModalForm" : "bookNowForm")" class="row @(Model.Floating ? "bg-light py-4 px-2 rounded" : "")">
+        <div class="col-lg-@(Model.IsModal ? "12" :  "4") mb-3 mb-lg-@(Model.IsModal ? "3" : "0") position-relative">
+            <div class="h-100" style="min-height:47px;">
+                @if (isTourBooking)
+                {
+                    <select asp-for="TourId" class="select h-100 bg-white" onchange="getTourDates(this);">
+                        <option value="" hidden selected="@(!Model.TourId.HasValue)"></option>
+                        @if (Model.Tours != null)
+                        {
+                            foreach (var tour in Model.Tours)
+                            {
+                                <option value="@tour.Id" selected="@(Model.TourId.HasValue && Model.TourId.Value == tour.Id)">@tour.Name</option>
+                            }
+                        }
+                    </select>
+                    <label class="form-label select-label">Tour</label>
+                }
+                else if (isPropertyBooking)
+                {
+                    <select asp-for="PropertyId" class="select h-100 bg-white">
+                        <option value="" hidden selected></option>
+                        @if (Model.Properties != null)
+                        {
+                            foreach (var property in Model.Properties)
+                            {
+                                if (property.CloudbedsKey != null)
+                                {
+                                    <option value="@property.Id" selected="@(Model.PropertyId.HasValue && Model.PropertyId.Value == property.Id)">@property.Name</option>
+                                }
+                            }
+                        }
+                    </select>
+                    <label class="form-label select-label">Hostel</label>
+                }
+
+            </div>
+            <span asp-validation-for="PropertyId" class="travaloud-validation" style="bottom:-20px;"></span>
+        </div>
+
+        @if (isPropertyBooking)
+        {
+            <div class="col-lg-@(Model.IsModal ? "12" : "4") mb-3 mb-lg-@(Model.IsModal ? "3" : "0") position-relative">
+                <div class="form-outline h-100 w-100" style="min-height:47px;">
+                    <i class="fas fa-calendar-days trailing text-primary"></i>
+                    <input asp-for="DateRange" placeholder="Check In / Out Date" readonly style="background-color:#fff !important;" type="text" class="check-in-out-date form-control cursor-pointer h-100"/>
+                    <label asp-for="DateRange" class="form-label">Check In / Out</label>
+                </div>
+                <span asp-validation-for="DateRange" class="travaloud-validation" style="bottom:-20px;"></span>
+            </div>
+            
+            <input asp-for="CheckInDate" class="check-in-out-date-start" type="hidden" />
+            <input asp-for="CheckOutDate" class="check-in-out-date-end" type="hidden" />
+            
+            @* <div class="col-lg-@(Model.IsModal ? "12" : "3") mb-3 mb-lg-@(Model.IsModal ? "3" : "0") position-relative"> *@
+            @*     <div class="form-outline datepicker-disable-past h-100 w-100" style="min-height:47px;" id="checkInDatePicker" data-mdb-toggle-button="false" data-mdb-format="dd/mm/yyyy"  data-mdb-confirm-date-on-select="true"> *@
+            @*         <input asp-for="CheckInDate" placeholder="Check In Date" type="text" class="form-control cursor-pointer h-100" data-mdb-toggle="datepicker" /> *@
+            @*         <label asp-for="CheckInDate" class="form-label">Check In</label> *@
+            @*         <button class="datepicker-toggle-button" data-mdb-toggle="datepicker" aria-label="Check In"> *@
+            @*             <i class="fas fa-calendar-days datepicker-toggle-icon text-primary"></i> *@
+            @*         </button> *@
+            @*     </div> *@
+            @*     <span asp-validation-for="CheckInDate" class="travaloud-validation" style="bottom:-20px;"></span> *@
+            @* </div> *@
+            @*  <div class="col-lg-@(Model.IsModal ? "12" : "3") mb-3 mb-lg-@(Model.IsModal ? "3" : "0") position-relative">  *@
+            @*      <div class="form-outline datepicker-disable-past h-100 w-100" style="min-height:47px;" id="checkOutDatePicker" data-mdb-toggle-button="false" data-mdb-format="dd/mm/yyyy">  *@
+            @*          <input asp-for="CheckOutDate" placeholder="Check Out Date" type="text" class="form-control cursor-pointer h-100" data-mdb-toggle="datepicker" />  *@
+            @*          <label asp-for="CheckOutDate" class="form-label">Check Out</label>  *@
+            @*          <button class="datepicker-toggle-button" data-mdb-toggle="datepicker" aria-label="Check Out">  *@
+            @*              <i class="fas fa-calendar-days datepicker-toggle-icon text-primary"></i>  *@
+            @*          </button>  *@
+            @*      </div>  *@
+            @*      <span asp-validation-for="CheckOutDate" class="travaloud-validation" style="bottom:-20px;"></span>  *@
+            @*  </div>  *@
+            
+            @*<div class="col-lg-@(Model.IsModal ? "12" : "3")  mb-3 mb-lg-@(Model.IsModal ? "3" : "0") position-relative">
+                <div class="form-outline" data-mdb-input-init>
+                    <i class="fas fa-exclamation-circle trailing"></i>
+                    <input type="number" id="typeNumber" class="form-control" min="1"/>
+                    <label class="form-label" for="typeNumber">Number of Nights</label>
+                </div>
+            </div>*@
+        }
+        else if (isTourBooking)
+        {
+            <div class="col-lg-@(Model.IsModal ? "12" : "3") mb-3 mb-lg-@(Model.IsModal ? "3" : "0") position-relative">
+                <div class="form-outline datepicker-with-filter h-100 w-100" style="min-height:47px;" id="tourDatePicker" data-mdb-toggle-button="false" data-mdb-format="dd/mm/yyyy">
+                    <input asp-for="TourDate" placeholder="Date" type="text" class="form-control cursor-pointer h-100" data-mdb-toggle="datepicker" />
+                    <label asp-for="TourDate" class="form-label">Date</label>
+                    <button class="datepicker-toggle-button" data-mdb-toggle="datepicker" aria-label="Date">
+                        <i class="fas fa-calendar-days datepicker-toggle-icon text-primary"></i>
+                    </button>
+                </div>
+                <span asp-validation-for="TourDate" class="travaloud-validation" style="bottom:-20px;"></span>
+            </div>
+            <div class="col-lg-@(Model.IsModal ? "12" : "3") mb-3 mb-lg-@(Model.IsModal ? "3" : "0") position-relative">
+                <div class="form-outline">
+                    <input type="number" asp-for="GuestQuantity" class="form-control" />
+                    <label class="form-label" asp-for="GuestQuantity">No. of Guests</label>
+                </div>
+                <span asp-validation-for="GuestQuantity" class="travaloud-validation" style="bottom:-20px;"></span>
+            </div>
+        }
+
+        <div class="col-lg-@(Model.IsModal ? "12" : "4")">
+            @if (isTourBooking)
+            {
+                <button class="btn btn-primary w-100 h-100" type="submit" asp-page-handler="ProceedToBasket" aria-label="@buttonLabel">@buttonLabel</button>
+            }
+            else
+            {
+                <button class="btn btn-primary w-100 h-100" type="submit" asp-page-handler="SearchRooms" aria-label="@buttonLabel">@buttonLabel</button>
+            }
+        </div>
+    </form>
+}

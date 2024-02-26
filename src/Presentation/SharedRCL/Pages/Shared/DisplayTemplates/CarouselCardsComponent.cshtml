@@ -1,0 +1,42 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model Travaloud.Tenants.SharedRCL.Models.WebComponents.FuseHostelsAndTravel.CarouselCardsComponent
+
+<div class="container-fluid p-0 m-0 position-relative overflow-hidden">
+    @if (Model.Header != null)
+    {
+        <div class="container @(Model.Header.Title != null ? "pt-8 pb-8" : "pb-5") text-center ovals-container-parent">
+            <div class="row justify-content-lg-center has-parallax-scroll">
+                @if (Model.Header.Title != null)
+                {
+                    <div class="col-12">
+                        <h2 class="@(Model.Header.Body == null ? "mb-0" : "")">@Html.Raw(Model.Header.Title)</h2>
+                    </div>
+                }
+
+                @if (Model.Header.Body != null)
+                {
+                    <p>@Html.Raw(Model.Header.Body)</p>
+                }
+
+                @if (Model.Header.OvalContainers != null)
+                {
+                    @Html.DisplayFor(x => x.Header.OvalContainers)
+                }
+            </div>
+        </div>
+    }
+    <div class="container pb-8">
+        @{
+            var carouselId = Model.Header != null && Model.Header.Title != null ? $"{Model.Header.Title.ConvertToCamelCase("Carousel")}" : "eventsCarousel";
+
+            <div class="owl-carousel owl-theme has-parallax-scroll">
+                @for (var i = 0; i < Model.Cards.Count(); i++)
+                {
+                    var card = Model.Cards.ToList()[i];
+                    <partial name="@Model.PartialView" model="card" />
+                }
+            </div>
+        }
+    </div>
+</div>
+

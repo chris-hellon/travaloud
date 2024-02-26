@@ -42,7 +42,7 @@ try
     builder.Services.AddScoped<IdentityRedirectManager>();
     builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
     
-    builder.Services.AddInfrastructure(builder.Configuration, "Travaloud.Admin");
+    builder.Services.AddInfrastructure(builder.Configuration, "Travaloud.Admin", true);
     builder.Services.AddApplication();
     builder.Services.AddDatabaseDeveloperPageExceptionFilter();
     
@@ -55,6 +55,14 @@ try
         configuration.SnackbarConfiguration.ShowCloseIcon = false;
     });
 
+    if (!builder.Environment.IsDevelopment())
+    {
+        builder.Services.AddResponseCompression(options =>
+        {
+            options.EnableForHttps = true;
+        });   
+    }
+    
     var app = builder.Build();
 
     await app.Services.InitializeDatabasesAsync();
@@ -71,7 +79,7 @@ try
     {
         app.UseResponseCompression();
     }
-    
+
     Log.Information("Application running successfully");
 
     app.Run();

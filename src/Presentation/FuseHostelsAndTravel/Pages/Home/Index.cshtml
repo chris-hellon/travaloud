@@ -1,0 +1,91 @@
+﻿@page "/"
+@model FuseHostelsAndTravel.Pages.Home.IndexModel
+
+@Html.DisplayFor(x => x.CarouselComponent)
+
+<section id="introduction" class="overflow-hidden">
+    @Html.DisplayFor(x => x.IntroductionBanner)
+</section>
+<section id="hostels" class="bg-light pb-lg-5 overflow-hidden">
+    @Html.DisplayFor(x => x.HostelsInVietnamBanner)
+    @Html.DisplayFor(x => x.HostelsContainers)
+</section>
+<section id="parallaxBanner" class="bg-light pt-5 position-relative">
+    @Html.DisplayFor(x => x.MarqueeOvals)
+    <div class="container-fluid bg-black tilted pt-lg-8 pb-lg-8 text-white">
+        <div class="marquee">
+            <span class="fw-bold">New beds</span>
+            <span class="fw-light">Great locations</span>
+            <span class="fw-outline">Social bars</span>
+            <span class="fw-bold">daily events</span>
+            <span class="fw-light">Safe vibes</span>
+            <span class="fw-outline">Staff that give a shit</span>
+            <span class="fw-bold">Epic tailored tours</span>
+            <span class="fw-light">experiences</span>
+            <span class="fw-outline">Good times as standard</span>
+            <span class="fw-bold">New beds</span>
+            <span class="fw-light">Great locations</span>
+            <span class="fw-outline">Social bars</span>
+            <span class="fw-bold">daily events</span>
+            <span class="fw-light">Safe vibes</span>
+            <span class="fw-outline">Staff that give a shit</span>
+            <span class="fw-bold">Epic tailored tours</span>
+            <span class="fw-light">experiences</span>
+            <span class="fw-outline">Good times as standard</span>
+        </div>
+        <div class="marquee">
+            <span class="fw-bold">daily events</span>
+            <span class="fw-light">Safe vibes</span>
+            <span class="fw-outline">Staff that give a shit</span>
+            <span class="fw-bold">Epic tailored tours</span>
+            <span class="fw-light">experiences</span>
+            <span class="fw-outline">Good times as standard</span>
+            <span class="fw-bold">New beds</span>
+            <span class="fw-light">Great locations</span>
+            <span class="fw-outline">Social bars</span>
+            <span class="fw-bold">daily events</span>
+            <span class="fw-light">Safe vibes</span>
+            <span class="fw-outline">Staff that give a shit</span>
+            <span class="fw-bold">Epic tailored tours</span>
+            <span class="fw-light">experiences</span>
+            <span class="fw-outline">Good times as standard</span>
+            <span class="fw-bold">New beds</span>
+            <span class="fw-light">Great locations</span>
+            <span class="fw-outline">Social bars</span>
+        </div>
+        <div class="marquee">
+            <span class="fw-bold">Epic tailored tours</span>
+            <span class="fw-light">experiences</span>
+            <span class="fw-outline">Good times as standard</span>
+            <span class="fw-bold">New beds</span>
+            <span class="fw-light">Great locations</span>
+            <span class="fw-outline">Social bars</span>
+            <span class="fw-bold">daily events</span>
+            <span class="fw-light">Safe vibes</span>
+            <span class="fw-outline">Staff that give a shit</span>
+            <span class="fw-bold">Epic tailored tours</span>
+            <span class="fw-light">experiences</span>
+            <span class="fw-outline">Good times as standard</span>
+            <span class="fw-bold">New beds</span>
+            <span class="fw-light">Great locations</span>
+            <span class="fw-outline">Social bars</span>
+            <span class="fw-bold">daily events</span>
+            <span class="fw-light">Safe vibes</span>
+            <span class="fw-outline">Staff that give a shit</span>
+        </div>
+    </div>
+</section>
+<section id="tours" class="bg-light d-none d-lg-block">
+    @Html.DisplayFor(x => x.ToursCards)
+</section>
+<section id="toursCarousel" class="bg-light d-block d-lg-none">
+    @Html.DisplayFor(x => x.ToursCarousel)
+</section>
+
+<section id="events" class="pt-8">
+    <div class="container">
+        <div class="row gx-4">
+            @Html.DisplayFor(x => x.EventsCards)
+        </div>
+    </div>
+</section>

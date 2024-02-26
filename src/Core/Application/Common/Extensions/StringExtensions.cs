@@ -5,7 +5,7 @@ namespace Travaloud.Application.Common.Extensions;
 
 public static class StringExtensions
 {
-    public static string UrlFriendly(this string text, int maxLength = 0)
+    public static string UrlFriendly(this string text)
     {
         // Return empty value if text is null
         if (text == null) return string.Empty;
@@ -59,17 +59,13 @@ public static class StringExtensions
 
                     break;
             }
-
-            // If we are at max length, stop parsing
-            if (maxLength > 0 && trueLength >= maxLength)
-                break;
         }
 
         // Trim excess hyphens
         var result = stringBuilder.ToString().Trim('-');
 
         // Remove any excess character to meet maxlength criteria
-        return maxLength <= 0 || result.Length <= maxLength ? result : result.Substring(0, maxLength);
+        return result;
     }
 
     private static string RemapInternationalCharToAscii(char c)

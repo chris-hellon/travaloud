@@ -1,0 +1,39 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model Travaloud.Tenants.SharedRCL.Models.WebComponents.GenericCardsComponent
+
+@{
+    if (Model.Cards.Any())
+    {
+        var splitCards = Helpers.SplitList<CardComponent>(Model.Cards);
+
+        if (splitCards.Any())
+        {
+            @if (Model.Title != null && Model.FullWidthTitle)
+            {
+                <h3 class="text-white w-100 text-center mb-5 py-2 position-relative bg-primary-dark"><strong class="has-parallax-scroll">@Model.Title</strong></h3>
+            }
+
+            @if (Model.Title != null && !Model.FullWidthTitle)
+            {
+                <h3 class="mb-5"><strong>@Model.Title</strong></h3>
+            }
+
+            <div class="container p-0">
+                @foreach (var splitCard in splitCards)
+                {
+                    var lgClass = splitCard.Count == 3 ? 4 : 6;
+
+                    <div class="row">
+                        @foreach (var card in splitCard)
+                        {
+                            card.LgClass = lgClass;
+
+                            <partial name="_GenericCardPartial" model="card" />
+                        }
+                    </div>
+                }
+            </div>
+        }
+    }
+}
+

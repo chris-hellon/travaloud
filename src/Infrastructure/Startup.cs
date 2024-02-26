@@ -4,8 +4,10 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Serilog;
 using Travaloud.Infrastructure.Auth;
 using Travaloud.Infrastructure.Caching;
+using Travaloud.Infrastructure.Cloudbeds;
 using Travaloud.Infrastructure.Common;
 using Travaloud.Infrastructure.FileStorage;
 using Travaloud.Infrastructure.Identity;
@@ -17,17 +19,17 @@ using Travaloud.Infrastructure.Multitenancy;
 using Travaloud.Infrastructure.Persistence;
 using Travaloud.Infrastructure.Persistence.Context;
 using Travaloud.Infrastructure.Persistence.Initialization;
-using Travaloud.Infrastructure.SignalR;
 
 namespace Travaloud.Infrastructure;
 
 public static class Startup
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration config, string cookieName)
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration config,
+        string cookieName, bool isBlazor)
     {
         MapsterSettings.Configure();
         services
-            .AddAuth(cookieName)
+            .AddAuth(cookieName, isBlazor)
             .AddCaching(config)
             .AddExceptionMiddleware()
             .AddLocalization(config)
@@ -38,23 +40,29 @@ public static class Startup
             .AddPersistence(config)
             .AddRequestLogging(config)
             .AddHttpContextAccessor()
-            .AddHttpClient()
             .AddRouting(options => options.LowercaseUrls = true)
-            .AddServices();
-            //.AddAzureSignalR(config);
+            .AddCloudbedsHttpClient(config);
         
-        services.AddScoped<UserManager<ApplicationUser>, UserManager<ApplicationUser>>();
-    
-        services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false)
-            .AddRoles<ApplicationRole>()
-            .AddSignInManager()
-            .AddDefaultTokenProviders()
-            .AddEntityFrameworkStores<ApplicationDbContext>();
+        //.AddAzureSignalR(config);
+
+        if (isBlazor)
+        {
+            services.AddScoped<UserManager<ApplicationUser>, UserManager<ApplicationUser>>();
+
+            services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false)
+                .AddRoles<ApplicationRole>()
+                .AddSignInManager()
+                .AddDefaultTokenProviders()
+                .AddEntityFrameworkStores<ApplicationDbContext>();
+        }
+        
+        services.AddServices();
 
         return services;
     }
-    
-    public static async Task InitializeDatabasesAsync(this IServiceProvider services, CancellationToken cancellationToken = default)
+
+    public static async Task InitializeDatabasesAsync(this IServiceProvider services,
+        CancellationToken cancellationToken = default)
     {
         // Create a new scope to retrieve scoped services
         using var scope = services.CreateScope();
@@ -63,18 +71,19 @@ public static class Startup
             .InitializeDatabasesAsync(cancellationToken);
     }
 
-    public static IApplicationBuilder UseInfrastructure(this IApplicationBuilder builder, IConfiguration config, IWebHostEnvironment env) =>
+    public static IApplicationBuilder UseInfrastructure(this IApplicationBuilder builder, IConfiguration config,
+        IWebHostEnvironment env) =>
         builder
             .UseHttpsRedirection()
             .UseLocalization(config)
             .UseStaticFiles()
-            .UseFileStorage(env)
+            //.UseFileStorage(env)
             .UseExceptionMiddleware()
             .UseRouting()
             .UseAntiforgery()
+            .UseMultiTenancy()
             .UseAuthentication()
             .UseCurrentUser()
-            .UseMultiTenancy()
             .UseAuthorization()
             .UseRequestLogging(config);
 }

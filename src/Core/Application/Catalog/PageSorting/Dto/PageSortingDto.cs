@@ -9,6 +9,7 @@ public class PageSortingDto
     public DefaultIdType? TourCategoryId { get; set; }
     public DefaultIdType? PropertyId { get; set; }
     public DefaultIdType? DestinationId { get; set; }
+    public int SortOrder { get; set; }
 
     public PageSortingDto()
     {

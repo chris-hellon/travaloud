@@ -27,6 +27,11 @@ public class BookingsService : BaseService,  IBookingsService
     {
         return Mediator.Send(new GetBookingRequest(id));
     }
+
+    public Task<IEnumerable<BookingDto>> GetGuestBookingsAsync(GetGuestBookingsRequest request)
+    {
+        return Mediator.Send(request);
+    }
     
     public Task<DefaultIdType> CreateAsync(CreateBookingRequest request)
     {

@@ -1,0 +1,17 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model Travaloud.Tenants.SharedRCL.Models.WebComponents.BookNowComponent
+
+<div class="modal fade" id="bookNowModal" tabindex="-1" aria-labelledby="bookNowModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content p-5 bg-light">
+            <button type="button" class="btn-close ms-auto" data-mdb-dismiss="modal" aria-label="Close"><i class="fa fa-xmark"></i></button>
+            <div class="modal-body p-0 text-center">
+                <h2 id="bookNowModalLabel" class="mb-3 display-5">BOOK NOW</h2>
+
+                <div class="container-fluid booking-banner">
+                    <partial name="_BookNowFormPartial" model="Model" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

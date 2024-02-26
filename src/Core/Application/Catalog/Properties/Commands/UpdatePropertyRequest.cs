@@ -130,8 +130,10 @@ public class UpdatePropertyRequestHandler : IRequestHandler<UpdatePropertyReques
         
         updatedProperty.ProcessDirections(request.Directions, userId);
         updatedProperty.ProcessFacilities(request.Facilities, userId);
-        updatedProperty.ProcessDestinations(request.PropertyDestinationLookups, userId);
         
+        if (request.PropertyDestinationLookups != null)
+            updatedProperty.ProcessDestinations(request.PropertyDestinationLookups, userId);
+
         await updatedProperty.ProcessRooms(request.Rooms, userId, _file, cancellationToken);
 
         await updatedProperty.ProcessImages(request.Images, userId, _file, cancellationToken);
