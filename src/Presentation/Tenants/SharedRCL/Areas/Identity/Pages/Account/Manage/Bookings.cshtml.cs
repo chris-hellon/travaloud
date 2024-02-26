@@ -40,7 +40,7 @@ public class BookingsModel : TravaloudBasePageModel
                 Booking = bookingDtos.FirstOrDefault(x => x.Id == Guid.Parse(bookingId));
 
                 var bookingItemWithProperty = Booking?.Items?.FirstOrDefault(x => x.PropertyId.HasValue);
-            
+
                 if (bookingItemWithProperty != null)
                 {
                     if (bookingItemWithProperty.PropertyId != null)
@@ -48,39 +48,13 @@ public class BookingsModel : TravaloudBasePageModel
 
                     if (BookingProperty != null)
                     {
-                        FacilitiesTable = await WebComponentsBuilder.FuseHostelsAndTravel.GetHostelFacilitiesAsync(BookingProperty);
-                        ToursCards = await WebComponentsBuilder.FuseHostelsAndTravel.GetToursCarouselCardsAsync(Tours, "onScroll", $"TOURS IN {BookingProperty.PageTitle?.ToUpper()}", null);
+                        FacilitiesTable =
+                            await WebComponentsBuilder.FuseHostelsAndTravel.GetHostelFacilitiesAsync(BookingProperty);
+                        ToursCards = await WebComponentsBuilder.FuseHostelsAndTravel.GetToursCarouselCardsAsync(Tours,
+                            "onScroll", $"TOURS IN {BookingProperty.PageTitle?.ToUpper()}", null);
                     }
-                    //await SetPropertyInformation(BookingProperty);
                 }
-            }  
+            }
         }
-        
-        //TODO: implement this
-        // Bookings = await ApplicationRepository.GetGuestBookingsAsync(UserId);
-        //
-        // if (Bookings.Any())
-        // {
-        //     if (bookingId != null)
-        //     {
-        //         Booking = Bookings.FirstOrDefault(x => x.Id == Guid.Parse(bookingId));
-        //
-        //         if (Booking != null)
-        //         {
-        //             var bookingItemWithProperty = Booking.Items.FirstOrDefault(x => x.PropertyId.HasValue);
-        //
-        //             if (bookingItemWithProperty != null)
-        //             {
-        //                 BookingProperty = await ApplicationRepository.GetPropertyWithDetailsAsync(bookingItemWithProperty.PropertyId.Value);
-        //
-        //                 var tourPrices = Tours.SelectMany(x => x.TourPrices);
-        //                 //await SetPropertyInformation(BookingProperty);
-        //
-        //                 FacilitiesTable = WebComponentsBuilder.FuseHostelsAndTravel.GetHostelFacilities(BookingProperty);
-        //                 ToursCards = WebComponentsBuilder.FuseHostelsAndTravel.GetToursCarouselCards(Tours, "onScroll", $"TOURS IN {BookingProperty.PageTitle.ToUpper()}", null);
-        //             }
-        //         }
-        //     }  
-        // }
     }
 }

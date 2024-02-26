@@ -7,9 +7,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\..\SharedRCL\SharedRCL.csproj" />
-      <ProjectReference Include="..\..\Infrastructure\Infrastructure.csproj" />
-      <ProjectReference Include="..\..\Migrators\SqlServer\SqlServer.csproj" />
+      <ProjectReference Include="..\..\..\Infrastructure\Infrastructure.csproj" />
+      <ProjectReference Include="..\..\..\Migrators\SqlServer\SqlServer.csproj" />
       <ProjectReference Include="..\SharedRCL\SharedRCL.csproj" />
     </ItemGroup>
 
