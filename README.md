@@ -6,6 +6,8 @@ Travaloud is a multitenant Blazor application that serves as a content managemen
 2. [Vietnam Backpacker Hostels](https://www.vietnambackpackerhostels.com/)
 3. [Uncut Travel & Hospitality](https://uncuttravel.com/)
 
+Each Tenants website is housed in the src/Presentation/Tenants directory.
+
 ## Features
 
 - **Content Management**: Efficiently manage and organize travel destinations, accommodations, and booking options for multiple tenants.
@@ -22,6 +24,7 @@ Travaloud is a multitenant Blazor application that serves as a content managemen
 ## Tech Stack
 
 - **Blazor .NET 8 Web App**: Building interactive web UIs using C# and HTML.
+- **Blazor .NET 8 Razor Pages**: Each Tenant website is built using Razor Pages.
 - **Clean Architecture**: Structuring the application into layers for better maintainability and testability.
 - **CQRS with Mediator Pattern**: Separating concerns between commands and queries using mediator for communication.
 - **Entity Framework Core with Ardalis Specification**: ORM for data access, providing rich querying capabilities with Ardalis Specification.
