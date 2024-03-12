@@ -2,9 +2,9 @@
 
 Travaloud is a multitenant Blazor application that serves as a content management and booking system for multiple travel and hospitality tenants. Currently, it caters to three tenants:
 
-1. Fuse Hostels & Travel
-2. Vietnam Backpacker Hostels
-3. Uncut Travel & Hospitality
+1. [Fuse Hostels & Travel](https://fusehostelsandtravel.com/)
+2. [Vietnam Backpacker Hostels](https://www.vietnambackpackerhostels.com/)
+3. [Uncut Travel & Hospitality](https://uncuttravel.com/)
 
 ## Features
 
