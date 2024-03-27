@@ -1,0 +1,50 @@
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--mdb-font-din-2014-narrow-bold);
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.h1, h1 {
+  text-shadow: -5px 0 var(--mdb-primary);
+
+  @media(max-width: 991px) {
+    &.display-3 {
+      font-size: 4rem;
+    }
+    
+    text-shadow: -3px 0 var(--mdb-primary);
+  }
+}
+.h2, h2 {
+  text-shadow: -3px 0 var(--mdb-pink);
+  font-size: 3rem !important;
+}
+
+.btn-primary {
+  --mdb-btn-box-shadow-state: 5px 5px 0 0 var(--mdb-pink) !important;
+}
+
+.btn-outline-primary {
+  --mdb-btn-box-shadow-state: #fff 5px 5px 0 -1px, var(--mdb-primary) 5px 5px !important;
+}
+
+.fw-outline {
+  font-family: var(--mdb-font-din-2014-narrow-extra-light);
+  font-weight: 300 !important;
+  -webkit-text-stroke: 1px #fff;
+  color: rgba(255, 255, 255, 0);
+}
+
+.fw-light {
+  font-weight: 300 !important;
+  font-family: var(--mdb-font-din-2014-narrow-extra-light);
+}
+
+button.nav-link, button.text-purple {
+  background: transparent;
+  outline: none;
+  border: none;
+}
+

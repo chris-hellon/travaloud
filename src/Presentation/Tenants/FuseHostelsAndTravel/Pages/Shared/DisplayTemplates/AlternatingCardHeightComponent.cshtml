@@ -4,8 +4,8 @@
     <div class="row d-flex flex-row-reverse gx-lg-8 alternating-card-height">
         <div class="col-lg-6 col-md-12 col-xs-12 mb-5 mb-lg-0">
             <div class="row has-parallax-scroll">
-                <h2>@Model.Header.Title</h2>
-                <p>@Html.Raw(Model.Header.Body)</p>
+                <h2>@Model.Header?.Title</h2>
+                <p>@Html.Raw(Model.Header?.Body)</p>
             </div>
         </div>
         @Html.DisplayFor(x => x.Cards)

@@ -1,73 +1,70 @@
 ﻿@page "/basket"
-@using Microsoft.AspNetCore.Mvc.TagHelpers
+
 @model Travaloud.Tenants.SharedRCL.Pages.Basket.IndexModel
 
-<section class="h-100 h-custom bg-dark">
+<section class="h-100 bg-light">
     <div class="container py-5 h-100">
         <div class="row d-flex justify-content-center align-items-center h-100">
             <div class="col-12">
                 <div class="card card-registration card-registration-2" style="border-radius: 15px;">
                     <div class="card-body p-0">
                         @{
-                            <div class="row g-0">
-                                <div class="col-lg-8">
-                                    <div class="p-5">
-                                        <div class="d-flex justify-content-between align-items-center mb-5">
-                                            <h1 class="fw-bold mb-0 text-black">Basket</h1>
-                                            <h6 class="mb-0 text-muted basketItemsQuantity">@($"{Model.Basket.Items.Count} item{(Model.Basket.Items.Count > 1 ? "s" : "")}")</h6>
-                                        </div>
-
-                                        <hr class="my-4 basketBodySpacer">
-
-                                        @if (Model.Basket.Items.Any())
-                                        {
-                                            foreach (var item in Model.Basket.Items)
-                                            {
-                                                @Html.DisplayFor(x => item.TourDates)
-                                            }
-                                        }
-                                        else
-                                        {
-                                            <p>Your basket is empty.</p>
-                                        }
-
-                                        <div class="pt-5">
-                                            <h6 class="mb-0">
-                                                <a asp-page="/Explore/Index" class="text-body">
-                                                    <i class="fas fa-long-arrow-alt-left me-2"></i>Continue Exploring
-                                                </a>
-                                            </h6>
-                                        </div>
+                        <div class="row g-0">
+                            <div class="col-lg-8">
+                                <div class="p-5">
+                                    <div class="d-flex justify-content-between align-items-center mb-5">
+                                        <h1 class="fw-bold mb-0 text-black display-3">Basket</h1>
+                                        <h6 class="mb-0 text-muted basketItemsQuantity">@($"{Model.Basket.ItemsCount} item{(Model.Basket.ItemsCount > 1 ? "s" : "")}")</h6>
                                     </div>
-                                </div>
-                                <div class="col-lg-4 bg-grey">
-                                    <div class="p-5">
-                                        <h3 class="fw-bold mb-5 mt-2 pt-1">Summary</h3>
-                                        <hr class="my-4">
 
-                                        <div class="d-flex justify-content-between mb-5">
-                                            <h5 class="text-uppercase">Total</h5>
-                                            <h5 id="basketTotal">$ @string.Format("{0:n2}", Model.Basket.Total)</h5>
-                                        </div>
+                                    <hr class="my-4 basketBodySpacer">
 
-                                        <h5 class="text-uppercase mb-3">Promo code</h5>
+                                    @if (Model.Basket.Items.Any())
+                                    {
+                                        foreach (var item in Model.Basket.Items)
+                                        {
+                                            @Html.DisplayFor(x => item)
+                                           
+                                            @* if (item.TourDates != null && item.TourDates.Any()) *@
+                                            @* { *@
+                                            @*     @Html.DisplayFor(x => item.TourDates) *@
+                                            @* } *@
+                                            @* *@
+                                            @* if (item.Rooms.Any()) *@
+                                            @* { *@
+                                            @*     @Html.DisplayFor(x => item.Rooms) *@
+                                            @* } *@
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <p>Your basket is empty.</p>
+                                    }
 
-                                        <div class="mb-5">
-                                            <div class="form-outline">
-                                                <input type="text" asp-for="@Model.Basket.PromoCode" class="form-control" />
-                                                <label class="form-label" asp-for="@Model.Basket.PromoCode">Enter your code</label>
-                                            </div>
-                                        </div>
-
-                                        <hr class="my-4">
-
-                                        <a role="button" href="/@Model.TourBookingUrl" class="btn btn-dark btn-block btn-lg" data-mdb-ripple-color="dark">
-                                            Proceed
-                                        </a>
+                                    <div class="pt-5">
+                                        <h6 class="mb-0">
+                                            <a asp-page="/Home/Index" class="text-body">
+                                                <i class="fas fa-long-arrow-alt-left me-2"></i>Continue Exploring
+                                            </a>
+                                        </h6>
                                     </div>
                                 </div>
                             </div>
-                        }
+                            <div class="col-lg-4 bg-grey">
+                                <div class="p-5">
+                                    <h3 class="fw-bold mb-5 mt-2 pt-1">Summary</h3>
+                                    <div class="d-flex justify-content-between mb-5">
+                                        <h5 class="text-uppercase">Total</h5>
+                                        <h5 id="basketTotal">$ @($"{Model.Basket.Total:n2}")</h5>
+                                    </div>
+                                    <hr class="my-4">
+
+                                    <a role="button" asp-page="/Checkout/Index" id="proceedToCheckoutButton" class="btn btn-primary btn-block btn-lg @(!Model.Basket.Items.Any() ? "d-none" : "")">
+                                        Proceed To Checkout
+                                    </a>
+                                </div>
+                            </div>
+                        </div>}
                     </div>
                 </div>
             </div>
@@ -78,68 +75,8 @@
 @section Scripts
 {
     <script type="text/javascript">
-        let basket = @Html.Raw(Json.Serialize(Model.Basket));
-
-        function updateBasket(id) {
-            let guestQuantity = $('.tourDateGuestQuantity[data-id="' + id + '"]').val();
-
-            $(basket.items).each(function (i, v) {
-                $(v.tourDates).each(function (i, d) {
-                    if (d.id == id)
-                        d.guestQuantity = parseInt(guestQuantity);
-                });
-            });
-
-            postBasket();
-        }
-
-        function removeFromBasket(id) {
-            $(basket.items).each(function (i, v) {
-                $(v.tourDates).each(function (i, d) {
-                    if (d.id == id)
-                        v.tourDates.splice(d, 1);
-                });
-
-                if (v.tourDates.length == 0)
-                    basket.items.splice(v, 1);
-            });
-
-            $('.tourDateBasketItem[data-id="' + id + '"], .tourDateBasketItemSpacer[data-id="' + id + '"]').remove();
-
-            postBasket();
-        }
-
-        function postBasket() {
-            postAjax("UpdateBasket", basket, function (result) {
-                basket = result.basket;
-                $('#basketTotal').html('$ ' + parseFloat(basket.total).toFixed(2));
-            });
-
-            let itemsCount = basket.items.length;
-            let itemsLabel = itemsCount + ' item' + (itemsCount > 1 || itemsCount == 0 ? 's' : '');
-
-            $('.basketItemsQuantity').html(itemsLabel);
-            $('.basketItemsNavQuantity').html(itemsCount);
-
-            if (itemsCount == 0) {
-                $('<p>Your basket is empty.</p>').insertAfter('.basketBodySpacer');
-            }
-        }
+        var basket = @Html.Raw(Json.Serialize(Model.Basket));
     </script>
-}
 
-@section Styles {
-    <style type="text/css">
-        /* Chrome, Safari, Edge, Opera */
-        input::-webkit-outer-spin-button,
-        input::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-
-        /* Firefox */
-        input[type=number] {
-            -moz-appearance: textfield;
-        }
-    </style>
+    <script src="/shared/js/basket.min.js"></script>
 }

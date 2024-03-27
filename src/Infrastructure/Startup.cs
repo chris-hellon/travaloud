@@ -19,6 +19,7 @@ using Travaloud.Infrastructure.Multitenancy;
 using Travaloud.Infrastructure.Persistence;
 using Travaloud.Infrastructure.Persistence.Context;
 using Travaloud.Infrastructure.Persistence.Initialization;
+using Travaloud.Infrastructure.Stripe;
 
 namespace Travaloud.Infrastructure;
 
@@ -40,10 +41,9 @@ public static class Startup
             .AddPersistence(config)
             .AddRequestLogging(config)
             .AddHttpContextAccessor()
+            .AddStripe(config)
             .AddRouting(options => options.LowercaseUrls = true)
             .AddCloudbedsHttpClient(config);
-        
-        //.AddAzureSignalR(config);
 
         if (isBlazor)
         {
@@ -77,7 +77,6 @@ public static class Startup
             .UseHttpsRedirection()
             .UseLocalization(config)
             .UseStaticFiles()
-            //.UseFileStorage(env)
             .UseExceptionMiddleware()
             .UseRouting()
             .UseAntiforgery()

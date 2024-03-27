@@ -1,0 +1,51 @@
+@page "/payment-confirmation/{bookingId?}"
+@model Travaloud.Tenants.SharedRCL.Pages.PaymentConfirmation.IndexModel
+
+<section id="getInTouch" class="bg-light overflow-hidden position-relative">
+    <div class="container-fluid">
+        <div class="container pt-8 pb-8">
+            <div class="row d-flex justify-content-center">
+                <div class="col-lg-8 has-parallax-scroll">
+                    <h1 class="display-3 mb-4 text-center">Order Confirmation</h1>
+                    <p class="mb-0 text-center">Congratulations! Your booking with Fuse Hostels & Travel is confirmed and your payment has been successfully processed. Get ready for an unforgettable backpacking adventure!</p>
+                    <div class="card mt-5">
+                        <div class="card-body p-5">
+                            <div class="d-flex justify-content-center">
+                                <h4 class="tilted display-6">ORDER DETAILS</h4>
+                            </div>
+                            <div class="d-flex justify-content-between mt-5 border-bottom pb-3 mb-4">
+                                <div>
+                                    <h6>Order Reference</h6>
+                                    @if (Model.BookingId.HasValue)
+                                    {
+                                        <p>@Model.BookingId</p>   
+                                    }
+                                </div>
+                                <div>
+                                    <h6>Date of Order</h6>
+                                    @if (Model.BookingDate.HasValue)
+                                    {
+                                        <p>@Model.BookingDate.Value.ToLongDateString()</p>
+                                    }
+                                </div>
+                            </div>
+
+                            @if (Model.Basket != null && Model.Basket.Items.Any())
+                            {
+                                foreach (var item in Model.Basket.Items)
+                                {
+                                    item.HideRemoveButton = true;
+                                    @Html.DisplayFor(x => item)
+                                }
+                            }
+                            else
+                            {
+                                <p>Your basket is empty.</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

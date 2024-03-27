@@ -1,5 +1,4 @@
-﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
-@model Travaloud.Tenants.SharedRCL.Models.WebComponents.BookNowComponent
+﻿@model Travaloud.Tenants.SharedRCL.Models.WebComponents.BookNowComponent
 
 @if (Model.PropertyId.HasValue && Model.PropertyId.Value == new Guid("E4DCD399-2CAE-4F7A-9041-0D7A27B52773"))
 {
@@ -26,7 +25,7 @@ else
             <div class="h-100" style="min-height:47px;">
                 @if (isTourBooking)
                 {
-                    <select asp-for="TourId" class="select h-100 bg-white" onchange="getTourDates(this);">
+                    <select asp-for="TourId" class="select h-100 bg-white" data-mdb-select-init onchange="getTourDates(this);">
                         <option value="" hidden selected="@(!Model.TourId.HasValue)"></option>
                         @if (Model.Tours != null)
                         {
@@ -40,7 +39,7 @@ else
                 }
                 else if (isPropertyBooking)
                 {
-                    <select asp-for="PropertyId" class="select h-100 bg-white">
+                    <select asp-for="PropertyId" class="select h-100 bg-white" data-mdb-select-init>
                         <option value="" hidden selected></option>
                         @if (Model.Properties != null)
                         {
@@ -63,7 +62,7 @@ else
         @if (isPropertyBooking)
         {
             <div class="col-lg-@(Model.IsModal ? "12" : "4") mb-3 mb-lg-@(Model.IsModal ? "3" : "0") position-relative">
-                <div class="form-outline h-100 w-100" style="min-height:47px;">
+                <div class="form-outline h-100 w-100" style="min-height:47px;" data-mdb-input-init>
                     <i class="fas fa-calendar-days trailing text-primary"></i>
                     <input asp-for="DateRange" placeholder="Check In / Out Date" readonly style="background-color:#fff !important;" type="text" class="check-in-out-date form-control cursor-pointer h-100"/>
                     <label asp-for="DateRange" class="form-label">Check In / Out</label>

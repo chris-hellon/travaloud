@@ -7,14 +7,38 @@ namespace Travaloud.Application.Catalog.Bookings.Commands;
 public class CreateBookingRequest : IRequest<DefaultIdType>
 {
     public string Description { get; set; } = default!;
-    public decimal TotalAmount { get; set; } = default!;
+    public decimal TotalAmount { get; set; } 
     public string CurrencyCode { get; set; } = default!;
-    public int ItemQuantity { get; set; } = default!;
-    public bool IsPaid { get; set; } = default!;
-    public DateTime BookingDate { get; set; } = default!;
+    public int ItemQuantity { get; set; }
+    public bool IsPaid { get; set; }
+    public DateTime BookingDate { get; set; }
     public string? GuestId { get; set; }
-    public int ConcurrencyVersion { get; set; } = default!;
+    public int ConcurrencyVersion { get; set; }
     public IList<CreateBookingItemRequest> Items { get; set; } = default!;
+
+    public CreateBookingRequest(string description, decimal totalAmount, string currencyCode, int itemQuantity, bool isPaid, DateTime bookingDate, string? guestId, int concurrencyVersion, IList<CreateBookingItemRequest> items)
+    {
+        Description = description;
+        TotalAmount = totalAmount;
+        CurrencyCode = currencyCode;
+        ItemQuantity = itemQuantity;
+        IsPaid = isPaid;
+        BookingDate = bookingDate;
+        GuestId = guestId;
+        ConcurrencyVersion = concurrencyVersion;
+        Items = items;
+    }
+    
+    public CreateBookingRequest(string description, decimal totalAmount, string currencyCode, int itemQuantity, bool isPaid, DateTime bookingDate, string? guestId)
+    {
+        Description = description;
+        TotalAmount = totalAmount;
+        CurrencyCode = currencyCode;
+        ItemQuantity = itemQuantity;
+        IsPaid = isPaid;
+        BookingDate = bookingDate;
+        GuestId = guestId;
+    }
 }
 
 public class CreateBookingRequestHandler : IRequestHandler<CreateBookingRequest, DefaultIdType>
@@ -42,7 +66,8 @@ public class CreateBookingRequestHandler : IRequestHandler<CreateBookingRequest,
             request.ItemQuantity,
             request.IsPaid,
             request.BookingDate,
-            request.GuestId);
+            request.GuestId, 
+            null);
 
         // Create booking items and associate them with the booking
         if (request.Items?.Any() == true)

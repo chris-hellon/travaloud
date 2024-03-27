@@ -1,12 +1,15 @@
-﻿@using Travaloud.Infrastructure.Common.Extensions
-@model CardWithBackgroundComponent
+﻿@model CardWithBackgroundComponent
 
 <div class="position-relative overflow-hidden h-100 @Model.CssClass @(Model.AnimationDelay.HasValue ? "has-parallax-scroll" : "")">
     <div class="card rounded-0 offcut-image-border h-100 card-full-background">
         <div class="position-absolute top-0 left-0 w-100 h-100">
             @{
-                var thumbnailImageSrc = Model.ImageSrc.FormatImageUrl(500, "fuse");
-                <img alt="@Model.Title background image" class="h-100" width="500" height="400" style="object-fit: cover; @(!string.IsNullOrEmpty(Model.BackgroundColor) ? "filter: grayscale(100%);" : "")" src="@(!string.IsNullOrEmpty(thumbnailImageSrc) ? thumbnailImageSrc : "https://images.unsplash.com/photo-1504699439244-a7e34870c35d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=3540&q=80")" />
+                if (!string.IsNullOrEmpty(Model.ImageSrc))
+                {
+                    
+                    var thumbnailImageSrc = Model.ImageSrc.FormatImageUrl(500, "fuse");
+                    <img alt="@Model.Title background image" class="h-100" width="500" height="400" style="object-fit: cover; @(!string.IsNullOrEmpty(Model.BackgroundColor) ? "filter: grayscale(100%);" : "")" src="@(!string.IsNullOrEmpty(thumbnailImageSrc) ? thumbnailImageSrc : "https://images.unsplash.com/photo-1504699439244-a7e34870c35d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=3540&q=80")" />
+                }
             }
         </div>
         @if (!string.IsNullOrEmpty(Model.BackgroundColor))
@@ -16,9 +19,9 @@
 
         @if (!string.IsNullOrEmpty(Model.BackgroundColor))
         {
-            <div class="card-body p-5 p-lg-7 d-flex flex-column">
+            <div class="card-body p-5 p-lg-6 d-flex flex-column">
                 <span class="card-title text-center mb-4 display-6 text-white pt-5">@Html.Raw(Model.Title)</span>
-                <div class="card-text text-white pb-5 text-center">@Html.Raw(Model.Body)</div>
+                <div class="card-text text-white text-center">@Html.Raw(Model.Body)</div>
             </div>
         }
 

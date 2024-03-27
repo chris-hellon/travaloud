@@ -18,6 +18,8 @@ public class Property : AuditableEntity, IAggregateRoot
     public string? PageTitle { get; private set; }
     public string? PageSubTitle { get; private set; }
     public string? CloudbedsKey { get; set; }
+    public string? CloudbedsApiKey { get; set; }
+    public string? CloudbedsPropertyId { get; set; }
     public string? MetaKeywords { get; private set; }
     public string? MetaDescription { get; private set; }
     public bool? PublishToSite { get; private set; }
@@ -40,7 +42,29 @@ public class Property : AuditableEntity, IAggregateRoot
 
     }
 
-    public Property(string name, string description, string? shortDescription, string? imagePath, string? thumbnailImagePath, string addressLine1, string? addressLine2, string telephoneNumber, string? googleMapsPlaceId, string? pageTitle, string? pageSubTitle, string? cloudbedsKey, string? metaKeywords, string? metaDescription, string? emailAddress, bool? publishToSite, string? urlSlug, string? h1, string? h2, string? videoPath, string? mobileVideoPath)
+    public Property(string name,
+        string description,
+        string? shortDescription,
+        string? imagePath,
+        string? thumbnailImagePath,
+        string addressLine1,
+        string? addressLine2,
+        string telephoneNumber,
+        string? googleMapsPlaceId,
+        string? pageTitle,
+        string? pageSubTitle,
+        string? cloudbedsKey,
+        string? metaKeywords,
+        string? metaDescription,
+        string? emailAddress,
+        bool? publishToSite,
+        string? urlSlug,
+        string? h1,
+        string? h2,
+        string? videoPath,
+        string? mobileVideoPath,
+        string? cloudbedsApiKey,
+        string? cloudbedsPropertyId)
     {
         Name = name;
         Description = description;
@@ -54,6 +78,8 @@ public class Property : AuditableEntity, IAggregateRoot
         PageTitle = pageTitle;
         PageSubTitle = pageSubTitle;
         CloudbedsKey = cloudbedsKey;
+        CloudbedsApiKey = cloudbedsApiKey;
+        CloudbedsPropertyId = cloudbedsPropertyId;
         MetaKeywords = metaKeywords;
         MetaDescription = metaDescription;
         EmailAddress = emailAddress;
@@ -65,7 +91,29 @@ public class Property : AuditableEntity, IAggregateRoot
         MobileVideoPath = mobileVideoPath;
     }
 
-    public Property Update(string? name, string? description, string? shortDescription, string? imagePath, string? thumbnailImagePath, string? addressLine1, string? addressLine2, string? telephoneNumber, string? googleMapsPlaceId, string? pageTitle, string? pageSubTitle, string? cloudbedsKey, string? metaKeywords, string? metaDescription, string? emailAddress, bool? publishToSite, string? urlSlug, string? h1, string? h2, string? videoPath, string? mobileVideoPath)
+    public Property Update(string? name,
+        string? description,
+        string? shortDescription,
+        string? imagePath,
+        string? thumbnailImagePath,
+        string? addressLine1,
+        string? addressLine2,
+        string? telephoneNumber,
+        string? googleMapsPlaceId,
+        string? pageTitle,
+        string? pageSubTitle,
+        string? cloudbedsKey,
+        string? metaKeywords,
+        string? metaDescription,
+        string? emailAddress,
+        bool? publishToSite,
+        string? urlSlug,
+        string? h1,
+        string? h2,
+        string? videoPath,
+        string? mobileVideoPath,
+        string? cloudbedsApiKey,
+        string? cloudbedsPropertyId)
     {
         if (name is not null && Name?.Equals(name) is not true) Name = name;
         if (description is not null && Description?.Equals(description) is not true) Description = description;
@@ -80,6 +128,8 @@ public class Property : AuditableEntity, IAggregateRoot
         if (pageTitle is not null && PageTitle?.Equals(pageTitle) is not true) PageTitle = pageTitle;
         if (pageSubTitle is not null && PageSubTitle?.Equals(pageSubTitle) is not true) PageSubTitle = pageSubTitle;
         if (cloudbedsKey is not null && CloudbedsKey?.Equals(cloudbedsKey) is not true) CloudbedsKey = cloudbedsKey;
+        if (cloudbedsApiKey is not null && CloudbedsApiKey?.Equals(cloudbedsApiKey) is not true) CloudbedsApiKey = cloudbedsApiKey;
+        if (cloudbedsPropertyId is not null && CloudbedsPropertyId?.Equals(cloudbedsPropertyId) is not true) CloudbedsPropertyId = cloudbedsPropertyId;
         if (metaKeywords is not null && MetaKeywords?.Equals(metaKeywords) is not true) MetaKeywords = metaKeywords;
         if (metaDescription is not null && MetaDescription?.Equals(metaDescription) is not true) MetaDescription = metaDescription;
         if (emailAddress is not null && EmailAddress?.Equals(emailAddress) is not true) EmailAddress = emailAddress;
@@ -93,6 +143,7 @@ public class Property : AuditableEntity, IAggregateRoot
 
         return this;
     }
+
 
     public Property ClearImagePath()
     {

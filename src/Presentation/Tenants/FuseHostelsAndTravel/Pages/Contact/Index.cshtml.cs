@@ -19,9 +19,8 @@ public class IndexModel : ContactPageModel
         return "Need to get in touch with Fuse Hostels and Travels? Contact us by email or phone and we'll get back to you as soon as possible.";
     }
 
-    public IEnumerable<OvalContainerComponent>? OvalContainers { get; private set; } = null;
-
-
+    public IEnumerable<OvalContainerComponent>? OvalContainers { get; private set; } 
+    
     public override async Task<IActionResult> OnGetAsync(string? tourName = null)
     {
         ViewData["Title"] = "Get In Touch";

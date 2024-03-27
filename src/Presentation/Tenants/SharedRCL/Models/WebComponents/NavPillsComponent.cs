@@ -30,14 +30,14 @@ public class NavPill
 
     }
 
-    public NavPill(string title, List<NavPillContent> content = null)
+    public NavPill(string title, List<NavPillContent>? content = null)
     {
         Title = title;
         FriendlyTitle = title.UrlFriendly();
         IdTitle = title.ConvertToCamelCase();
         Content = content;
     }
-    public NavPill(string title, decimal animationDelay, List<NavPillContent> content = null)
+    public NavPill(string title, decimal animationDelay, List<NavPillContent>? content = null)
     {
         Title = title;
         FriendlyTitle = title.UrlFriendly();
@@ -57,7 +57,7 @@ public class NavPillContent
 
     }
 
-    public NavPillContent(string body, string style = null)
+    public NavPillContent(string body, string? style = null)
     {
         Body = body;
         Style = style ?? "";

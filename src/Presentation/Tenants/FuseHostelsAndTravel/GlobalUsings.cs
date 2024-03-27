@@ -3,3 +3,4 @@ global using Travaloud.Tenants.SharedRCL.Models.WebComponents.FuseHostelsAndTrav
 global using Travaloud.Tenants.SharedRCL.Models.WebComponents;
 global using Travaloud.Tenants.SharedRCL.Utils;
 global using Travaloud.Application.Catalog.Interfaces;
+global using Microsoft.AspNetCore.Mvc.TagHelpers;

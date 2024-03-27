@@ -21,6 +21,8 @@ public class UpdatePropertyRequest : IRequest<DefaultIdType>
     public string? PageTitle { get; set; }
     public string? PageSubTitle { get; set; }
     public string? CloudbedsKey { get; set; }
+    public string? CloudbedsApiKey { get; set; }
+    public string? CloudbedsPropertyId { get; set; }
     public string? MetaKeywords { get; set; }
     public string? MetaDescription { get; set; }
     public bool DeleteCurrentImage { get; set; }
@@ -28,14 +30,11 @@ public class UpdatePropertyRequest : IRequest<DefaultIdType>
     public bool DeleteCurrentMobileVideo { get; set; }
     public bool? PublishToSite { get; set; }
 
-    [Display(Name = "Url Slug")]
-    public string? UrlSlug { get; set; }
+    [Display(Name = "Url Slug")] public string? UrlSlug { get; set; }
 
-    [Display(Name = "H1 Tag")]
-    public string? H1 { get; set; }
+    [Display(Name = "H1 Tag")] public string? H1 { get; set; }
 
-    [Display(Name = "H2 Tag")]
-    public string? H2 { get; set; }
+    [Display(Name = "H2 Tag")] public string? H2 { get; set; }
 
     public FileUploadRequest? Image { get; set; }
     public FileUploadRequest? Video { get; set; }
@@ -55,7 +54,7 @@ public class UpdatePropertyRequestHandler : IRequestHandler<UpdatePropertyReques
     private readonly IStringLocalizer<UpdatePropertyRequestHandler> _localizer;
     private readonly IFileStorageService _file;
     private readonly ICurrentUser _currentUser;
-    
+
     public UpdatePropertyRequestHandler(IRepositoryFactory<Property> repository,
         IStringLocalizer<UpdatePropertyRequestHandler> localizer,
         IFileStorageService file, IRepositoryFactory<Page> pageRepository, ICurrentUser currentUser)
@@ -73,8 +72,9 @@ public class UpdatePropertyRequestHandler : IRequestHandler<UpdatePropertyReques
 
         _ = property ?? throw new NotFoundException(string.Format(_localizer["property.notfound"], request.Id));
 
-        var page = await _pageRepository.SingleOrDefaultAsync(new PageByTitleSpec($"Hostels - {property.Name}"), cancellationToken);
-        
+        var page = await _pageRepository.SingleOrDefaultAsync(new PageByTitleSpec($"Hostels - {property.Name}"),
+            cancellationToken);
+
         // Remove old image if flag is set
         if (request.DeleteCurrentImage)
         {
@@ -124,13 +124,35 @@ public class UpdatePropertyRequestHandler : IRequestHandler<UpdatePropertyReques
             ? await _file.UploadAsync<Property>(request.MobileVideo, FileType.Video, cancellationToken)
             : null;
 
-        var updatedProperty = property.Update(request.Name, request.Description, request.ShortDescription, propertyImagePath, propertyImagePath, request.AddressLine1, request.AddressLine2, request.TelephoneNumber, request.GoogleMapsPlaceId, request.PageTitle, request.PageSubTitle, request.CloudbedsKey, request.MetaKeywords, request.MetaDescription, request.EmailAddress, request.PublishToSite, request.UrlSlug, request.H1, request.H2, propertyVideoPath, propertyMobileVideoPath);
+        var updatedProperty = property.Update(request.Name,
+            request.Description,
+            request.ShortDescription,
+            propertyImagePath,
+            propertyImagePath,
+            request.AddressLine1,
+            request.AddressLine2,
+            request.TelephoneNumber,
+            request.GoogleMapsPlaceId,
+            request.PageTitle,
+            request.PageSubTitle,
+            request.CloudbedsKey,
+            request.MetaKeywords,
+            request.MetaDescription,
+            request.EmailAddress,
+            request.PublishToSite,
+            request.UrlSlug,
+            request.H1,
+            request.H2,
+            propertyVideoPath,
+            propertyMobileVideoPath,
+            request.CloudbedsApiKey,
+            request.CloudbedsPropertyId);
 
         var userId = _currentUser.GetUserId();
-        
+
         updatedProperty.ProcessDirections(request.Directions, userId);
         updatedProperty.ProcessFacilities(request.Facilities, userId);
-        
+
         if (request.PropertyDestinationLookups != null)
             updatedProperty.ProcessDestinations(request.PropertyDestinationLookups, userId);
 
@@ -142,25 +164,26 @@ public class UpdatePropertyRequestHandler : IRequestHandler<UpdatePropertyReques
         property.DomainEvents.Add(EntityUpdatedEvent.WithEntity(property));
 
         await _repository.UpdateAsync(updatedProperty, cancellationToken);
-        
+
         if (page != null)
         {
-            var updatedPage = page.Update($"Hostels - {request.Name}", request.MetaKeywords, request.MetaDescription, propertyImagePath);
-            
-            page.DomainEvents.Add(EntityUpdatedEvent.WithEntity(page));
-            
-            await _pageRepository.UpdateAsync(updatedPage, cancellationToken);
+            var updatedPage = page.Update($"Hostels - {request.Name}", request.MetaKeywords, request.MetaDescription,
+                propertyImagePath);
 
+            page.DomainEvents.Add(EntityUpdatedEvent.WithEntity(page));
+
+            await _pageRepository.UpdateAsync(updatedPage, cancellationToken);
         }
         else
         {
-            page = new Page($"Hostels - {request.Name}", request.MetaKeywords, request.MetaDescription, propertyImagePath);
-        
+            page = new Page($"Hostels - {request.Name}", request.MetaKeywords, request.MetaDescription,
+                propertyImagePath);
+
             page.DomainEvents.Add(EntityCreatedEvent.WithEntity(page));
-        
+
             await _pageRepository.AddAsync(page, cancellationToken);
         }
-        
+
         return request.Id;
     }
 }

@@ -3,7 +3,6 @@ using System.Text;
 using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.WebUtilities;
 using Travaloud.Application.Common.Mailing;
-using Travaloud.Infrastructure.Identity;
 
 namespace Travaloud.Tenants.SharedRCL.Areas.Identity.Pages.Account.Manage;
 

@@ -35,7 +35,7 @@ public class IndexModel : TravaloudBasePageModel
     
     [BindProperty] public TravelGuideDto? RelatedTravelGuide { get; private set; }
     
-    [BindProperty] public string UserName { get; private set; }
+    [BindProperty] public string? UserName { get; private set; }
 
     public async Task<IActionResult> OnGetAsync(string title)
     {

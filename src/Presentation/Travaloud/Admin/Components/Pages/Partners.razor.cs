@@ -18,7 +18,6 @@ namespace Travaloud.Admin.Components.Pages;
 public partial class Partners
 {
     [Inject] protected IPartnersService PartnersService { get; set; } = default!;
-    [Inject] protected ICloudbedsService CloudbedsService { get; set; } = default!;
 
     private EntityServerTableContext<PartnerDto, Guid, UpdatePartnerRequest> Context { get; set; } = default!;
 
@@ -36,14 +35,6 @@ public partial class Partners
 
     protected override void OnInitialized()
     {
-        var propertyRequest = CloudbedsService.GetPropertyAvailability(new GetPropertyAvailabilityRequest()
-        {
-            PropertyId = "234044",
-            PropertyApiKey = "cbat_el2amXH9ZVOYo0OpaIUX40gRFzAhnNaI",
-            StartDate = "2024-02-22",
-            EndDate = "2024-02-24"
-        }).Result;
-        
         Context = new EntityServerTableContext<PartnerDto, Guid, UpdatePartnerRequest>(
             entityName: L["Partner"],
             entityNamePlural: L["Partners"],

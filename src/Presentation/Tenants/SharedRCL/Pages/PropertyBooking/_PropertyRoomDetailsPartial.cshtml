@@ -1,0 +1,92 @@
+@model Travaloud.Application.Cloudbeds.Dto.PropertyRoomDto
+
+@{
+    var idFriendlyName = Model.RoomTypeName.ConvertToCamelCase();
+    var tabsId = $"{idFriendlyName}Tabs";
+    var contentId = $"{idFriendlyName}Content";
+    var descriptionId = $"description{idFriendlyName}";
+    var amenitiesId = $"amenities{idFriendlyName}";
+    var ratesId = $"rates{idFriendlyName}";
+}
+
+<div class="collapse mt-3" id="@($"roomDetails{Model.RoomTypeId}")">
+    <div class="row border-bottom mb-4 pb-4 d-flex align-items-center">
+        <div class="col-lg-12 nav-pills-container">
+            <ul class="nav nav-tabs mb-3" id="@tabsId" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <a
+                        class="nav-link active"
+                        id="@($"{descriptionId}Tab")"
+                        data-mdb-tab-init
+                        href="@($"#{@descriptionId}Tabs")"
+                        role="tab"
+                        aria-controls="@($"{descriptionId}Tabs")"
+                        aria-selected="true">
+                        Description
+                    </a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a
+                        class="nav-link"
+                        id="@($"{amenitiesId}Tab")"
+                        data-mdb-tab-init
+                        href="@($"#{@amenitiesId}Tabs")"
+                        role="tab"
+                        aria-controls="@($"{amenitiesId}Tabs")"
+                        aria-selected="true">
+                        Amenities
+                    </a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a
+                        class="nav-link"
+                        id="@($"{ratesId}Tab")"
+                        data-mdb-tab-init
+                        href="@($"#{@ratesId}Tabs")"
+                        role="tab"
+                        aria-controls="@($"{ratesId}Tabs")"
+                        aria-selected="true">
+                        Rates
+                    </a>
+                </li>
+            </ul>
+            <div class="tab-content" id="@contentId">
+                <div
+                    class="tab-pane fade show active"
+                    id="@($"{descriptionId}Tabs")"
+                    role="tabpanel"
+                    aria-labelledby="@($"{descriptionId}Tab")">
+                    <small>@Html.Raw(Model.RoomTypeDescription)</small>
+                </div>
+                <div
+                    class="tab-pane fade"
+                    id="@($"{amenitiesId}Tabs")"
+                    role="tabpanel"
+                    aria-labelledby="@($"{amenitiesId}Tab")">
+                    <div class="row justify-content-lg-between">
+                        @foreach (var feature in Model.RoomTypeFeatures)
+                        {
+                            <small class="mb-0 mb-lg-2">
+                                <i class="fa-solid fa-check me-2 text-mustard"></i> @feature
+                            </small>
+                        }
+                    </div>
+                </div>
+                <div
+                    class="tab-pane fade"
+                    id="@($"{ratesId}Tabs")"
+                    role="tabpanel"
+                    aria-labelledby="@($"{ratesId}Tab")">
+                    @foreach (var roomRate in Model.DetailedRoomRates)
+                    {
+                        <div class="row">
+                            <small class="mb-0 mb-lg-2">
+                                <i class="fa-solid fa-money-check-dollar me-2 text-primary"></i> @roomRate.Date.ToShortDateString() : @($"{Model.CurrencySymbol}{roomRate.Rate:F2}")
+                            </small>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,79 @@
+.daterangepicker {
+  position: fixed !important;
+  color: unset !important;
+  background-color: var(--mdb-datepicker-modal-container-background-color) !important;
+  border-radius: var(--mdb-datepicker-modal-container-border-radius) !important;
+  padding: 20px !important;
+  margin-top: unset !important;
+  top: 50% !important;
+  left: 50% !important;
+  width: 600px !important;
+  height: auto !important;
+  display: block !important;
+  max-width: 80% !important;
+
+  td, th {
+    padding: 5px !important;
+  }
+
+  .cancelBtn {
+    padding-top: .375rem !important;
+    margin-left: 10px !important;
+  }
+
+  .drp-calendar.left {
+    float: left !important;
+    width: 47%;
+  }
+
+  .calendar-table {
+    border: unset !important;
+    padding: 0px !important;
+  }
+
+  .openscenter:before, .openscenter:after {
+    display: none !important;
+  }
+
+  .drp-calendar.right {
+    width: 47%;
+    float: right !important;
+  }
+
+  .drp-buttons {
+    display: none !important;
+  }
+
+  @media (max-width: 991px) {
+    .drp-calendar.right, .drp-calendar.left {
+      float: unset !important;
+      width: 100% !important;
+    }
+
+    padding: 5px !important;
+
+    td, th {
+      padding: 0px !important;
+      font-size: 1.2rem;
+    }
+
+    #bookNowModalForm input[type="text"],
+    #bookNowForm input[type="text"],
+    #bookNowModalForm select,
+    #bookNowForm select {
+      font-size: 16px !important;
+      -webkit-appearance: none;
+    }
+  }
+
+  td.in-range {
+    background-color: var(--mdb-teritary) !important;
+    border-color: transparent;
+    color: #000;
+    border-radius: 0;
+  }
+
+  td.active, td.active:hover {
+    background-color: var(--mdb-primary) !important;
+  }
+}

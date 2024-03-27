@@ -1,0 +1,76 @@
+@model Travaloud.Application.Basket.Dto.BasketItemModel
+
+<div class="row mb-4 d-flex justify-content-between align-items-center basketItem" data-id="@Model.Id">
+    @if (!Model.IsConfirmationPage)
+    {
+        <div class="col-lg-2 mb-3 mb-lg-0 basketItemImage">
+            @if (Model.Rooms.Any())
+            {
+                <img src="@Model.PropertyImageUrl" class="img-fluid rounded-3" alt="@Model.PropertyName">
+            }
+        </div>   
+    }
+    <div class="col-lg-@(Model.IsConfirmationPage ? "7" : Model.HideRemoveButton ? "5" : "3") col-6">
+        @if (!Model.HideRemoveButton)
+        {
+            <a href="@Model.EditBookingHref">
+                <h6 class="text-primary cursor-pointer">
+                    <i class="fa-solid fa-pen-to-square"></i> @Model.PropertyName
+                </h6>
+            </a>
+        }
+        else
+        {
+            <h6 class="text-primary cursor-pointer">
+                @Model.PropertyName
+            </h6>
+        }
+        <h6 class="text-black mb-0">@Model.CheckInDateParsed.Value.ToShortDateString() - @Model.CheckOutDateParsed.Value.ToShortDateString()</h6>
+    </div>
+    <div class="col-lg-5 col-6 text-end">
+        <h6 class="text-muted">@($"{Model.Rooms.Count} Room{(Model.Rooms.Count > 1 ? "s" : "")} Selected")</h6>
+        <h6
+            class="text-primary fw-bold itemToggleButton mb-0"
+            type="button"
+            data-mdb-collapse-init
+            data-mdb-target="#@($"itemDetails{Model.Id}")"
+            aria-expanded="false"
+            aria-controls="@($"itemDetails{Model.Id}")">
+            <i class="fa-solid fa-circle-arrow-down"></i> Show Details
+        </h6>
+        @* <h6 class="text-muted">@Model.RoomTypeName</h6> *@
+        @* <h6 class="text-black mb-0">@($"{Model.RoomQuantity} {(Model.IsShared ? "Beds" : "Rooms")}")</h6> *@
+    </div>
+
+    @if (Model is {IsConfirmationPage: false, HideRemoveButton: false})
+    {
+        <div class="col-lg-2 col-12 text-lg-center text-start">
+            <span class="text-muted cursor-pointer d-none d-lg-block" onclick="removeItemFromBasket('@Model.Id');">
+                <i class="fas fa-times"></i>
+            </span>
+            <h6 class="text-danger cursor-pointer d-lg-none mt-3" onclick="removeItemFromBasket('@Model.Id');">
+                Remove
+            </h6>
+        </div>
+    }
+</div>
+
+<hr class="my-4 basketItemSpacer" data-id="@Model.Id"/>
+
+<div class="collapse mt-3 basketItemDetails" id="@($"itemDetails{Model.Id}")" data-id="@Model.Id">
+    @foreach (var room in Model.Rooms)
+    {
+        var roomQuantityLabel = $"{room.RoomQuantity} {(room.IsShared ? "Bed" : "Room")}{(room.RoomQuantity > 1 ? "s" : "")}";
+        
+        <div class="row mb-4 d-flex justify-content-between align-items-center">
+            <div class="col-lg-@(Model.IsConfirmationPage ? "9" : "10") col-6 text-lg-end">
+                <h6 class="text-muted">@room.RoomTypeName</h6>
+                <h6 class="text-black mb-0">@room.RoomQuantityLabel</h6>
+            </div>
+            <div class="col-lg-@(Model.IsConfirmationPage ? "3" : "2") col-6 text-lg-center text-end">
+                <h6 class="mb-0">$ @room.FormattedRate</h6>
+            </div>
+        </div>
+    }
+    <hr class="my-4"/>
+</div>

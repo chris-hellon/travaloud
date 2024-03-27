@@ -1,6 +1,4 @@
-@using Microsoft.AspNetCore.Mvc.TagHelpers
 @model Travaloud.Tenants.SharedRCL.Models.PageModels.TravaloudBasePageModel
-@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 
 <!DOCTYPE html>
 <html lang="en" class="no-scrollbar">
@@ -43,61 +41,53 @@
         var fontsCssUrl = Model.GetAzureBlobUrl("fonts.min.css", "css");
         var siteCssUrl = Model.GetAzureBlobUrl("site.min.css", "css");
 
-        <link rel="stylesheet" type="text/css" href="/css/daterangepicker.css"/>
+        <link rel="stylesheet" href="@loadCssUrl"/>
 
-        @if (Model.TenantId == "fuse")
-        {
-            <link rel="stylesheet" href="https://fusehostelsandtravel.azureedge.net/assets/load.min.css"/>
+        <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
+        <noscript>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+        </noscript>
+        
+        <link rel="stylesheet" href="/shared/css/theme.min.css"/>
+        <link rel="stylesheet" href="/css/theme.min.css"/>
 
-            <link rel="preload" href="https://fusehostelsandtravel.azureedge.net/assets/fonts.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-
-            <noscript>
-                <link rel="stylesheet" href="https://fusehostelsandtravel.azureedge.net/assets/fonts.min.css">
-            </noscript>
-
-            <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-            <noscript>
-                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-            </noscript>
-
-            <link rel="preload" href="https://fusehostelsandtravel.azureedge.net/assets/bundle.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-            <noscript>
-                <link rel="stylesheet" href="https://fusehostelsandtravel.azureedge.net/assets/bundle.css">
-            </noscript>
-
-            <link rel="stylesheet" type="text/css" href="/css/additionalcss.css"/>
-        }
-        else
-        {
-            <link rel="stylesheet" href="@loadCssUrl"/>
-
-            <link rel="preload" href="@fontsCssUrl" as="style" onload="this.onload=null;this.rel='stylesheet'">
-            <noscript>
-                <link rel="stylesheet" href="@fontsCssUrl">
-            </noscript>
-
-            <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-            <noscript>
-                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-            </noscript>
-
-            <link rel="preload" href="https://travaloud.azureedge.net/mdb/css/mdb.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-            <noscript>
-                <link rel="stylesheet" href="https://travaloud.azureedge.net/mdb/css/mdb.min.css">
-            </noscript>
-
-            <link rel="preload" href="https://travaloud.azureedge.net/assets/css/travaloud.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-            <noscript>
-                <link rel="stylesheet" href="https://travaloudcdn.azureedge.net/assets/css/travaloud.min.css">
-            </noscript>
-
-            <link rel="preload" href="@siteCssUrl" as="style" onload="this.onload=null;this.rel='stylesheet'">
-            <noscript>
-                <link rel="stylesheet" href="@siteCssUrl">
-            </noscript>
-
-            <partial name="_CssOverridesPartial" model="Model.TravaloudSettings?.Theme"/>
-        }
+        @* @if (Model.TenantId == "fuse") *@
+        @* { *@
+        @*     <environment include="Development"> *@
+        @*         <link rel="stylesheet" href="/shared/css/theme.min.css"/> *@
+        @*         <link rel="stylesheet" href="/css/theme.min.css"/> *@
+        @*     </environment> *@
+        @*     <environment exclude="Development"> *@
+        @*         <link rel="preload" href="https://fusehostelsandtravel.azureedge.net/assets/bundle.css" as="style" onload="this.onload=null;this.rel='stylesheet'"/> *@
+        @*         <noscript> *@
+        @*             <link rel="stylesheet" href="https://fusehostelsandtravel.azureedge.net/assets/bundle.css"/> *@
+        @*         </noscript> *@
+        @*     </environment> *@
+        @* } *@
+        @* else *@
+        @* { *@
+        @*     <link rel="preload" href="@fontsCssUrl" as="style" onload="this.onload=null;this.rel='stylesheet'"/> *@
+        @*     <noscript> *@
+        @*         <link rel="stylesheet" href="@fontsCssUrl"/> *@
+        @*     </noscript> *@
+        @* *@
+        @*     <link rel="preload" href="https://travaloud.azureedge.net/mdb/css/mdb.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'"/> *@
+        @*     <noscript> *@
+        @*         <link rel="stylesheet" href="https://travaloud.azureedge.net/mdb/css/mdb.min.css"/> *@
+        @*     </noscript> *@
+        @* *@
+        @*     <link rel="preload" href="https://travaloud.azureedge.net/assets/css/travaloud.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'"/> *@
+        @*     <noscript> *@
+        @*         <link rel="stylesheet" href="https://travaloudcdn.azureedge.net/assets/css/travaloud.min.css"/> *@
+        @*     </noscript> *@
+        @* *@
+        @*     <link rel="preload" href="@siteCssUrl" as="style" onload="this.onload=null;this.rel='stylesheet'"/> *@
+        @*     <noscript> *@
+        @*         <link rel="stylesheet" href="@siteCssUrl"/> *@
+        @*     </noscript> *@
+        @* *@
+        @*     <partial name="_CssOverridesPartial" model="Model.TravaloudSettings?.Theme"/> *@
+        @* } *@
 
         <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css"/>
 
@@ -172,7 +162,7 @@
 }
 
 @{
-    var httpContext = HttpContextAccessor.HttpContext;
+    var httpContext = Model.HttpContextAccessor.HttpContext;
 
     if (httpContext != null && !string.IsNullOrEmpty(Model.FacebookPageId))
     {
@@ -217,7 +207,7 @@
     </div>
 </div>
 
-<partial name="_NavigationPartial" model="Model" />
+<partial name="_NavigationPartial" model="Model"/>
 
 <main role="main" class="container-fluid p-0 m-0">
     @Html.AntiForgeryToken()
@@ -230,7 +220,7 @@
 @Html.DisplayFor(x => x.RegisterModal)
 <partial name="_BookNowModalPartial" model="new BookNowComponent(Model.Properties) {IsModal = true}"/>
 
-<div class="alert fade mt-3" id="feedbackAlert" data-mdb-position="top-center" data-mdb-hidden="true" data-mdb-width="35%" role="alert" data-mdb-color="danger">
+<div class="alert fade mt-3" id="feedbackAlert" data-mdb-alert-init data-mdb-position="top-center" data-mdb-hidden="true" data-mdb-width="35%" role="alert" data-mdb-color="danger">
     <span class="small" id="feedbackAlertMessage"></span>
     <button type="button" class="btn-close position-absolute" aria-label="Close"></button>
 </div>
@@ -268,38 +258,95 @@
 
 <div class="daterangepickeroverlay datepicker-backdrop d-none"></div>
 
-@if (Model.StatusMessage != null)
-{
-    <div class="alert alert-dismissible fade show small" role="alert" data-mdb-color="@Model.StatusSeverity" data-mdb-position="bottom-right" data-mdb-append-to-body="true" data-mdb-hidden="false" data-mdb-autohide="true" data-mdb-delay="2500">
-        @Html.Raw(Model.StatusMessage)
-    </div>
+@{
+    var offset = 10;
 
-    TempData.Remove("StatusMessage");
-    Model.StatusMessage = null;
+    @if (!string.IsNullOrEmpty(Model.StatusMessage))
+    {
+        <div class="toast fade mx-auto show shadow-6"
+             id="basic-success-example"
+             role="alert"
+             aria-live="assertive"
+             aria-atomic="true"
+             data-mdb-toast-init
+             data-mdb-autohide="true"
+             data-mdb-delay="2000"
+             data-mdb-position="top-right"
+             data-mdb-append-to-body="true"
+             data-mdb-stacking="true"
+             data-mdb-width="350px" style="top:@(offset)px;">
+            <div class="toast-header bg-primary text-white">
+                <i class="fas fa-circle-@(Model.StatusSeverity == "danger" ? "exclamation" : "check") fa-lg me-2 text-white"></i>
+                <strong class="me-auto">@(Model.StatusSeverity == "danger" ? "Error" : "Success")</strong>
+                <a role="button" class="text-white" data-mdb-dismiss="toast" aria-label="Close">
+                    <i class="fas fa-xmark"></i>
+                </a>
+            </div>
+            <div class="toast-body">@Html.Raw(Model.StatusMessage)</div>
+        </div>
+        Model.StatusMessage = null;
+    }
+
+    @if (ViewData.ModelState.Values.Any())
+    {
+        foreach (var error in ViewData.ModelState.Values.SelectMany(modeleState => modeleState.Errors))
+        {
+            <div class="toast fade mx-auto show shadow-6"
+                 id="basic-danger-example"
+                 role="alert"
+                 aria-live="assertive"
+                 aria-atomic="true"
+                 data-mdb-toast-init
+                 data-mdb-autohide="true"
+                 data-mdb-delay="2000"
+                 data-mdb-position="top-right"
+                 data-mdb-append-to-body="true"
+                 data-mdb-stacking="true"
+                 data-mdb-width="350px">
+                <div class="toast-header bg-dark text-white">
+                    <i class="fas fa-exclamation-circle fa-lg me-2 text-danger"></i>
+                    <strong class="me-auto">Error</strong>
+                    <a role="button" class="text-white" data-mdb-dismiss="toast" aria-label="Close">
+                        <i class="fas fa-xmark"></i>
+                    </a>
+                </div>
+                <div class="toast-body">@error.ErrorMessage</div>
+            </div>
+
+            offset += 130;
+        }
+    }
 }
 
-@if (Model.TenantId == "fuse")
-{
-    <script type="text/javascript" src="https://fusehostelsandtravel.azureedge.net/assets/bundle.min.js"></script>
-}
-else
-{
-    <script type="text/javascript">
-        const $cookieName = "@(Model.TenantName.ToLower().Replace(" ", "-"))";
-        </script>
+<script src="/shared/js/theme.min.js"></script>
+<partial name="_ValidationScriptsPartial"/>
+<script src="/js/theme.min.js"></script>
 
-    <script type="text/javascript" src="https://travaloud.azureedge.net/mdb/js/mdb.min.js"></script>
-    <script type="text/javascript" src="https://travaloud.azureedge.net/assets/js/travaloud.min.js"></script>
+@* @if (Model.TenantId == "fuse") *@
+@* { *@
+@*     <environment include="Development"> *@
+@*         <script src="/shared/js/theme.min.js"></script> *@
+@*                 <partial name="_ValidationScriptsPartial"/> *@
+@*         <script src="/js/theme.min.js"></script> *@
+@*     </environment> *@
+@*     <environment exclude="Development"> *@
+@*         <script type="text/javascript" src="https://fusehostelsandtravel.azureedge.net/assets/bundle.min.js"></script> *@
+@*     </environment> *@
+@* } *@
+@* else *@
+@* { *@
+@*     <script type="text/javascript"> *@
+@*         const $cookieName = "@(Model.TenantName.ToLower().Replace(" ", "-"))"; *@
+@*         </script> *@
+@* *@
+@*     <script type="text/javascript" src="https://travaloud.azureedge.net/mdb/js/mdb.min.js"></script> *@
+@*     <script type="text/javascript" src="https://travaloud.azureedge.net/assets/js/travaloud.min.js"></script> *@
+@* *@
+@*     <script type="text/javascript">$(window).on("load", function () { *@
+@*                 $('.select-input.active, .form-control.active').trigger('focus'); *@
+@*             });</script> *@
+@* } *@
 
-    <script type="text/javascript">$(window).on("load", function () {
-                $('.select-input.active, .form-control.active').trigger('focus');
-            });</script>
-}
-
-<script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
-<script type="text/javascript" src="/js/daterangepicker.js"></script>
-<script type="text/javascript" src="/js/daterangepickeraddition.js"></script>
-<script type="text/javascript" src="/js/videoplayer.js"></script>
 
 @await RenderSectionAsync("Scripts", required: false)
 </body>

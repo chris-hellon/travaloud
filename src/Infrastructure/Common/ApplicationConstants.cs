@@ -23,6 +23,6 @@ public static class ApplicationConstants
     public static readonly string StandardVideoFormat = "video/mp4";
     public static readonly int MaxImageWidth = 1500;
     public static readonly int MaxImageHeight = 1500;
-    public static readonly long MaxAllowedImageSize = 1000000; // Allows Max File Size of 1 Mb.
+    public static readonly long MaxAllowedImageSize = 2000000; // Allows Max File Size of 2 Mb.
     public static readonly long MaxAllowedVideoSize = 10000000;
 }

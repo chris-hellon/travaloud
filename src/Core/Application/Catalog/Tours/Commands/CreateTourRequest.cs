@@ -66,6 +66,7 @@ public class CreateTourRequest : IRequest<DefaultIdType>
     public IList<TourCategoryLookupRequest>? TourCategoryLookups { get; set; }
     public IList<TourCategoryRequest>? TourCategories { get; set; }
     public IList<TourCategoryRequest>? ParentTourCategories { get; set; }
+    public IEnumerable<TourDestinationLookupRequest>? TourDestinationLookups { get; set; }
     public IList<TourImageRequest>? Images { get; set; }
 
     public bool? PublishToSite { get; set; }
@@ -98,6 +99,7 @@ public class CreateTourRequestHandler : IRequestHandler<CreateTourRequest, Defau
         
         tour.ProcessTourPricesAndDates(request.TourPrices, request.TourDates, request.MaxCapacity ?? 99999, tour.MaxCapacity, userId);
         tour.ProcessTourCategories(request.TourCategoryId, request.SelectedParentTourCategories, request.TourCategoryLookups, userId);
+        tour.ProcessTourDestinations(request.TourDestinationLookups, userId);
         
         await tour.ProcessTourItineraries(request.TourItineraries, userId, _file, cancellationToken);
         await tour.ProcessImages(request.Images, userId, _file, cancellationToken);

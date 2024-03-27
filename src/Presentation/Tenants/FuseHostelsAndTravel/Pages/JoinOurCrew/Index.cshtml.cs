@@ -26,17 +26,17 @@ public class IndexModel : JoinOurCrewPageModel
             "Join the Fuse Hostels & Travel crew and become a part of our team. We offer exciting job opportunities in the hospitality and travel industry in Vietnam.";
     }
 
-    [BindProperty] public HeaderBannerComponent HeaderBanner { get; private set; }
+    [BindProperty] public HeaderBannerComponent? HeaderBanner { get; private set; }
 
-    [BindProperty] public List<NavPill> NavPills { get; private set; }
+    [BindProperty] public List<NavPill>? NavPills { get; private set; }
 
     [BindProperty] public IEnumerable<JobVacancyDto>? JobVacancies { get; set; }
 
     [BindProperty] public JobVacancyDto? JobVacancy { get; set; }
 
-    [BindProperty] public ContainerHalfImageRoundedTextComponent IntroductionBanner { get; private set; }
+    [BindProperty] public ContainerHalfImageRoundedTextComponent? IntroductionBanner { get; private set; }
 
-    [BindProperty] public List<CardComponent> JobVacanciesCards { get; private set; }
+    [BindProperty] public List<CardComponent>? JobVacanciesCards { get; private set; }
 
     public override async Task<IActionResult> OnGetAsync(string? tourName = null)
     {

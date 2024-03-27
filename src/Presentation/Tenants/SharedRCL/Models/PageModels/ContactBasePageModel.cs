@@ -1,5 +1,4 @@
 ﻿using AspNetCore.ReCaptcha;
-using Microsoft.AspNetCore.Http.Extensions;
 using Travaloud.Application.Common.Mailing;
 
 namespace Travaloud.Tenants.SharedRCL.Models.PageModels;
@@ -61,6 +60,7 @@ public abstract class ContactBasePageModel<T, T2> : TravaloudBasePageModel
             ModelState.Remove("EstimatedDates");
             ModelState.Remove("DestinationsVisited");
             ModelState.Remove("HowCanWeCollaborate");
+            ModelState.Remove("DateRange");
         }
 
         if (!ModelState.IsValid)

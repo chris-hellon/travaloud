@@ -6,20 +6,20 @@
     <div class="row">
         <div class="col-lg-12">
             <!-- Email input -->
-            <div class="form-outline mb-4">
+            <div class="form-outline mb-4" data-mdb-input-init>
                 <input asp-for="Username" class="form-control" readonly />
                 <label asp-for="Username" class="form-label"></label>
             </div>
         </div>
         <div class="col-lg-6">
-            <div class="form-outline mb-4">
+            <div class="form-outline mb-4" data-mdb-input-init>
                 <input asp-for="FirstName" class="form-control" />
                 <label asp-for="FirstName" class="form-label"></label>
             </div>
             <span asp-validation-for="FirstName" class="travaloud-validation"></span>
         </div>
         <div class="col-lg-6">
-            <div class="form-outline mb-4">
+            <div class="form-outline mb-4" data-mdb-input-init>
                 <input asp-for="Surname" class="form-control" />
                 <label asp-for="Surname" class="form-label"></label>
             </div>
@@ -30,7 +30,7 @@
     <div class="row">
         <div class="col-lg-6">
             <!-- Date of birth input -->
-            <div class="form-outline datepicker-disable-future mb-4" data-mdb-toggle-button="false">
+            <div class="form-outline datepicker-disable-future mb-4" data-mdb-input-init data-mdb-toggle-button="false">
                 <input asp-for="DateOfBirth" asp-format="{0:dd/MM/yyyy}" type="text" class="form-control" data-mdb-toggle="datepicker" />
                 <label asp-for="DateOfBirth" class="form-label"></label>
             </div>
@@ -38,7 +38,7 @@
         </div>
         <div class="col-lg-6">
             <!-- Phone number input -->
-            <div class="form-outline mb-4">
+            <div class="form-outline mb-4" data-mdb-input-init>
                 <input asp-for="PhoneNumber" class="form-control" />
                 <label asp-for="PhoneNumber" class="form-label"></label>
             </div>
@@ -50,7 +50,7 @@
         <div class="col-lg-6 mb-4 mb-lg-0">
             <!-- Gender input -->
             <div class="md-form m-0 position-relative">
-                <select asp-for="Gender" class="select" multiple>
+                <select asp-for="Gender" class="select" data-mdb-select-init multiple>
                     <option value="Male">Male</option>
                     <option value="Female">Female</option>
                     <option value="Transgender">Transgender</option>
@@ -66,7 +66,7 @@
         <div class="col-lg-6">
             <!-- Nationality input -->
             <div class="position-relative mb-4">
-                <select asp-for="Nationality" class="select" data-mdb-filter="true" data-mdb-container="#account">
+                <select asp-for="Nationality" class="select" data-mdb-select-init data-mdb-filter="true" data-mdb-container="#account">
                     <option value="" hidden selected></option>
                     <option value="Afghanistan">Afghanistan</option>
                     <option value="Albania">Albania</option>
@@ -316,7 +316,7 @@
 
     <div class="row">
         <div class="col-lg-6">
-            <div class="form-outline mb-4">
+            <div class="form-outline mb-4" data-mdb-input-init>
                 <input asp-for="PassportNumber" class="form-control" />
                 <label asp-for="PassportNumber" class="form-label"></label>
             </div>
@@ -324,7 +324,7 @@
         <div class="col-lg-6">
             <!-- Nationality input -->
             <div class="position-relative mb-4">
-                <select asp-for="PassportIssuingCountry" class="select" data-mdb-filter="true" data-mdb-container="#account">
+                <select asp-for="PassportIssuingCountry" class="select" data-mdb-select-init data-mdb-filter="true" data-mdb-container="#account">
                     <option value="" hidden selected></option>
                     <option value="AF">Afghanistan</option>
                     <option value="AX">Åland Islands</option>
@@ -586,14 +586,14 @@
     <div class="row">
         <div class="col-lg-6">
             <!-- Date of birth input -->
-            <div class="form-outline datepicker-disable-future mb-4" data-mdb-toggle-button="false">
+            <div class="form-outline datepicker-disable-future mb-4" data-mdb-input-init data-mdb-toggle-button="false">
                 <input asp-for="PassportIssueDate" asp-format="{0:dd/MM/yyyy}" type="text" class="form-control" data-mdb-toggle="datepicker" />
                 <label asp-for="PassportIssueDate" class="form-label"></label>
             </div>
         </div>
         <div class="col-lg-6">
             <!-- Date of birth input -->
-            <div class="form-outline mb-4 datepicker" data-mdb-toggle-button="false">
+            <div class="form-outline mb-4 datepicker" data-mdb-input-init data-mdb-toggle-button="false">
                 <input asp-for="PassportExpiryDate" asp-format="{0:dd/MM/yyyy}" type="text" class="form-control" data-mdb-toggle="datepicker" />
                 <label asp-for="PassportExpiryDate" class="form-label"></label>
             </div>
@@ -603,14 +603,14 @@
     <div class="row">
         <div class="col-lg-6">
             <!-- Date of birth input -->
-            <div class="form-outline datepicker-disable-future mb-4" data-mdb-toggle-button="false">
+            <div class="form-outline datepicker-disable-future mb-4" data-mdb-input-init data-mdb-toggle-button="false">
                 <input asp-for="VisaIssueDate" asp-format="{0:dd/MM/yyyy}" type="text" class="form-control" data-mdb-toggle="datepicker" />
                 <label asp-for="VisaIssueDate" class="form-label"></label>
             </div>
         </div>
         <div class="col-lg-6">
             <!-- Date of birth input -->
-            <div class="form-outline mb-4 datepicker" data-mdb-toggle-button="false">
+            <div class="form-outline mb-4 datepicker" data-mdb-input-init data-mdb-toggle-button="false">
                 <input asp-for="VisaExpiryDate" asp-format="{0:dd/MM/yyyy}" type="text" class="form-control" data-mdb-toggle="datepicker" />
                 <label asp-for="VisaExpiryDate" class="form-label"></label>
             </div>

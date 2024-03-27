@@ -8,6 +8,7 @@ public class TourItinerarySectionImageRequest : IRequest<DefaultIdType>
     public string ThumbnailImagePath { get; set; } = default!;
     public bool IsCreate { get; set; }
     public FileUploadRequest? Image { get; set; }
+    public bool DeleteCurrentImage { get; set; }
     public string? ImageInBytes { get; set; }
     public string? ImageExtension { get; set; }
 }

@@ -1,19 +1,18 @@
 using System.ComponentModel.DataAnnotations;
-using Travaloud.Infrastructure.Identity;
 
 namespace Travaloud.Tenants.SharedRCL.Areas.Identity.Pages.Account.Manage;
 
 public class IndexModel : TravaloudBasePageModel
 {
     [BindProperty]
-    public InputModel Input { get; set; }
+    public InputModel? Input { get; set; }
     
     public class InputModel : RegisterModalComponent
     {
-        public string Username { get; set; }
+        public string? Username { get; set; }
 
         [Display(Name = "Passport Number")]
-        public string PassportNumber { get; set; }
+        public string? PassportNumber { get; set; }
 
         [Display(Name = "Passport Issue Date")]
         public DateTime? PassportIssueDate { get; set; }
@@ -22,7 +21,7 @@ public class IndexModel : TravaloudBasePageModel
         public DateTime? PassportExpiryDate { get; set; }
 
         [Display(Name = "Passport Issuing Country")]
-        public string PassportIssuingCountry { get; set; }
+        public string? PassportIssuingCountry { get; set; }
 
         [Display(Name = "Visa Issue Date")]
         public DateTime? VisaIssueDate { get; set; }

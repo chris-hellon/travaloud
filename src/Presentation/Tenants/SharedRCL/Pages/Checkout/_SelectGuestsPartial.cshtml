@@ -1,0 +1,24 @@
+@model IList<Travaloud.Application.Basket.Dto.BasketItemGuestModel>
+
+<h2 class="mb-3 display-5">SELECT GUEST</h2>
+
+@if (Model.Any())
+{
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">Guest Name</th>
+            <th scope="col"></th>
+        </tr>
+        </thead>
+        <tbody>
+            @foreach (var guest in Model)
+            {
+                <tr>
+                    <td>@($"{guest.FirstName} {guest.Surname}")</td>
+                    <td><button class="btn btn-primary btn-sm" onclick="addExistingGuestToBasketItem('@guest.ItemId', '@guest.Id'); return false;">Select</button></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

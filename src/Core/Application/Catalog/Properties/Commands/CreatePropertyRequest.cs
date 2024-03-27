@@ -18,6 +18,8 @@ public class CreatePropertyRequest : IRequest<DefaultIdType>
     public string? PageTitle { get; set; }
     public string? PageSubTitle { get; set; }
     public string? CloudbedsKey { get; set; }
+    public string? CloudbedsApiKey { get; set; }
+    public string? CloudbedsPropertyId { get; set; }
     public string? MetaKeywords { get; set; }
     public string? MetaDescription { get; set; }
     public bool? PublishToSite { get; private set; }
@@ -82,7 +84,9 @@ public class CreatePropertyRequestHandler : IRequestHandler<CreatePropertyReques
             request.H1,
             request.H2,
             videoPath,
-            mobileVideoPath);
+            mobileVideoPath,
+            request.CloudbedsApiKey,
+            request.CloudbedsPropertyId);
 
         var userId = _currentUser.GetUserId();
         

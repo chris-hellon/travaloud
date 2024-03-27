@@ -18,6 +18,8 @@ public class PropertyDetailsDto
     public string? PageTitle { get; set; }
     public string? PageSubTitle { get; set; }
     public string? CloudbedsKey { get; set; }
+    public string? CloudbedsApiKey { get; set; }
+    public string? CloudbedsPropertyId { get; set; }
     public string? MetaKeywords { get; set; }
     public string? MetaDescription { get; set; }
     public string FriendlyUrl => Name.UrlFriendly();

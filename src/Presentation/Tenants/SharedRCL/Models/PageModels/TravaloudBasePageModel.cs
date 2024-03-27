@@ -1,10 +1,10 @@
 using System.Security.Claims;
 using Finbuckle.MultiTenant;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Travaloud.Application.Basket;
+using Travaloud.Application.Basket.Dto;
+using Travaloud.Application.Basket.Queries;
 using Travaloud.Application.Catalog.Bookings.Commands;
 using Travaloud.Application.Catalog.Destinations.Dto;
 using Travaloud.Application.Catalog.Interfaces;
@@ -15,11 +15,11 @@ using Travaloud.Application.Catalog.Tours.Dto;
 using Travaloud.Application.Common.Interfaces;
 using Travaloud.Application.Common.Mailing;
 using Travaloud.Application.Identity.Users;
-using Travaloud.Infrastructure.Identity;
 using Travaloud.Infrastructure.Mailing;
 using Travaloud.Infrastructure.Multitenancy;
 using Travaloud.Infrastructure.Multitenancy.TenantWebsite;
 using Travaloud.Shared.Authorization;
+using Travaloud.Tenants.SharedRCL.Pages.Checkout;
 
 namespace Travaloud.Tenants.SharedRCL.Models.PageModels;
 
@@ -28,7 +28,7 @@ public class TravaloudBasePageModel : PageModel
     #region Injected Services
     
     private IHttpContextAccessor? _httpContextAccessor;
-    protected IHttpContextAccessor HttpContextAccessor => (_httpContextAccessor ??= HttpContext.RequestServices.GetService<IHttpContextAccessor>()) ?? throw new InvalidOperationException();
+    public IHttpContextAccessor HttpContextAccessor => (_httpContextAccessor ??= HttpContext.RequestServices.GetService<IHttpContextAccessor>()) ?? throw new InvalidOperationException();
 
     private ICurrentUser? _currentUser;
     protected ICurrentUser CurrentUser => (_currentUser ??= HttpContext.RequestServices.GetService<ICurrentUser>()) ?? throw new InvalidOperationException();
@@ -38,6 +38,9 @@ public class TravaloudBasePageModel : PageModel
 
     private IBookingsService? _bookingService;
     protected IBookingsService BookingService => (_bookingService ??= HttpContext.RequestServices.GetService<IBookingsService>()) ?? throw new InvalidOperationException();
+
+    private IBasketService? _basketService;
+    protected IBasketService BasketService => (_basketService ??= HttpContext.RequestServices.GetService<IBasketService>()) ?? throw new InvalidOperationException();
     
     private ITenantWebsiteService? _tenantWebsiteService;
     protected ITenantWebsiteService TenantWebsiteService => (_tenantWebsiteService ??= HttpContext.RequestServices.GetService<ITenantWebsiteService>()) ?? throw new InvalidOperationException();
@@ -473,15 +476,17 @@ public class TravaloudBasePageModel : PageModel
     public virtual async Task OnGetDataAsync()
     {
         var cancellationToken = new CancellationToken();
-        var propertiesTask = TenantWebsiteService.GetProperties(cancellationToken);
-        var toursTask = TenantWebsiteService.GetTours(cancellationToken);
-        var servicesTask = TenantWebsiteService.GetServices(cancellationToken);
-
-        await Task.WhenAll(propertiesTask, toursTask, servicesTask);
+        var propertiesTask = Task.Run(() => TenantWebsiteService.GetProperties(cancellationToken), cancellationToken);
+        var toursTask = Task.Run(() => TenantWebsiteService.GetTours(cancellationToken), cancellationToken);
+        var servicesTask = Task.Run(() => TenantWebsiteService.GetServices(cancellationToken), cancellationToken);
+        var destinationsTask = Task.Run(() => TenantWebsiteService.GetDestinations(cancellationToken), cancellationToken);
+        
+        await Task.WhenAll(propertiesTask, toursTask, servicesTask, destinationsTask);
 
         Properties = propertiesTask.Result;
         Tours = toursTask.Result;
         Services = servicesTask.Result;
+        Destinations = destinationsTask.Result;
         
         StatusSeverity ??= "success";
 
@@ -920,7 +925,6 @@ public class TravaloudBasePageModel : PageModel
 
     #endregion
 
-    //TODO: implement this
     #region Ajax Methods
     
     /// <summary>
@@ -1011,22 +1015,261 @@ public class TravaloudBasePageModel : PageModel
     }
     
     //TODO: implement basket
-    // /// <summary>
-    // /// Updates a basket in session
-    // /// </summary>
-    // /// <param name="basket"></param>
-    // /// <returns></returns>
-    // public JsonResult OnPostUpdateBasket([FromBody] BasketModel basket)
-    // {
-    //     basket.CalculateTotal();
-    //     HttpContext.Session.UpdateObjectInSession("tourBookingBasket", basket);
-    //
-    //     return new JsonResult(new
-    //     {
-    //         Success = true,
-    //         Basket = basket
-    //     });
-    // }
+    /// <summary>
+    /// Updates a basket in session
+    /// </summary>
+    /// <param name="basket"></param>
+    /// <returns></returns>
+    public JsonResult OnPostUpdateBasket([FromBody] BasketModel basket)
+    {
+        basket.CalculateTotal();
+        HttpContext.Session.UpdateObjectInSession("BookingBasket", basket);
+    
+        return new JsonResult(new
+        {
+            Success = true,
+            Basket = basket
+        });
+    }
+    
+    /// <summary>
+    /// Creates a Property Booking on success of a Cloudbeds booking
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    public async Task<IActionResult> OnPostAddRoomToBasket([FromBody] BasketItemRoomModel request)
+    {
+        try
+        {
+            var basket = await BasketService.AddItem(request, PropertyBookingUrl, UserId);
+            
+            return new JsonResult(new
+            {
+                Success = true,
+                Basket = basket.Item1,
+                Item = basket.Item2
+            });
+        }
+        catch (Exception)
+        {
+            // ignored
+        }
+    
+        return new JsonResult("fail");
+    }
+    
+    /// <summary>
+    /// Updates a basket in session
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    public async Task<JsonResult> OnPostRemoveItemFromBasket([FromBody] BasketItemModel request)
+    {
+        var basket = await BasketService.RemoveItem(request.Id);
+
+        return new JsonResult(new
+        {
+            Success = true,
+            Basket = basket
+        });
+    }
+    
+    /// <summary>
+    /// Add a Guest to a basket item.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    public async Task<IActionResult> OnPostAddGuestToBasketItem([FromBody] BasketItemGuestModel request)
+    {
+        try
+        {
+            var basket = await BasketService.AddGuest(request.ItemId, request);
+
+            return new JsonResult(new
+            {
+                Success = true,
+                Basket = basket.Item1,
+                Html = await RazorPartialToStringRenderer.RenderPartialToStringAsync("/Pages/Checkout/_AdditionalGuestsPartial.cshtml", basket.Item1)
+            });
+        }
+        catch (Exception ex)
+        {
+            // ignored
+            string message = ex.Message;
+        }
+    
+        return new JsonResult("fail");
+    }
+    
+    /// <summary>
+    /// Returns a fresh modal for adding a new guest.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    public async Task<IActionResult> OnPostGetAddNewGuestModal([FromBody] BasketItemGuestModel request)
+    {
+        try
+        {
+            return new JsonResult(new
+            {
+                Html = await RazorPartialToStringRenderer.RenderPartialToStringAsync("/Pages/Checkout/_AddNewGuestModalPartial.cshtml", new CheckoutGuestComponent())
+            });
+        }
+        catch (Exception)
+        {
+            // ignored
+        }
+    
+        return new JsonResult("fail");
+    }
+    
+    /// <summary>
+    /// Returns a list of guests within the basket.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    public async Task<IActionResult> OnPostGetSelectGuestModal([FromBody] GetBasketItemGuestsRequest request)
+    {
+        try
+        {
+            var guests = await BasketService.GetGuests(request);
+            
+            return new JsonResult(new
+            {
+                Html = await RazorPartialToStringRenderer.RenderPartialToStringAsync("/Pages/Checkout/_SelectGuestsPartial.cshtml", guests)
+            });
+        }
+        catch (Exception)
+        {
+            // ignored
+        }
+    
+        return new JsonResult("fail");
+    }
+
+    /// <summary>
+    /// Removes a Guest from a basket item.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    public async Task<IActionResult> OnPostRemoveGuestFromBasketItem([FromBody] BasketItemGuestRequest request)
+    {
+        try
+        {
+            var basket = await BasketService.RemoveGuestFromBasketItem(request.ItemId, request.Id);
+
+            return new JsonResult(new
+            {
+                Success = true,
+                Basket = basket.Item1,
+                Html = await RazorPartialToStringRenderer.RenderPartialToStringAsync("/Pages/Checkout/_AdditionalGuestsPartial.cshtml", basket.Item1)
+            });
+        }
+        catch (Exception)
+        {
+            // ignored
+        }
+    
+        return new JsonResult("fail");
+    }
+    
+    /// <summary>
+    /// Removes a Guest from a basket item.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    public async Task<IActionResult> OnPostAddExistingGuestToBasketItem([FromBody] AddGuestToBasketItemRequest request)
+    {
+        try
+        {
+            var basket = await BasketService.AddExistingGuestToBasketItem(request);
+
+            return new JsonResult(new
+            {
+                Success = true,
+                Basket = basket,
+                Html = await RazorPartialToStringRenderer.RenderPartialToStringAsync("/Pages/Checkout/_AdditionalGuestsPartial.cshtml", basket)
+            });
+        }
+        catch (Exception)
+        {
+            // ignored
+        }
+    
+        return new JsonResult("fail");
+    }
+    
+    // <summary>
+    /// Retrieves a Guest from a basket item.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    public async Task<IActionResult> OnPostEditBasketItemGuest([FromBody] BasketItemGuestRequest request)
+    {
+        try
+        {
+            var basket = await BasketService.GetBasket();
+            var basketItem = basket.Items.FirstOrDefault(x => x.Id == request.ItemId);
+
+            if (basketItem != null)
+            {
+                var guest = basketItem.Guests.FirstOrDefault(x => x.Id == request.Id);
+
+                if (guest != null)
+                {
+                    var model = new CheckoutGuestComponent(
+                        request.Id,
+                        request.ItemId,
+                        guest.FirstName,
+                        guest.Surname,
+                        guest.Email,
+                        guest.DateOfBirth,
+                        guest.PhoneNumber,
+                        guest.Nationality,
+                        guest.Gender
+                        );
+                    
+                    return new JsonResult(new
+                    {
+                        Html = await RazorPartialToStringRenderer.RenderPartialToStringAsync("/Pages/Checkout/_AddNewGuestModalPartial.cshtml", model)
+                    });
+                }
+            }
+        }
+        catch (Exception)
+        {
+            // ignored
+        }
+    
+        return new JsonResult("fail");
+    }
+    
+    /// <summary>
+    /// Updates a basket item guest.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    public async Task<IActionResult> OnPostUpdateBasketItemGuest([FromBody] BasketItemGuestModel request)
+    {
+        try
+        {
+            var basket = await BasketService.UpdateGuest(request.ItemId, request);
+
+            return new JsonResult(new
+            {
+                Success = true,
+                Basket = basket.Item1,
+                Html = await RazorPartialToStringRenderer.RenderPartialToStringAsync("/Pages/Checkout/_AdditionalGuestsPartial.cshtml", basket.Item1)
+            });
+        }
+        catch (Exception)
+        {
+            // ignored
+        }
+    
+        return new JsonResult("fail");
+    }
+    
     //
     // /// <summary>
     // /// Retreieves tour dates for a given tour
@@ -1051,16 +1294,14 @@ public class TravaloudBasePageModel : PageModel
     {
         try
         {
-            await BookingService.CreateAsync(new CreateBookingRequest()
-            {
-                Description = booking.Description,
-                TotalAmount = booking.TotalAmount,
-                CurrencyCode = booking.CurrencyCode,
-                ItemQuantity = booking.ItemQuantity,
-                IsPaid = booking.IsPaid,
-                BookingDate = booking.BookingDate,
-                GuestId = UserId != null ? UserId.Value.ToString() : string.Empty,
-            });
+            await BookingService.CreateAsync(new CreateBookingRequest(
+                booking.Description, 
+                booking.TotalAmount,
+                booking.CurrencyCode,
+                booking.ItemQuantity,
+                booking.IsPaid,
+                booking.BookingDate,
+                UserId != null ? UserId.Value.ToString() : string.Empty));
             
             return new JsonResult(booking);
         }

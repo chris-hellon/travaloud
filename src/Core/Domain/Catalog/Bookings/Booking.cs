@@ -5,15 +5,15 @@ namespace Travaloud.Domain.Catalog.Bookings;
 public class Booking : AuditableEntity, IAggregateRoot
 {
     public string Description { get; private set; } = default!;
-    public decimal TotalAmount { get; private set; } = default!;
+    public decimal TotalAmount { get; private set; }
     public string CurrencyCode { get; private set; } = default!;
-    public int ItemQuantity { get; private set; } = default!;
-    public bool IsPaid { get; private set; } = default!;
-    public DateTime BookingDate { get; private set; } = default!;
+    public int ItemQuantity { get; private set; }
+    public bool IsPaid { get; private set; }
+    public DateTime BookingDate { get; private set; }
     public string? GuestId { get; private set; }
-
+    
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int InvoiceId { get; private set; } = default!;
+    public int InvoiceId { get; private set; }
 
     public int ConcurrencyVersion { get; set; }
     public virtual IList<BookingItem> Items { get; set; } = default!;
@@ -30,7 +30,8 @@ public class Booking : AuditableEntity, IAggregateRoot
         int itemQuantity,
         bool isPaid,
         DateTime bookingDate,
-        string? guestId)
+        string? guestId, 
+        string? stripeSessionId)
     {
         Description = description;
         TotalAmount = totalAmount;
@@ -49,6 +50,7 @@ public class Booking : AuditableEntity, IAggregateRoot
         bool? isPaid = null,
         DateTime? bookingDate = null,
         string? guestId = null,
+        string? stripeSessionId = null,
         IList<BookingItem>? items = null)
     {
         if (description is not null && Description != description)
@@ -71,9 +73,16 @@ public class Booking : AuditableEntity, IAggregateRoot
 
         if (guestId is not null && GuestId != guestId)
             GuestId = guestId;
-
+        
         if (items is not null && Items != items)
             Items = items;
+
+        return this;
+    }
+
+    public Booking FlagBookingAsPaid()
+    {
+        IsPaid = true;
 
         return this;
     }

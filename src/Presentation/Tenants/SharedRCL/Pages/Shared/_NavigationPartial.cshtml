@@ -1,7 +1,8 @@
-@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Travaloud.Application.Basket
 @model Travaloud.Tenants.SharedRCL.Models.PageModels.TravaloudBasePageModel
 
-@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@inject IHttpContextAccessor HttpContextAccessor
+@inject IBasketService BasketService
 
 <header>
     @{
@@ -17,20 +18,23 @@
             <nav class="navbar navbar-expand-lg navbar-dark d-lg-block bg-lg-white fixed-top @(Model.TenantId == "fuse" ? "py-4 py-lg-3" : "py-0") @(currentPath != "/" ? "shadow always-shadow" : "")">
                 <div class="container@(Model.NavigationSettings.FullWidth ? "-fluid" : "")">
                     <a class="navbar-brand navbar-brand-mobile nav-link d-flex d-lg-none" asp-page="/Home/Index">
-                        <img src="@navigationConfiguration.NavBrandLogo" alt="@($"{Model.TenantName} Brand Logo")" height="@(Model.TenantId == "fuse" ? 85 : 60)" />
+                        <img src="@navigationConfiguration.NavBrandLogo" alt="@($"{Model.TenantName} Brand Logo")" height="@(Model.TenantId == "fuse" ? 85 : 60)"/>
                     </a>
 
-                    <button id="navbarToggler" class="navbar-toggler ms-auto m-0 p-0" type="button" data-mdb-toggle="collapse"
+                    <button id="navbarToggler" class="navbar-toggler ms-auto m-0 p-0" type="button"
+                            data-mdb-collapse-init
                             data-mdb-target="#@navbarId"
                             aria-controls="@navbarId" aria-expanded="false"
                             aria-label="Toggle navigation">
-                        <div class="animated-icon3"><span></span><span></span><span></span></div>
+                        <div class="animated-icon3">
+                            <span></span><span></span><span></span>
+                        </div>
                     </button>
 
                     <div class="collapse navbar-collapse" id="@navbarId">
                         <div class="col-lg-3 d-none d-lg-flex justify-content-start pt-5 pt-lg-0">
                             <a class="navbar-brand navbar-brand-desktop nav-link" asp-page="/Home/Index">
-                                <img src="@navigationConfiguration.NavBrandLogo" alt="@($"{Model.TenantName} Brand Logo")" height="@(Model.TenantId == "fuse" ? 90 : 65)" />
+                                <img src="@navigationConfiguration.NavBrandLogo" alt="@($"{Model.TenantName} Brand Logo")" height="@(Model.TenantId == "fuse" ? 90 : 65)"/>
                             </a>
                         </div>
                         <div class="col-md-12 col-lg-@(navigationConfiguration.LinksRightAligned ? "9" : "6") d-lg-flex justify-content-lg-@(navigationConfiguration.LinksRightAligned ? "end" : "center") pt-5 pt-lg-0">
@@ -82,11 +86,11 @@
                                                 </ul>
                                                 <div class="accordion accordion-flush accordion-borderless d-lg-none d-block" id="@accordionId">
                                                     <div class="accordion-item">
-                                                        <h2 class="accordion-header" id="@accordionHeadingId">
-                                                            <button class="accordion-button collapsed @activeClass" data-mdb-toggle="collapse" data-mdb-target="#@accordionCollapseId" aria-expanded="false" aria-controls="@accordionCollapseId" type="button">
+                                                        <span class="accordion-header" id="@accordionHeadingId">
+                                                            <button class="accordion-button collapsed @activeClass" data-mdb-collapse-init data-mdb-target="#@accordionCollapseId" aria-expanded="false" aria-controls="@accordionCollapseId" type="button">
                                                                 @navigationLink.Title <i class="fa-solid fa-caret-down ms-3"></i>
                                                             </button>
-                                                        </h2>
+                                                        </span>
                                                         <div id="@accordionCollapseId" class="accordion-collapse collapse" aria-labelledby="@accordionHeadingId" data-mdb-parent="#@accordionId">
                                                             <div class="accordion-body mt-4 mb-1">
                                                                 <ul>
@@ -115,18 +119,37 @@
                                         }
                                     }
                                 }
+                                
+                                @{
+                                    var basket = await BasketService.GetBasket();
+                                    var basketHasItems = basket is {Items.Count: > 0};
+
+                                    <li class="nav-item mt-4 mt-lg-0 d-none d-lg-block">
+                                        <a class="nav-link" href="/basket" rel="nofollow">
+                                            <i class="fas fa-basket-shopping"></i>
+                                            <span class="badge rounded-pill badge-notification bg-danger basketItemsNavQuantity @(!basketHasItems ? "d-none" : "")" style="letter-spacing:0px;">@basket.ItemsCount</span>
+                                        </a>
+                                    </li>
+
+                                    <li class="nav-item mt-4 mt-lg-0 d-block d-lg-none">
+                                        <a class="nav-link" href="/basket" rel="nofollow">
+                                            Basket <i class="fas fa-basket-shopping"></i>
+                                            <span class="badge rounded-pill badge-notification bg-danger basketItemsNavQuantity @(!basketHasItems ? "d-none" : "")" style="letter-spacing:0px;">@basket.ItemsCount</span>
+                                        </a>
+                                    </li>
+                                }
                             </ul>
 
                             @if (navigationConfiguration.LinksRightAligned)
                             {
-                                <partial name="_LoginNavigationPartial" model="Model.TravaloudSettings" />
+                                <partial name="_LoginNavigationPartial" model="Model.TravaloudSettings"/>
                             }
                         </div>
 
                         @if (navigationConfiguration.LinksCentreAligned)
                         {
                             <div class="col-md-12 col-lg-3 d-flex justify-content-lg-end">
-                                <partial name="_LoginNavigationPartial" model="Model.TravaloudSettings" />
+                                <partial name="_LoginNavigationPartial" model="Model.TravaloudSettings"/>
                             </div>
                         }
                     </div>

@@ -61,7 +61,7 @@ public class CardComponent : BaseComponent
         ThumbnailImageSrc = thumbnailTmageSrc ?? imageSrc;
     }
 
-    public CardComponent(string title, string body, string imageSrc, int? mdClass = null, int? lgClass = null, int? xsClass = null, decimal? animationDelay = null, int? marginBottom = null, int? marginTop = null, ButtonComponent buttonComponent = null, string? animationStart = "onScroll") : base(mdClass, lgClass, xsClass, marginBottom, marginTop)
+    public CardComponent(string title, string body, string imageSrc, int? mdClass = null, int? lgClass = null, int? xsClass = null, decimal? animationDelay = null, int? marginBottom = null, int? marginTop = null, ButtonComponent? buttonComponent = null, string? animationStart = "onScroll") : base(mdClass, lgClass, xsClass, marginBottom, marginTop)
     {
         Title = title;
         Body = body;
@@ -71,28 +71,7 @@ public class CardComponent : BaseComponent
         AnimationStart = animationStart;
     }
 
-    public CardComponent(string title, string body, string imageSrc, string thumbnailTmageSrc, int? mdClass = null, int? lgClass = null, int? xsClass = null, decimal? animationDelay = null, int? marginBottom = null, int? marginTop = null, ButtonComponent buttonComponent = null, string? animationStart = "onScroll") : base(mdClass, lgClass, xsClass, marginBottom, marginTop)
-    {
-        Title = title;
-        Body = body;
-        ImageSrc = imageSrc;
-        AnimationDelay = animationDelay;
-        ButtonComponent = buttonComponent;
-        AnimationStart = animationStart;
-        ThumbnailImageSrc = thumbnailTmageSrc ?? imageSrc;
-    }
-
-    public CardComponent(string title, string body, string imageSrc, int? mdClass = null, int? lgClass = null, int? xsClass = null, decimal? animationDelay = null, int? marginBottom = null, int ? marginBottomLg = null, int? marginTop = null, ButtonComponent buttonComponent = null, string? animationStart = "onScroll") : base(mdClass, lgClass, xsClass, marginBottom, marginTop, null, null, null, null, null, null, marginBottomLg)
-    {
-        Title = title;
-        Body = body;
-        ImageSrc = imageSrc;
-        AnimationDelay = animationDelay;
-        ButtonComponent = buttonComponent;
-        AnimationStart = animationStart;
-    }
-
-    public CardComponent(string title, string? body, string? imageSrc, string? thumbnailTmageSrc, int? mdClass = null, int? lgClass = null, int? xsClass = null, decimal? animationDelay = null, int? marginBottom = null, int? marginBottomLg = null, int? marginTop = null, ButtonComponent buttonComponent = null, string? animationStart = "onScroll") : base(mdClass, lgClass, xsClass, marginBottom, marginTop, null, null, null, null, null, null, marginBottomLg)
+    public CardComponent(string title, string body, string imageSrc, string thumbnailTmageSrc, int? mdClass = null, int? lgClass = null, int? xsClass = null, decimal? animationDelay = null, int? marginBottom = null, int? marginTop = null, ButtonComponent? buttonComponent = null, string? animationStart = "onScroll") : base(mdClass, lgClass, xsClass, marginBottom, marginTop)
     {
         Title = title;
         Body = body;
@@ -103,7 +82,28 @@ public class CardComponent : BaseComponent
         ThumbnailImageSrc = thumbnailTmageSrc ?? imageSrc;
     }
 
-    public CardComponent(string imageSrc, ButtonComponent buttonComponent = null)
+    public CardComponent(string title, string body, string imageSrc, int? mdClass = null, int? lgClass = null, int? xsClass = null, decimal? animationDelay = null, int? marginBottom = null, int ? marginBottomLg = null, int? marginTop = null, ButtonComponent? buttonComponent = null, string? animationStart = "onScroll") : base(mdClass, lgClass, xsClass, marginBottom, marginTop, null, null, null, null, null, null, marginBottomLg)
+    {
+        Title = title;
+        Body = body;
+        ImageSrc = imageSrc;
+        AnimationDelay = animationDelay;
+        ButtonComponent = buttonComponent;
+        AnimationStart = animationStart;
+    }
+
+    public CardComponent(string title, string? body, string? imageSrc, string? thumbnailTmageSrc, int? mdClass = null, int? lgClass = null, int? xsClass = null, decimal? animationDelay = null, int? marginBottom = null, int? marginBottomLg = null, int? marginTop = null, ButtonComponent? buttonComponent = null, string? animationStart = "onScroll") : base(mdClass, lgClass, xsClass, marginBottom, marginTop, null, null, null, null, null, null, marginBottomLg)
+    {
+        Title = title;
+        Body = body;
+        ImageSrc = imageSrc;
+        AnimationDelay = animationDelay;
+        ButtonComponent = buttonComponent;
+        AnimationStart = animationStart;
+        ThumbnailImageSrc = thumbnailTmageSrc ?? imageSrc;
+    }
+
+    public CardComponent(string imageSrc, ButtonComponent? buttonComponent = null)
     {
         ImageSrc = imageSrc;
         ButtonComponent = buttonComponent;

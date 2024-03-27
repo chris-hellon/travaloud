@@ -6,7 +6,7 @@
             <h2>@Model.Title</h2>
         </div>
     </div>
-    <div class="row justify-content-lg-center has-parallax-scroll">
+    <div class="row justify-content-lg-center has-parallax-scroll nav-pills-container">
         <div class="col-12">
             <!-- Pills navs -->
             <ul class="nav nav-pills mb-0" id="directionsTabs" role="tablist">
@@ -16,7 +16,7 @@
                     var tabId = $"{navPill.FriendlyTitle}-tab";
 
                     <li class="nav-item" role="presentation">
-                        <a class="nav-link @(navPill == Model.NavPills.First() ? "active" : "") mb-0" id="@tabId" data-mdb-toggle="pill" href="#@pillId" role="tab" aria-controls="@pillId" aria-selected="true">@navPill.Title</a>
+                        <a class="nav-link @(navPill == Model.NavPills.First() ? "active" : "") mb-0" id="@tabId" data-mdb-pill-init href="#@pillId" role="tab" aria-controls="@pillId" aria-selected="true">@navPill.Title</a>
                     </li>
                 }
             </ul>

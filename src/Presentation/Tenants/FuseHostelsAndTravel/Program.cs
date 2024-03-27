@@ -19,7 +19,7 @@ try
             .ReadFrom.Configuration(builder.Configuration);
     });
     
-    builder.Services.AddTenantWebsiteInfrastructure(builder.Configuration, "FuseHostelsAndTravel");
+    builder.Services.AddTenantWebsiteInfrastructure(builder.Configuration, builder.Environment, "FuseHostelsAndTravel");
     builder.Services.AddApplication();
     
     var app = builder.Build();

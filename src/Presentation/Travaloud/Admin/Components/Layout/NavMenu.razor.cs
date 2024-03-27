@@ -83,8 +83,8 @@ public partial class NavMenu
         switch (TenantInfo?.Id)
         {
             case "fuse":
-                _canViewDestinations = false;
-                _canViewTourDropdown = true;
+                _canViewDestinations = true;
+                _canViewTourDropdown = false;
                 _canViewPartners = false;
                 _canViewServices = false;
                 _canViewEvents = true;

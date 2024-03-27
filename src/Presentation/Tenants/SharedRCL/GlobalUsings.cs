@@ -1,8 +1,12 @@
+global using Microsoft.AspNetCore.Identity;
 global using Microsoft.AspNetCore.Mvc.RazorPages;
 global using Microsoft.AspNetCore.Mvc;
+global using Microsoft.AspNetCore.Http;
+global using Microsoft.AspNetCore.Http.Extensions;
 global using Travaloud.Infrastructure.Common.Extensions;
 global using Travaloud.Tenants.SharedRCL.Models;
 global using Travaloud.Tenants.SharedRCL.Models.PageModels;
 global using Travaloud.Tenants.SharedRCL.Models.WebComponents;
 global using Travaloud.Tenants.SharedRCL.Models.WebComponents.FuseHostelsAndTravel;
 global using Travaloud.Tenants.SharedRCL.Utils;
+global using Travaloud.Infrastructure.Identity;

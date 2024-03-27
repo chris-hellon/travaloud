@@ -74,7 +74,8 @@ public class UpdateTourRequest : IRequest<DefaultIdType>
     public IList<TourCategoryRequest>? TourCategories { get; set; }
     public IList<TourCategoryRequest>? ParentTourCategories { get; set; }
     public IList<TourImageRequest>? Images { get; set; }
-
+    public IEnumerable<TourDestinationLookupRequest>? TourDestinationLookups { get; set; }
+    
     public bool? PublishToSite { get; set; }
 }
 
@@ -167,6 +168,7 @@ public class UpdateTourRequestHandler : IRequestHandler<UpdateTourRequest, Defau
         await updatedTour.ProcessTourItineraries(request.TourItineraries, userId, _file, cancellationToken);
         
         updatedTour.ProcessTourCategories(request.TourCategoryId, request.SelectedParentTourCategories, request.TourCategoryLookups, userId);
+        updatedTour.ProcessTourDestinations(request.TourDestinationLookups, userId);
         
         // Add Domain Events to be raised after the commit
         tour.DomainEvents.Add(EntityUpdatedEvent.WithEntity(tour));

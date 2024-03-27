@@ -1,15 +1,20 @@
 using System.Globalization;
 using System.IO.Compression;
 using AspNetCore.ReCaptcha;
+using JavaScriptEngineSwitcher.Extensions.MsDependencyInjection;
+using JavaScriptEngineSwitcher.V8;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using NUglify.Helpers;
 using Rollbar;
 using Rollbar.NetCore.AspNet;
 using Travaloud.Application.Common.Interfaces;
@@ -19,7 +24,8 @@ namespace Travaloud.Infrastructure.Multitenancy.TenantWebsite;
 
 public static class Startup
 {
-    public static IServiceCollection AddTenantWebsite(this IServiceCollection services, IConfiguration config)
+    public static IServiceCollection AddTenantWebsite(this IServiceCollection services, IConfiguration config,
+        IHostEnvironment hostEnvironment)
     {
         var travaloudSettings = services.GetTravaloudSettings(config);
 
@@ -34,17 +40,22 @@ public static class Startup
         {
             propertyBookingUrl = urlSection.PropertyBookingUrl;
             tourBookingUrl = urlSection.TourBookingUrl;
-            
+
             if (!string.IsNullOrEmpty(urlSection.TourUrl))
                 tourUrl = $"{urlSection.TourUrl}";
-            
+
             if (!string.IsNullOrEmpty(urlSection.TourCategoryUrl))
-                tourCategoryUrl = $"{urlSection.TourCategoryUrl}";   
+                tourCategoryUrl = $"{urlSection.TourCategoryUrl}";
         }
 
-        services.AddRazorPages().AddRazorRuntimeCompilation().AddRazorPagesOptions(options =>
+        services.AddRazorPages().AddRazorRuntimeCompilation(options =>
         {
-            options.Conventions.AddPageRoute("/PropertyBooking/Index", propertyBookingUrl + "/{propertyName}/{checkInDate?}/{checkOutDate?}/{userId?}");
+            var libraryPath = Path.GetFullPath(Path.Combine(hostEnvironment.ContentRootPath, "..", "SharedRCL"));
+            options.FileProviders.Add(new PhysicalFileProvider(libraryPath));
+        }).AddRazorPagesOptions(options =>
+        {
+            options.Conventions.AddPageRoute("/PropertyBooking/Index",
+                propertyBookingUrl + "/{propertyName}/{checkInDate?}/{checkOutDate?}/{userId?}");
             options.Conventions.AddPageRoute("/TourBooking/Index", tourBookingUrl);
             options.Conventions.AddPageRoute("/Tour/Index", tourUrl + "/{tourName}");
             options.Conventions.AddPageRoute("/JoinOurCrew/Index", "join-our-crew/{tourName?}");
@@ -56,7 +67,6 @@ public static class Startup
                 options.Conventions.AddPageRoute("/TourCategory/Index", tourCategoryUrl + "/{tourCategoryName?}");
             }
         });
-        
         services.Configure<RouteOptions>(options =>
             {
                 options.LowercaseUrls = true;
@@ -76,16 +86,16 @@ public static class Startup
             .AddSession()
             .AddResponseCaching()
             .AddDetection();
-        
+
         services.AddScoped<IRazorPartialToStringRenderer, RazorPartialToStringRenderer>();
 
         var rollbarSettings = services.GetRollbarSettings(config);
-        
+
         if (rollbarSettings != null)
             services.AddRolbarConfiguration(rollbarSettings);
-        
+
         var reCaptchaSettings = services.GetReCaptchaSettings(config);
-        
+
         if (reCaptchaSettings != null)
         {
             services.AddReCaptcha(options =>
@@ -95,6 +105,72 @@ public static class Startup
                 options.Version = ReCaptchaVersion.V2;
             });
         }
+
+        services.AddJsEngineSwitcher(options => options.DefaultEngineName = V8JsEngine.EngineName)
+            .AddV8();
+
+
+        var libraryPath = Path.GetFullPath(Path.Combine(hostEnvironment.ContentRootPath, "..", "SharedRCL", "wwwroot"));
+
+        services.AddWebOptimizer(pipeline =>
+        {
+            var provider = new PhysicalFileProvider(libraryPath);
+
+            pipeline.AddScssBundle("/css/theme.min.css",
+                    "/mdb/src/scss/mdb.pro.scss")
+                .MinifyCss();
+
+            pipeline.AddScssBundle("/shared/css/theme.min.css",
+                    "/css/_additional.scss",
+                    "/css/_daterangepicker.scss",
+                    "/lib/owlcarousel/owlcarousel.min.css",
+                    "/lib/owlcarousel/owlcarousel.theme.min.css")
+                .MinifyCss()
+                .UseFileProvider(provider);
+
+            pipeline.AddJavaScriptBundle("/js/theme.min.js",
+                    "/mdb/js/mdb.umd.min.js",
+                    "/js/site.min.js"
+                )
+                .Concatenate()
+                .MinifyJavaScript();
+            
+            pipeline.AddJavaScriptBundle("/shared/js/theme.min.js",
+                    "/lib/jquery/dist/jquery.min.js",
+                    "/lib/cookie.min.js",
+                    "/lib/owlcarousel/owl.carousel.min.js",
+                    "/lib/moment.min.js",
+                    "/lib/daterangepicker.js",
+                    "/js/daterangepickeraddition.min.js",
+                    "/js/travaloud.min.js",
+                    "/js/videoplayer.min.js",
+                    "/js/classes.min.js"
+                )
+                .Concatenate()
+                .MinifyJavaScript()
+                .UseFileProvider(provider);
+            
+            pipeline.AddJavaScriptBundle("/shared/js/propertybooking.min.js",
+                    "/js/propertybooking.js"
+                )
+                .MinifyJavaScript()
+                .UseFileProvider(provider);
+            
+            pipeline.AddJavaScriptBundle("/shared/js/property.min.js",
+                    "/js/propertybooking.js"
+                )
+                .MinifyJavaScript()
+                .UseFileProvider(provider);
+            
+            pipeline.AddJavaScriptBundle("/shared/js/basket.min.js",
+                    "/js/basket.js"
+                )
+                .MinifyJavaScript()
+                .UseFileProvider(provider);
+
+            pipeline.CompileScssFiles().MinifyCss();
+        });
+
 
         return services;
     }
@@ -114,12 +190,22 @@ public static class Startup
 
         //app.UseStatusCodePagesWithRedirects("/error/{0}");
 
+        app.UseWebOptimizer();
+
+        //var libraryPath = Path.GetFullPath(Path.Combine(env.ContentRootPath, "..", "SharedRCL", "wwwroot"));
+        //app.UseStaticFiles();
+        // app.UseStaticFiles(new StaticFileOptions
+        // {
+        //     FileProvider = new PhysicalFileProvider(libraryPath),
+        //     RequestPath = new PathString("/shared")
+        // });
+        //
         app.SetAppCulture();
         app.UseSession();
-        
+
         return app;
     }
-    
+
     private static void SetAppCulture(this IApplicationBuilder app)
     {
         var culture = CultureInfo.CreateSpecificCulture("en-GB");
@@ -130,7 +216,8 @@ public static class Startup
         };
         culture.DateTimeFormat = dateformat;
 
-        var supportedCultures = new[] {
+        var supportedCultures = new[]
+        {
             culture
         };
 
@@ -141,19 +228,19 @@ public static class Startup
             SupportedUICultures = supportedCultures
         });
     }
-    
+
     private static void AddRolbarConfiguration(this IServiceCollection services, RollbarSettings rollbarSettings)
     {
         var config = new RollbarInfrastructureConfig(rollbarSettings.AccessToken, rollbarSettings.Environment)
+        {
+            RollbarInfrastructureOptions =
             {
-                RollbarInfrastructureOptions =
-                {
-                    CaptureUncaughtExceptions = true
-                }
-            };
+                CaptureUncaughtExceptions = true
+            }
+        };
         var dataSecurityOptions = new RollbarDataSecurityOptions()
         {
-            ScrubFields = new string[] { "url", "method", }
+            ScrubFields = new string[] {"url", "method",}
         };
         config.RollbarLoggerConfig.RollbarDataSecurityOptions.Reconfigure(dataSecurityOptions);
 
@@ -168,7 +255,7 @@ public static class Startup
     private static ReCaptchaSettings? GetReCaptchaSettings(this IServiceCollection services, IConfiguration config)
     {
         var section = config.GetSection(nameof(ReCaptchaSettings));
-        
+
         if (section == null)
             throw new Exception("No ReCaptchaSettings provided in appsettings.json.");
 
@@ -180,7 +267,7 @@ public static class Startup
     private static RollbarSettings? GetRollbarSettings(this IServiceCollection services, IConfiguration config)
     {
         var section = config.GetSection(nameof(RollbarSettings));
-        
+
         if (section == null)
             throw new Exception("No RollbarSettings provided in appsettings.json.");
 
@@ -188,11 +275,11 @@ public static class Startup
 
         return section.Get<RollbarSettings>();
     }
-    
+
     private static TravaloudSettings? GetTravaloudSettings(this IServiceCollection services, IConfiguration config)
     {
         var section = config.GetSection(nameof(TravaloudSettings));
-        
+
         if (section == null)
             throw new Exception("No TravaloudSettings provided in appsettings.json.");
 

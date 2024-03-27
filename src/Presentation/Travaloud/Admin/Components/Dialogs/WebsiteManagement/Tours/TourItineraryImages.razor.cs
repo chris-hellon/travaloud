@@ -88,4 +88,20 @@ public partial class TourItineraryImages : ComponentBase
             StateHasChanged();
         }
     }
+    
+    private void ClearSlideshowImageInBytes(TourItinerarySectionImageRequest image)
+    {
+        image.ImageInBytes = string.Empty;
+        RequestModel.Images?.Remove(image);
+        StateHasChanged();
+    }
+
+    private void SetDeleteSlideshowImageFlag(TourItinerarySectionImageRequest image)
+    {
+        image.ImageInBytes = string.Empty;
+        image.ImagePath = string.Empty;
+        image.DeleteCurrentImage = true;
+        RequestModel.Images?.Remove(image);
+        StateHasChanged();
+    }
 }

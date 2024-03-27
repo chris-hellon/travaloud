@@ -42,11 +42,41 @@
             <MudGrid >
                 @if (RequestModel.Images != null)
                 {
-                    foreach (var image in RequestModel.Images)
+                    @foreach (var image in RequestModel.Images)
                     {
-                        <MudItem xs="12" md="4" Style="height:300px;">
-                            <MudImage ObjectFit="ObjectFit.Cover" Style="width:100%; height:100%;" Src="@image.ImagePath" Alt="Örebro Slott" Elevation="25" Class="rounded-lg"/>
-                        </MudItem>
+                        @if (!string.IsNullOrEmpty(image.ImagePath) || !string.IsNullOrEmpty(image.ImageInBytes))
+                        {
+                            <MudItem xs="12" md="6" Style="height:220px;">
+                                @if (!string.IsNullOrEmpty(image.ImageInBytes))
+                                {
+                                    <MudImage ObjectFit="ObjectFit.Cover" Style="width:100%; height:85%;" Src="@image.ImageInBytes" Alt="Örebro Slott" Elevation="25" Class="rounded-lg"/>
+                                }
+                                else
+                                {
+                                    <MudImage ObjectFit="ObjectFit.Cover" Style="width:100%; height:85%;" Src="@image.ImagePath" Alt="Örebro Slott" Elevation="25" Class="rounded-lg"/>
+                                }
+                                
+                                @if (!string.IsNullOrEmpty(image.ImageInBytes))
+                                {
+                                    <MudButton HtmlTag="label" DisableElevation OnClick="@(() => ClearSlideshowImageInBytes(image))" Variant="Variant.Filled" Color="Color.Warning" Size="Size.Small" Target="_blank"
+                                               StartIcon="@Icons.Material.Filled.Clear" Style="margin-left: 5px;">
+                                        @L["Clear"]
+                                    </MudButton>
+                                }
+                                else
+                                {
+                                    <MudButton HtmlTag="label" DisableElevation Variant="Variant.Filled" Color="Color.Info" Size="Size.Small" Target="_blank"
+                                               StartIcon="@Icons.Material.Filled.RemoveRedEye" Link="@(image.ImagePath)" Style="margin-left: 5px;">
+                                        @L["View"]
+                                    </MudButton>
+
+                                    <MudButton HtmlTag="label" DisableElevation Variant="Variant.Filled" Color="Color.Error" Size="Size.Small"
+                                               StartIcon="@Icons.Material.Filled.Delete" OnClick="@(() => SetDeleteSlideshowImageFlag(image))" Style="margin-left: 5px;">
+                                        @L["Delete"]
+                                    </MudButton>
+                                }
+                            </MudItem>
+                        }
                     }
                 }
             </MudGrid>

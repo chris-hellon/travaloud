@@ -16,6 +16,7 @@ public class UpdateBookingRequest : IRequest<DefaultIdType>
     public DateTime BookingDate { get; set; } = default!;
     public string? GuestId { get; set; }
     public int ConcurrencyVersion { get; set; }
+    public string? StripeSessionId { get; set; }
 
     public IList<UpdateBookingItemRequest> Items { get; set; } = [];
 }
@@ -55,7 +56,8 @@ public class UpdateBookingRequestHandler : IRequestHandler<UpdateBookingRequest,
             request.ItemQuantity,
             request.IsPaid,
             request.BookingDate,
-            request.GuestId);
+            request.GuestId,
+            request.StripeSessionId);
 
         var bookingItems = new List<BookingItem>();
 

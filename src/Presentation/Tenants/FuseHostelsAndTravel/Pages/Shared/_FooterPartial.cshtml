@@ -1,5 +1,7 @@
-﻿<!-- Footer -->
-<footer class="bg-dark text-white">
+﻿@model Travaloud.Tenants.SharedRCL.Models.PageModels.TravaloudBasePageModel
+
+<!-- Footer -->
+<footer class="bg-black text-white" id="footer">
     <!-- Grid container -->
     <div class="container py-4 p-lg-5 text-start">
         <!-- Section: Links -->
@@ -9,7 +11,7 @@
                 <!--Grid column-->
                 <div class="col-lg-3 col-md-6 mb-4 mb-md-0 d-flex justify-content-start">
                     <a class="navbar-brand" asp-page="/Home/Index">
-                        <strong>FUSE</strong>
+                        <img src="https://travaloud.azureedge.net/fuse/assets/images/Fuse-primary-logo.svg" alt="Fuse Brand Logo" height="77"/>
                     </a>
                 </div>
                 <!--Grid column-->
@@ -44,14 +46,14 @@
                         <li class="mb-3">
                             <a asp-page="/Contact/Index" class="text-white">Contact</a>
                         </li>
-                        @if (!User.Identity.IsAuthenticated)
+                        @if (User.Identity is {IsAuthenticated: false})
                         {
                             <li class="mb-3">
-                                <button class="text-white border-0 bg-transparent p-0 m-0" role="button" data-mdb-toggle="modal" data-mdb-target="#logInModal">Sign In</button>
+                                <button class="text-white border-0 bg-transparent p-0 m-0" role="button" data-mdb-modal-init data-mdb-target="#logInModal">Sign In</button>
                             </li>
                         }
                         <li class="mb-3">
-                            <button data-mdb-toggle="modal" data-mdb-target="#bookNowModal" role="button" class="text-white border-0 p-0 m-0 bg-transparent">Book</button>
+                            <button data-mdb-modal-init data-mdb-target="#bookNowModal" role="button" class="text-white border-0 p-0 m-0 bg-transparent">Book</button>
                         </li>
                         <li>
                             <a asp-page="/JoinOurCrew/Index" asp-route-tourName="" class="text-white">Join Our Crew</a>

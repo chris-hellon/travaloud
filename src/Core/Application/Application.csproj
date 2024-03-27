@@ -18,6 +18,7 @@
       <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
       <PackageReference Include="Microsoft.Extensions.Localization.Abstractions" Version="8.0.1" />
       <PackageReference Include="MudBlazor" Version="6.15.0" />
+      <PackageReference Include="Stripe.net" Version="43.20.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -26,13 +27,14 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Cloudbeds\Commands\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <Reference Include="Travaloud.Infrastructure">
         <HintPath>..\..\Presentation\Admin\bin\Debug\net8.0\Travaloud.Infrastructure.dll</HintPath>
       </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Cloudbeds\Commands\" />
+      <Folder Include="PaymentProcessing\Dto\" />
     </ItemGroup>
 
 </Project>

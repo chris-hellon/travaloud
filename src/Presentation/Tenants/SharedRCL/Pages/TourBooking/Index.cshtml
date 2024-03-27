@@ -1,5 +1,4 @@
 ﻿@page
-@using Microsoft.AspNetCore.Mvc.TagHelpers
 @model Travaloud.Tenants.SharedRCL.Pages.TourBooking.IndexModel
 
 <section class="h-100 h-custom bg-dark">
@@ -8,7 +7,7 @@
             <div class="col-12">
                 <div class="card card-registration card-registration-2" style="border-radius: 15px;">
                     <div class="card-body p-0">
-                        @{
+                        @if (Model.Basket != null) {
                             <div class="row g-0">
                                 <div class="col-lg-8">
                                     <div class="p-5">

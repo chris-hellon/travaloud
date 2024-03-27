@@ -1,12 +1,11 @@
-﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
-@using Travaloud.Infrastructure.Common.Extensions
-@model CardComponent
+﻿@model CardComponent
 
 @inject Wangkanai.Detection.Services.IDetectionService DetectionService
 
 @{
     var isLightbox = Model.LightboxImages != null && Model.LightboxImages.Any();
-    var id = $"lightbox{Model.Title.ConvertToCamelCase()}Modal";
+    var titleFormatted = Model.Title?.Replace("(", "").Replace(")", "");
+    var id = $"lightbox{titleFormatted?.ConvertToCamelCase()}Modal";
     var isMobile = DetectionService.Device.Type == Wangkanai.Detection.Models.Device.Mobile;
     var imageWidth = Model.CssClass.Contains("col-lg-4") || Model.CssClass.Contains("col-lg-12") ? 610 : 700;
     var imageHeight = 400;
@@ -22,7 +21,7 @@
     if (cssClass.Replace(" ", "").Length > 0)
     {
         <div class="@cssClass">
-            <div class="card rounded-0 offcut-image-border @(isLightbox ? "mb-4" : "")" @(isLightbox ? $"data-mdb-toggle=modal data-mdb-target=#{id} role=button" : "")>
+            <div class="card rounded-0 offcut-image-border @(isLightbox ? "mb-4" : "")" @(isLightbox ? $"data-mdb-modal-init data-mdb-target=#{id} role=button" : "")>
                 @if (!string.IsNullOrEmpty(thumbnailImageSrc))
                 {
                     <img src="@(thumbnailImageSrc)" alt="@($"{Model.Title} image")" width="@imageWidth" height="@imageHeight" class="card-img-top rounded-0 @(isLightbox ? "object-fit-cover" : "")"/>
@@ -51,8 +50,7 @@
 
             @if (isLightbox)
             {
-
-                <a class="text-purple" data-mdb-toggle="modal" data-mdb-target="#@id">@Model.Title.ToUpper() INFO</a>
+                <a class="text-primary" data-mdb-modal-init data-mdb-target="#@id">@Model.Title?.ToUpper() INFO</a>
             }
         </div>
     }
@@ -85,7 +83,7 @@
         @if (isLightbox)
         {
 
-            <a class="text-purple" data-mdb-toggle="modal" data-mdb-target="#@id">@Model.Title.ToUpper() INFO</a>
+            <a class="text-purple" data-mdb-modal-init data-mdb-target="#@id">@Model.Title?.ToUpper() INFO</a>
         }
     }
 

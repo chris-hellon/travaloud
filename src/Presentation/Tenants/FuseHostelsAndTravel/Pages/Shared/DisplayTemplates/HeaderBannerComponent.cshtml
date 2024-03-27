@@ -59,7 +59,7 @@
     }
     else
     {
-        <div class="header-banner-image-background d-flex justify-content-center align-items-end" style="background-image:url('@Model.ImageSrc.Replace("https://travaloud.azureedge.net", "https://travaloudcdn.azureedge.net").Replace("w=1000", "w=1800")'); @(Model.BackgroundTop.HasValue ? $"background-position-y:{Model.BackgroundTop.Value}%; background-position:left !important;" : "")">
+        <div class="header-banner-image-background d-flex justify-content-center align-items-end" style="background-image:url('@Model.ImageSrc?.Replace("https://travaloud.azureedge.net", "https://travaloudcdn.azureedge.net").Replace("w=1000", "w=1800")'); @(Model.BackgroundTop.HasValue ? $"background-position-y:{Model.BackgroundTop.Value}%; background-position:left !important;" : "")">
             @if (!string.IsNullOrEmpty(Model.SubTitle) || !string.IsNullOrEmpty(Model.Title))
             {
                 <div class="container mb-n5 has-parallax-scroll">

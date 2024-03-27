@@ -1,0 +1,130 @@
+@page "/checkout"
+@model Travaloud.Tenants.SharedRCL.Pages.Checkout.IndexModel
+
+<section class="h-100 bg-light">
+    <div class="container py-5 h-100">
+        <div class="row">
+            <div class="col-xl-8">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-5">
+                            <h1 class="fw-bold mb-0 text-black display-3">Check Out</h1>
+                        </div>
+
+                        <div class="d-md-flex justify-content-between mb-3">
+                            <h5 class="mb-md-0">Contact information</h5>
+                            @if (User.Identity.IsAuthenticated && Model.AuthenticatedUser != null)
+                            {
+                                <h6>Welcome back, @Model.AuthenticatedUser.FirstName @Model.AuthenticatedUser.LastName</h6>
+                            }
+                            else
+                            {
+                                <p class="text-muted mb-0 small">
+                                    Stayed with us before?
+                                    <a role="button" class="text-primary" data-mdb-modal-init data-mdb-target="#logInModal" aria-label="Sign In">
+                                        <strong>Sign In</strong>
+                                    </a>
+                                </p>
+                            }
+                        </div>
+
+                        @Html.DisplayFor(x => x.CheckoutFormComponentModel)
+                        
+                        <h5 class="my-4">Additional Guests (optional)</h5>
+
+                        <partial name="_AdditionalGuestsPartial" model="Model.Basket"/>
+                    </div>
+                </div>
+
+                <div class="row my-4">
+                    <div class="col">
+                        <h6 class="mb-0">
+                            <a asp-page="/Home/Index" class="text-body">
+                                <i class="fas fa-long-arrow-alt-left me-2"></i>Continue Exploring
+                            </a>
+                        </h6>
+                    </div> <!-- end col -->
+                    <div class="col">
+                        <div class="text-end mt-2 mt-sm-0">
+                            <button type="submit" form="checkoutForm" class="btn btn-primary">
+                                <i class="fas fa-cart-shopping me-2"></i>Proceed to Payment
+                            </button>
+                        </div>
+                    </div> <!-- end col -->
+                </div> <!-- end row-->
+            </div>
+            <div class="col-xl-4 sticky" data-mdb-sticky-init data-mdb-sticky-direction="both" data-mdb-sticky-offset="92" data-mdb-sticky-delay="82" data-mdb-sticky-media="968">
+                <div class="card checkout-order-summary">
+                    <div class="card-body">
+                        <div class="p-3 bg-light mb-3">
+                            <h5 class="font-size-16 mb-0">Order Summary</h5>
+                            <h6 class="mb-0 text-muted basketItemsQuantity">@($"{Model.Basket.ItemsCount} item{(Model.Basket.ItemsCount > 1 ? "s" : "")}")</h6>
+                        </div>
+                        @if (Model.Basket.Items.Any())
+                        {
+                            foreach (var item in Model.Basket.Items)
+                            {
+                                item.IsConfirmationPage = true;
+                                @Html.DisplayFor(x => item)
+
+                                @* if (item.TourDates != null && item.TourDates.Any()) *@
+                                @* { *@
+                                @*     @Html.DisplayFor(x => item.TourDates) *@
+                                @* } *@
+                                @* *@
+                                @* if (item.Rooms.Any()) *@
+                                @* { *@
+                                @*     @Html.DisplayFor(x => item.Rooms) *@
+                                @* } *@
+                            }
+                        }
+                        else
+                        {
+                            <p>Your basket is empty.</p>
+                        }
+
+                        <div class="d-flex justify-content-between">
+                            <h5 class="text-uppercase">Total</h5>
+                            <h5 id="basketTotal">$ @($"{Model.Basket.Total:n2}")</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="modal fade" id="addNewGuestModal" tabindex="-1" aria-labelledby="addNewGuestModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content bg-light p-5">
+            <button type="button" class="btn-close ms-auto" data-mdb-dismiss="modal" aria-label="Close">
+                <i class="fa fa-xmark"></i>
+            </button>
+            <div class="modal-body p-0 text-center add-new-guest-modal-body">
+                <small>Loading...</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addGuestModal" tabindex="-1" aria-labelledby="addGuestModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content bg-light p-5">
+            <button type="button" class="btn-close ms-auto" data-mdb-dismiss="modal" aria-label="Close">
+                <i class="fa fa-xmark"></i>
+            </button>
+            <div class="modal-body p-0 text-center select-guest-modal-body">
+                <small>Loading...</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script type="text/javascript">
+        var basket = @Html.Raw(Json.Serialize(Model.Basket));
+    </script>
+
+    <script src="/shared/js/basket.min.js"></script>
+}

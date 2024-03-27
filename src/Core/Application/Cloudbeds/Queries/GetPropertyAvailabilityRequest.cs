@@ -12,11 +12,13 @@ public class GetPropertyAvailabilityRequest : IRequest<GetPropertyAvailabilityRe
     [JsonProperty("endDate")] public string EndDate { get; set; } = default!;
 
     [JsonIgnore] public string PropertyApiKey { get; set; } = default!;
+
+    [JsonProperty("detailedRates")] public bool DetailedRates { get; set; } = true;
+    
+    [JsonProperty("promoCode")] public string? PromoCode { get; set; }
 }
 
-public class
-    GetPropertyAvailabilityRequestHandler : IRequestHandler<GetPropertyAvailabilityRequest,
-    GetPropertyAvailabilityResponse>
+public class GetPropertyAvailabilityRequestHandler : IRequestHandler<GetPropertyAvailabilityRequest, GetPropertyAvailabilityResponse>
 {
     private readonly ICloudbedsHttpClient _cloudbedsHttpClient;
 

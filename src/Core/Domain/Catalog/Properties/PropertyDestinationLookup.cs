@@ -4,8 +4,9 @@ namespace Travaloud.Domain.Catalog.Properties;
 
 public class PropertyDestinationLookup : AuditableEntity, IAggregateRoot
 {
-    public PropertyDestinationLookup(DefaultIdType destinationId)
+    public PropertyDestinationLookup(DefaultIdType propertyId, DefaultIdType destinationId)
     {
+        PropertyId = propertyId;
         DestinationId = destinationId;
     }
 

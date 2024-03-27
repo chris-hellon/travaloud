@@ -1,6 +1,5 @@
 ﻿@page
 @model Travaloud.Tenants.SharedRCL.Pages.Tour.IndexModel
-@using Microsoft.AspNetCore.Mvc.TagHelpers
 
 @if (Model.TenantId == "fuse")
 {
@@ -89,7 +88,7 @@ else
 
 
                                     <div class="text-center mb-n7 mt-4">
-                                        <button class="btn btn-primary" data-mdb-toggle="modal" data-mdb-target="#enquireNowModal">Enquire Now</button>
+                                        <button class="btn btn-primary" data-mdb-modal-init data-mdb-target="#enquireNowModal">Enquire Now</button>
                                     </div>
                                 </div>
                             </div>
@@ -108,7 +107,7 @@ else
                                         }
                                     }
                                 </div>
-                                <button class="btn btn-primary" id="tourEnquireNowMobileButton" data-mdb-toggle="modal" data-mdb-target="#enquireNowModal">Enquire Now</button>
+                                <button class="btn btn-primary" id="tourEnquireNowMobileButton" data-mdb-modal-init data-mdb-target="#enquireNowModal">Enquire Now</button>
                             </div>
                         </div>
                     </div>
@@ -150,7 +149,7 @@ else
 
                                         </div>
                                         <div class="col-lg-4 mb-2 mb-lg-0 text-lg-end">
-                                            <button type="button" class="btn btn-primary w-100 w-lg-auto" data-mdb-toggle="modal" data-mdb-target="#enquireNowModal">
+                                            <button type="button" class="btn btn-primary w-100 w-lg-auto" data-mdb-modal-init data-mdb-target="#enquireNowModal">
                                                 Enquire now
                                             </button>
                                         </div>
@@ -269,7 +268,7 @@ else
                                 {
                                     var itinerarySection = itinerary.Sections.First();
                                     var carousel = new CarouselComponent($"tourItinerarySectionImages{itinerarySection.Id.ToString().Replace("-", "")}", itinerarySection.Images.Select(i => i.ImagePath).ToList()) { TenantId = Model.TenantId };
-                                    <partial name="Shared/_ItinerarySectionFullWidthPartial" model="@new TourItinerarySectionModel(itinerarySection, carousel)" />
+                                    <partial name="Shared/_ItinerarySectionFullWidthPartial" model="@(new TourItinerarySectionModel(itinerarySection, carousel))" />
                                 }
                                 else
                                 {
@@ -281,7 +280,7 @@ else
                                                 var carousel = new CarouselComponent($"tourItinerarySectionImages{itinerarySection.Id.ToString().Replace("-", "")}", itinerarySection.Images.Select(i => i.ImagePath).ToList()) { TenantId = Model.TenantId };
 
                                                 <div class="timeline-2 @alignment has-parallax-scroll">
-                                                    <partial name="Shared/_ItinerarySectionPartial" model="@new TourItinerarySectionModel(itinerarySection, carousel)" />
+                                                    <partial name="Shared/_ItinerarySectionPartial" model="@(new TourItinerarySectionModel(itinerarySection, carousel))" />
                                                 </div>
 
                                                 alignment = alignment == "left-2" ? "right-2" : "left-2";
@@ -305,64 +304,64 @@ else
         @Html.DisplayFor(x => x.EnquireNowComponent)
 
         @section Scripts {
-            <script type="text/javascript">
-                let tourDatesParsed = @Html.Raw(Json.Serialize(Model.Tour.TourDates?.ToList()));
-                let datepickerWithFilter = document.querySelector('.datepicker-with-filter');
-                let datepicker = null;
-
-                $("document").ready(function () {
-                    filterDates();
-                });
-
-                function filterDates() {
-                    let tourDates = [];
-
-                    if (tourDatesParsed.length > 0) {
-                        $(tourDatesParsed).each(function (i, v) {
-                            var startDate = new Date(v.startDate);
-                            startDate.setHours(0, 0, 0);
-
-                            tourDates.push(startDate.getTime());
-                        });
-                    }
-
-                    const filterFunction = (date) => {
-                        return $.inArray(date.getTime(), tourDates) > -1;
-                    }
-
-                    if (datepicker == null) {
-                        datepicker = new mdb.Datepicker(datepickerWithFilter, { filter: filterFunction });
-
-                        datepickerWithFilter.addEventListener('dateChange.mdb.datepicker', (e) => {
-                            let selectedDate = e.date.getTime();
-
-                            $(tourDatesParsed).each(function (i, v) {
-                                let tourDate = new Date(v.startDate);
-                                tourDate.setHours(0, 0, 0);
-
-                                if (tourDate.getTime() == selectedDate) {
-                                    $('#BookNowComponent_GuestQuantity').attr('max', v.availableSpaces);
-                                }
-                            });
-                        });
-                    }
-                    else
-                        datepicker.update({ filter: filterFunction });
-                }
-
-                function getTourDates(control) {
-                    let selectedTour = $(control).val();
-                    let guestQuantity = $('#BookNowComponent_GuestQuantity').val();
-
-                    if (guestQuantity.length == 0)
-                        guestQuantity = 1;
-
-                    postAjax("GetTourDates", { "TourId": selectedTour, "GuestQuantity": guestQuantity }, function (result) {
-                        tourDatesParsed = result.tourDates;
-                        filterDates();
-                    });
-                }
-            </script>
+            @* <script type="text/javascript"> *@
+            @*     let tourDatesParsed = @Html.Raw(Json.Serialize(Model.Tour.TourDates?.ToList())); *@
+            @*     let datepickerWithFilter = document.querySelector('.datepicker-with-filter'); *@
+            @*     let datepicker = null; *@
+            @* *@
+            @*     $("document").ready(function () { *@
+            @*         filterDates(); *@
+            @*     }); *@
+            @* *@
+            @*     function filterDates() { *@
+            @*         let tourDates = []; *@
+            @* *@
+            @*         if (tourDatesParsed.length > 0) { *@
+            @*             $(tourDatesParsed).each(function (i, v) { *@
+            @*                 var startDate = new Date(v.startDate); *@
+            @*                 startDate.setHours(0, 0, 0); *@
+            @* *@
+            @*                 tourDates.push(startDate.getTime()); *@
+            @*             }); *@
+            @*         } *@
+            @* *@
+            @*         const filterFunction = (date) => { *@
+            @*             return $.inArray(date.getTime(), tourDates) > -1; *@
+            @*         } *@
+            @* *@
+            @*         if (datepicker == null) { *@
+            @*             datepicker = new mdb.Datepicker(datepickerWithFilter, { filter: filterFunction }); *@
+            @* *@
+            @*             datepickerWithFilter.addEventListener('dateChange.mdb.datepicker', (e) => { *@
+            @*                 let selectedDate = e.date.getTime(); *@
+            @* *@
+            @*                 $(tourDatesParsed).each(function (i, v) { *@
+            @*                     let tourDate = new Date(v.startDate); *@
+            @*                     tourDate.setHours(0, 0, 0); *@
+            @* *@
+            @*                     if (tourDate.getTime() == selectedDate) { *@
+            @*                         $('#BookNowComponent_GuestQuantity').attr('max', v.availableSpaces); *@
+            @*                     } *@
+            @*                 }); *@
+            @*             }); *@
+            @*         } *@
+            @*         else *@
+            @*             datepicker.update({ filter: filterFunction }); *@
+            @*     } *@
+            @* *@
+            @*     function getTourDates(control) { *@
+            @*         let selectedTour = $(control).val(); *@
+            @*         let guestQuantity = $('#BookNowComponent_GuestQuantity').val(); *@
+            @* *@
+            @*         if (guestQuantity.length == 0) *@
+            @*             guestQuantity = 1; *@
+            @* *@
+            @*         postAjax("GetTourDates", { "TourId": selectedTour, "GuestQuantity": guestQuantity }, function (result) { *@
+            @*             tourDatesParsed = result.tourDates; *@
+            @*             filterDates(); *@
+            @*         }); *@
+            @*     } *@
+            @* </script> *@
         }
     }
 }

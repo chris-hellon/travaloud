@@ -92,7 +92,7 @@ public static class WebComponentsBuilder
 
         public static async Task<CarouselCardsComponent> GetToursCarouselCardsAsync(IEnumerable<TourDto>? tours,
             string? animationStart = "onScroll", string title = "TAILORED TOURS",
-            string body =
+            string? body =
                 "Explore the breathtaking culture of Vietnam with FUSE travel. Our experienced travel crew will help you get the most out of your time and FUSE Travel offers up unique tailored experiences for all our guests.")
         {
             return await Task.Run(() => GetToursCarouselCards(tours, animationStart, title));

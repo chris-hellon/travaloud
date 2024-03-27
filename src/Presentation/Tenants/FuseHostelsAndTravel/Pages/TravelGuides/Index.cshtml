@@ -1,5 +1,4 @@
 @page
-@using Travaloud.Infrastructure.Common.Extensions
 @model FuseHostelsAndTravel.Pages.TravelGuides.IndexModel
 
 @section Styles {
@@ -12,10 +11,10 @@
 
 <section id="travelGuides" class="pt-8 pb-5">
     <div class="container">
-        @if (Model.TravelGuides.Data.Any())
+        @if (Model.TravelGuides != null && Model.TravelGuides.Data.Any())
         {
             var firstTravelGuide = Model.TravelGuides.Data.First();
-            var firstImagePath = firstTravelGuide.ImagePath.FormatImageUrl(700, Model.TenantId);
+            var firstImagePath = firstTravelGuide.ImagePath?.FormatImageUrl(700, Model.TenantId);
             <div class="border-bottom pb-4 mb-5">
                 <div class="row gx-5">
                     <div class="col-md-6 mb-4">
@@ -43,7 +42,7 @@
             <div class="row gx-5">
                 @foreach (var travelGuide in Model.TravelGuides.Data.Skip(1))
                 {
-                    var imagePath = travelGuide.ImagePath.FormatImageUrl(500, Model.TenantId);
+                    var imagePath = travelGuide.ImagePath?.FormatImageUrl(500, Model.TenantId);
                     <div class="col-lg-4 col-md-12 mb-4 mb-lg-0">
                         <div class="bg-image hover-overlay shadow-1-strong mb-4" data-mdb-ripple-init data-mdb-ripple-color="light">
                             <img src="@imagePath" class="img-fluid" alt="@travelGuide.Title image"/>

@@ -1,0 +1,23 @@
+.header-banner-image-background {
+    height: 60vh
+}
+.lightbox-gallery .lightbox-gallery-toolbar button.lightbox-gallery-fullscreen-btn:before {
+    content: '\f065';
+}
+.lightbox-gallery .lightbox-gallery-toolbar button.lightbox-gallery-fullscreen-btn.active:before {
+    content: '\f78c';
+}
+.lightbox-gallery .lightbox-gallery-toolbar button.lightbox-gallery-zoom-btn:before {
+    content: '\f002';
+}
+.lightbox-gallery .lightbox-gallery-toolbar button.lightbox-gallery-close-btn:before {
+    content: '\f00d';
+}
+
+.lightbox-gallery .lightbox-gallery-arrow-right button:before {
+    content: '\f0da';
+}
+
+.lightbox-gallery .lightbox-gallery-arrow-left button:before {
+    content: '\f0d9';
+}

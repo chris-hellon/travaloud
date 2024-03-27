@@ -1,6 +1,6 @@
 ﻿@model Travaloud.Tenants.SharedRCL.Models.PageModels.TravaloudBasePageModel
 
-@if (Model.NavigationSettings.ShowSocialIcons)
+@if (Model.NavigationSettings is {ShowSocialIcons: true})
 {
     <section id="socials">
         <div class="container-fluid bg-primary">

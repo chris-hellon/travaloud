@@ -6,14 +6,14 @@ public class GenericBannerComponent
 
     public string Body { get; private set; }
 
-    public IEnumerable<OvalContainerComponent> OvalContainers { get; private set; }
+    public IEnumerable<OvalContainerComponent>? OvalContainers { get; private set; }
 
     public GenericBannerComponent()
     {
 
     }
 
-    public GenericBannerComponent(string title, string body, IEnumerable<OvalContainerComponent> ovalContainers = null)
+    public GenericBannerComponent(string title, string body, IEnumerable<OvalContainerComponent>? ovalContainers = null)
     {
         Title = title;
         Body = body;

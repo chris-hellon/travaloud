@@ -32,6 +32,7 @@ public class Tour : AuditableEntity, IAggregateRoot
 
     public virtual IList<TourCategoryLookup>? TourCategoryLookups { get; set; }
     public virtual IList<TourPropertyLookup>? TourPropertyLookups { get; private set; }
+    public virtual IList<TourDestinationLookup>? TourDestinationLookups { get; set; }
     public virtual IList<TourPrice>? TourPrices { get; set; }
     public virtual IList<TourDate>? TourDates { get; set; }
     public virtual IList<TourItinerary>? TourItineraries { get; set; }

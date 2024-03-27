@@ -9,7 +9,7 @@ using Travaloud.Shared.Authorization;
 
 namespace Travaloud.Infrastructure.Catalog.Services;
 
-public class BookingsService : BaseService,  IBookingsService
+public class BookingsService : BaseService, IBookingsService
 {
     private readonly IUserService _userService;
 
@@ -39,6 +39,14 @@ public class BookingsService : BaseService,  IBookingsService
     }
     
     public async Task<DefaultIdType?> UpdateAsync(DefaultIdType id, UpdateBookingRequest request)
+    {
+        if (id != request.Id)
+            throw new ConflictException("Id and request.Id do not match");
+        
+        return await Mediator.Send(request);
+    }
+    
+    public async Task<DefaultIdType?> FlagBookingAsPaidAsync(DefaultIdType id, FlagBookingAsPaidRequest request)
     {
         if (id != request.Id)
             throw new ConflictException("Id and request.Id do not match");

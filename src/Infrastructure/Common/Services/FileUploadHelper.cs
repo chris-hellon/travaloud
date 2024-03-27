@@ -20,7 +20,7 @@ public static class FileUploadHelper
 
             if (e.File.Size > ApplicationConstants.MaxAllowedImageSize)
             {
-                snackbar.Add("Image File too large, please select a file less than 1mb.", Severity.Error);
+                snackbar.Add("Image File too large, please select a file less than 2mb.", Severity.Error);
                 return null;
             }
         }

@@ -1,7 +1,4 @@
 ﻿@page "/hostels/{propertyName}"
-@using Microsoft.AspNetCore.Mvc.TagHelpers
-@using Travaloud.Application.Common.Extensions
-@using Travaloud.Infrastructure.Common.Extensions
 @model FuseHostelsAndTravel.Pages.Property.IndexModel
 
 @if (Model.Property != null)
@@ -53,15 +50,19 @@
         for (var i = 0; i < roomsCount; i++)
         {
             var accommodation = Model.AccommodationCards.Cards[i];
-            var isLightbox = accommodation.LightboxImages.Any();
+            var isLightbox = accommodation.LightboxImages != null && accommodation.LightboxImages.Any();
 
             if (isLightbox)
             {
-                var id = $"lightbox{accommodation.Title.ConvertToCamelCase()}Modal";
+                var titleFormatted = accommodation.Title?.Replace("(", "").Replace(")", "");
+                var id = $"lightbox{titleFormatted!.ConvertToCamelCase()}Modal";
                 var label = $"{id}Label";
-                var url = $"/hostel-booking/{Model.Property.Name.UrlFriendly()}{(Model.UserId != null ? $"/{Model.UserId}" : "")}";
 
-                <div class="modal fade lighbox-modal" id="@id" tabindex="-1" aria-labelledby="@label" aria-hidden="true">
+                var checkInDate = DateTime.Now.ToString("yyyy-MM-dd");
+                var checkOutDate  = DateTime.Now.AddDays(1).ToString("yyyy-MM-dd");
+                var url = $"/hostel-booking/{Model.Property.Name.UrlFriendly()}/{checkInDate}/{checkOutDate}{(Model.UserId != null ? $"/{Model.UserId}" : "")}";
+
+                <div class="modal fade lightbox-modal" id="@id" tabindex="-1" aria-labelledby="@label" aria-hidden="true">
                     <button type="button" class="text-white btn-close" data-mdb-dismiss="modal" aria-label="Close"><i class="fa fa-xmark"></i></button>
 
                     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable pt-5 pt-lg-0">
@@ -73,18 +74,20 @@
                                             @if (i > 0)
                                             {
                                                 var previousElement = Model.AccommodationCards.Cards[i - 1];
-                                                var previousId = $"lightbox{previousElement.Title.ConvertToCamelCase()}Modal";
+                                                var previousElementTitleFormatted = previousElement.Title?.Replace("(", "").Replace(")", "");
+                                                var previousId = $"lightbox{previousElementTitleFormatted!.ConvertToCamelCase()}Modal";
 
-                                                <a class="text-white mb-3" data-mdb-toggle="modal" data-mdb-target="#@previousId"><i class="fas fa-arrow-left-long me-2"></i> PREVIOUS ROOM</a>
+                                                <a class="text-white mb-3" data-mdb-modal-init data-mdb-target="#@previousId"><i class="fas fa-arrow-left-long me-2"></i> PREVIOUS ROOM</a>
                                             }
                                         </div>
                                         <div class="col-6 text-end">
                                             @if (i + 1 < roomsCount)
                                             {
                                                 var nextElement = Model.AccommodationCards.Cards[i + 1];
-                                                var nextId = $"lightbox{nextElement.Title.ConvertToCamelCase()}Modal";
+                                                var nextElementTitleFormatted = nextElement.Title?.Replace("(", "").Replace(")", "");
+                                                var nextId = $"lightbox{nextElementTitleFormatted!.ConvertToCamelCase()}Modal";
 
-                                                <a class="text-white mb-3" data-mdb-toggle="modal" data-mdb-target="#@nextId">NEXT ROOM <i class="fas fa-arrow-right-long ms-2"></i></a>
+                                                <a class="text-white mb-3" data-mdb-modal-init data-mdb-target="#@nextId">NEXT ROOM <i class="fas fa-arrow-right-long ms-2"></i></a>
                                             }
                                         </div>
                                     </div>
@@ -94,17 +97,17 @@
                                                 <h4 class="tilted mb-5">@accommodation.Title</h4>
                                                 @Html.Raw(accommodation.Body)
 
-                                                <div class="mt-5 mt-lg-auto">
+                                                <div class="mt-3">
                                                     <a class="btn btn-primary align-bottom pe-5 ps-5" href="@url">BOOK NOW</a>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="col-lg-8">
                                             @{
-                                                var thumbnailImageSrc = accommodation.ImageSrc.Replace("tr=w-800", $"w=1600").Replace("tr=w-700", $"w=700").Replace("tr=w-1600", $"w=1600").Replace("https://ik.imagekit.io/rqlzhe7ko/", $"https://travaloudcdn.azureedge.net/fuse/assets/images/");
+                                                var thumbnailImageSrc = accommodation.ImageSrc?.Replace("tr=w-800", $"w=1600").Replace("tr=w-700", $"w=700").Replace("tr=w-1600", $"w=1600").Replace("https://ik.imagekit.io/rqlzhe7ko/", $"https://travaloudcdn.azureedge.net/fuse/assets/images/");
                                             }
                 
-                                            <img class="img-fluid" src="@thumbnailImageSrc" alt="@accommodation carousel image" />
+                                            <img class="object-fit-cover img-fluid h-100" src="@thumbnailImageSrc" alt="@accommodation carousel image" />
                                         </div>
                                     </div>
                                 </div>
@@ -119,5 +122,5 @@
 }
 
 @section Scripts {
-    <script type="text/javascript" src="/js/property.js"></script>
+    <script type="text/javascript" src="/shared/js/property.min.js"></script>
 }

@@ -1,3 +1,4 @@
+using Travaloud.Application.Catalog.Destinations.Dto;
 using Travaloud.Application.Catalog.Properties.Dto;
 using Travaloud.Application.Catalog.Services.Dto;
 using Travaloud.Application.Catalog.Tours.Dto;
@@ -11,4 +12,6 @@ public interface ITenantWebsiteService : ITransientService
     Task<IEnumerable<TourDto>?> GetTours(CancellationToken cancellationToken);
 
     Task<IEnumerable<ServiceDto>?> GetServices(CancellationToken cancellationToken);
+
+    Task<IEnumerable<DestinationDto>?> GetDestinations(CancellationToken cancellationToken);
 }

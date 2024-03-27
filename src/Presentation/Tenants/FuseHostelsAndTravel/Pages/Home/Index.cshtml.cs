@@ -6,21 +6,21 @@ namespace FuseHostelsAndTravel.Pages.Home;
 
 public class IndexModel : TravaloudBasePageModel
 {
-    [BindProperty] public List<ContainerHalfImageTextComponent> HostelsContainers { get; private set; } = new();
+    [BindProperty] public List<ContainerHalfImageTextComponent> HostelsContainers { get; private set; } = [];
 
-    [BindProperty] public GenericBannerComponent HostelsInVietnamBanner { get; private set; }
+    [BindProperty] public GenericBannerComponent? HostelsInVietnamBanner { get; private set; }
 
-    [BindProperty] public ContainerHalfImageRoundedTextComponent IntroductionBanner { get; private set; }
+    [BindProperty] public ContainerHalfImageRoundedTextComponent? IntroductionBanner { get; private set; }
 
-    [BindProperty] public AlternatingCardHeightComponent ToursCards { get; private set; }
+    [BindProperty] public AlternatingCardHeightComponent? ToursCards { get; private set; }
 
-    [BindProperty] public CarouselCardsComponent ToursCarousel { get; private set; }
+    [BindProperty] public CarouselCardsComponent? ToursCarousel { get; private set; }
 
-    [BindProperty] public CarouselCardsComponent EventsCards { get; private set; }
+    [BindProperty] public CarouselCardsComponent? EventsCards { get; private set; }
 
-    [BindProperty] public FullImageCarouselComponent CarouselComponent { get; private set; }
+    [BindProperty] public FullImageCarouselComponent? CarouselComponent { get; private set; }
 
-    [BindProperty] public OvalContainerComponent MarqueeOvals { get; private set; }
+    [BindProperty] public OvalContainerComponent? MarqueeOvals { get; private set; }
 
     private readonly IEventsService _eventsService;
 

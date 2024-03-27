@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http.Extensions;
-using Travaloud.Application.Catalog.Interfaces;
+﻿using Travaloud.Application.Catalog.Interfaces;
 using Travaloud.Application.Catalog.Services.Dto;
 using Travaloud.Application.Catalog.ServicesEnquiries.Commands;
 using Travaloud.Application.Common.Mailing;

@@ -1,0 +1,66 @@
+@model IEnumerable<Travaloud.Application.Catalog.Properties.Dto.PropertyDto>?
+
+<section id="hostels">
+    <div class="container pt-8 pb-8">
+        <div class="row mb-8">
+            <div class="col-12 text-center has-parallax-scroll">
+                <h2>HOSTEL DETAILS</h2>
+            </div>
+        </div>
+        <div class="row">
+            @if (Model != null && Model.Any())
+            {
+                var animationDelay = 200;
+                var contentCount = Model.Count();
+                var divisibleBy5 = contentCount % 5 == 0;
+                var lgClass = contentCount % 3 == 0 || divisibleBy5 ? 4 : contentCount % 2 == 0 ? 6 : 12;
+                var columnCount = 0;
+
+                foreach (var property in Model)
+                {
+                    if (divisibleBy5)
+                    {
+                        if (columnCount % 3 == 0)
+                        {
+                            lgClass = lgClass == 4 ? 6 : 4;
+                        }
+                    }
+
+                    var hostelAddressGoogleFormat = $"{property.AddressLine1.Replace(" ", "+").Replace(",", "")}+{property.AddressLine2?.Replace(" ", "+").Replace(",", "")}";
+
+                    <div class="col-lg-@lgClass @(property != Model.Last() ? "mb-5" : "") mb-lg-0 has-parallax-scroll">
+                        <div class="card h-100 shadow-0 bg-light-gray">
+                            <div class="card-body">
+                                <h4 class="tilted display-6 mb-4 mt-n5 ms-n4">@property.Name Hostel</h4>
+                                <table cellpadding="8">
+                                    <tr>
+                                        <td><i class="fa-solid fa-phone text-primary"></i></td>
+                                        <td>@property.TelephoneNumber</td>
+                                    </tr>
+                                    <tr>
+                                        <td><i class="fa-solid fa-location-dot text-primary"></i></td>
+                                        <td>@($"{property.AddressLine1}, {property.AddressLine2}")</td>
+                                    </tr>
+                                    @if (!string.IsNullOrEmpty(property.EmailAddress))
+                                    {
+                                        <tr>
+                                            <td><i class="fa-solid fa-at text-primary"></i></td>
+                                            <td>@($"{property.EmailAddress}")</td>
+                                        </tr>
+                                    }
+                                    <tr>
+                                        <td></td>
+                                        <td><a href="@($"http://maps.google.com?saddr=My+Location&daddr={hostelAddressGoogleFormat}")" target="_blank">DIRECTIONS</a></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    animationDelay += 200;
+                }
+            }
+        </div>
+    </div>
+</section>
+

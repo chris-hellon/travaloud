@@ -84,8 +84,7 @@ public class IndexModel : TravaloudBasePageModel
             
             if (Properties == null) return Page();
             
-            HostelsContainers =
-                await WebComponentsBuilder.FuseHostelsAndTravel.GetHostelsContainersAsync(Properties);
+            HostelsContainers = await WebComponentsBuilder.FuseHostelsAndTravel.GetHostelsContainersAsync(Properties);
             BookNowBanner = new BookNowComponent(Properties);
         }
         else
@@ -123,15 +122,15 @@ public class IndexModel : TravaloudBasePageModel
                         HeaderBanner.BackgroundTop = 50;
                     }
 
-                    var directionsNavPills = WebComponentsBuilder.FuseHostelsAndTravel.GetHostelDirectionsNavPillsAsync(Property);
-                    var toursCards = WebComponentsBuilder.FuseHostelsAndTravel.GetToursCarouselCardsAsync(Tours, "onScroll", (property.Id == new Guid("8E1F2B64-6EF8-4321-B6AB-B9B578E0E6CB") ? "NHA TRANG" : "HOI AN") + " EXPERIENCES", null);
-                    var accommodationCards = WebComponentsBuilder.FuseHostelsAndTravel.GetHostelAccommodationCardsAsync(
-                        Property.Rooms, "onScroll", "ACCOMMODATION",
+                    var directionsNavPills = Task.Run(() => WebComponentsBuilder.FuseHostelsAndTravel.GetHostelDirectionsNavPillsAsync(Property)) ;
+                    var toursCards = Task.Run(() => WebComponentsBuilder.FuseHostelsAndTravel.GetToursCarouselCardsAsync(Tours, "onScroll", (property.Id == new Guid("8E1F2B64-6EF8-4321-B6AB-B9B578E0E6CB") ? "NHA TRANG" : "HOI AN") + " EXPERIENCES", null));
+                    var accommodationCards = Task.Run(() => WebComponentsBuilder.FuseHostelsAndTravel.GetHostelAccommodationCardsAsync(
+                        Property.Rooms!, "onScroll", "ACCOMMODATION",
                         Property.Id == new Guid("7335037B-853F-4E66-B61B-8E02BDCA9251") ? $"All private & shared rooms at FUSE {property.Name} Hostel come with pool or ocean views as standard so there is no better place to stay if beach vibes are your thing." :
                         property.Id == new Guid("8E1F2B64-6EF8-4321-B6AB-B9B578E0E6CB") ? $"FUSE {property.Name} Hostel features an outdoor swimming pool, shared lounge, a terrace and restaurant in Nha Trang. Featuring a bar, the hostel is close to several noted attractions." :
-                        "The ultimate cure for your backpacker's fatigue, conveniently located at the edge of Hoi An's Old Town and equipped with all the amenities you could possibly need!");
+                        "The ultimate cure for your backpacker's fatigue, conveniently located at the edge of Hoi An's Old Town and equipped with all the amenities you could possibly need!"));
 
-                    var facilitiesTable = WebComponentsBuilder.FuseHostelsAndTravel.GetHostelFacilitiesAsync(Property);
+                    var facilitiesTable = Task.Run(() => WebComponentsBuilder.FuseHostelsAndTravel.GetHostelFacilitiesAsync(Property));
 
                     await Task.WhenAll(directionsNavPills, toursCards, accommodationCards, facilitiesTable);
 
@@ -141,8 +140,7 @@ public class IndexModel : TravaloudBasePageModel
                     FacilitiesTable = facilitiesTable.Result;
 
                     var introductionBannerImage = Property.Id == new Guid("8e1f2b64-6ef8-4321-b6ab-b9b578e0e6cb") ? "https://travaloudcdn.azureedge.net/fuse/assets/images/99c08e57-cd8a-4fd0-aaad-ffb87a6c581d.jpg?w=1600" : "https://travaloudcdn.azureedge.net/fuse/assets/images/OT soft opening _ more (40 of 154).jpg?w=600";
-
-  
+                    
                     IntroductionBanner = new ContainerHalfImageRoundedTextComponent(new List<string>() { "ABOUT" }, null, Property.Description,
                             introductionBannerImage, null, new List<OvalContainerComponent>()
                             {

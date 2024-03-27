@@ -4,7 +4,7 @@ namespace Travaloud.Infrastructure.Common.Extensions;
 
 public static class SessionExtensions
 {
-    public static T? GetOrCreateObjectFromSession<T>(this ISession session, string key) where T : new()
+    public static T GetOrCreateObjectFromSession<T>(this ISession session, string key) where T : new()
     {
         var jsonString = session.GetString(key);
 
@@ -17,7 +17,7 @@ public static class SessionExtensions
         }
 
         var existingObject = JsonSerializer.Deserialize<T>(jsonString);
-        return existingObject;
+        return (existingObject ?? default(T))!;
     }
 
     public static void UpdateObjectInSession<T>(this ISession session, string key, T updatedObject)

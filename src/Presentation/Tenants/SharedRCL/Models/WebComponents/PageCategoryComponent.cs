@@ -2,9 +2,9 @@
 
 public class PageCategoryComponent
 {
-	public string Title { get; private set; }
-	public string SubTitle { get; private set; }
-	public GenericCardsComponent Cards { get; private set; }
+	public string? Title { get; private set; }
+	public string? SubTitle { get; private set; }
+	public GenericCardsComponent? Cards { get; private set; }
 	public bool IncludeTextureBanner { get; set; } = true;
 
 	public PageCategoryComponent()

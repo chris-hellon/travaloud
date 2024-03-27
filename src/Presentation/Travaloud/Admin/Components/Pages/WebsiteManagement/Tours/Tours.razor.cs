@@ -1,10 +1,13 @@
 using System.Text.Json;
+using DocumentFormat.OpenXml.Drawing.Charts;
 using Mapster;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using MudBlazor;
 using Travaloud.Admin.Components.Dialogs;
 using Travaloud.Admin.Components.EntityTable;
+using Travaloud.Application.Catalog.Destinations.Dto;
+using Travaloud.Application.Catalog.Destinations.Queries;
 using Travaloud.Application.Catalog.Interfaces;
 using Travaloud.Application.Catalog.Tours.Commands;
 using Travaloud.Application.Catalog.Tours.Dto;
@@ -19,6 +22,8 @@ namespace Travaloud.Admin.Components.Pages.WebsiteManagement.Tours;
 public partial class Tours
 {
     [Inject] protected IToursService ToursService { get; set; } = default!;
+
+    [Inject] protected IDestinationsService DestinationsService { get; set; } = default!;
 
     private EntityServerTableContext<TourDto, Guid, TourViewModel> Context { get; set; } = default!;
     
@@ -50,6 +55,7 @@ public partial class Tours
     };
 
     private bool _canViewTourGroups;
+    private bool _canViewDestinations;
 
     protected override void OnAfterRender(bool firstRender)
     {
@@ -57,6 +63,7 @@ public partial class Tours
         {
             WizardSteps["Itineraries"] = false;
             _canViewTourGroups = false;
+            _canViewDestinations = true;
         }
         else
         {
@@ -124,6 +131,8 @@ public partial class Tours
                         }
                     }
                 }
+                
+                tour.TourDestinationLookups = tour.SelectedDestinations;
 
                 await ToursService.CreateAsync(parsedRequest);
                 tour.ImageInBytes = string.Empty;
@@ -162,17 +171,59 @@ public partial class Tours
                     parsedModel.MaxCapacity = null;
                 }
 
+                var destinations = await DestinationsService.SearchAsync(new SearchDestinationsRequest()
+                {
+                    PageNumber = 1,
+                    PageSize = 99999
+                });
+
+                if (destinations?.Data == null) return parsedModel;
+                {
+                    foreach (var destination in destinations.Data)
+                    {
+                        parsedModel.Destinations?.Add(
+                            new TourDestinationLookupRequest(tour.Id, destination.Id, destination.Name));
+                    }
+
+                    if (parsedModel.TourDestinationLookups == null) return parsedModel;
+                    {
+                        var selectedDestinations = parsedModel.TourDestinationLookups.Select(destinationLookup =>
+                                parsedModel.Destinations.FirstOrDefault(x =>
+                                    x.DestinationId == destinationLookup.DestinationId))
+                            .Select(destination => new TourDestinationLookupRequest(tour.Id,
+                                destination.Id,
+                                destination.Name))
+                            .ToList();
+
+                        parsedModel.SelectedDestinations = selectedDestinations;
+                    }
+                }
+
                 return parsedModel;
             },
             getDefaultsFunc: async () =>
             {
                 var tour = new TourViewModel();
+                
+                var getTourCategories = Task.Run(() => ToursService.GetCategoriesAsync());
+                var getParentTourCategories = Task.Run(() => ToursService.GetParentCategoriesAsync());
+                var getDestinations = Task.Run(() => DestinationsService.SearchAsync(new SearchDestinationsRequest()
+                {
+                    PageNumber = 1,
+                    PageSize = 99999
+                }));
 
-                var tourCategories = await ToursService.GetCategoriesAsync();
-                var parentTourCategories = await ToursService.GetParentCategoriesAsync();
+                await Task.WhenAll(getTourCategories, getParentTourCategories, getDestinations);
+                
+                tour.TourCategories = getTourCategories.Result.Adapt<IList<TourCategoryRequest>>();
+                tour.ParentTourCategories = getParentTourCategories.Result.Adapt<IList<TourCategoryRequest>>();
 
-                tour.TourCategories = tourCategories.Adapt<IList<TourCategoryRequest>>();
-                tour.ParentTourCategories = parentTourCategories.Adapt<IList<TourCategoryRequest>>();
+                var destinations = getDestinations.Result.Data;
+
+                foreach (var destination in destinations)
+                {
+                    tour.Destinations.Add(new TourDestinationLookupRequest(tour.Id, destination.Id, destination.Name));
+                }
 
                 return tour;
             },
@@ -219,6 +270,8 @@ public partial class Tours
                         }
                     }
                 }
+
+                tour.TourDestinationLookups = tour.SelectedDestinations;
 
                 await ToursService.UpdateAsync(id, tour.Adapt<UpdateTourRequest>());
 
@@ -543,4 +596,6 @@ public class TourViewModel : UpdateTourRequest
     public string? ImageExtension { get; set; }
     public bool UseTourGroup { get; set; }
     public IEnumerable<string>? TourCategoriesOptions { get; set; }
+    public IList<TourDestinationLookupRequest>? Destinations { get; set; } = new List<TourDestinationLookupRequest>();
+    public IEnumerable<TourDestinationLookupRequest>? SelectedDestinations = [];
 }

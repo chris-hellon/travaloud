@@ -26,7 +26,7 @@ public class IndexModel : TravaloudBasePageModel
 
     [BindProperty] public HeaderBannerComponent? HeaderBanner { get; private set; }
     
-    [BindProperty] public PaginationResponse<TravelGuideDto> TravelGuides { get; private set; }
+    [BindProperty] public PaginationResponse<TravelGuideDto>? TravelGuides { get; private set; }
     
     public async Task<IActionResult> OnGetAsync(int? pageNumber = null)
     {

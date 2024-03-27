@@ -4,14 +4,23 @@
 @Html.DisplayFor(x => x.CarouselComponent)
 
 <section id="introduction" class="overflow-hidden">
-    @Html.DisplayFor(x => x.IntroductionBanner)
+    @if (Model.IntroductionBanner != null)
+    {
+        @Html.DisplayFor(x => x.IntroductionBanner)
+    }
 </section>
 <section id="hostels" class="bg-light pb-lg-5 overflow-hidden">
-    @Html.DisplayFor(x => x.HostelsInVietnamBanner)
-    @Html.DisplayFor(x => x.HostelsContainers)
+    @if (Model.HostelsInVietnamBanner != null)
+    {
+        @Html.DisplayFor(x => x.HostelsInVietnamBanner)
+        @Html.DisplayFor(x => x.HostelsContainers)
+    }
 </section>
 <section id="parallaxBanner" class="bg-light pt-5 position-relative">
-    @Html.DisplayFor(x => x.MarqueeOvals)
+    @if (Model.MarqueeOvals != null)
+    {
+        @Html.DisplayFor(x => x.MarqueeOvals)
+    }
     <div class="container-fluid bg-black tilted pt-lg-8 pb-lg-8 text-white">
         <div class="marquee">
             <span class="fw-bold">New beds</span>
@@ -76,16 +85,25 @@
     </div>
 </section>
 <section id="tours" class="bg-light d-none d-lg-block">
-    @Html.DisplayFor(x => x.ToursCards)
+    @if (Model.ToursCards != null)
+    {
+        @Html.DisplayFor(x => x.ToursCards)
+    }
 </section>
 <section id="toursCarousel" class="bg-light d-block d-lg-none">
-    @Html.DisplayFor(x => x.ToursCarousel)
+    @if (Model.ToursCarousel != null)
+    {
+        @Html.DisplayFor(x => x.ToursCarousel)   
+    }
 </section>
 
 <section id="events" class="pt-8">
     <div class="container">
         <div class="row gx-4">
-            @Html.DisplayFor(x => x.EventsCards)
+            @if (Model.EventsCards != null)
+            {
+                @Html.DisplayFor(x => x.EventsCards)   
+            }
         </div>
     </div>
 </section>

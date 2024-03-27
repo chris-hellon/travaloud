@@ -1,4 +1,7 @@
-﻿namespace Travaloud.Tenants.SharedRCL.Pages.TourBooking;
+﻿using Travaloud.Application.Basket;
+using Travaloud.Application.Basket.Dto;
+
+namespace Travaloud.Tenants.SharedRCL.Pages.TourBooking;
 
 public class IndexModel : TravaloudBasePageModel
 {
@@ -7,7 +10,7 @@ public class IndexModel : TravaloudBasePageModel
     {
         await OnGetDataAsync();
 
-        Basket = HttpContext.Session.GetOrCreateObjectFromSession<BasketModel>("tourBookingBasket");
+        Basket = HttpContext.Session.GetOrCreateObjectFromSession<BasketModel>("BookingBasket");
         Basket.Items = Basket.Items.Select(x =>
         {
             x.TourDates = x.TourDates.Select(td =>

@@ -15,7 +15,7 @@ public class FullImageCarouselComponent
 
 	}
 
-	public FullImageCarouselComponent(List<ImageDto> carouselImages, BookNowComponent bookNowComponent = null, bool fullCoverMask = false)
+	public FullImageCarouselComponent(List<ImageDto> carouselImages, BookNowComponent? bookNowComponent = null, bool fullCoverMask = false)
 	{
 		BookNowComponent = bookNowComponent;
 		CarouselImages = carouselImages;

@@ -1,0 +1,35 @@
+:root{
+  --mdb-font-din-2014-regular: #{inspect($font-family-din-2014-regular)};
+  --mdb-font-din-2014-demi: #{inspect($font-family-din-2014-demi)};
+  --mdb-font-din-2014-narrow-bold: #{inspect($font-family-din-narrow-bold)};
+  --mdb-font-din-2014-narrow: #{inspect($font-family-din-narrow)};
+  --mdb-font-din-2014-narrow-extra-light: #{inspect($font-family-din-narrow-extra-light)};
+  --mdb-font-carousel-span: #{inspect($font-family-din-narrow-bold)};
+}
+
+body {
+  overscroll-behavior: none;
+  padding-right: 0px !important;
+  overflow-y: scroll;
+  overflow-y: overlay;
+  overflow-x: hidden;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent !important;
+  width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 5px;
+  background: #e5e5e5;
+  border: 1px solid #d5d5d5;
+}
+
+html.no-scrollbar, html.no-scrollbar body {
+  overflow: hidden !important;
+}

@@ -11,14 +11,14 @@ public class ButtonComponent
 
     }
 
-    public ButtonComponent(string cssClass = null, string href = null, string buttonText = null)
+    public ButtonComponent(string? cssClass = null, string? href = null, string? buttonText = null)
     {
         CssClass = cssClass ?? "btn-primary";
         Href = href;
         ButtonText = buttonText ?? "FIND OUT MORE";
     }
 
-    public ButtonComponent(string href = null, string buttonText = null)
+    public ButtonComponent(string? href = null, string? buttonText = null)
     {
         CssClass = "btn-primary";
         Href = href;

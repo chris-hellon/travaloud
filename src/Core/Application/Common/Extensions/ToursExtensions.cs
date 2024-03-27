@@ -11,100 +11,103 @@ public static class ToursExtensions
         var tourPrices = new List<TourPrice>();
         var tourDates = new List<TourDate>();
 
-        if (prices?.Any() == true && dates?.Any() == true)
+        if (prices?.Any() == true || dates?.Any() == true)
         {
-            foreach (var tourPriceRequest in prices)
-            {
-                var price = tour.TourPrices?.FirstOrDefault(tp => tp.Id == tourPriceRequest.Id);
-
-                if (price is null)
+            if (prices != null)
+                foreach (var tourPriceRequest in prices)
                 {
-                    // Create a new TourPrice
-                    price = new TourPrice(tourPriceRequest.Price ?? 0m,
-                        tourPriceRequest.Title,
-                        tourPriceRequest.Description,
-                        tourPriceRequest.MonthFrom,
-                        tourPriceRequest.MonthTo,
-                        tourPriceRequest.DayDuration,
-                        tourPriceRequest.NightDuration,
-                        tourPriceRequest.HourDuration,
-                        tourPriceRequest.Id);
-                }
-                else
-                {
-                    // Update an existing TourPrice
-                    price.Update(tourPriceRequest.Price,
-                        tourPriceRequest.Title,
-                        tourPriceRequest.Description,
-                        tourPriceRequest.MonthFrom,
-                        tourPriceRequest.MonthTo,
-                        tourPriceRequest.DayDuration,
-                        tourPriceRequest.NightDuration,
-                        tourPriceRequest.HourDuration,
-                        tour.Id);
-                }
+                    var price = tour.TourPrices?.FirstOrDefault(tp => tp.Id == tourPriceRequest.Id);
 
-                tourPrices.Add(price);
-
-                var priceDates = dates.Where(x => x.TourPriceId == tourPriceRequest.Id);
-
-                if (!priceDates.Any()) continue;
-
-                foreach (var tourDateRequest in priceDates)
-                {
-                    var date = tour.TourDates?.FirstOrDefault(td => td.Id == tourDateRequest.Id);
-
-                    if (tourDateRequest is not {StartDate: not null, EndDate: not null, StartTime: not null}) continue;
-                    
-                    tourDateRequest.StartDate = tourDateRequest.StartDate.Value.Add(tourDateRequest.StartTime.Value);
-
-                    if (date is null)
+                    if (price is null)
                     {
-                        tourDateRequest.AvailableSpaces = availableSpaces;
-
-                        if (tourDateRequest.AvailableSpaces.HasValue)
-                        {
-                            date = new TourDate(tourDateRequest.StartDate.Value, tourDateRequest.EndDate.Value,
-                                tourDateRequest.AvailableSpaces.Value, tourDateRequest.PriceOverride, tour.Id,
-                                tourDateRequest.TourPriceId, price);
-                        }
+                        // Create a new TourPrice
+                        price = new TourPrice(tourPriceRequest.Price ?? 0m,
+                            tourPriceRequest.Title,
+                            tourPriceRequest.Description,
+                            tourPriceRequest.MonthFrom,
+                            tourPriceRequest.MonthTo,
+                            tourPriceRequest.DayDuration,
+                            tourPriceRequest.NightDuration,
+                            tourPriceRequest.HourDuration,
+                            tourPriceRequest.Id);
                     }
                     else
                     {
-                        tourDateRequest.AvailableSpaces = date.AvailableSpaces;
+                        // Update an existing TourPrice
+                        price.Update(tourPriceRequest.Price,
+                            tourPriceRequest.Title,
+                            tourPriceRequest.Description,
+                            tourPriceRequest.MonthFrom,
+                            tourPriceRequest.MonthTo,
+                            tourPriceRequest.DayDuration,
+                            tourPriceRequest.NightDuration,
+                            tourPriceRequest.HourDuration,
+                            tour.Id);
+                    }
 
-                        if (previousAvailableSpaces.HasValue && previousAvailableSpaces.Value != availableSpaces)
+                    tourPrices.Add(price);
+
+                    var priceDates = dates.Where(x => x.TourPriceId == tourPriceRequest.Id);
+
+                    if (!priceDates.Any()) continue;
+
+                    foreach (var tourDateRequest in priceDates)
+                    {
+                        var date = tour.TourDates?.FirstOrDefault(td => td.Id == tourDateRequest.Id);
+
+                        if (tourDateRequest is not
+                            {StartDate: not null, EndDate: not null, StartTime: not null}) continue;
+
+                        tourDateRequest.StartDate =
+                            tourDateRequest.StartDate.Value.Add(tourDateRequest.StartTime.Value);
+
+                        if (date is null)
                         {
-                            var dateAvailableSpaces = date.AvailableSpaces;
-                            var previousAvailableDateSpacesDifference =
-                                previousAvailableSpaces.Value - dateAvailableSpaces;
+                            tourDateRequest.AvailableSpaces = availableSpaces;
 
-                            if (previousAvailableDateSpacesDifference == 0)
+                            if (tourDateRequest.AvailableSpaces.HasValue)
                             {
-                                tourDateRequest.AvailableSpaces = availableSpaces;
-                            }
-                            else
-                            {
-                                tourDateRequest.AvailableSpaces =
-                                    availableSpaces - previousAvailableDateSpacesDifference;
+                                date = new TourDate(tourDateRequest.StartDate.Value, tourDateRequest.EndDate.Value,
+                                    tourDateRequest.AvailableSpaces.Value, tourDateRequest.PriceOverride, tour.Id,
+                                    tourDateRequest.TourPriceId, price);
                             }
                         }
                         else
                         {
-                            tourDateRequest.AvailableSpaces = availableSpaces;
+                            tourDateRequest.AvailableSpaces = date.AvailableSpaces;
+
+                            if (previousAvailableSpaces.HasValue && previousAvailableSpaces.Value != availableSpaces)
+                            {
+                                var dateAvailableSpaces = date.AvailableSpaces;
+                                var previousAvailableDateSpacesDifference =
+                                    previousAvailableSpaces.Value - dateAvailableSpaces;
+
+                                if (previousAvailableDateSpacesDifference == 0)
+                                {
+                                    tourDateRequest.AvailableSpaces = availableSpaces;
+                                }
+                                else
+                                {
+                                    tourDateRequest.AvailableSpaces =
+                                        availableSpaces - previousAvailableDateSpacesDifference;
+                                }
+                            }
+                            else
+                            {
+                                tourDateRequest.AvailableSpaces = availableSpaces;
+                            }
+
+                            date.Update(tourDateRequest.StartDate, tourDateRequest.EndDate,
+                                tourDateRequest.AvailableSpaces, tourDateRequest.PriceOverride, tour.Id,
+                                tourDateRequest.TourPriceId);
                         }
 
-                        date.Update(tourDateRequest.StartDate, tourDateRequest.EndDate,
-                            tourDateRequest.AvailableSpaces, tourDateRequest.PriceOverride, tour.Id,
-                            tourDateRequest.TourPriceId);
-                    }
-
-                    if (date is not null)
-                    {
-                        tourDates.Add(date);
+                        if (date is not null)
+                        {
+                            tourDates.Add(date);
+                        }
                     }
                 }
-            }
         }
 
         var tourDatesToRemove = tour.TourDates?
@@ -191,6 +194,35 @@ public static class ToursExtensions
         tour.TourCategoryLookups = tourCategoryLookups;
     }
 
+    public static void ProcessTourDestinations(this Tour tour, IEnumerable<TourDestinationLookupRequest>? request, DefaultIdType userId)
+    {
+        var tourDestinationLookups = new List<TourDestinationLookup>();
+
+        if (request?.Any() == true)
+        {
+            tourDestinationLookups.AddRange(request.Select(tourDestinationLookupRequest =>
+                new TourDestinationLookup(tourDestinationLookupRequest.TourId,
+                    tourDestinationLookupRequest.DestinationId)));
+        }
+
+        var destinationsToRemove = tour.TourDestinationLookups?
+            .Where(existingRoom => tourDestinationLookups.All(newDestination => newDestination.Id != existingRoom.Id))
+            .ToList();
+
+        if (destinationsToRemove != null && destinationsToRemove.Count != 0)
+        {
+            foreach (var destination in destinationsToRemove)
+            {
+                destination.DomainEvents.Add(EntityDeletedEvent.WithEntity(destination));
+                destination.FlagAsDeleted(userId);
+                tourDestinationLookups.Add(destination);
+            }
+        }
+
+        tour.TourDestinationLookups = tourDestinationLookups;
+    }
+
+    
     public static async Task ProcessTourItineraries(this Tour tour, IList<TourItineraryRequest>? request, DefaultIdType userId, IFileStorageService file, CancellationToken cancellationToken)
     {
         var itineraries = new List<TourItinerary>();

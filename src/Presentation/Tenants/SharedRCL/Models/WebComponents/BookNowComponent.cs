@@ -12,13 +12,13 @@ public class BookNowComponent : BaseComponent
     public Guid? PropertyId { get; private set; }
 
     [Required(ErrorMessage = "Please choose a Check In Date")]
-    public DateTime? CheckInDate { get; private set; }
+    public DateTime? CheckInDate { get; set; }
 
     [Required(ErrorMessage = "Please choose a Check In Date")]
-    public DateTime? CheckOutDate { get; private set; }
+    public DateTime? CheckOutDate { get; set; }
         
     [Required(ErrorMessage = "Please choose a Check In Out Date")]
-    public string DateRange { get; private set; }
+    public string DateRange { get; set; }
 
     [Required(ErrorMessage = "Please choose a Date")]
     public DateTime? TourDate { get; private set; }

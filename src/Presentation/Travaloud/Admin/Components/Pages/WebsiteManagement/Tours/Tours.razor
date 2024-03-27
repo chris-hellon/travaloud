@@ -1,6 +1,7 @@
 @page "/management/tours"
 @using Travaloud.Application.Catalog.Tours.Dto
 @using Travaloud.Application.Catalog.Tours.Commands
+@using Travaloud.Application.Catalog.Destinations.Dto
 
 @attribute [MustHavePermission(TravaloudAction.View, TravaloudResource.Tours)]
 
@@ -17,7 +18,16 @@
 
         <MudItem xs="12" md="5">
             <div class="d-flex" style="align-items:baseline">
-                @if (context.UseTourGroup)
+                @if (_canViewDestinations)
+                {
+                    <MudSelect T="TourDestinationLookupRequest" Label="Destination" @bind-SelectedValues="@context.SelectedDestinations" MultiSelection="true" AnchorOrigin="Origin.BottomCenter" Variant="Variant.Outlined" Clearable>
+                        @foreach (var destination in context.Destinations)
+                        {
+                            <MudSelectItem Value="@destination"/>
+                        }
+                    </MudSelect>
+                }
+                else if (context.UseTourGroup)
                 {
                     <MudSelect T="Guid?" Label="Tour Group" Required="context.UseTourGroup" Variant="Variant.Outlined" @bind-Value="context.TourCategoryId" Clearable="true" For="@(() => context.TourCategoryId)" HelperText="Does this Tour belong to a group?">
                         @if (context.TourCategories != null)

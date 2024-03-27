@@ -13,7 +13,7 @@ public class ImageCarouselComponent : BaseComponent
 
     }
 
-    public ImageCarouselComponent(string imageSrc, string title, string subTitle = null, string smallTitle = null, List<string> urls = null)
+    public ImageCarouselComponent(string imageSrc, string title, string? subTitle = null, string? smallTitle = null, List<string>? urls = null)
     {
         ImageSrc = imageSrc;
         Title = title;

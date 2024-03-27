@@ -130,27 +130,27 @@ public static class PropertiesExtensions
         property.Facilities = requestFacilities;
     }
     
-    public static void ProcessDestinations(this Property property, IEnumerable<PropertyDestinationLookupRequest> request, DefaultIdType userId)
-    {
-        var requestDestinations = (from destinationRequest in request let destination = property.PropertyDestinationLookups?.FirstOrDefault(x => x.Id == destinationRequest.Id) select destination ?? new PropertyDestinationLookup(destinationRequest.DestinationId)).ToList();
-
-        var destinationsToRemove = property.PropertyDestinationLookups?
-            .Where(existingRoom => requestDestinations.All(newRoom => newRoom.Id != existingRoom.Id))
-            .ToList();
-
-        if (destinationsToRemove != null && destinationsToRemove.Count != 0)
-        {
-            foreach (var destination in destinationsToRemove)
-            {
-                destination.DomainEvents.Add(EntityDeletedEvent.WithEntity(destination));
-                destination.FlagAsDeleted(userId);
-                requestDestinations.Add(destination);
-            }
-        }
-
-        property.PropertyDestinationLookups = requestDestinations;
-    }
-    
+    // public static void ProcessDestinations(this Property property, IEnumerable<PropertyDestinationLookupRequest> request, DefaultIdType userId)
+    // {
+    //     var requestDestinations = (from destinationRequest in request let destination = property.PropertyDestinationLookups?.FirstOrDefault(x => x.Id == destinationRequest.Id) select destination ?? new PropertyDestinationLookup(destinationRequest.DestinationId)).ToList();
+    //
+    //     var destinationsToRemove = property.PropertyDestinationLookups?
+    //         .Where(existingRoom => requestDestinations.All(newRoom => newRoom.Id != existingRoom.Id))
+    //         .ToList();
+    //
+    //     if (destinationsToRemove != null && destinationsToRemove.Count != 0)
+    //     {
+    //         foreach (var destination in destinationsToRemove)
+    //         {
+    //             destination.DomainEvents.Add(EntityDeletedEvent.WithEntity(destination));
+    //             destination.FlagAsDeleted(userId);
+    //             requestDestinations.Add(destination);
+    //         }
+    //     }
+    //
+    //     property.PropertyDestinationLookups = requestDestinations;
+    // }
+    //
     public static async Task ProcessRooms(this Property property, IList<PropertyRoomRequest>? request, DefaultIdType userId, IFileStorageService file, CancellationToken cancellationToken)
     {
         var requestRooms = new List<PropertyRoom>();
@@ -247,4 +247,34 @@ public static class PropertiesExtensions
 
         property.Images = requestImages;
     }
+    
+    public static void ProcessDestinations(this Property tour, IEnumerable<PropertyDestinationLookupRequest>? request, DefaultIdType userId)
+    {
+        var tourDestinationLookups = new List<PropertyDestinationLookup>();
+
+        if (request?.Any() == true)
+        {
+            tourDestinationLookups.AddRange(request.Select(tourDestinationLookupRequest =>
+                new PropertyDestinationLookup(tourDestinationLookupRequest.PropertyId,
+                    tourDestinationLookupRequest.DestinationId)));
+        }
+
+        var destinationsToRemove = tour.PropertyDestinationLookups?
+            .Where(existingRoom => tourDestinationLookups.All(newDestination => newDestination.Id != existingRoom.Id))
+            .ToList();
+
+        if (destinationsToRemove != null && destinationsToRemove.Count != 0)
+        {
+            foreach (var destination in destinationsToRemove)
+            {
+                destination.DomainEvents.Add(EntityDeletedEvent.WithEntity(destination));
+                destination.FlagAsDeleted(userId);
+                tourDestinationLookups.Add(destination);
+            }
+        }
+
+        tour.PropertyDestinationLookups = tourDestinationLookups;
+    }
+
+
 }

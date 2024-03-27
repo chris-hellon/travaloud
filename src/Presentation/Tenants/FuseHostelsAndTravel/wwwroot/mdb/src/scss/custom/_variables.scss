@@ -1,0 +1,136 @@
+$variable-prefix: mdb- !default;
+$prefix: $variable-prefix !default;
+
+// scss-docs-start theme-color-variables
+$primary: #ab3dff !default;
+$secondary: #ff9fa8 !default;
+$success: #14a44d !default;
+$danger: #dc4c64 !default;
+$warning: #e4a11b !default;
+$info: #54b4d3 !default;
+$light: #f9f9f9 !default;
+$dark: #0d2536 !default;
+$white: #fff !default;
+$black: #090511 !default;
+$dark: $black !default;
+$gray: #323031 !default;
+$light-gray:#f9f8f9 !default;
+$pink: #eacfff !default;
+$purple: #9134d9 !default;
+$mustard: #d1ac00 !default;
+$red: #f66 !default;
+$light-pink: #fb62f6 !default;
+$teritary: $pink !default;
+
+$theme-colors: (
+        'primary': $primary,
+        'secondary': $secondary,
+        'teritary': $teritary,
+        'success': $success,
+        'danger': $danger,
+        'warning': $warning,
+        'info': $info,
+        'light': $light,
+        'dark': $dark,
+        'gray': $gray,
+        'light-gray': $light-gray,
+        'mustard': $mustard,
+        'red': $red,
+        'light-pink': $light-pink
+) !default;
+// scss-docs-end theme-color-variables
+
+// scss-docs-start font-variables
+$font-family-din-2014-regular: 'DIN 2014 Regular' !default;
+$font-family-din-2014-demi: 'DIN 2014 Demi' !default;
+$font-family-din-narrow-bold: 'DIN 2014 Narrow Bold' !default;
+$font-family-din-narrow: 'DIN 2014 Narrow' !default;
+$font-family-din-narrow-extra-light: 'DIN 2014 Narrow Extra Light' !default;
+$font-family-base: var(--#{$prefix}font-din-2014-regular) !default;
+$body-color: #090511 !default;
+$body-bg: #fff !default;
+$font-size-base: 1.2rem !default;
+$h1-font-size: $font-size-base * 2.5 !default;
+$h2-font-size: $font-size-base * 2 !default;
+$h3-font-size: $font-size-base * 1.75 !default;
+$h4-font-size: $font-size-base * 1.5 !default;
+$h5-font-size: $font-size-base * 1.25 !default;
+$h6-font-size: 1rem !default;
+$hr-opacity:0.15 !default;
+// scss-docs-start font-variables
+
+//scss-docs-start spacing
+$spacer: 1rem !default;
+$spacers: (
+        0: 0,
+        1: $spacer * 0.25,
+        2: $spacer * 0.5,
+        3: $spacer,
+        4: $spacer * 1.5,
+        5: $spacer * 3,
+        6: $spacer * 4,
+        7: $spacer * 5,
+        8: $spacer * 6,
+        9: $spacer * 7,
+        10: $spacer * 8
+) !default;
+//scss-docs-end spacing
+
+$pagination-active-bg: $primary !default;
+$pagination-active-color: $white !default;
+$pagination-active-box-shadow: 0 4px 9px -4px $primary !default;
+
+// scss-docs-start navigation-variables
+$navbar-dark-color: $white !default;
+$navbar-dark-hover-color: $white !default;
+$nav-link-font-size: .875rem !default;
+$nav-link-font-family: var(--#{$prefix}font-din-2014-demi) !default;
+$navbar-nav-link-padding-x: 0rem !default;
+$navbar-nav-link-margin-x: 1rem !default;
+$nav-link-padding-y: 0rem !default;
+$navbar-box-shadow: unset !default;
+$nav-pills-link-active-color: $white !default;
+$nav-pills-link-color: $dark !default;
+$nav-pills-link-active-bg: $gray !default;
+$nav-pills-link-border-radius: .25rem .25rem 0rem 0rem !default;
+$nav-pills-link-font-weight: 500 !default;
+$scrollspy-menu-sidebar-font-size: .8rem !default;
+$scrollspy-menu-sidebar-color: $primary !default;
+$scrollspy-menu-sidebar-font-weight: 400 !default;
+// scss-docs-end navigation-variables
+
+// scss-docs-start button-variables
+$btn-font-family: var(--#{$prefix}font-din-2014-regular) !default;
+$btn-font-size: .875rem;
+$btn-box-shadow: 5px 5px 0 0 $pink !important;
+$btn-hover-box-shadow: 5px 5px 0 0 $pink !important;
+$btn-box-shadow-state: 5px 5px 0 0 $pink !important;
+$btn-color: $white !default;
+$btn-line-height: 1.125;
+$btn-padding-top: .938rem;
+$btn-padding-bottom: .938rem;
+$btn-outline-padding-top: .938rem;
+$btn-outline-padding-bottom: .938rem;
+$btn-outline-border-width: 1px;
+$btn-outline-box-shadow: #fff 5px 5px 0 -1px, var(--mdb-primary) 5px 5px !important;
+$btn-border-radius: .5rem;
+$btn-font-weight: bold;
+$btn-letter-spacing: .063rem;
+$btn-floating-width: 2.3125rem;
+$btn-floating-height: 2.3125rem;
+// scss-docs-start button-variables
+
+// scss-docs-start accordion
+$accordion-button-padding-x:0x !default;
+$accordion-button-padding-y:0x !default;
+$accordion-button-bg: transparent !default;
+$accordion-button-color: $white !default;
+$accordion-bg: transparent !default;
+$accordion-color: $white !default;
+// scss-docs-end accordion
+
+$dropdown-item-border-radius: 0rem !default;
+$dropdown-border-radius: 0rem !default;
+
+$modal-backdrop-opacity: .85 !default;
+$modal-backdrop-bg: #000000 !default;

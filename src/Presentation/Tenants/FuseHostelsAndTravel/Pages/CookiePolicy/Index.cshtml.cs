@@ -14,7 +14,7 @@ public class IndexModel : TravaloudBasePageModel
         return "Learn about Fuse Hostels and Travels' use of cookies on our website and manage your cookie settings with our easy-to-use cookie consent tool.";
     }
 
-    public IEnumerable<OvalContainerComponent> OvalContainers { get; private set; } = null;
+    public IEnumerable<OvalContainerComponent>? OvalContainers { get; private set; }
 
     public async Task<IActionResult> OnGetAsync()
     {
