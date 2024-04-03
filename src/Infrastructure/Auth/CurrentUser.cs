@@ -11,6 +11,11 @@ public class CurrentUser : ICurrentUser, ICurrentUserInitializer
     private readonly IMultiTenantContextAccessor<TravaloudTenantInfo>? _multiTenantContextAccessor;
     private TravaloudTenantInfo? _currentTenant;
 
+    public CurrentUser(IMultiTenantContextAccessor<TravaloudTenantInfo>? multiTenantContextAccessor)
+    {
+        _multiTenantContextAccessor = multiTenantContextAccessor;
+    }
+    
     public TravaloudTenantInfo? CurrentTenant
     {
         get
@@ -28,7 +33,7 @@ public class CurrentUser : ICurrentUser, ICurrentUserInitializer
     public string? Name => _user?.Identity?.Name;
 
     private DefaultIdType _userId = DefaultIdType.Empty;
-
+    
     public DefaultIdType GetUserId() =>
         IsAuthenticated()
             ? DefaultIdType.Parse(_user?.GetUserId() ?? DefaultIdType.Empty.ToString())

@@ -7,7 +7,7 @@ $("document").ready(function() {
 });
 
 const bindSelectsAndModals = () => {
-    $('.datepicker-disable-past, .datepicker-disable-future').on('close.mdb.datepicker', function () {
+    $('.datepicker-disable-past, .datepicker-disable-future, .datepicker-with-filter, .confirm-date-on-select, .datepicker-close-on-select').on('close.mdb.datepicker', function () {
         $('.datepicker-backdrop').remove();
         window.setTimeout(function () {
             $('.datepicker-modal-container').remove();
@@ -62,3 +62,15 @@ const validateSelectElement = (select) => {
 
     return true;
 }
+
+$('input[type="number"]').on('input', function() {
+    let maxAttr = $(this).attr('max');
+
+    if (typeof maxAttr !== typeof undefined && maxAttr !== false) {
+        let maxVal = parseFloat(maxAttr);
+        let enteredVal = parseFloat($(this).val());
+        if (!isNaN(enteredVal) && enteredVal > maxVal) {
+            $(this).val(maxVal);
+        }
+    }
+});

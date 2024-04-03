@@ -46,9 +46,9 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    @if (Model.Service.ServiceFields != null && Model.Service.ServiceFields.Any())
+                                    @if (Model.Service.ServiceFields.Any())
                                     {
-                                        @Html.DisplayFor(x => x.Service.ServiceFields)
+                                        @Html.DisplayFor(x => x.Service!.ServiceFields)
 
                                         <div class="col-lg-12">
                                             <button type="submit" class="btn btn-primary btn-block mb-4">Send</button>

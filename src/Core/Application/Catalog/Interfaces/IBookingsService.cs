@@ -19,6 +19,8 @@ public interface IBookingsService : ITransientService
 
     Task<DefaultIdType?> FlagBookingAsPaidAsync(DefaultIdType id, FlagBookingAsPaidRequest request);
 
+    Task<DefaultIdType> UpdateBookingItemReservation(DefaultIdType id, UpdateBookingItemReservationIdRequest request);
+
     Task<DefaultIdType> DeleteAsync(DefaultIdType id);
 
     Task<DefaultIdType> DeleteItemAsync(DefaultIdType id);

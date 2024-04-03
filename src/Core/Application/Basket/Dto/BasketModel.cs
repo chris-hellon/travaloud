@@ -16,6 +16,7 @@ public class BasketModel
 	public string? Gender { get; set; }
 	public string? Password { get; set; }
 	public string? ConfirmPassword { get; set; }
+	public TimeSpan? EstimatedArrivalTime { get; set; }
 
 	public void SetPromoCode(string promoCode)
 	{
@@ -34,8 +35,7 @@ public class BasketModel
 			{
 				foreach (var tourDate in item.TourDates)
 				{
-					if (tourDate.TourDate.TourPrice != null)
-						Total += tourDate.TourDate.TourPrice.Price * tourDate.GuestQuantity;
+					Total += tourDate.Price * tourDate.GuestQuantity;
 				}
 			}
 			else if (item.Rooms != null && item.Rooms.Any())
@@ -48,7 +48,7 @@ public class BasketModel
 		}
 	}
 	
-	public void SetPrimaryContactInformation(string? firstName, string? surname, string? email, DateTime? dateOfBirth, string? phoneNumber, string? nationality, string? gender, string? password, string? confirmPassword)
+	public void SetPrimaryContactInformation(string? firstName, string? surname, string? email, DateTime? dateOfBirth, string? phoneNumber, string? nationality, string? gender, TimeSpan? estimatedArrivalTime, string? password, string? confirmPassword)
 	{
 		FirstName = firstName;
 		Surname = surname;
@@ -56,6 +56,7 @@ public class BasketModel
 		DateOfBirth = dateOfBirth;
 		PhoneNumber = phoneNumber;
 		Nationality = nationality;
+		EstimatedArrivalTime = estimatedArrivalTime;
 		Gender = gender;
 		Password = password;
 		ConfirmPassword = confirmPassword;

@@ -1,32 +1,102 @@
-﻿using AspNetCore.ReCaptcha;
+﻿using System.ComponentModel.DataAnnotations;
+using AspNetCore.ReCaptcha;
 using Travaloud.Application.Catalog.Interfaces;
 using Travaloud.Application.Catalog.TourEnquiries.Commands;
+using Travaloud.Application.Catalog.Tours.Dto;
 
 namespace Travaloud.Tenants.SharedRCL.Models.PageModels;
 
 public abstract class TourPageModel : ContactBasePageModel<EmailTemplates.TourEnquiryTemplateModel, EnquireNowComponent>
 {
     private readonly ITourEnquiriesService _tourEnquiriesService;
-
-    protected TourPageModel(ITourEnquiriesService tourEnquiriesService)
+    private readonly IToursService _toursService;
+    
+    public override string Subject()
     {
-        _tourEnquiriesService = tourEnquiriesService;
+        return "Tour Booking Enquiry";
     }
 
-    protected TourPageModel()
+    public override string TemplateName()
     {
-        
+        return "TourEnquiryTemplate";
+    }
+
+    public override string MetaKeywords()
+    {
+        return Tour?.MetaKeywords ?? base.MetaKeywords();
+    }
+
+    public override string MetaDescription()
+    {
+        return Tour?.MetaDescription ?? base.MetaDescription();
+    }
+
+    public override string MetaImageUrl()
+    {
+        return Tour?.ImagePath ?? base.MetaImageUrl();
+    }
+
+    [BindProperty]
+    public TourDetailsDto? Tour { get; set; }
+
+    [BindProperty]
+    public GenericCardsComponent? RelatedToursCards { get; private set; }
+
+    [BindProperty]
+    public string PageTitle { get; private set; }
+
+    [BindProperty]
+    public HeaderBannerComponent HeaderBanner { get; set; }
+
+    [BindProperty]
+    public BookNowComponent? BookNowComponent { get; private set; }
+
+    [Required]
+    [Display(Name = "Select Date")]
+    public DateTime? TourDate { get; set; }
+    
+    [Required]
+    [Display(Name = "Select Time")]
+    public TimeSpan? TourDateStartTime { get; set; }
+    
+    [Required]
+    [Display(Name = "No. of Guests")]
+    public int? GuestQuantity { get; set; }
+    
+    protected TourPageModel(ITourEnquiriesService tourEnquiriesService, IToursService toursService)
+    {
+        _tourEnquiriesService = tourEnquiriesService;
+        _toursService = toursService;
     }
 
     [BindProperty]
     public EnquireNowComponent EnquireNowComponent { get; set; }
 
-    public override async Task<IActionResult> OnGetAsync(string? tourName = null)
+    public async Task<IActionResult> OnGetTourAsync(string? tourName = null)
     {
         await base.OnGetDataAsync();
 
-        EnquireNowComponent = null;
+        EnquireNowComponent = new EnquireNowComponent();
         ModelState.Clear();
+
+        var tour = Tours?.FirstOrDefault(x => x.FriendlyUrl == tourName);
+
+        if (tour == null) return Page();
+        {
+            Tour = await _toursService.GetAsync(tour.Id);
+
+            if (Tour == null) return Page();
+
+            ViewData["Title"] = Tour?.Name;
+
+            EnquireNowComponent = new EnquireNowComponent()
+            {
+                TourName = Tour.Name,
+                TourId = Tour.Id
+            };
+
+            BookNowComponent = new BookNowComponent(Tours, Tour.Id);
+        }
 
         return Page();
     }
@@ -38,8 +108,8 @@ public abstract class TourPageModel : ContactBasePageModel<EmailTemplates.TourEn
             Name = EnquireNowComponent.Name,
             Email = EnquireNowComponent.Email,
             ContactNumber = EnquireNowComponent.ContactNumber,
-            NumberOfPeople = EnquireNowComponent.NumberOfPeople.Value,
-            RequestedDate = EnquireNowComponent.Date.Value,
+            NumberOfPeople = EnquireNowComponent.NumberOfPeople!.Value,
+            RequestedDate = EnquireNowComponent.Date!.Value,
             AdditionalInformation = EnquireNowComponent.AdditionalInformation,
             TourId = EnquireNowComponent.TourId,
         });
@@ -55,8 +125,8 @@ public abstract class TourPageModel : ContactBasePageModel<EmailTemplates.TourEn
                 EnquireNowComponent.TourName,
                 EnquireNowComponent.Email,
                 EnquireNowComponent.ContactNumber,
-                EnquireNowComponent.Date.Value,
-                EnquireNowComponent.NumberOfPeople.Value,
+                EnquireNowComponent.Date!.Value,
+                EnquireNowComponent.NumberOfPeople!.Value,
                 EnquireNowComponent.AdditionalInformation),
             EnquireNowComponent);
     }

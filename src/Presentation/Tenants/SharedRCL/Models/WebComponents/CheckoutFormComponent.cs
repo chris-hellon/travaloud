@@ -6,7 +6,7 @@ public class CheckoutFormComponent : RegisterModalComponent
 {
     [Required]
     [Display(Name = "Estimated Arrival Time")]
-    public string? EstimatedArrivalTime { get; set; }
+    public TimeSpan? EstimatedArrivalTime { get; set; }
         
     public int PropertiesGuestCount { get; set; }
     public int ToursGuestCount { get; set; }

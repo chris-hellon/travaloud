@@ -1,51 +1,45 @@
 @model Travaloud.Application.Basket.Dto.BasketItemModel
 
-@{
-    var guestCount = Model.Rooms.Sum(x => x.RoomQuantity + x.AdultQuantity);
-    var requiredGuestCount = guestCount - 1;
-    var maxGuestCount = Model.PropertyId.HasValue ? requiredGuestCount : 0;
-    var showTable = Model.Guests != null && Model.Guests.Any();
-    var maxGuestCountFulfilled = showTable && Model.Guests?.Count >= maxGuestCount;
-    var showAddGuestButton = !maxGuestCountFulfilled && Model.GuestsExistInBasket;
-
-    if (requiredGuestCount > 0)
-    {
-        <div class="border-top py-4 row d-flex align-items-center additional-guests-container" data-basket-item-id="@Model.Id">
-            <div class="col-lg-6">
-                <h6>@Model.PropertyName (@requiredGuestCount guest@(requiredGuestCount > 1 ? "s" : ""))</h6>
-                <h6>@Model.CheckInDateParsed.Value.ToShortDateString() - @Model.CheckOutDateParsed.Value.ToShortDateString()</h6>
-            </div>
-            <div class="col-lg-6 d-flex justify-content-end">
-                <button class="btn btn-primary btn-sm add-basket-item-guest-button @(showAddGuestButton ? "" : "d-none") me-3" data-mdb-modal-init data-mdb-target="#addGuestModal" onclick="loadSelectGuestModal('@Model.Id'); return false;" data-basket-item-id="@Model.Id" data-max-guest-count="@maxGuestCount">Select Guest</button>
-                <button class="btn btn-outline-primary btn-sm add-basket-item-new-guest-button @(maxGuestCountFulfilled ? "d-none" : "")" data-mdb-modal-init data-mdb-target="#addNewGuestModal" onclick="loadNewGuestModal(); return false;" data-basket-item-id="@Model.Id" data-max-guest-count="@maxGuestCount">Add New Guest</button>
-            </div>
-            <div class="col-lg-12 mt-3 basket-item-guest-table @(!showTable ? "d-none" : "")" data-basket-item-id="@Model.Id">
-                <table class="table table-borderless">
-                    @if (Model.Guests != null && Model.Guests.Any())
-                    {
-                        foreach (var additionalGuest in Model.Guests)
-                        {
-                            <tr>
-                                <td>@($"{additionalGuest.FirstName} {additionalGuest.Surname}")</td>
-                                <td>@additionalGuest.Email</td>
-                                <td>@additionalGuest.DateOfBirth.Value.ToShortDateString()</td>
-                                <td>@additionalGuest.Gender</td>
-                                <td>@additionalGuest.Nationality</td>
-                                <td class="text-end">
-                                    <span role="button" class="text-primary" data-mdb-modal-init data-mdb-target="#addNewGuestModal" onclick="editBasketItemGuest('@(additionalGuest.ItemId)', '@(additionalGuest.Id)'); return false;">
-                                        <strong>Edit</strong>
-                                    </span>
-                                </td>
-                                <td class="text-end">
-                                    <span role="button" class="text-danger" onclick="removeGuestFromBasketItem('@(additionalGuest.ItemId)', '@(additionalGuest.Id)'); return false;">
-                                        <strong>Remove</strong>
-                                    </span>
-                                </td>
-                            </tr>
-                        }
-                    }
-                </table>
-            </div>
+@if (Model.RequiredGuestCount > 0)
+{
+    <div class="border-top py-4 row d-flex align-items-center additional-guests-container" data-basket-item-id="@Model.Id">
+        <div class="col-lg-6">
+            <h6>@Model.PropertyName (@Model.RequiredGuestCount guest@(Model.RequiredGuestCount > 1 ? "s" : ""))</h6>
+            @if (Model is {CheckInDateParsed: not null, CheckOutDateParsed: not null})
+            {
+                <h6>@Model.CheckInDateParsed.Value.ToShortDateString() - @Model.CheckOutDateParsed.Value.ToShortDateString()</h6>   
+            }
         </div>
-    }
+        <div class="col-lg-6 d-flex justify-content-end">
+            <button class="btn btn-primary btn-sm add-basket-item-guest-button @(Model.ShowAddGuestButton ? "" : "d-none") me-3" data-mdb-modal-init data-mdb-target="#addGuestModal" onclick="loadSelectGuestModal('@Model.Id'); return false;" data-basket-item-id="@Model.Id" data-max-guest-count="@Model.MaxGuestCount">Select Guest</button>
+            <button class="btn btn-outline-primary btn-sm add-basket-item-new-guest-button @(Model.MaxGuestCountFulfilled ? "d-none" : "")" data-mdb-modal-init data-mdb-target="#addNewGuestModal" onclick="loadNewGuestModal(); return false;" data-basket-item-id="@Model.Id" data-max-guest-count="@Model.MaxGuestCount">Add New Guest</button>
+        </div>
+        <div class="col-lg-12 mt-3 basket-item-guest-table @(!Model.ShowTable ? "d-none" : "")" data-basket-item-id="@Model.Id">
+            <table class="table table-borderless">
+                @if (Model.Guests != null && Model.Guests.Any())
+                {
+                    foreach (var additionalGuest in Model.Guests)
+                    {
+                        <tr>
+                            <td>@($"{additionalGuest.FirstName} {additionalGuest.Surname}")</td>
+                            <td>@additionalGuest.Email</td>
+                            <td>@additionalGuest.DateOfBirth?.ToShortDateString()</td>
+                            <td>@additionalGuest.Gender</td>
+                            <td>@additionalGuest.Nationality</td>
+                            <td class="text-end">
+                                <span role="button" class="text-primary" data-mdb-modal-init data-mdb-target="#addNewGuestModal" onclick="editBasketItemGuest('@(additionalGuest.ItemId)', '@(additionalGuest.Id)'); return false;">
+                                    <strong>Edit</strong>
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                <span role="button" class="text-danger" onclick="removeGuestFromBasketItem('@(additionalGuest.ItemId)', '@(additionalGuest.Id)'); return false;">
+                                    <strong>Remove</strong>
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                }
+            </table>
+        </div>
+    </div>
 }

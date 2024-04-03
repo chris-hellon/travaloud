@@ -35,7 +35,7 @@ public class SmtpMailService : IMailService
 
             // Bcc
             foreach (var address in request.Bcc.Where(bccValue => !string.IsNullOrWhiteSpace(bccValue)))
-                email.Bcc.Add(MailboxAddress.Parse(address.Trim()));
+                email.Bcc.Add(MailboxAddress.Parse(address?.Trim()));
 
             // Cc
             foreach (var address in request.Cc.Where(ccValue => !string.IsNullOrWhiteSpace(ccValue)))

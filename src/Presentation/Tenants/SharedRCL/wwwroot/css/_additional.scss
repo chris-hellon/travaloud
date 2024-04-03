@@ -327,6 +327,9 @@ footer {
     }
   }
 }
+.form-outline .form-helper{
+  font-size:0.65rem !important;
+}
 .form-check-input[type=checkbox] {
   margin-top:0.45rem !important;
 }
@@ -341,10 +344,21 @@ footer {
 .select-arrow {
   padding-top: 0.3rem !important;
 }
-.datepicker-disable-future, .datepicker-disable-past {
+.datepicker-disable-future, .datepicker-disable-past, .confirm-date-on-select {
   input {
     cursor: pointer; 
   }
+}
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
 }
 //scss-docs-end form controls
 
@@ -386,6 +400,11 @@ footer {
   td {
     font-size:0.95rem !important;
     padding:0.5rem 0 !important;
+  }
+}
+.checkout-payment-button {
+  @media(max-width: 992px) {
+    width:100%;
   }
 }
 //scss-docs-end property booking page
@@ -477,6 +496,9 @@ footer {
 //scss-docs-end sticky
 
 //scss-docs-start datepicker
+.datepicker-footer {
+  display: none !important;
+}
 .datepicker-cell.current .datepicker-cell-content,
 .datepicker-day-cell.current {
   border: unset;
@@ -558,6 +580,10 @@ footer {
   }
 }
 //scss-docs-end video container
+
+.btn:disabled, .btn.disabled, fieldset:disabled .btn {
+  box-shadow: var(--mdb-btn-box-shadow) !important;
+}
 
 div p:last-of-type {
   margin-bottom: 0px !important;

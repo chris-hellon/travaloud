@@ -11,15 +11,15 @@ public class IndexModel : TravaloudBasePageModel
         await OnGetDataAsync();
 
         Basket = HttpContext.Session.GetOrCreateObjectFromSession<BasketModel>("BookingBasket");
-        Basket.Items = Basket.Items.Select(x =>
-        {
-            x.TourDates = x.TourDates.Select(td =>
-            {
-                td.IsConfirmationPage = true;
-                return td;
-            }).ToList();
-            return x;
-        }).ToList();
+        // Basket.Items = Basket.Items.Select(x =>
+        // {
+        //     x.TourDates = x.TourDates.Select(td =>
+        //     {
+        //         td.IsConfirmationPage = true;
+        //         return td;
+        //     }).ToList();
+        //     return x;
+        // }).ToList();
 
         return Page();
     }

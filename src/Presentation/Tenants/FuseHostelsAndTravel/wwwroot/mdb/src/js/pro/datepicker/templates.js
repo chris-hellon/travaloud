@@ -224,7 +224,7 @@ function createFooter(options) {
   const okBtn = `<button class="datepicker-footer-btn datepicker-ok-btn" aria-label="${options.okBtnLabel}">${options.okBtnText}</button>`;
   const cancelButton = `<button class="datepicker-footer-btn datepicker-cancel-btn" aria-label="${options.cancelBtnLabel}">${options.cancelBtnText}</button>`;
   const clearButton = `<button class="datepicker-footer-btn datepicker-clear-btn" aria-label="${options.clearBtnLabel}">${options.clearBtnText}</button>`;
-
+  
   return `
         <div class="datepicker-footer">
           ${options.removeClearBtn ? '' : clearButton}

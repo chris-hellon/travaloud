@@ -37,6 +37,9 @@ public class GetTourRequestHandler : IRequestHandler<GetTourRequest, TourDetails
         var tour = await _repository.FirstOrDefaultAsync(new TourByIdWithDetailsSpec(request.Id), cancellationToken) 
                    ?? throw new NotFoundException(string.Format(_localizer["tour.notfound"], request.Id));
 
+        if (tour.TourDates != null && tour.TourDates.Any())
+            tour.TourDates = tour.TourDates.Where(x => x.StartDate >= DateTime.Today).ToList();
+        
         if (tour.TourItineraries != null)
         {
             tour.TourItineraries = tour.TourItineraries.OrderBy(x => x.SortOrder ?? int.MaxValue).ToList();

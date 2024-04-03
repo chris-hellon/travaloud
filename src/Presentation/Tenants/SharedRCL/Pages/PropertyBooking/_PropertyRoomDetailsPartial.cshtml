@@ -77,13 +77,16 @@
                     id="@($"{ratesId}Tabs")"
                     role="tabpanel"
                     aria-labelledby="@($"{ratesId}Tab")">
-                    @foreach (var roomRate in Model.DetailedRoomRates)
+                    @if (Model.DetailedRoomRates != null)
                     {
-                        <div class="row">
-                            <small class="mb-0 mb-lg-2">
-                                <i class="fa-solid fa-money-check-dollar me-2 text-primary"></i> @roomRate.Date.ToShortDateString() : @($"{Model.CurrencySymbol}{roomRate.Rate:F2}")
-                            </small>
-                        </div>
+                        foreach (var roomRate in Model.DetailedRoomRates)
+                        {
+                            <div class="row">
+                                <small class="mb-0 mb-lg-2">
+                                    <i class="fa-solid fa-money-check-dollar me-2 text-primary"></i> @roomRate.Date.ToShortDateString() : @($"{Model.CurrencySymbol}{roomRate.Rate:F2}")
+                                </small>
+                            </div>
+                        }
                     }
                 </div>
             </div>

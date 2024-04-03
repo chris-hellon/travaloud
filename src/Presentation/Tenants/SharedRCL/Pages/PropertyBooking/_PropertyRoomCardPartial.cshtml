@@ -4,133 +4,139 @@
 @using (Html.BeginCollectionItem("PropertyRooms"))
 {
     <div class="row border-bottom mb-4 pb-4 d-flex align-items-center">
-    <div class="col-md-4 mb-4 mb-md-0">
-        <div class="bg-image rounded-5 overflow-hidden d-block">
-            <img src="@Model.RoomTypePhotos.First().Image"class="w-100" alt=""/>
-            <a href="#!">
-                <div class="hover-overlay">
-                    <div
-                        class="mask"
-                        style="background-color: hsla(0, 0%, 98.4%, 0.2)">
-                    </div>
-                </div>
-            </a>
-        </div>
-    </div>
-    <div class="col-lg-8">
-        <div class="row">
-            <div class="col-md-8 mb-4 mb-md-0">
-                <p class="fw-bold">@Model.RoomTypeName</p>
-            </div>
-            <div class="col-md-4 mb-4 mb-md-0 d-none d-lg-block">
-                <div class="d-block w-100 text-end">
-                    <span class="badge badge-@(Model.RoomsAvailable < 5 ? "danger" : "primary")">@Model.Availability</span>
-                </div>
-            </div>
-        </div>
-        <div class="row mt-lg-3">
-            <div class="col-8 mb-4 mb-md-0">
-                <div class="row">
-                    <div class="col-lg-6">
-                        <span class="small">Maximum Occupancy</span><br/>
-                        <span class="text-muted small">
-                            <i class="fa-solid fa-@(Model.IsSharedRoom ? "bed" : "user")"></i>
-                            @Model.MaximumOccupancy
-                        </span>
-                    </div>
-                    <div class="col-lg-6">
-                        <span class="small">Minimum Stay</span><br/>
-                        <span class="text-muted small">
-                            <i class="fa-solid fa-user-clock"></i>
-                            1 Night(s)
-                        </span>
-                    </div>
-                </div>
-            </div>
-            <div class="col-4 mb-4 mb-md-0">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="d-block w-100 text-end">
-                            <span class="text-muted small"> Price From</span><br/>
-                            @{
-                                var cheapestRate = Model.DetailedRoomRates.OrderBy(x => x.Rate).First().Rate.ToString("F2");
-                                var currency = Model.CurrencySymbol;
-
-                                <span class="fw-bold">@($"{currency}{cheapestRate} per night")</span>
-                            }
-                        </div>
-                    </div>
-                    <div class="col-lg-6 d-lg-none d-block">
-                        <div class="d-block w-100 text-end">
-                            <small
-                                class="text-primary fw-bold roomToggleButton"
-                                type="button"
-                                data-mdb-collapse-init
-                                data-mdb-target="#@($"roomDetails{Model.RoomTypeId}")"
-                                aria-expanded="false"
-                                aria-controls="@($"roomDetails{Model.RoomTypeId}")">
-                                <i class="fa-solid fa-circle-arrow-down"></i> Show Details
-                            </small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row mt-lg-4">
-            <div class="col-lg-6 d-none d-lg-block">
-                <small
-                    class="text-primary fw-bold roomToggleButton"
-                    type="button"
-                    data-mdb-collapse-init
-                    data-mdb-target="#@($"roomDetails{Model.RoomTypeId}")"
-                    aria-expanded="false"
-                    aria-controls="@($"roomDetails{Model.RoomTypeId}")">
-                    <i class="fa-solid fa-circle-arrow-down"></i> Show Details
-                </small>
-            </div>
-            <div class="col-lg-2 ps-lg-0 pe-lg-1">
-                @if (!Model.IsSharedRoom)
+        <div class="col-md-4 mb-4 mb-md-0">
+            <div class="bg-image rounded-5 overflow-hidden d-block">
+                @if (!string.IsNullOrEmpty(Model.RoomTypePhotos.First().Image))
                 {
-                    <select asp-for="@Model.AdultQuantity" data-mdb-select-init class="h-100 bg-primary js-room-quantity js-room-adults-quantity" data-room-type-id="@Model.RoomTypeId" data-room-type-name="@Model.RoomTypeName" data-room-is-shared="@Model.IsSharedRoom">
-                        <option value="" hidden selected=""></option>
-                        @for (var i = 0; i < int.Parse(Model.AdultsIncluded); i++)
-                        {
-                            var value = i + 1;
-                            <option value="@value">@value</option>
-                        }
-                    </select>
-                    <label class="form-label select-label">Adults</label>
+                    <img src="@Model.RoomTypePhotos.First().Image" class="w-100" alt=""/>
                 }
+                else {
+                    <img src="@Model.PropertyImageUrl" class="w-100" alt=""/>
+                }
+
+                <a href="#!">
+                    <div class="hover-overlay">
+                        <div
+                            class="mask"
+                            style="background-color: hsla(0, 0%, 98.4%, 0.2)">
+                        </div>
+                    </div>
+                </a>
             </div>
-            <div class="col-lg-2 ps-lg-0 pe-lg-1">
-                @if (Model is {IsSharedRoom: false, ChildrenExtraCharge: not null})
-                {
-                    <select asp-for="@Model.ChildrenQuantity" data-mdb-select-init class="h-100 bg-primary js-room-quantity js-room-children-quantity" data-room-type-id="@Model.RoomTypeId" data-room-type-name="@Model.RoomTypeName" data-room-is-shared="@Model.IsSharedRoom">
+        </div>
+        <div class="col-lg-8">
+            <div class="row">
+                <div class="col-md-8 mb-4 mb-md-0">
+                    <p class="fw-bold">@Model.RoomTypeName</p>
+                </div>
+                <div class="col-md-4 mb-4 mb-md-0 d-none d-lg-block">
+                    <div class="d-block w-100 text-end">
+                        <span class="badge badge-@(Model.RoomsAvailable < 5 ? "danger" : "primary")">@Model.Availability</span>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-lg-3">
+                <div class="col-8 mb-4 mb-md-0">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <span class="small">Maximum Occupancy</span><br/>
+                            <span class="text-muted small">
+                                <i class="fa-solid fa-@(Model.IsSharedRoom ? "bed" : "user")"></i>
+                                @Model.MaximumOccupancy
+                            </span>
+                        </div>
+                        <div class="col-lg-6">
+                            <span class="small">Minimum Stay</span><br/>
+                            <span class="text-muted small">
+                                <i class="fa-solid fa-user-clock"></i>
+                                1 Night(s)
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-4 mb-4 mb-md-0">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="d-block w-100 text-end">
+                                <span class="text-muted small"> Price From</span><br/>
+                                @if (Model.DetailedRoomRates != null) {
+                                    var cheapestRate = Model.DetailedRoomRates.OrderBy(x => x.Rate).First().Rate.ToString("F2");
+                                    var currency = Model.CurrencySymbol;
+
+                                    <span class="fw-bold">@($"{currency}{cheapestRate} per night")</span>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-lg-6 d-lg-none d-block">
+                            <div class="d-block w-100 text-end">
+                                <small
+                                    class="text-primary fw-bold roomToggleButton"
+                                    type="button"
+                                    data-mdb-collapse-init
+                                    data-mdb-target="#@($"roomDetails{Model.RoomTypeId}")"
+                                    aria-expanded="false"
+                                    aria-controls="@($"roomDetails{Model.RoomTypeId}")">
+                                    <i class="fa-solid fa-circle-arrow-down"></i> Show Details
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-lg-4">
+                <div class="col-lg-6 d-none d-lg-block">
+                    <small
+                        class="text-primary fw-bold roomToggleButton"
+                        type="button"
+                        data-mdb-collapse-init
+                        data-mdb-target="#@($"roomDetails{Model.RoomTypeId}")"
+                        aria-expanded="false"
+                        aria-controls="@($"roomDetails{Model.RoomTypeId}")">
+                        <i class="fa-solid fa-circle-arrow-down"></i> Show Details
+                    </small>
+                </div>
+                <div class="col-lg-2 ps-lg-0 pe-lg-1">
+                    @if (!Model.IsSharedRoom)
+                    {
+                        <select asp-for="@Model.AdultQuantity" data-mdb-select-init class="h-100 bg-primary js-room-quantity js-room-adults-quantity" data-cloudbeds-property-id="@Model.CloudbedsPropertyId" data-room-type-id="@Model.RoomTypeId" data-room-type-name="@Model.RoomTypeName" data-room-is-shared="@Model.IsSharedRoom">
+                            <option value="" hidden selected=""></option>
+                            @for (var i = 0; i < int.Parse(Model.AdultsIncluded); i++)
+                            {
+                                var value = i + 1;
+                                <option value="@value">@value</option>
+                            }
+                        </select>
+                        <label class="form-label select-label">Adults</label>
+                    }
+                </div>
+                <div class="col-lg-2 ps-lg-0 pe-lg-1">
+                    @if (Model is {IsSharedRoom: false, ChildrenExtraCharge: not null})
+                    {
+                        <select asp-for="@Model.ChildrenQuantity" data-mdb-select-init class="h-100 bg-primary js-room-quantity js-room-children-quantity" data-cloudbeds-property-id="@Model.CloudbedsPropertyId" data-room-type-id="@Model.RoomTypeId" data-room-type-name="@Model.RoomTypeName" data-room-is-shared="@Model.IsSharedRoom">
+                            <option value="" hidden selected=""></option>
+                            <option value="0">0</option>
+                            @for (var i = 0; i < Model.ChildrenExtraCharge.Count; i++)
+                            {
+                                var value = i + 1;
+                                <option value="@value">@value</option>
+                            }
+                        </select>
+                        <label class="form-label select-label">Children</label>
+                    }
+                </div>
+                <div class="col-lg-2 p-lg-0">
+                    <select asp-for="@Model.RoomQuantity" data-mdb-select-init class="h-100 bg-primary js-room-quantity js-room-bed-quantity" data-cloudbeds-property-id="@Model.CloudbedsPropertyId" data-room-type-id="@Model.RoomTypeId" data-room-type-name="@Model.RoomTypeName" data-room-is-shared="@Model.IsSharedRoom">
                         <option value="" hidden selected=""></option>
                         <option value="0">0</option>
-                        @for (var i = 0; i < Model.ChildrenExtraCharge.Count; i++)
+                        @for (var i = 0; i < Model.RoomsAvailable; i++)
                         {
                             var value = i + 1;
                             <option value="@value">@value</option>
                         }
                     </select>
-                    <label class="form-label select-label">Children</label>
-                }
-            </div>
-            <div class="col-lg-2 p-lg-0">
-                <select asp-for="@Model.RoomQuantity" data-mdb-select-init class="h-100 bg-primary js-room-quantity js-room-bed-quantity" data-room-type-id="@Model.RoomTypeId" data-room-type-name="@Model.RoomTypeName" data-room-is-shared="@Model.IsSharedRoom">
-                    <option value="" hidden selected=""></option>
-                    <option value="0">0</option>
-                    @for (var i = 0; i < Model.RoomsAvailable; i++)
-                    {
-                        var value = i + 1;
-                        <option value="@value">@value</option>
-                    }
-                </select>
-                <label class="form-label select-label">@(Model.IsSharedRoom ? "Beds" : "Rooms")</label>
+                    <label class="form-label select-label">@(Model.IsSharedRoom ? "Beds" : "Rooms")</label>
+                </div>
             </div>
         </div>
     </div>
-</div>
 }
-

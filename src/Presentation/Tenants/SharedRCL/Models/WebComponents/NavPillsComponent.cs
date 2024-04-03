@@ -2,8 +2,8 @@
 
 public class NavPillsComponent
 {
-    public string Title { get; private set; }
-    public List<NavPill> NavPills { get; private set; }
+    public string Title { get; private set; } = string.Empty;
+    public List<NavPill> NavPills { get; private set; } = default!;
 
     public NavPillsComponent()
     {
@@ -19,11 +19,11 @@ public class NavPillsComponent
 
 public class NavPill
 {
-    public string Title { get; private set; }
-    public string FriendlyTitle { get; private set; }
-    public string IdTitle { get; private set; }
+    public string Title { get; private set; } = string.Empty;
+    public string FriendlyTitle { get; private set; } = string.Empty;
+    public string IdTitle { get; private set; } = string.Empty;
     public decimal AnimationDelay { get; private set; }
-    public List<NavPillContent> Content { get; private set; }
+    public List<NavPillContent>? Content { get; private set; }
 
     public NavPill()
     {
@@ -49,8 +49,8 @@ public class NavPill
 
 public class NavPillContent
 {
-    public string Body { get; private set; }
-    public string Style { get; private set; }
+    public string Body { get; private set; } = string.Empty;
+    public string Style { get; private set; } = string.Empty;
 
     public NavPillContent()
     {

@@ -7,9 +7,9 @@ public static class TinyMceConfig
         {
             { "content_style", "@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap'); body { color: var(--mud-palette-text-primary) !important; font-family: 'Be Vietnam Pro', sans-serif; font-weight:400; } h1, h2, h3, h4, h5, h6 {font-weight:900; } h1,h2,h3,h4,h5,h6 { font-family: 'Be Vietnam Pro', sans-serif;"},
             { "font_formats", "Bebas Neue=bebasneue;Roboto=roboto;"},
-            { "toolbar", "undo redo | formatselect styles | bold italic | link | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | preview"},
+            { "toolbar", "undo redo | styleselect formatselect styles forecolor backcolor | bold italic underline | link | bullist numlist outdent indent | alignleft aligncenter alignright alignjustify | preview"},
             { "menubar", "edit format insert"},
-            {"plugins", "preview"},
+            { "plugins", "preview advlist lists"},
             { "branding", false},
             { "height", $"{height.ToString()}" },
             { "block_formats", "Paragraph=p; Heading 4=h4; Heading 5=h5; Heading 6=h6"},

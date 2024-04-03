@@ -1,12 +1,10 @@
 using System.Text.Json;
-using DocumentFormat.OpenXml.Drawing.Charts;
 using Mapster;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using MudBlazor;
 using Travaloud.Admin.Components.Dialogs;
 using Travaloud.Admin.Components.EntityTable;
-using Travaloud.Application.Catalog.Destinations.Dto;
 using Travaloud.Application.Catalog.Destinations.Queries;
 using Travaloud.Application.Catalog.Interfaces;
 using Travaloud.Application.Catalog.Tours.Commands;
@@ -68,9 +66,9 @@ public partial class Tours
         else
         {
             _canViewTourGroups = true;
+            WizardSteps["Itineraries"] = true;
         }
 
-        
         base.OnAfterRender(firstRender);
     }
 
@@ -190,9 +188,10 @@ public partial class Tours
                         var selectedDestinations = parsedModel.TourDestinationLookups.Select(destinationLookup =>
                                 parsedModel.Destinations.FirstOrDefault(x =>
                                     x.DestinationId == destinationLookup.DestinationId))
-                            .Select(destination => new TourDestinationLookupRequest(tour.Id,
-                                destination.Id,
-                                destination.Name))
+                            .Select(destination => new TourDestinationLookupRequest(
+                                tour.Id,
+                                destination.DestinationId,
+                                destinations.Data.First(x => x.Id == destination.DestinationId).Name))
                             .ToList();
 
                         parsedModel.SelectedDestinations = selectedDestinations;

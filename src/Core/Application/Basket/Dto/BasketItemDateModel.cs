@@ -1,22 +1,20 @@
-using Travaloud.Application.Catalog.Tours.Dto;
-
 namespace Travaloud.Application.Basket.Dto;
 
 public class BasketItemDateModel
 {
     public DefaultIdType Id { get; set; }
-    public TourDateDto TourDate { get; set; }
-    public string TourName { get; set; }
-    public string TourImagePath { get; set; }
+    public DefaultIdType DateId { get; set; }
+    public DefaultIdType TourId { get; set; }
+    public string? TourName { get; set; }
+    public string? TourImageUrl { get; set; }
     public int GuestQuantity { get; set; }
-    public bool IsConfirmationPage { get; set; } = false;
-
-    public BasketItemDateModel(TourDateDto tourDate, int guestQuantity, string tourName, string tourImagePath)
+    public decimal Price { get; set; }
+    public DateTime StartDate { get; set; }
+    public string FormattedPrice => $"{Price:n2}";
+    public string GuestQuantityLabel => $"{GuestQuantity} Guest{(GuestQuantity > 1 ? "s" : "")}";
+    
+    public void Update(int guestQuantity)
     {
-        TourDate = tourDate;
-        Id = tourDate.Id;
         GuestQuantity = guestQuantity;
-        TourName = tourName;
-        TourImagePath = tourImagePath;
     }
 }

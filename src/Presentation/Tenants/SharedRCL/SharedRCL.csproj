@@ -41,7 +41,6 @@
   <ItemGroup>
     <PackageReference Include="AspNetCore.SEOHelper" Version="1.0.1" />
     <PackageReference Include="BeginCollectionItemCore" Version="1.1.0" />
-    <PackageReference Include="HtmlAgilityPack" Version="1.11.59" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.TagHelpers" Version="2.2.0" />
   </ItemGroup>
 

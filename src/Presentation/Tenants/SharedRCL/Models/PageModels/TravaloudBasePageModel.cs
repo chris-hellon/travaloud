@@ -3,6 +3,7 @@ using Finbuckle.MultiTenant;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Travaloud.Application.Basket;
+using Travaloud.Application.Basket.Commands;
 using Travaloud.Application.Basket.Dto;
 using Travaloud.Application.Basket.Queries;
 using Travaloud.Application.Catalog.Bookings.Commands;
@@ -1057,6 +1058,27 @@ public class TravaloudBasePageModel : PageModel
     
         return new JsonResult("fail");
     }
+
+    public async Task<IActionResult> OnPostAddTourDateToBasket([FromBody] BasketItemDateModel request)
+    {
+        try
+        {
+            var basket = await BasketService.AddItem(request);
+            
+            return new JsonResult(new
+            {
+                Success = true,
+                Basket = basket.Item1,
+                Item = basket.Item2
+            });
+        }
+        catch (Exception)
+        {
+            // ignored
+        }
+    
+        return new JsonResult("fail");
+    }
     
     /// <summary>
     /// Updates a basket in session
@@ -1161,7 +1183,7 @@ public class TravaloudBasePageModel : PageModel
             return new JsonResult(new
             {
                 Success = true,
-                Basket = basket.Item1,
+                Basket = basket?.Item1,
                 Html = await RazorPartialToStringRenderer.RenderPartialToStringAsync("/Pages/Checkout/_AdditionalGuestsPartial.cshtml", basket.Item1)
             });
         }
@@ -1211,29 +1233,26 @@ public class TravaloudBasePageModel : PageModel
             var basket = await BasketService.GetBasket();
             var basketItem = basket.Items.FirstOrDefault(x => x.Id == request.ItemId);
 
-            if (basketItem != null)
-            {
-                var guest = basketItem.Guests.FirstOrDefault(x => x.Id == request.Id);
+            var guest = basketItem?.Guests!.FirstOrDefault(x => x.Id == request.Id);
 
-                if (guest != null)
-                {
-                    var model = new CheckoutGuestComponent(
-                        request.Id,
-                        request.ItemId,
-                        guest.FirstName,
-                        guest.Surname,
-                        guest.Email,
-                        guest.DateOfBirth,
-                        guest.PhoneNumber,
-                        guest.Nationality,
-                        guest.Gender
-                        );
+            if (guest != null)
+            {
+                var model = new CheckoutGuestComponent(
+                    request.Id,
+                    request.ItemId,
+                    guest.FirstName,
+                    guest.Surname,
+                    guest.Email,
+                    guest.DateOfBirth,
+                    guest.PhoneNumber,
+                    guest.Nationality,
+                    guest.Gender
+                );
                     
-                    return new JsonResult(new
-                    {
-                        Html = await RazorPartialToStringRenderer.RenderPartialToStringAsync("/Pages/Checkout/_AddNewGuestModalPartial.cshtml", model)
-                    });
-                }
+                return new JsonResult(new
+                {
+                    Html = await RazorPartialToStringRenderer.RenderPartialToStringAsync("/Pages/Checkout/_AddNewGuestModalPartial.cshtml", model)
+                });
             }
         }
         catch (Exception)
@@ -1258,7 +1277,7 @@ public class TravaloudBasePageModel : PageModel
             return new JsonResult(new
             {
                 Success = true,
-                Basket = basket.Item1,
+                Basket = basket?.Item1,
                 Html = await RazorPartialToStringRenderer.RenderPartialToStringAsync("/Pages/Checkout/_AdditionalGuestsPartial.cshtml", basket.Item1)
             });
         }

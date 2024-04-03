@@ -202,14 +202,6 @@ $('#checkoutTogglePassword').on('click', function() {
     }
 });
 
-$('#checkoutForm').on('submit', function(e) {
-    let valid = $(this).valid();
-
-    if (!validateSelectElements($(this), valid)) {
-        e.preventDefault();
-    }
-});
-
 const bindAddNewGuestModalInputs = () => {
     document.querySelectorAll('#addNewGuestModal .form-outline').forEach((formOutline) => {
         new mdb.Input(formOutline).init();

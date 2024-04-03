@@ -2,9 +2,9 @@
 
 public class ButtonComponent
 {
-    public string CssClass { get; private set; }
-    public string Href { get; private set; }
-    public string ButtonText { get; private set; }
+    public string CssClass { get; private set; } = string.Empty;
+    public string Href { get; private set; } = string.Empty;
+    public string ButtonText { get; private set; } = string.Empty;
 
     public ButtonComponent()
     {

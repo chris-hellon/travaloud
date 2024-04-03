@@ -1,4 +1,4 @@
-namespace Travaloud.Application.Basket.Queries;
+namespace Travaloud.Application.Basket.Commands;
 
 public class AddGuestToBasketItemRequest
 {

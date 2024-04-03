@@ -2,13 +2,13 @@
 
 public class TourEnquiryTemplateModel : EmailTemplateBaseModel
 {
-    public string Name { get; set; }
-    public string Tour { get; set; }
-    public string Email { get; set; }
-    public string ContactNumber { get; set; }
-    public DateTime Date { get; set; }
-    public int NumberOfPeople { get; set; }
-    public string AdditionalInformation { get; set; }
+    public string Name { get; init; } = default!;
+    public string Tour { get; init; } = default!;
+    public string Email { get; init; } = default!;
+    public string ContactNumber { get; init; } = default!;
+    public DateTime Date { get; init; }
+    public int NumberOfPeople { get; init; }
+    public string AdditionalInformation { get; init; } = default!;
 
     public TourEnquiryTemplateModel()
     {

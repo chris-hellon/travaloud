@@ -1,4 +1,5 @@
 using MediatR;
+using Stripe;
 using Stripe.Checkout;
 using Travaloud.Application.PaymentProcessing;
 using Travaloud.Application.PaymentProcessing.Commands;
@@ -15,13 +16,28 @@ public class StripeService : IStripeService
         _mediator = mediator;
     }
 
-    public async Task<Session> CreateStripeSession(CreateStripeSessionRequest request)
+    public Task<Session> CreateStripeSession(CreateStripeSessionRequest request)
     {
-        return await _mediator.Send(request);
+        return _mediator.Send(request);
     }
 
-    public async Task<Session> GetStripePaymentStatus(GetStripePaymentStatusRequest request)
+    public Task<Session?> GetStripePaymentStatus(GetStripePaymentStatusRequest request)
     {
-        return await _mediator.Send(request);
+        return _mediator.Send(request);
+    }
+
+    public Task<bool> RefundSession(RefundSessionRequest request)
+    {
+        return _mediator.Send(request);
+    }
+
+    public Task<Customer?> CreateStripeCustomer(CreateStripeCustomerRequest request)
+    {
+        return _mediator.Send(request);
+    }
+
+    public Task<Customer?> SearchStripeCustomer(SearchStripeCustomerRequest request)
+    {
+        return _mediator.Send(request);
     }
 }

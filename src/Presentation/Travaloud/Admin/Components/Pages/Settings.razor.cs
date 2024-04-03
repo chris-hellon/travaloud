@@ -12,7 +12,7 @@ public partial class Settings
     
     private TenantViewModel TenantRequest { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    protected void OnInitialize()
     {
         TenantRequest = TenantInfo.Adapt<TenantViewModel>();
     }

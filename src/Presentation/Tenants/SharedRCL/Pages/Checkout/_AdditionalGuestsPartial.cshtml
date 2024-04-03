@@ -1,14 +1,17 @@
 @using Travaloud.Application.Basket.Dto
 @model Travaloud.Application.Basket.Dto.BasketModel
 
-<div class="additional-guests-container">
-    @if (Model is {Items.Count: > 0})
-    {
-        foreach (var basketItem in Model.Items)
+@if (Model is {Items.Count: > 0} && Model.Items.Any(x => x.RequiredGuestCount > 0))
+{
+    <div class="additional-guests-container">
+
+        <h5 class="my-4">Additional Guests (optional)</h5>
+
+        @foreach (var basketItem in Model.Items)
         {
             var itemsWithGuests = Model.Items.Where(x => x.Id != basketItem.Id && x.Guests != null && x.Guests.Any());
             var basketItemModels = itemsWithGuests as BasketItemModel[] ?? itemsWithGuests.ToArray();
-            
+
             var itemsWithDifferentGuests = basketItemModels
                 .Where(x => x.Guests != null && x.Guests.Any(guest => basketItem.Guests == null || basketItem.Guests.All(basketGuest => basketGuest.Id != guest.Id)));
 
@@ -22,10 +25,10 @@
                 guestsExistInBasket = false;
             else if (itemsWithIdenticalGuests)
                 guestsExistInBasket = true;
-            
+
             basketItem.GuestsExistInBasket = guestsExistInBasket;
 
             <partial name="/Pages/Checkout/_AdditionalGuestPartial.cshtml" model="basketItem"/>
         }
-    }
-</div>
+    </div>
+}

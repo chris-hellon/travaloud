@@ -35,8 +35,12 @@ public class IndexModel : TravaloudBasePageModel
     public PropertyDto? Property { get; set; }
     
     public string PropertyName { get; set; } = string.Empty;
+
+    public string PropertyImageUrl { get; set; } = string.Empty;
     
     public Guid PropertyId { get; set; }
+    
+    public int CloudbedsPropertyId { get; set; }
     
     public string IframeUrl { get; set; }
     
@@ -86,6 +90,10 @@ public class IndexModel : TravaloudBasePageModel
         HeaderBanner = new HeaderBannerComponent(pageTitle, pageSubTitle, null, Property.ImagePath, new List<OvalContainerComponent>() { new("hostelPageHeaderBannerOvals1", 15, null, -30, null) });
         PropertyName = Property.Name;
         PropertyId = Property.Id;
+        PropertyImageUrl = Property.ImagePath ?? "";
+        
+        if (!string.IsNullOrEmpty(Property.CloudbedsPropertyId))
+            CloudbedsPropertyId = int.Parse(Property.CloudbedsPropertyId);
         
         if (!string.IsNullOrEmpty(Property.CloudbedsApiKey) && !string.IsNullOrEmpty(Property.CloudbedsPropertyId))
         {

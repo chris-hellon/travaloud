@@ -89,4 +89,11 @@ public class BookingItem : AuditableEntity, IAggregateRoot
 
         return this;
     }
+
+    public BookingItem SetReservationId(string reservationId)
+    {
+        CloudbedsReservationId = reservationId;
+
+        return this;
+    }
 }

@@ -2,9 +2,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Travaloud.Application.Basket.Dto;
 using Travaloud.Application.Catalog.Bookings.Commands;
+using Travaloud.Application.Catalog.Bookings.Specification;
 using Travaloud.Application.Catalog.Interfaces;
 using Travaloud.Application.PaymentProcessing;
 using Travaloud.Application.PaymentProcessing.Commands;
+using Travaloud.Domain.Catalog.Bookings;
 
 namespace Travaloud.Application.Checkout.Commands;
 
@@ -17,14 +19,16 @@ public class CreatePaymentLinkRequest : IRequest<string>
 internal class CreatePaymentLinkRequestHandler : IRequestHandler<CreatePaymentLinkRequest, string>
 {
     private readonly IStripeService _stripeService;
+    private readonly IRepositoryFactory<Booking> _bookingRepository;
     private readonly IBookingsService _bookingsService;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public CreatePaymentLinkRequestHandler(IStripeService stripeService, IBookingsService bookingsService, IHttpContextAccessor httpContextAccessor)
+    public CreatePaymentLinkRequestHandler(IStripeService stripeService, IBookingsService bookingsService, IHttpContextAccessor httpContextAccessor, IRepositoryFactory<Booking> bookingRepository)
     {
         _stripeService = stripeService;
         _bookingsService = bookingsService;
         _httpContextAccessor = httpContextAccessor;
+        _bookingRepository = bookingRepository;
     }
 
     public async Task<string> Handle(CreatePaymentLinkRequest request, CancellationToken cancellationToken)
@@ -82,25 +86,32 @@ internal class CreatePaymentLinkRequestHandler : IRequestHandler<CreatePaymentLi
                 });
             }
             
+            // CREATE CLOUDBEDS RESERVATION
+            
             bookingRequest.Items.Add(bookingItem);
         }
             
         var bookingId = await _bookingsService.CreateAsync(bookingRequest);
 
-        var booking = await _bookingsService.GetAsync(bookingId);
+        var booking = await _bookingRepository.SingleOrDefaultAsync(new BookingByIdSpec(bookingId), cancellationToken);
+
+        _ = booking ?? throw new NotFoundException("No booking found.");
         
         var url = $"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host}{_httpContextAccessor.HttpContext.Request.PathBase}";
-        var fullUrl = _httpContextAccessor.HttpContext.Request.GetDisplayUrl();
 
         var stripeSession = await _stripeService.CreateStripeSession(new CreateStripeSessionRequest(
             bookingId,
             booking.InvoiceId,
             $"{url}/payment-confirmation/{bookingId.ToString()}",
-            fullUrl,
+            $"{url}/checkout/{bookingId.ToString()}",
             request.Basket,
             request.Basket.Email
         ));
 
+        var updatedBooking = booking.SetStripeSessonId(stripeSession.Id);
+        
+        await _bookingRepository.UpdateAsync(updatedBooking, cancellationToken);
+        
         return stripeSession.Url;
     }
 }

@@ -77,7 +77,7 @@
 @section Scripts {
     <script type="text/javascript">
         $(window).on('load', function () {
-            var userSignedIn = '@User.Identity.IsAuthenticated';
+            var userSignedIn = '@(User.Identity is {IsAuthenticated: true})';
             userSignedIn = userSignedIn.toLowerCase()
 
             if (userSignedIn == 'false') {

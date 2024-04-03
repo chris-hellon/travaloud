@@ -53,6 +53,14 @@ public class BookingsService : BaseService, IBookingsService
         
         return await Mediator.Send(request);
     }
+
+    public async Task<DefaultIdType> UpdateBookingItemReservation(DefaultIdType id, UpdateBookingItemReservationIdRequest request)
+    { 
+        if (id != request.Id)
+            throw new ConflictException("Id and request.Id do not match");
+        
+        return await Mediator.Send(request);
+    }
     
     public Task<DefaultIdType> DeleteAsync(DefaultIdType id)
     {

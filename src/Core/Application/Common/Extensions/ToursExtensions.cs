@@ -47,19 +47,23 @@ public static class ToursExtensions
 
                     tourPrices.Add(price);
 
-                    var priceDates = dates.Where(x => x.TourPriceId == tourPriceRequest.Id);
+                    var priceDates = dates != null ? dates.Where(x => x.TourPriceId == tourPriceRequest.Id) : Array.Empty<TourDateRequest>();
+                    var tourDateRequests = priceDates as TourDateRequest[] ?? priceDates.ToArray();
+                    
+                    if (!tourDateRequests.Any()) continue;
 
-                    if (!priceDates.Any()) continue;
-
-                    foreach (var tourDateRequest in priceDates)
+                    foreach (var tourDateRequest in tourDateRequests)
                     {
                         var date = tour.TourDates?.FirstOrDefault(td => td.Id == tourDateRequest.Id);
 
                         if (tourDateRequest is not
                             {StartDate: not null, EndDate: not null, StartTime: not null}) continue;
 
-                        tourDateRequest.StartDate =
-                            tourDateRequest.StartDate.Value.Add(tourDateRequest.StartTime.Value);
+                        tourDateRequest.StartDate = tourDateRequest.StartDate.Value.Date + tourDateRequest.StartTime.Value;
+                        
+                        if (tourDateRequest.EndTime != null)
+                            tourDateRequest.EndDate =
+                                tourDateRequest.EndDate.Value.Date + tourDateRequest.EndTime.Value;
 
                         if (date is null)
                         {
@@ -198,11 +202,15 @@ public static class ToursExtensions
     {
         var tourDestinationLookups = new List<TourDestinationLookup>();
 
-        if (request?.Any() == true)
+        if (request != null)
         {
-            tourDestinationLookups.AddRange(request.Select(tourDestinationLookupRequest =>
-                new TourDestinationLookup(tourDestinationLookupRequest.TourId,
-                    tourDestinationLookupRequest.DestinationId)));
+            var tourDestinationLookupRequests = request as TourDestinationLookupRequest[] ?? request.ToArray();
+            if (tourDestinationLookupRequests.Length != 0)
+            {
+                tourDestinationLookups.AddRange(tourDestinationLookupRequests.Select(tourDestinationLookupRequest =>
+                    new TourDestinationLookup(tourDestinationLookupRequest.TourId,
+                        tourDestinationLookupRequest.DestinationId)));
+            }
         }
 
         var destinationsToRemove = tour.TourDestinationLookups?
@@ -300,20 +308,15 @@ public static class ToursExtensions
                         }
                     }
 
-                    var sectionsToRemove = itinerary.Sections?
-                        .Where(existingContent => itinerarySections.All(newRoom => newRoom.Id != existingContent.Id))
-                        .ToList();
+                    var sectionsToRemove = itinerary.Sections.Where(existingContent => itinerarySections.All(newRoom => newRoom.Id != existingContent.Id)).ToList();
 
-                    if (sectionsToRemove != null)
+                    foreach (var section in sectionsToRemove)
                     {
-                        foreach (var section in sectionsToRemove)
-                        {
-                            section.DomainEvents.Add(EntityDeletedEvent.WithEntity(section));
-                            section.FlagAsDeleted(userId);
-                            itinerarySections.Add(section);
-                        }   
+                        section.DomainEvents.Add(EntityDeletedEvent.WithEntity(section));
+                        section.FlagAsDeleted(userId);
+                        itinerarySections.Add(section);
                     }
-                    
+
                     itinerary.Sections = itinerarySections;
                     
                     itinerary.Update(itineraryRequest.Header, itineraryRequest.Title, itineraryRequest.Description, tour.Id, itinerarySections);

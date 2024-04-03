@@ -1,5 +1,5 @@
 class BasketItemModel {
-    constructor(id, propertyName = null, propertyId = null, cloudbedsPropertyId = null, propertyImageUrl = null, checkInDate = null, checkOutDate = null) {
+    constructor(id, propertyName = null, propertyId = null, cloudbedsPropertyId = null, propertyImageUrl = null, checkInDate = null, checkOutDate = null, tourName = null, tourId = null) {
         this.Id = id;
         this.PropertyName = propertyName;
         this.PropertyId = propertyId;
@@ -7,11 +7,13 @@ class BasketItemModel {
         this.PropertyImageUrl = propertyImageUrl;
         this.CheckInDate = checkInDate;
         this.CheckOutDate = checkOutDate;
+        this.TourName = tourName;
+        this.TourId = tourId;
     }
 }
 
 class BasketItemRoomModel {
-    constructor(roomTypeId, roomTypeName, roomIsShared, roomQuantity, roomRate, adultQuantity, childrenQuantity) {
+    constructor(roomTypeId, roomTypeName, roomIsShared, roomQuantity, roomRate, adultQuantity, childrenQuantity, cloudbedsPropertyId) {
         this.PropertyId = propertyId;
         this.PropertyName = propertyName;
         this.PropertyImageUrl = propertyImageUrl;
@@ -24,6 +26,20 @@ class BasketItemRoomModel {
         this.RoomRate = roomRate;
         this.AdultQuantity = parseInt(adultQuantity);
         this.ChildrenQuantity = parseInt(childrenQuantity);
+        this.CloudbedsPropertyId = parseInt(cloudbedsPropertyId);
+    }
+}
+
+class BasketItemDateModel
+{
+    constructor(dateId, tourId, tourName, tourImageUrl, guestQuantity, price, startDate) {
+        this.DateId = dateId;
+        this.TourId = tourId;
+        this.TourName = tourName;
+        this.GuestQuantity = guestQuantity;
+        this.TourImageUrl = tourImageUrl;
+        this.Price = price;
+        this.StartDate = startDate;
     }
 }
 

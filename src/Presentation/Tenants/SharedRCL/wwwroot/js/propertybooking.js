@@ -12,6 +12,7 @@ $('.roomToggleButton').on('click', function () {
 $('.js-room-quantity').on('change', function() {
     let roomTypeId = $(this).data('room-type-id');
     let roomTypeName = $(this).data('room-type-name');
+    let cloudbedsPropertyId = $(this).data('cloudbeds-property-id');
     let roomIsShared = $(this).data('room-is-shared') == 'True';
 
     let bedQuantityControl = $('.js-room-bed-quantity[data-room-type-id=' + roomTypeId + ']');
@@ -23,21 +24,18 @@ $('.js-room-quantity').on('change', function() {
     let childQuantity = childQuantityControl.length && childQuantityControl.val().length > 0  ? childQuantityControl.val() : 0;
 
     let rooms = serializedData.propertyRooms;
-    console.log(rooms);
     
     let room = $.grep(rooms, function (item) {
-        
-        console.log(item["roomTypeID"]);
-        console.log(roomTypeId);
-        
         return item["roomTypeID"] === roomTypeId;
     })[0];
     
-    let request = new BasketItemRoomModel(roomTypeId, roomTypeName, roomIsShared, roomQuantity, room.roomRate, adultQuantity, childQuantity)
+    let request = new BasketItemRoomModel(roomTypeId, roomTypeName, roomIsShared, roomQuantity, room.roomRate, adultQuantity, childQuantity, cloudbedsPropertyId)
+    
+    console.log(request);
     
     postAjax("AddRoomToBasket", request, function (result) {
         let basket = result.basket;
-        var item = result.item;
+        let item = result.item;
         let itemsCount = basket.itemsCount;
 
         $('.basketItemsNavQuantity').html(itemsCount).removeClass('d-none');

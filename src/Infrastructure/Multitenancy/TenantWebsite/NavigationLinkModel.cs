@@ -2,9 +2,9 @@ namespace Travaloud.Infrastructure.Multitenancy.TenantWebsite;
 
 public class NavigationLinkModel
 {
-    public string Title { get; set; }
-    public string Page { get; set; }
-    public string FriendlyUrl { get; set; }
+    public string Title { get; set; } = default!;
+    public string Page { get; set; }= default!;
+    public string FriendlyUrl { get; set; }= default!;
     public Dictionary<string, string>? Routes { get; set; } 
     public string? ChildrenEntity { get; set; }
     public NavigationLinkModel[]? Children { get; set; }

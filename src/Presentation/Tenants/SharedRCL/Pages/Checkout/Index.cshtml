@@ -1,10 +1,10 @@
-@page "/checkout"
+@page "/checkout/{bookingId?}"
 @model Travaloud.Tenants.SharedRCL.Pages.Checkout.IndexModel
 
 <section class="h-100 bg-light">
     <div class="container py-5 h-100">
         <div class="row">
-            <div class="col-xl-8">
+            <div class="col-xl-8 mb-4">
                 <div class="card">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-5">
@@ -29,31 +29,12 @@
                         </div>
 
                         @Html.DisplayFor(x => x.CheckoutFormComponentModel)
-                        
-                        <h5 class="my-4">Additional Guests (optional)</h5>
 
                         <partial name="_AdditionalGuestsPartial" model="Model.Basket"/>
                     </div>
                 </div>
-
-                <div class="row my-4">
-                    <div class="col">
-                        <h6 class="mb-0">
-                            <a asp-page="/Home/Index" class="text-body">
-                                <i class="fas fa-long-arrow-alt-left me-2"></i>Continue Exploring
-                            </a>
-                        </h6>
-                    </div> <!-- end col -->
-                    <div class="col">
-                        <div class="text-end mt-2 mt-sm-0">
-                            <button type="submit" form="checkoutForm" class="btn btn-primary">
-                                <i class="fas fa-cart-shopping me-2"></i>Proceed to Payment
-                            </button>
-                        </div>
-                    </div> <!-- end col -->
-                </div> <!-- end row-->
             </div>
-            <div class="col-xl-4 sticky" data-mdb-sticky-init data-mdb-sticky-direction="both" data-mdb-sticky-offset="92" data-mdb-sticky-delay="82" data-mdb-sticky-media="968">
+            <div class="col-xl-4 sticky mb-4" data-mdb-sticky-init data-mdb-sticky-direction="both" data-mdb-sticky-offset="92" data-mdb-sticky-delay="82" data-mdb-sticky-media="968">
                 <div class="card checkout-order-summary">
                     <div class="card-body">
                         <div class="p-3 bg-light mb-3">
@@ -91,6 +72,26 @@
                 </div>
             </div>
         </div>
+        <div class="row">
+            <div class="col-xl-8">
+                <div class="row d-flex justify-content-between align-items-center">
+                    <div class="col-lg-6 order-lg-0 order-1">
+                        <h6 class="mb-0">
+                            <a asp-page="/Home/Index" class="text-body">
+                                <i class="fas fa-long-arrow-alt-left me-2"></i>Continue Exploring
+                            </a>
+                        </h6>
+                    </div>
+                    <div class="col-lg-6 order-lg-1 order-0">
+                        <div class="text-end mb-3 mb-lg-0">
+                            <button type="submit" form="checkoutForm" class="btn btn-primary checkout-payment-button">
+                               Proceed to Payment
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </section>
 
@@ -122,9 +123,15 @@
 
 @section Scripts
 {
+    @* <script src="https://js.stripe.com/v3/"></script> *@
+
     <script type="text/javascript">
+        // const stripe = Stripe('@Model.StripePublicKey');
+        // const items = [{ id: "xl-tshirt" }];
+
         var basket = @Html.Raw(Json.Serialize(Model.Basket));
     </script>
 
     <script src="/shared/js/basket.min.js"></script>
+    <script src="/shared/js/checkout.min.js"></script>
 }

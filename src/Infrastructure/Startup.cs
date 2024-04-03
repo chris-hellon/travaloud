@@ -19,7 +19,7 @@ using Travaloud.Infrastructure.Multitenancy;
 using Travaloud.Infrastructure.Persistence;
 using Travaloud.Infrastructure.Persistence.Context;
 using Travaloud.Infrastructure.Persistence.Initialization;
-using Travaloud.Infrastructure.Stripe;
+using Travaloud.Infrastructure.PaymentProcessing;
 
 namespace Travaloud.Infrastructure;
 

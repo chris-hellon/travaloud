@@ -2,11 +2,11 @@
 
 public class OvalContainerComponent
 {
-	public string Id { get; private set; }
-	public int? TopPosition { get; private set; }
-	public int? BottomPosition { get; private set; }
-	public int? LeftPosition { get; private set; }
-	public int? RightPosition { get; private set; }
+	public string Id { get; private set; } = string.Empty;
+	public int? TopPosition { get; }
+	public int? BottomPosition { get; }
+	public int? LeftPosition { get; }
+	public int? RightPosition { get; }
 
 	public string Style
 	{

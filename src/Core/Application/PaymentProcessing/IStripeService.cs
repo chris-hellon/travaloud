@@ -1,3 +1,4 @@
+using Stripe;
 using Stripe.Checkout;
 using Travaloud.Application.PaymentProcessing.Commands;
 using Travaloud.Application.PaymentProcessing.Queries;
@@ -8,5 +9,11 @@ public interface IStripeService : ITransientService
 {
     Task<Session> CreateStripeSession(CreateStripeSessionRequest request);
 
-    Task<Session> GetStripePaymentStatus(GetStripePaymentStatusRequest request);
+    Task<Session?> GetStripePaymentStatus(GetStripePaymentStatusRequest request);
+
+    Task<bool> RefundSession(RefundSessionRequest request);
+
+    Task<Customer?> CreateStripeCustomer(CreateStripeCustomerRequest request);
+
+    Task<Customer?> SearchStripeCustomer(SearchStripeCustomerRequest request);
 }

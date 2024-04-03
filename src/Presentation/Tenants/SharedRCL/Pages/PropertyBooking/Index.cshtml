@@ -34,6 +34,8 @@
                                     room.CurrencySymbol = Model.CloudbedsPropertyResponse.Data.First().PropertyCurrency.CurrencySymbol;
                                     room.PropertyId = Model.PropertyId;
                                     room.PropertyName = Model.PropertyName;
+                                    room.CloudbedsPropertyId = Model.CloudbedsPropertyId;
+                                    room.PropertyImageUrl = Model.PropertyImageUrl;
 
                                     <partial name="_PropertyRoomCardPartial" model="room"/>
                                     <partial name="_PropertyRoomDetailsPartial" model="room"/>

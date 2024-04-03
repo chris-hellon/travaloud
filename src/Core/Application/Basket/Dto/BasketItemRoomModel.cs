@@ -29,6 +29,8 @@ public class BasketItemRoomModel
     public string CheckInDate { get; set; } = default!;
 	
     public string CheckOutDate { get; set; }= default!;
+    
+    public int CloudbedsPropertyId { get; set; }
 
     public DateTime CheckInDateParsed => DateTime.Parse(CheckInDate);
     public DateTime CheckOutDateParsed => DateTime.Parse(CheckOutDate);

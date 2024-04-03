@@ -3,29 +3,32 @@ using Microsoft.Extensions.Options;
 using Stripe;
 using Stripe.Checkout;
 using Travaloud.Application.Basket.Dto;
+using Travaloud.Application.PaymentProcessing.Extensions;
+using Travaloud.Application.PaymentProcessing.Queries;
 
 namespace Travaloud.Application.PaymentProcessing.Commands;
 
 public class CreateStripeSessionRequest : IRequest<Session>
 {
-    [Required]
-    public DefaultIdType? BookingId { get; set; }
-    
-    [Required]
-    public int? InvoiceId { get; set; }
-    
-    [Required]
-    public string? SuccessUrl { get; set; }
-    
-    [Required]
-    public string? CancelUrl { get; set; }
-    
-    [Required]
-    public BasketModel? Basket { get; set; }
-    
-    public string? CustomerEmail { get; set; }
+    [Required] public DefaultIdType? BookingId { get; }
 
-    public CreateStripeSessionRequest(DefaultIdType? bookingId, int? invoiceId, string? successUrl, string? cancelUrl, BasketModel basket, string? customerEmail)
+    [Required] public int? InvoiceId { get; }
+
+    [Required] public string? SuccessUrl { get; }
+
+    [Required] public string? CancelUrl { get; }
+
+    [Required] public BasketModel? Basket { get; }
+
+    [Required] public string? CustomerEmail { get; }
+
+    public CreateStripeSessionRequest(
+        DefaultIdType? bookingId, 
+        int? invoiceId, 
+        string? successUrl, 
+        string? cancelUrl,
+        BasketModel basket, 
+        string? customerEmail)
     {
         BookingId = bookingId;
         InvoiceId = invoiceId;
@@ -39,80 +42,31 @@ public class CreateStripeSessionRequest : IRequest<Session>
 internal class CreateStripeSessionRequestHandler : IRequestHandler<CreateStripeSessionRequest, Session>
 {
     private readonly IStripeClient _stripeClient;
-    
-    public CreateStripeSessionRequestHandler(IOptions<StripeSettings> stripeSettings)
+    private readonly IStripeService _stripeService;
+
+    public CreateStripeSessionRequestHandler(IOptions<StripeSettings> stripeSettings, IStripeService stripeService)
     {
+        _stripeService = stripeService;
         _stripeClient = new StripeClient(stripeSettings.Value.ApiSecretKey);
     }
-    
+
     public async Task<Session> Handle(CreateStripeSessionRequest request, CancellationToken cancellationToken)
     {
-        var propertiesLineItems = request.Basket?.Items.Where(x => x.PropertyId.HasValue);
-        var toursLineItems = request.Basket?.Items.Where(x => x.TourId.HasValue);
+        var propertiesLineItemsParsed =  request.Basket?.Items.Where(x => x is {PropertyId: not null, Rooms: not null}).GetSessionLineItemOptions(true);
+        var toursLineItemsParsed = request.Basket?.Items.Where(x => x is {TourId: not null, TourDates: not null}).GetSessionLineItemOptions(false);
 
-        var propertiesLineItemsModels = propertiesLineItems as BasketItemModel[] ?? propertiesLineItems?.ToArray();
-        var toursLineItemsModels = toursLineItems as BasketItemModel[] ?? toursLineItems?.ToArray();
+        var propertiesLineItems = propertiesLineItemsParsed?.Item2;
+        var toursLineItems = toursLineItemsParsed?.Item2;
         
-        var propertiesLineItemsParsed = propertiesLineItemsModels?.Select(x => new SessionLineItemOptions
-        {
-            Quantity = 1,
-            PriceData = new SessionLineItemPriceDataOptions
-            {
-                Currency = "usd",
-                UnitAmount = ConvertToCents(x.Total),
-                ProductData = new SessionLineItemPriceDataProductDataOptions
-                {
-                    Name = x.PropertyName,
-                    Images = [x.PropertyImageUrl],
-                    Description = $"{x.Rooms.Count} room{(x.Rooms.Count > 1 ? "s" : "")} at {x.PropertyName} from {x.CheckInDateParsed.Value.ToShortDateString()} - {x.CheckOutDateParsed.Value.ToShortDateString()}."
-                }
-            }
-        }) ?? Array.Empty<SessionLineItemOptions>();
-
-
-        var toursLineItemsParsed = toursLineItemsModels?.Select(x => new SessionLineItemOptions
-        {
-            Quantity = 1,
-            PriceData = new SessionLineItemPriceDataOptions
-            {
-                Currency = "usd",
-                UnitAmount = ConvertToCents(x.Total),
-                ProductData = new SessionLineItemPriceDataProductDataOptions
-                {
-                    Name = x.Tour?.Name,
-                    Description = $"{x.TourDates.Count} date at {x.Tour?.Name} on {string.Join(", ", x.TourDates.Select(td => td.TourDate.StartDate.ToShortDateString()))}"
-                }
-            }
-        }) ?? Array.Empty<SessionLineItemOptions>();
-
-        var lineItems = propertiesLineItemsParsed.Union(toursLineItemsParsed).ToList();
+        var propertiesLabel = propertiesLineItemsParsed?.Item1;
+        var toursLabel = propertiesLineItemsParsed?.Item1;
         
-        var customerSearchOptions = new CustomerSearchOptions
-        {
-            Query = $"email:'{request.CustomerEmail}'",
-        };
-        
-        var customerService = new CustomerService(_stripeClient);
-        var matchedCustomers = await customerService.SearchAsync(customerSearchOptions, cancellationToken: cancellationToken);
+        var lineItems = propertiesLineItems!.Union(toursLineItems!).ToList();
 
-        string? customerId = null;
-        
-        if (matchedCustomers != null && matchedCustomers.Data.Count != 0)
-        {
-            customerId = matchedCustomers.Data.First().Id;
-        }
-
-        var propertiesLabel = propertiesLineItemsModels != null
-            ? string.Join(", ", propertiesLineItemsModels.Select(x => x.PropertyName))
-            : "";
-        var toursLabel = toursLineItemsModels != null
-            ? string.Join(", ", toursLineItemsModels.Select(x => x.Tour.Name))
-            : "";
-        
         var description = string.Join(", ", propertiesLabel, toursLabel);
         description = description.Trim().TrimEnd(',');
         description += $" - Booking: {request.InvoiceId.ToString()}";
-        
+
         var options = new SessionCreateOptions
         {
             ClientReferenceId = request.BookingId.ToString(),
@@ -125,30 +79,34 @@ internal class CreateStripeSessionRequestHandler : IRequestHandler<CreateStripeS
                 ReceiptEmail = request.CustomerEmail,
                 Metadata = new Dictionary<string, string>
                 {
-                    { "BookingId", request.BookingId.ToString() },
-                    { "InvoiceId", request.InvoiceId.Value.ToString()},
-                    { "Properties", propertiesLabel },
-                    { "Tours", toursLabel }
+                    {"BookingId", request.BookingId.ToString()!},
+                    {"InvoiceId", request.InvoiceId!.Value.ToString()},
+                    {"Properties", propertiesLabel ?? string.Empty},
+                    {"Tours", toursLabel ?? string.Empty}
                 },
                 Description = description
             }
         };
+        
+        var existingCustomer = await _stripeService.SearchStripeCustomer(new SearchStripeCustomerRequest(request.CustomerEmail!));
+            
+        string? customerId = null;
+
+        if (existingCustomer != null)
+        {
+            customerId = existingCustomer.Id;
+        }
 
         if (!string.IsNullOrEmpty(customerId))
             options.Customer = customerId;
         else
         {
             options.CustomerEmail = request.CustomerEmail;
-            options.CustomerCreation = "if_required";
+            options.CustomerCreation = "always";
         }
-        
+
         var service = new SessionService(_stripeClient);
 
         return await service.CreateAsync(options, cancellationToken: cancellationToken);
-    }
-
-    private static int ConvertToCents(decimal dollars)
-    {
-        return (int)(dollars * 100);
     }
 }

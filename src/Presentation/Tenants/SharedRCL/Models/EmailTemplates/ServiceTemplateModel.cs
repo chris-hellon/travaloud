@@ -4,7 +4,7 @@ namespace Travaloud.Tenants.SharedRCL.Models.EmailTemplates;
 
 public class ServiceTemplateModel : EmailTemplateBaseModel
 {
-	public ServiceDetailsDto Service { get; set; }
+	public ServiceDetailsDto Service { get; set; } = default!;
 	public ServiceTemplateModel()
 	{
 	}

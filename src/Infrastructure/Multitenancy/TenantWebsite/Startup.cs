@@ -168,6 +168,18 @@ public static class Startup
                 .MinifyJavaScript()
                 .UseFileProvider(provider);
 
+            pipeline.AddJavaScriptBundle("/shared/js/checkout.min.js",
+                    "/js/checkout.js"
+                )
+                .MinifyJavaScript()
+                .UseFileProvider(provider);
+            
+            pipeline.AddJavaScriptBundle("/shared/js/tour.min.js",
+                    "/js/tour.js"
+                )
+                .MinifyJavaScript()
+                .UseFileProvider(provider);
+            
             pipeline.CompileScssFiles().MinifyCss();
         });
 

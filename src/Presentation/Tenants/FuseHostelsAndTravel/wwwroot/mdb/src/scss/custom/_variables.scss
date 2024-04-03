@@ -55,7 +55,7 @@ $h2-font-size: $font-size-base * 2 !default;
 $h3-font-size: $font-size-base * 1.75 !default;
 $h4-font-size: $font-size-base * 1.5 !default;
 $h5-font-size: $font-size-base * 1.25 !default;
-$h6-font-size: 1rem !default;
+$h6-font-size: 1.2rem !default;
 $hr-opacity:0.15 !default;
 // scss-docs-start font-variables
 
@@ -134,3 +134,5 @@ $dropdown-border-radius: 0rem !default;
 
 $modal-backdrop-opacity: .85 !default;
 $modal-backdrop-bg: #000000 !default;
+
+$datepicker-modal-container-height: auto !default;

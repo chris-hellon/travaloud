@@ -11,6 +11,8 @@ public class Booking : AuditableEntity, IAggregateRoot
     public bool IsPaid { get; private set; }
     public DateTime BookingDate { get; private set; }
     public string? GuestId { get; private set; }
+    public string? StripeSessionId { get; private set; }
+    public bool? BookingConfirmed { get; private set; }
     
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int InvoiceId { get; private set; }
@@ -40,6 +42,7 @@ public class Booking : AuditableEntity, IAggregateRoot
         IsPaid = isPaid;
         BookingDate = bookingDate;
         GuestId = guestId;
+        StripeSessionId = stripeSessionId;
     }
 
     public Booking Update(
@@ -76,6 +79,9 @@ public class Booking : AuditableEntity, IAggregateRoot
         
         if (items is not null && Items != items)
             Items = items;
+        
+        if (stripeSessionId is not null && StripeSessionId != stripeSessionId)
+            StripeSessionId = stripeSessionId;
 
         return this;
     }
@@ -83,7 +89,14 @@ public class Booking : AuditableEntity, IAggregateRoot
     public Booking FlagBookingAsPaid()
     {
         IsPaid = true;
+        BookingConfirmed = true;
 
+        return this;
+    }
+
+    public Booking SetStripeSessonId(string stripeSessionId)
+    {
+        StripeSessionId = stripeSessionId;
         return this;
     }
 }

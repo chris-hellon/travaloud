@@ -33,7 +33,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Cloudbeds\Commands\" />
       <Folder Include="PaymentProcessing\Dto\" />
     </ItemGroup>
 

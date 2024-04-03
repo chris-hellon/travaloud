@@ -1,4 +1,5 @@
 using Travaloud.Application.Basket;
+using Travaloud.Application.Basket.Commands;
 using Travaloud.Application.Basket.Dto;
 using Travaloud.Application.Basket.Queries;
 using Travaloud.Application.Catalog.Tours.Dto;
@@ -8,13 +9,12 @@ namespace Travaloud.Infrastructure.Basket;
 
 public class BasketService : IBasketService
 {
-    private readonly ISession _session;
-    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly ISession? _session;
     private const string BasketKey = "BookingBasket";
 
     public BasketService(IHttpContextAccessor httpContextAccessor)
     {
-        _session = httpContextAccessor.HttpContext.Session;
+        _session = httpContextAccessor.HttpContext?.Session;
     }
 
     public Task<BasketModel> GetBasket()
@@ -24,7 +24,7 @@ public class BasketService : IBasketService
 
     public void EmptyBasket()
     {
-        _session.Remove(BasketKey);
+        _session?.Remove(BasketKey);
     }
 
     public async Task<BasketModel> SetPromoCode(string promoCode)
@@ -37,10 +37,10 @@ public class BasketService : IBasketService
         return basket;
     }
 
-    public async Task<BasketModel> SetPrimaryContactInformation(string? firstName, string? surname, string? email, DateTime? dateOfBirth, string? phoneNumber, string? nationality, string? gender, string? password, string? confirmPassword)
+    public async Task<BasketModel> SetPrimaryContactInformation(string? firstName, string? surname, string? email, DateTime? dateOfBirth, string? phoneNumber, string? nationality, string? gender, TimeSpan? estimatedArrivalTime, string? password, string? confirmPassword)
     {
         var basket = await GetBasket();    
-        basket.SetPrimaryContactInformation(firstName, surname, email, dateOfBirth, phoneNumber, nationality, gender, password, confirmPassword);
+        basket.SetPrimaryContactInformation(firstName, surname, email, dateOfBirth, phoneNumber, nationality, gender, estimatedArrivalTime, password, confirmPassword);
         
         _session.UpdateObjectInSession(BasketKey, basket);
 
@@ -59,6 +59,21 @@ public class BasketService : IBasketService
         basket.CalculateTotal();
 
         _session.UpdateObjectInSession(BasketKey, basket);
+        return basket;
+    }
+
+    public async Task<BasketModel> RemoveRoom(DefaultIdType id, DefaultIdType itemId)
+    {
+        var basket = await GetBasket();
+
+        var item = basket.Items.FirstOrDefault(x => x.Id == itemId);
+        var room = item?.Rooms?.FirstOrDefault(x => x.Id == id);
+            
+        if (room != null)
+            item?.Rooms?.Remove(room);
+
+        _session.UpdateObjectInSession(BasketKey, basket);
+        
         return basket;
     }
 
@@ -88,6 +103,7 @@ public class BasketService : IBasketService
                     room.CheckInDate,
                     room.CheckOutDate,
                     propertyBookingUrl,
+                    room.CloudbedsPropertyId,
                     userId,
                     new List<BasketItemRoomModel>()));
 
@@ -117,6 +133,76 @@ public class BasketService : IBasketService
         return new Tuple<BasketModel, BasketItemModel>(basket, item);
     }
 
+    public async Task<Tuple<BasketModel, BasketItemModel>> AddItem(BasketItemDateModel date)
+    {
+        var basket = await GetBasket();
+        var item = basket.Items.FirstOrDefault(x => x.TourId == date.TourId);
+
+        if (item == null)
+        {
+            item = await AddItem(
+                basket: basket,
+                item: new BasketItemModel(date.TourName!,
+                    date.TourId,
+                    date.TourImageUrl!,
+                    new List<BasketItemDateModel>()));
+
+            item.AddDate(date);
+        }
+        else
+        {
+            var existingDate = item.TourDates?.FirstOrDefault(x => x.DateId == date.DateId);
+
+            if (existingDate == null)
+                item.AddDate(date);
+            else if (date.GuestQuantity == 0)
+                item.TourDates?.Remove(existingDate);
+            else
+                existingDate.Update(date.GuestQuantity);
+        }
+
+        if (item is {TourDates.Count: 0})
+            basket.Items.Remove(item);
+
+        basket.CalculateTotal();
+        _session.UpdateObjectInSession(BasketKey, basket);
+
+        return new Tuple<BasketModel, BasketItemModel>(basket, item);
+    }
+
+    
+    // public async Task<Tuple<BasketModel, BasketItemModel>> AddItem(DefaultIdType tourId, DefaultIdType tourDateId, int guestQuantity)
+    // {
+    //     var basket = await GetBasket();
+    //     var item = basket.Items.FirstOrDefault(x => x.TourId == tourId);
+    //
+    //     if (item == null)
+    //     {
+    //         await AddItem(
+    //             basket: basket,
+    //             item: new BasketItemModel(tour, new List<BasketItemDateModel>
+    //             {
+    //                 new(tourDate, guestQuantity, tour.Name, tour.ImagePath ?? string.Empty)
+    //             }));
+    //     }
+    //     else
+    //     {
+    //         var itemTourDate = item.TourDates?.FirstOrDefault(x => x.TourDate.Id == tourDate.Id);
+    //
+    //         if (itemTourDate != null)
+    //             itemTourDate.GuestQuantity += guestQuantity;
+    //         else
+    //             item.TourDates?.Add(new BasketItemDateModel(tourDate, guestQuantity, tour.Name,
+    //                 tour.ImagePath ?? string.Empty));
+    //     }
+    //
+    //     basket.CalculateTotal();
+    //     _session.UpdateObjectInSession(BasketKey, basket);
+    //
+    //     return new Tuple<BasketModel, BasketItemModel>(basket, item);
+    // }
+    //
+    //
     public async Task<Tuple<BasketModel, BasketItemModel>?> AddGuest(DefaultIdType itemId, BasketItemGuestModel guest)
     {
         var basket = await GetBasket();
@@ -132,7 +218,7 @@ public class BasketService : IBasketService
 
         _session.UpdateObjectInSession(BasketKey, basket);
 
-        return new Tuple<BasketModel, BasketItemModel>(basket, basketItem);
+        return basketItem != null ? new Tuple<BasketModel, BasketItemModel>(basket, basketItem) : null;
     }
     
     public async Task<Tuple<BasketModel, BasketItemModel>?> UpdateGuest(DefaultIdType itemId, BasketItemGuestModel guest)
@@ -142,7 +228,7 @@ public class BasketService : IBasketService
 
         if (basketItem?.Guests != null)
         {
-            var basketItemGuest = basketItem?.Guests.FirstOrDefault(x => x.Id == guest.Id);
+            var basketItemGuest = basketItem.Guests.FirstOrDefault(x => x.Id == guest.Id);
 
             basketItemGuest?.Update(
                 guest.FirstName,
@@ -157,42 +243,9 @@ public class BasketService : IBasketService
 
         _session.UpdateObjectInSession(BasketKey, basket);
 
-        return new Tuple<BasketModel, BasketItemModel>(basket, basketItem);
+        return basketItem != null ? new Tuple<BasketModel, BasketItemModel>(basket, basketItem) : null;
     }
     
-    public async Task<BasketItemModel?>? AddItem(TourDetailsDto tour, TourDateDto? tourDate, int guestQuantity)
-    {
-        if (tourDate == null) return null;
-
-        var basket = await GetBasket();
-        var item = basket.Items.FirstOrDefault(x => x.Tour != null && x.Tour.Id == tour.Id);
-
-        if (item == null)
-        {
-            await AddItem(
-                basket: basket,
-                item: new BasketItemModel(tour, new List<BasketItemDateModel>
-                {
-                    new(tourDate, guestQuantity, tour.Name, tour.ImagePath ?? string.Empty)
-                }));
-        }
-        else
-        {
-            var itemTourDate = item.TourDates?.FirstOrDefault(x => x.TourDate.Id == tourDate.Id);
-
-            if (itemTourDate != null)
-                itemTourDate.GuestQuantity += guestQuantity;
-            else
-                item.TourDates?.Add(new BasketItemDateModel(tourDate, guestQuantity, tour.Name,
-                    tour.ImagePath ?? string.Empty));
-        }
-
-        basket.CalculateTotal();
-        _session.UpdateObjectInSession(BasketKey, basket);
-
-        return item;
-    }
-
     public async Task<Tuple<BasketModel, BasketItemModel>?> RemoveGuestFromBasketItem(DefaultIdType itemId, DefaultIdType id)
     {
         var basket = await GetBasket();
@@ -206,8 +259,8 @@ public class BasketService : IBasketService
         }
 
         _session.UpdateObjectInSession(BasketKey, basket);
-        
-        return new Tuple<BasketModel, BasketItemModel>(basket, basketItem);
+
+        return basketItem != null ? new Tuple<BasketModel, BasketItemModel>(basket, basketItem) : null;
     }
 
     public async Task<IList<BasketItemGuestModel>> GetGuests(GetBasketItemGuestsRequest request)

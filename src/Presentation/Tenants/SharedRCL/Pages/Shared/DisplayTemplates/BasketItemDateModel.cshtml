@@ -1,49 +1,59 @@
 ﻿@model Travaloud.Application.Basket.Dto.BasketItemDateModel
 
-<div class="row mb-4 d-flex justify-content-between align-items-center tourDateBasketItem" data-id="@Model.Id">
-    <div class="col-lg-2 basketItemImage">
-        <img src="@Model.TourImagePath" class="img-fluid rounded-3" alt="@Model.TourName">
-    </div>
-    <div class="col-lg-@(Model.IsConfirmationPage ? "6" : "5") mt-lg-0 mt-2 mb-lg-0 mb-3">
-        <h6 class="text-muted">@Model.TourName</h6>
-        <h6 class="text-black mb-0">@Model.TourDate.StartDate.ToShortDateString() - @Model.TourDate.EndDate.ToShortDateString()</h6>
-    </div>
-    <div class="col-lg-2 col-5 d-flex @(Model.IsConfirmationPage ? "text-end" : "")">
-        @if (!Model.IsConfirmationPage)
-        {
-            <button class="btn btn-link px-2" onclick="this.parentNode.querySelector('input[type=number]').stepDown(); updateBasket('@Model.Id');">
-                <i class="fas fa-minus"></i>
-            </button>
-
-            <input min="0" max="@Model.TourDate.AvailableSpaces" asp-for="@Model.GuestQuantity" type="number" class="form-control form-control-sm tourDateGuestQuantity text-center" data-id="@Model.Id" />
-
-            <button class="btn btn-link px-2" onclick="this.parentNode.querySelector('input[type=number]').stepUp(); updateBasket('@Model.Id');">
-                <i class="fas fa-plus"></i>
-            </button>
-        }
-        else
-        {
-            <h6 class="mb-0">@($"{Model.GuestQuantity} Guests")</h6>
-        }
-    </div>
-    <div class="col-lg-2 col-5 @(Model.IsConfirmationPage ? "text-end" : "text-lg-start text-end")">
-        @if (Model.IsConfirmationPage)
-        {
-            <h6 class="mb-0">$ @string.Format("{0:n2}", Model.TourDate.TourPrice.Price * Model.GuestQuantity)</h6>
-        }
-        else
-        {
-            <h6 class="mb-0">$ @string.Format("{0:n2}", Model.TourDate.TourPrice.Price)</h6>
-        }
-
-    </div>
-
-    @if (!Model.IsConfirmationPage)
-    {
-        <div class="col-lg-1 col-2 text-end">
-            <span class="text-muted cursor-pointer" onclick="removeFromBasket('@Model.Id');"><i class="fas fa-times"></i></span>
-        </div>
-    }
-</div>
-
-<hr class="my-4 tourDateBasketItemSpacer" data-id="@Model.Id" />
+@* <div class="row mb-4 d-flex justify-content-between align-items-center tourDateBasketItem" data-id="@Model.Id"> *@
+@*     <div class="col-lg-2 basketItemImage"> *@
+@*         <img src="@Model.TourImagePath" class="img-fluid rounded-3" alt="@Model.TourName"> *@
+@*     </div> *@
+@*     <div class="col-lg-@(Model.IsConfirmationPage ? "6" : "5") mt-lg-0 mt-2 mb-lg-0 mb-3"> *@
+@*         <h6 class="text-muted">@Model.TourName</h6> *@
+@*         <h6 class="text-black mb-0">@Model.TourDate.StartDate.ToShortDateString() - @Model.TourDate.EndDate.ToShortDateString()</h6> *@
+@*     </div> *@
+@*     <div class="col-lg-2 col-5 d-flex @(Model.IsConfirmationPage ? "text-end" : "")"> *@
+@*         @if (!Model.IsConfirmationPage) *@
+@*         { *@
+@*             <button class="btn btn-link px-2" onclick="this.parentNode.querySelector('input[type=number]').stepDown(); updateBasket('@Model.Id');"> *@
+@*                 <i class="fas fa-minus"></i> *@
+@*             </button> *@
+@* *@
+@*             <input min="0" max="@Model.TourDate.AvailableSpaces" asp-for="@Model.GuestQuantity" type="number" class="form-control form-control-sm tourDateGuestQuantity text-center" data-id="@Model.Id" /> *@
+@* *@
+@*             <button class="btn btn-link px-2" onclick="this.parentNode.querySelector('input[type=number]').stepUp(); updateBasket('@Model.Id');"> *@
+@*                 <i class="fas fa-plus"></i> *@
+@*             </button> *@
+@*         } *@
+@*         else *@
+@*         { *@
+@*             <h6 class="mb-0">@($"{Model.GuestQuantity} Guests")</h6> *@
+@*         } *@
+@*     </div> *@
+@*     <div class="col-lg-2 col-5 @(Model.IsConfirmationPage ? "text-end" : "text-lg-start text-end")"> *@
+@*         @if (Model.IsConfirmationPage) *@
+@*         { *@
+@*             <h6 class="mb-0">$ *@
+@*                 @if (Model.TourDate.TourPrice != null) *@
+@*                 { *@
+@*                     @($"{Model.TourDate.TourPrice.Price * Model.GuestQuantity:n2}") *@
+@*                 } *@
+@*             </h6> *@
+@*         } *@
+@*         else *@
+@*         { *@
+@*             <h6 class="mb-0">$ *@
+@*                 @if (Model.TourDate.TourPrice != null) *@
+@*                 { *@
+@*                     @($"{Model.TourDate.TourPrice.Price:n2}") *@
+@*                 } *@
+@*             </h6> *@
+@*         } *@
+@* *@
+@*     </div> *@
+@* *@
+@*     @if (!Model.IsConfirmationPage) *@
+@*     { *@
+@*         <div class="col-lg-1 col-2 text-end"> *@
+@*             <span class="text-muted cursor-pointer" onclick="removeFromBasket('@Model.Id');"><i class="fas fa-times"></i></span> *@
+@*         </div> *@
+@*     } *@
+@* </div> *@
+@* *@
+@* <hr class="my-4 tourDateBasketItemSpacer" data-id="@Model.Id" /> *@

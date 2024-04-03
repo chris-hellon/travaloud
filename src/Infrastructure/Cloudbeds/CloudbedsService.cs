@@ -1,5 +1,6 @@
 using MediatR;
 using Travaloud.Application.Cloudbeds;
+using Travaloud.Application.Cloudbeds.Commands;
 using Travaloud.Application.Cloudbeds.Queries;
 using Travaloud.Application.Cloudbeds.Responses;
 using Travaloud.Infrastructure.Catalog.Services;
@@ -15,5 +16,15 @@ public class CloudbedsService : BaseService, ICloudbedsService
     public async Task<GetPropertyAvailabilityResponse> GetPropertyAvailability(GetPropertyAvailabilityRequest request)
     {
         return await Mediator.Send(request);
+    }
+
+    public Task<CreateReservationResponse> CreateReservation(CreateReservationRequest request)
+    {
+        return Mediator.Send(request);
+    }
+
+    public Task<CreateReservationAdditionalGuestResponse> CreateReservationAdditionalGuest(CreateReservationAdditionalGuestRequest request)
+    {
+        return Mediator.Send(request);
     }
 }

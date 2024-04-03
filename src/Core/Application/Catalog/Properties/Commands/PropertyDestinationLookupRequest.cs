@@ -23,7 +23,7 @@ public class PropertyDestinationLookupRequest : IRequest<DefaultIdType>
     
     public override string ToString() => Name;
     
-    public override bool Equals(object o)
+    public override bool Equals(object? o)
     {
         var other = o as PropertyDestinationLookupRequest;
         return other?.Name == Name;
