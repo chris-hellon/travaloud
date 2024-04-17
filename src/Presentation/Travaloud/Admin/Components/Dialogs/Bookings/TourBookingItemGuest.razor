@@ -1,0 +1,38 @@
+@using Travaloud.Infrastructure.Common
+@using Travaloud.Application.Identity.Users
+@inject IStringLocalizer<SharedResource> L
+
+<EditForm @ref="EditForm" Model="@RequestModel" OnValidSubmit="SaveAsync" Context="_editContext">
+    <MudDialog>
+        <TitleContent>
+            <MudText Typo="Typo.h6">
+                <MudIcon Icon="@Icons.Material.Filled.Add" Class="mr-3 mb-n1"/>
+                @($"{L["Add Additional Guest"]}")
+            </MudText>
+        </TitleContent>
+
+        <DialogContent>
+            <FluentValidationValidator @ref="_fluentValidationValidator"/>
+
+            <MudGrid>
+                <MudItem xs="12" md="12">
+                    @* <MudSelect T="string" For="@(() => RequestModel.GuestId)" Label="Select Guest" Clearable="true" Required="true" HelperText="Select a Guest" Variant="Variant.Outlined" @bind-Value="RequestModel.GuestId"> *@
+                    @*     @if (Guests != null) *@
+                    @*     { *@
+                    @*         foreach (var guest in Guests) *@
+                    @*         { *@
+                    @*             <MudSelectItem T="string" Value="@guest.Id.ToString()">@guest.FirstName @guest.LastName - @guest.Email</MudSelectItem> *@
+                    @*         } *@
+                    @*     } *@
+                    @* </MudSelect> *@
+                    
+                    <MudAutocomplete T="UserDetailsDto" MaxItems="null" Label="@L["Select Guest"]" For="@(() => RequestModel.Guest)" @bind-Value="RequestModel.Guest" SearchFunc="@SearchGuests" AnchorOrigin="Origin.BottomCenter" Variant="Variant.Outlined" Required="false" ToStringFunc="@(e=> e==null?null : $"{e.FirstName} {e.LastName} - {e.Email}")"/>
+                </MudItem>
+            </MudGrid>
+        </DialogContent>
+        <DialogActions>
+            <MudButton DisableElevation Variant="Variant.Filled" OnClick="Cancel" StartIcon="@Icons.Material.Filled.Cancel">@L["Cancel"]</MudButton>
+            <MudButton DisableElevation Variant="Variant.Filled" ButtonType="ButtonType.Submit" Color="Color.Success" StartIcon="@Icons.Material.Filled.Save">@L["Confirm"]</MudButton>
+        </DialogActions>
+    </MudDialog>
+</EditForm>

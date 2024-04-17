@@ -40,4 +40,14 @@ public class StripeService : IStripeService
     {
         return _mediator.Send(request);
     }
+
+    public Task<Session> CreateStripeSessionClientSecret(CreateStripeSessionClientSecretRequest request)
+    {
+        return _mediator.Send(request);
+    }
+
+    public Task<string> CreateStripeQrCodeUrl(CreateStripeQrCodeRequest request)
+    {
+        return _mediator.Send(request);
+    }
 }

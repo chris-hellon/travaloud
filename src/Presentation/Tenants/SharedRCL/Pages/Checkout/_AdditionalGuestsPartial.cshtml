@@ -5,30 +5,61 @@
 {
     <div class="additional-guests-container">
 
-        <h5 class="my-4">Additional Guests (optional)</h5>
+        <h5 class="mt-4">Additional Guests</h5>
+        <h6 class="mb-4">Please add all guests details and assign them to a Tour / Hostel.</h6>
 
         @foreach (var basketItem in Model.Items)
         {
-            var itemsWithGuests = Model.Items.Where(x => x.Id != basketItem.Id && x.Guests != null && x.Guests.Any());
-            var basketItemModels = itemsWithGuests as BasketItemModel[] ?? itemsWithGuests.ToArray();
+            if (basketItem.TourId.HasValue)
+            {
+                foreach (var date in basketItem.TourDates)
+                {
+                    var itemsWithGuests = Model.Items.Where(x => x.Id != basketItem.Id && x.Guests != null && x.Guests.Any());
+                    var basketItemModels = itemsWithGuests as BasketItemModel[] ?? itemsWithGuests.ToArray();
 
-            var itemsWithDifferentGuests = basketItemModels
-                .Where(x => x.Guests != null && x.Guests.Any(guest => basketItem.Guests == null || basketItem.Guests.All(basketGuest => basketGuest.Id != guest.Id)));
+                    var itemsWithDifferentGuests = basketItemModels
+                        .Where(x => x.Guests != null && x.Guests.Any(guest => basketItem.Guests == null || basketItem.Guests.All(basketGuest => basketGuest.Id != guest.Id)));
 
-            var itemsWithIdenticalGuests = basketItemModels.Any() && itemsWithDifferentGuests.Any();
+                    var itemsWithIdenticalGuests = basketItemModels.Any() && itemsWithDifferentGuests.Any();
 
-            var guestsExistInBasket = false;
+                    var guestsExistInBasket = false;
 
-            if (Model.Items.All(x => x.Guests == null || !x.Guests.Any()))
-                guestsExistInBasket = false;
-            else if (!basketItemModels.Any())
-                guestsExistInBasket = false;
-            else if (itemsWithIdenticalGuests)
-                guestsExistInBasket = true;
+                    if (Model.Items.All(x => x.Guests == null || !x.Guests.Any()))
+                        guestsExistInBasket = false;
+                    else if (!basketItemModels.Any())
+                        guestsExistInBasket = false;
+                    else if (itemsWithIdenticalGuests)
+                        guestsExistInBasket = true;
 
-            basketItem.GuestsExistInBasket = guestsExistInBasket;
+                    basketItem.GuestsExistInBasket = guestsExistInBasket;
 
-            <partial name="/Pages/Checkout/_AdditionalGuestPartial.cshtml" model="basketItem"/>
+                    <partial name="/Pages/Checkout/_AdditionalGuestPartial.cshtml" model="basketItem"/>
+                }
+            }
+            else
+            {
+                var itemsWithGuests = Model.Items.Where(x => x.Id != basketItem.Id && x.Guests != null && x.Guests.Any());
+                var basketItemModels = itemsWithGuests as BasketItemModel[] ?? itemsWithGuests.ToArray();
+
+                var itemsWithDifferentGuests = basketItemModels
+                    .Where(x => x.Guests != null && x.Guests.Any(guest => basketItem.Guests == null || basketItem.Guests.All(basketGuest => basketGuest.Id != guest.Id)));
+
+                var itemsWithIdenticalGuests = basketItemModels.Any() && itemsWithDifferentGuests.Any();
+
+                var guestsExistInBasket = false;
+
+                if (Model.Items.All(x => x.Guests == null || !x.Guests.Any()))
+                    guestsExistInBasket = false;
+                else if (!basketItemModels.Any())
+                    guestsExistInBasket = false;
+                else if (itemsWithIdenticalGuests)
+                    guestsExistInBasket = true;
+
+                basketItem.GuestsExistInBasket = guestsExistInBasket;
+
+                <partial name="/Pages/Checkout/_AdditionalGuestPartial.cshtml" model="basketItem"/>
+            }
+
         }
     </div>
 }

@@ -16,6 +16,8 @@ public class BookingsBySearchRequest : EntitiesByPaginationFilterSpec<Booking, B
                 .ThenInclude(item => item.Tour)
                 .Include(x => x.Items)
                 .ThenInclude(item => item.TourDate)
+                .Include(x => x.Items)
+                .ThenInclude(item => item.Guests)
                 .Where(x =>
                     (request.TourId.HasValue
                         ? x.Items.Any(i => i.TourId.HasValue && i.TourId.Value == request.TourId)
@@ -32,6 +34,8 @@ public class BookingsBySearchRequest : EntitiesByPaginationFilterSpec<Booking, B
                 .OrderByDescending(c => c.BookingDate, !request.HasOrderBy())
                 .Include(x => x.Items)
                 .ThenInclude(item => item.Property)
+                .Include(x => x.Items)
+                .ThenInclude(item => item.Guests)
                 .Where(x =>
                     (request.PropertyId.HasValue
                         ? x.Items.Any(i => i.PropertyId.HasValue && i.PropertyId.Value == request.PropertyId)

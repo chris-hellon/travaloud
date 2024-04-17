@@ -93,36 +93,50 @@ public class BasketService : IBasketService
                                                     x.CheckInDateParsed.Value.Date == room.CheckInDateParsed.Date &&
                                                     x.CheckOutDateParsed.Value.Date == room.CheckOutDateParsed.Date);
 
-        if (item == null)
-        {
-            item = await AddItem(
-                basket: basket,
-                item: new BasketItemModel(room.PropertyName,
-                    room.PropertyId,
-                    room.PropertyImageUrl,
-                    room.CheckInDate,
-                    room.CheckOutDate,
-                    propertyBookingUrl,
-                    room.CloudbedsPropertyId,
-                    userId,
-                    new List<BasketItemRoomModel>()));
+        item = await AddItem(
+            basket: basket,
+            item: new BasketItemModel(room.PropertyName,
+                room.PropertyId,
+                room.PropertyImageUrl,
+                room.CheckInDate,
+                room.CheckOutDate,
+                propertyBookingUrl,
+                room.CloudbedsPropertyId,
+                userId,
+                new List<BasketItemRoomModel>()));
 
-            item.AddRoom(room);
-        }
-        else
-        {
-            var existingRoom = item.Rooms?.FirstOrDefault(x =>
-                x.RoomTypeId == room.RoomTypeId &&
-                x.CheckInDateParsed.Date == room.CheckInDateParsed.Date &&
-                x.CheckOutDateParsed.Date == room.CheckOutDateParsed.Date);
-
-            if (existingRoom == null)
-                item.AddRoom(room);
-            else if (room.RoomQuantity == 0)
-                item.Rooms?.Remove(existingRoom);
-            else
-                existingRoom.Update(room.RoomQuantity, room.AdultQuantity, room.ChildrenQuantity);
-        }
+        item.AddRoom(room);
+        
+        // if (item == null)
+        // {
+        //     item = await AddItem(
+        //         basket: basket,
+        //         item: new BasketItemModel(room.PropertyName,
+        //             room.PropertyId,
+        //             room.PropertyImageUrl,
+        //             room.CheckInDate,
+        //             room.CheckOutDate,
+        //             propertyBookingUrl,
+        //             room.CloudbedsPropertyId,
+        //             userId,
+        //             new List<BasketItemRoomModel>()));
+        //
+        //     item.AddRoom(room);
+        // }
+        // else
+        // {
+        //     var existingRoom = item.Rooms?.FirstOrDefault(x =>
+        //         x.RoomTypeId == room.RoomTypeId &&
+        //         x.CheckInDateParsed.Date == room.CheckInDateParsed.Date &&
+        //         x.CheckOutDateParsed.Date == room.CheckOutDateParsed.Date);
+        //
+        //     if (existingRoom == null)
+        //         item.AddRoom(room);
+        //     else if (room.RoomQuantity == 0)
+        //         item.Rooms?.Remove(existingRoom);
+        //     else
+        //         existingRoom.Update(room.RoomQuantity, room.AdultQuantity, room.ChildrenQuantity);
+        // }
 
         if (item is {Rooms.Count: 0})
             basket.Items.Remove(item);
@@ -136,8 +150,17 @@ public class BasketService : IBasketService
     public async Task<Tuple<BasketModel, BasketItemModel>> AddItem(BasketItemDateModel date)
     {
         var basket = await GetBasket();
-        var item = basket.Items.FirstOrDefault(x => x.TourId == date.TourId);
+        var item = basket.Items.FirstOrDefault(x => x.TourId == date.TourId && x.TourDates?.FirstOrDefault(td => td.DateId == date.DateId) != null);
 
+        // item = await AddItem(
+        //     basket: basket,
+        //     item: new BasketItemModel(date.TourName!,
+        //         date.TourId,
+        //         date.TourImageUrl!,
+        //         new List<BasketItemDateModel>()));
+        //
+        // item.AddDate(date);
+        //
         if (item == null)
         {
             item = await AddItem(
@@ -146,13 +169,13 @@ public class BasketService : IBasketService
                     date.TourId,
                     date.TourImageUrl!,
                     new List<BasketItemDateModel>()));
-
+        
             item.AddDate(date);
         }
         else
         {
             var existingDate = item.TourDates?.FirstOrDefault(x => x.DateId == date.DateId);
-
+        
             if (existingDate == null)
                 item.AddDate(date);
             else if (date.GuestQuantity == 0)
@@ -160,6 +183,8 @@ public class BasketService : IBasketService
             else
                 existingDate.Update(date.GuestQuantity);
         }
+        
+        item.SetTourEditBookingHref(date.TourName!);
 
         if (item is {TourDates.Count: 0})
             basket.Items.Remove(item);
@@ -226,20 +251,38 @@ public class BasketService : IBasketService
         var basket = await GetBasket();
         var basketItem = basket.Items.FirstOrDefault(x => x.Id == itemId);
 
-        if (basketItem?.Guests != null)
-        {
-            var basketItemGuest = basketItem.Guests.FirstOrDefault(x => x.Id == guest.Id);
+        var guests = basket.Items.Where(x => x.Guests != null).SelectMany(x => x.Guests.Where(g => g.Id == guest.Id));
 
-            basketItemGuest?.Update(
-                guest.FirstName,
-                guest.Surname,
-                guest.Email,
-                guest.DateOfBirth,
-                guest.PhoneNumber,
-                guest.Nationality,
-                guest.Gender
-            );
+        if (guests.Any())
+        {
+            foreach (var basketItemGuest in guests)
+            {
+                basketItemGuest.Update(
+                    guest.FirstName,
+                    guest.Surname,
+                    guest.Email,
+                    guest.DateOfBirth,
+                    guest.PhoneNumber,
+                    guest.Nationality,
+                    guest.Gender
+                );
+            }
         }
+
+        // if (basketItem?.Guests != null)
+        // {
+        //     var basketItemGuest = basketItem.Guests.FirstOrDefault(x => x.Id == guest.Id);
+        //
+        //     basketItemGuest?.Update(
+        //         guest.FirstName,
+        //         guest.Surname,
+        //         guest.Email,
+        //         guest.DateOfBirth,
+        //         guest.PhoneNumber,
+        //         guest.Nationality,
+        //         guest.Gender
+        //     );
+        // }
 
         _session.UpdateObjectInSession(BasketKey, basket);
 
@@ -278,7 +321,7 @@ public class BasketService : IBasketService
                 .Where(guest => existingGuests.All(existingGuest => existingGuest.Id != guest.Id))
                 .ToList();
 
-            return guestsNotInExisting;
+            return guestsNotInExisting.DistinctBy(x => x.Id).ToList();
         }
 
     }
@@ -302,6 +345,8 @@ public class BasketService : IBasketService
                     DateOfBirth = guest.DateOfBirth,
                     Email = guest.Email,
                     Nationality = guest.Nationality,
+                    Gender = guest.Gender,
+                    PhoneNumber = guest.PhoneNumber,
                     ItemId = request.ItemId,
                     Id = guest.Id
                 };

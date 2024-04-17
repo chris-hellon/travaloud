@@ -38,7 +38,7 @@ public class IndexModel : JoinOurCrewPageModel
 
     [BindProperty] public List<CardComponent>? JobVacanciesCards { get; private set; }
 
-    public override async Task<IActionResult> OnGetAsync(string? tourName = null)
+    public override async Task<IActionResult> OnGetAsync(string? tourName = null, Guid? tourDate = null, int? guestQuantity = null)
     {
         await base.OnGetDataAsync();
 

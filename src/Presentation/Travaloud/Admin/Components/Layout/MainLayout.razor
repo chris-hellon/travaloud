@@ -40,7 +40,7 @@
                         </MudButton>
                         <MudSpacer/>
                         <MudHidden Breakpoint="Breakpoint.MdAndUp" Invert="true">
-                            <MudText Style="font-size:0.75rem; margin-top:5px; margin-right:13px">@DateTime.Now.ToString("f")</MudText>
+                            <MudText Style="font-size:0.75rem; margin-top:5px; margin-right:13px">@DateTime.Now.ToString("dddd d\\t\\h MMMM yyyy, h:mm tt")</MudText>
                         </MudHidden>
                         <MudTooltip Text="Toggle Dark Mode">
                             <MudToggleIconButton Toggled="@_isDarkMode" ToggledChanged="ToggleDarkMode"

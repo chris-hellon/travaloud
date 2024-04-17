@@ -30,7 +30,8 @@ public class TourDetailsDto
     public string? UrlSlug { get; set; }
     public string? H1 { get; set; }
     public string? H2 { get; set; }
-
+    public string? BookingConfirmationEmailDetails { get; set; }
+    
     public IList<TourPriceDto>? TourPrices { get; set; }
     public IList<TourDateDto>? TourDates { get; set; }
     public IList<TourItineraryDto>? TourItineraries { get; set; }

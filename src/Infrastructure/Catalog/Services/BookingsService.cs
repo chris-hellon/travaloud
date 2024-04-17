@@ -33,7 +33,7 @@ public class BookingsService : BaseService, IBookingsService
         return Mediator.Send(request);
     }
     
-    public Task<DefaultIdType> CreateAsync(CreateBookingRequest request)
+    public Task<DefaultIdType?> CreateAsync(CreateBookingRequest request)
     {
         return Mediator.Send(request);
     }

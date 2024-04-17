@@ -23,4 +23,5 @@ public class BookingItemDetailsDto
     public TourDateDto? TourDate { get; set; }
     public PropertyDto? Property { get; set; }
     public List<BookingItemRoomDto>? Rooms { get; set; }
+    public List<BookingItemGuestDto>? Guests { get; set; }
 }

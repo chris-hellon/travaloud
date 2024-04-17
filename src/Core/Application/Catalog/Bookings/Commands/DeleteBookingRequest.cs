@@ -47,7 +47,7 @@ public class DeleteBookingRequestHandler : IRequestHandler<DeleteBookingRequest,
 
             if (date == null) continue;
             
-            date.AvailableSpaces++;
+            date.AvailableSpaces += (item.Guests?.Count + 1) ?? 1;
             await _tourDateRepository.UpdateAsync(date, cancellationToken);
         }
 

@@ -11,5 +11,6 @@ public class BookingByIdSpec : Specification<Booking, BookingDetailsDto>, ISingl
         Query
             .Where(p => p.Id == id)
             .Include(p => p.Items).ThenInclude(x => x.Rooms)
-            .Include(p => p.Items).ThenInclude(x => x.TourDate).ThenInclude(x => x.TourPrice);
+            .Include(p => p.Items).ThenInclude(x => x.TourDate).ThenInclude(x => x.TourPrice)
+            .Include(p => p.Items).ThenInclude(x => x.Guests);
 }

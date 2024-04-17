@@ -34,6 +34,10 @@
         {
             <h6 class="text-black mb-0">@Model.CheckInDateParsed?.ToShortDateString() - @Model.CheckOutDateParsed?.ToShortDateString()</h6>
         }
+        else
+        {
+            <h6 class="text-black mb-0">@Model.TourDates.First().StartDate.ToLongDateString()</h6>
+        }
     </div>
     <div class="col-lg-4 col-6 text-end">
         @if (Model.Rooms != null)
@@ -92,7 +96,7 @@
         {
             <div class="row mb-4 d-flex justify-content-between align-items-center">
                 <div class="col-lg-@(Model.IsConfirmationPage ? "9" : "10") col-6 text-lg-end">
-                    <h6 class="text-muted">Date: @tourDate.StartDate.ToShortDateString()</h6>
+                    <h6 class="text-muted">Date: @tourDate.StartDate.ToLongDateString() </h6>
                     <h6 class="text-black mb-0">@tourDate.GuestQuantityLabel</h6>
                 </div>
                 <div class="col-lg-@(Model.IsConfirmationPage ? "3" : "2") col-6 text-lg-center text-end">

@@ -54,6 +54,8 @@ public class UpdateTourRequest : IRequest<DefaultIdType>
     [Display(Name = "H2 Tag")]
     public string? H2 { get; set; }
 
+    public string? BookingConfirmationEmailDetails { get; set; }
+    
     public FileUploadRequest? Image { get; set; }
     public FileUploadRequest? Video { get; set; }
     public FileUploadRequest? MobileVideo { get; set; }
@@ -159,7 +161,33 @@ public class UpdateTourRequestHandler : IRequestHandler<UpdateTourRequest, Defau
 
         var userId = _currentUser.GetUserId();
         
-        var updatedTour = tour.Update(request.Name, request.Description, request.ShortDescription, request.Price, request.PriceLabel, tourImagePath, tourImagePath, request.MaxCapacity ?? 99999, request.MinCapacity, request.DayDuration, request.NightDuration, request.HourDuration, request.Address, request.TelephoneNumber, request.WhatsIncluded, request.WhatsNotIncluded, request.AdditionalInformation, request.MetaKeywords, request.MetaDescription, request.ImportantInformation, request.PublishToSite, request.UrlSlug, request.H1, request.H2, tourVideoPath, tourMobileVideoPath);
+        var updatedTour = tour.Update(request.Name,
+            request.Description,
+            request.ShortDescription,
+            request.Price,
+            request.PriceLabel,
+            tourImagePath,
+            tourImagePath,
+            request.MaxCapacity ?? 99999,
+            request.MinCapacity,
+            request.DayDuration,
+            request.NightDuration,
+            request.HourDuration,
+            request.Address,
+            request.TelephoneNumber,
+            request.WhatsIncluded,
+            request.WhatsNotIncluded,
+            request.AdditionalInformation,
+            request.MetaKeywords,
+            request.MetaDescription,
+            request.ImportantInformation,
+            request.PublishToSite,
+            request.UrlSlug,
+            request.H1,
+            request.H2,
+            tourVideoPath,
+            tourMobileVideoPath,
+            request.BookingConfirmationEmailDetails);
 
         updatedTour.ProcessTourPricesAndDates(request.TourPrices, request.TourDates, request.MaxCapacity ?? 99999, tour.MaxCapacity, userId);
         

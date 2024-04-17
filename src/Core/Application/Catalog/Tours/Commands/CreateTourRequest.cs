@@ -47,6 +47,8 @@ public class CreateTourRequest : IRequest<DefaultIdType>
     [Display(Name = "H2 Tag")]
     public string? H2 { get; set; }
     
+    public string? BookingConfirmationEmailDetails { get; set; }
+    
     public FileUploadRequest? Image { get; set; }
     public FileUploadRequest? Video { get; set; }
     public FileUploadRequest? MobileVideo { get; set; }
@@ -95,7 +97,33 @@ public class CreateTourRequestHandler : IRequestHandler<CreateTourRequest, Defau
 
         var userId = _currentUser.GetUserId();
         
-        var tour = new Tour(request.Name, request.Description, request.ShortDescription, request.Price, request.PriceLabel, tourImagePath, tourImagePath, request.MaxCapacity ?? 99999, request.MinCapacity, request.DayDuration, request.NightDuration, request.HourDuration, request.AdditionalInformation, request.TelephoneNumber, request.WhatsIncluded, request.WhatsNotIncluded, request.AdditionalInformation, request.MetaKeywords, request.MetaDescription, request.ImportantInformation,request.PublishToSite, request.UrlSlug, request.H1, request.H2, videoPath, mobileVideoPath);
+        var tour = new Tour(request.Name,
+            request.Description,
+            request.ShortDescription,
+            request.Price,
+            request.PriceLabel,
+            tourImagePath,
+            tourImagePath,
+            request.MaxCapacity ?? 99999,
+            request.MinCapacity,
+            request.DayDuration,
+            request.NightDuration,
+            request.HourDuration,
+            request.AdditionalInformation,
+            request.TelephoneNumber,
+            request.WhatsIncluded,
+            request.WhatsNotIncluded,
+            request.AdditionalInformation,
+            request.MetaKeywords,
+            request.MetaDescription,
+            request.ImportantInformation,
+            request.PublishToSite,
+            request.UrlSlug,
+            request.H1,
+            request.H2,
+            videoPath,
+            mobileVideoPath,
+            request.BookingConfirmationEmailDetails);
         
         tour.ProcessTourPricesAndDates(request.TourPrices, request.TourDates, request.MaxCapacity ?? 99999, tour.MaxCapacity, userId);
         tour.ProcessTourCategories(request.TourCategoryId, request.SelectedParentTourCategories, request.TourCategoryLookups, userId);

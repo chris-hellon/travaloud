@@ -7,6 +7,7 @@ public class UpdateBookingItemRequest : IRequest<DefaultIdType>
     public DateTime? EndDate { get; set; }
     public decimal? Amount { get; set; }
     public int? RoomQuantity { get; set; }
+    public int? GuestQuantity { get; set; }
 
     [RequiredIfNull("TourId", ErrorMessage = "A Property is required")]
     public DefaultIdType? PropertyId { get; set; }
@@ -22,4 +23,5 @@ public class UpdateBookingItemRequest : IRequest<DefaultIdType>
     public int ConcurrencyVersion { get; set; }
     public UpdateTourDateRequest? TourDate { get; set; }
     public IList<UpdateBookingItemRoomRequest>? Rooms { get; set; }
+    public IList<BookingItemGuestRequest>? Guests { get; set; }
 }

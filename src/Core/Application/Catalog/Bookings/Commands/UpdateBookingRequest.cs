@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using Travaloud.Application.Catalog.Bookings.Specification;
+using Travaloud.Application.Common.Utils;
 using Travaloud.Domain.Catalog.Bookings;
 using Travaloud.Domain.Catalog.Tours;
 
@@ -17,6 +18,7 @@ public class UpdateBookingRequest : IRequest<DefaultIdType>
     public string? GuestId { get; set; }
     public int ConcurrencyVersion { get; set; }
     public string? StripeSessionId { get; set; }
+    public bool? SendPaymentLink { get; set; }
 
     public IList<UpdateBookingItemRequest> Items { get; set; } = [];
 }
@@ -26,18 +28,23 @@ public class UpdateBookingRequestHandler : IRequestHandler<UpdateBookingRequest,
     private readonly IRepositoryFactory<Booking> _bookingRepository;
     private readonly IRepositoryFactory<TourDate> _tourDateRepository;
     private readonly IStringLocalizer<UpdateBookingRequestHandler> _localizer;
-
+    private readonly ICurrentUser _currentUser;
+    
     public UpdateBookingRequestHandler(IRepositoryFactory<Booking> bookingRepository,
         IRepositoryFactory<TourDate> tourDateRepository,
-        IStringLocalizer<UpdateBookingRequestHandler> localizer)
+        IStringLocalizer<UpdateBookingRequestHandler> localizer, ICurrentUser currentUser)
     {
         _bookingRepository = bookingRepository;
         _tourDateRepository = tourDateRepository;
         _localizer = localizer;
+        _currentUser = currentUser;
     }
 
     public async Task<DefaultIdType> Handle(UpdateBookingRequest request, CancellationToken cancellationToken)
     {
+        if (string.IsNullOrEmpty(request.GuestId))
+            throw new CustomException("A Guest must be selected.");
+        
         var booking = await _bookingRepository.SingleOrDefaultAsync(new BookingByIdSpec(request.Id), cancellationToken);
 
         _ = booking ?? throw new NotFoundException(string.Format(_localizer["booking.notfound"], request.Id));
@@ -65,7 +72,8 @@ public class UpdateBookingRequestHandler : IRequestHandler<UpdateBookingRequest,
         foreach (var updateItemRequest in request.Items)
         {
             var bookingItem = booking.Items.FirstOrDefault(i => i.Id == updateItemRequest.Id);
-
+            updateItemRequest.GuestQuantity ??= 1;
+            
             if (bookingItem == null)
             {
                 if (updateItemRequest is {StartDate: not null, EndDate: not null, Amount: not null})
@@ -81,7 +89,10 @@ public class UpdateBookingRequestHandler : IRequestHandler<UpdateBookingRequest,
                         updateItemRequest.TourDateId,
                         updateItemRequest.CloudbedsReservationId,
                         updateItemRequest.CloudbedsPropertyId);
-
+                    
+                    var userId = _currentUser.GetUserId();
+                    bookingItem.ProcessBookingItemGuests(updateItemRequest.Guests, userId);
+                    
                     if (updateItemRequest is {TourDateId: not null, TourDate: not null})
                     {
                         var tourDate = await _tourDateRepository.GetByIdAsync(updateItemRequest.TourDateId.Value, cancellationToken);
@@ -90,15 +101,18 @@ public class UpdateBookingRequestHandler : IRequestHandler<UpdateBookingRequest,
                         {
                             throw new NotFoundException(_localizer["tourdate.notfound"]);
                         }
-
-                        if (tourDate.ConcurrencyVersion != updateItemRequest.TourDate.ConcurrencyVersion)
+                        
+                        if (updateItemRequest.GuestQuantity != null && tourDate.AvailableSpaces < updateItemRequest.GuestQuantity.Value)
                         {
-                            throw new DBConcurrencyException("The TourDate has been modified by another user. Please refresh and try again.");
+                            throw new DBConcurrencyException("The request Tour Date no longer has enough spaces available. Please refresh the page and try again.");
                         }
-
+                        
+                        var endDate = DateTimeUtils.CalculateEndDate(tourDate.StartDate, tourDate.TourPrice.DayDuration, tourDate.TourPrice.NightDuration, tourDate.TourPrice.HourDuration);
+                        bookingItem.SetEndDate(endDate);
+                        
                         if (tourDate.AvailableSpaces > 0)
                         {
-                            tourDate.AvailableSpaces--;
+                            tourDate.AvailableSpaces -= updateItemRequest.GuestQuantity!.Value;
                             tourDate.ConcurrencyVersion++;
                             await _tourDateRepository.UpdateAsync(tourDate, cancellationToken);
                         }
@@ -119,7 +133,7 @@ public class UpdateBookingRequestHandler : IRequestHandler<UpdateBookingRequest,
                     // Handle concurrency conflict scenario
                     throw new DBConcurrencyException("Booking Item has been updated by another user.");
                 }
-
+                
                 bookingItem.ConcurrencyVersion++;
 
                 // Update the existing booking item properties
@@ -134,6 +148,9 @@ public class UpdateBookingRequestHandler : IRequestHandler<UpdateBookingRequest,
                     updateItemRequest.CloudbedsReservationId,
                     updateItemRequest.CloudbedsPropertyId);
 
+                var userId = _currentUser.GetUserId();
+                bookingItem.ProcessBookingItemGuests(updateItemRequest.Guests, userId);
+                
                 if (updateItemRequest.TourDateId.HasValue && updateItemRequest.TourDateId != bookingItem.TourDateId && updateItemRequest.TourDate != null)
                 {
                     var tourDate = await _tourDateRepository.GetByIdAsync(updateItemRequest.TourDateId.Value, cancellationToken);
@@ -143,14 +160,17 @@ public class UpdateBookingRequestHandler : IRequestHandler<UpdateBookingRequest,
                         throw new NotFoundException(_localizer["tourdate.notfound"]);
                     }
 
-                    if (tourDate.ConcurrencyVersion != updateItemRequest.TourDate.ConcurrencyVersion)
+                    if (updateItemRequest.GuestQuantity != null && tourDate.AvailableSpaces < updateItemRequest.GuestQuantity.Value)
                     {
-                        throw new DBConcurrencyException("The TourDate has been modified by another user. Please refresh and try again.");
+                        throw new DBConcurrencyException("The request Tour Date no longer has enough spaces available. Please refresh the page and try again.");
                     }
 
+                    var endDate = DateTimeUtils.CalculateEndDate(tourDate.StartDate, tourDate.TourPrice.DayDuration, tourDate.TourPrice.NightDuration, tourDate.TourPrice.HourDuration);
+                    bookingItem.SetEndDate(endDate);
+                    
                     if (tourDate.AvailableSpaces > 0)
                     {
-                        tourDate.AvailableSpaces--;
+                        tourDate.AvailableSpaces -= updateItemRequest.GuestQuantity!.Value;
                         tourDate.ConcurrencyVersion++;
 
                         await _tourDateRepository.UpdateAsync(tourDate, cancellationToken);

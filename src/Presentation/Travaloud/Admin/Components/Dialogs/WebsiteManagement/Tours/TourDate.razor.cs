@@ -6,6 +6,7 @@ using Travaloud.Admin.Components.EntityTable;
 using Travaloud.Admin.Components.Pages.WebsiteManagement.Tours;
 using Travaloud.Application.Catalog.Tours.Commands;
 using Travaloud.Application.Catalog.Tours.Dto;
+using Travaloud.Application.Common.Utils;
 using Travaloud.Infrastructure.Common.Services;
 
 namespace Travaloud.Admin.Components.Dialogs.WebsiteManagement.Tours;
@@ -69,7 +70,7 @@ public partial class TourDate : ComponentBase
                             var startDate = RequestModel.StartDate + RequestModel.StartTime;
                             if (startDate.HasValue)
                             {
-                                RequestModel.EndDate = CalculateEndDate(startDate.Value, datePrice.DayDuration,
+                                RequestModel.EndDate = DateTimeUtils.CalculateEndDate(startDate.Value, datePrice.DayDuration,
                                     datePrice.NightDuration, datePrice.HourDuration);
                                 RequestModel.EndTime = RequestModel.EndDate.Value.TimeOfDay;
                             }
@@ -122,32 +123,6 @@ public partial class TourDate : ComponentBase
         await LoadingService.ToggleLoaderVisibility(false);
     }
 
-    private static DateTime CalculateEndDate(DateTime startDate, decimal? dayDuration, decimal? nightDuration,
-        decimal? hourDuration)
-    {
-        double totalDurationInDays = 0;
-
-        if (dayDuration.HasValue)
-        {
-            totalDurationInDays += (double) dayDuration;
-        }
-        else if (nightDuration.HasValue)
-        {
-            totalDurationInDays += (double) nightDuration / 2.0;
-        }
-
-        var wholeDays = (int) Math.Floor(totalDurationInDays);
-        var fractionalDayHours = (totalDurationInDays - wholeDays) * 24;
-
-        startDate = startDate.AddDays(wholeDays).AddHours(fractionalDayHours);
-
-        if (hourDuration.HasValue)
-        {
-            startDate = startDate.AddHours((double) hourDuration);
-        }
-
-        return startDate;
-    }
 
     public void ShowHelpDialog()
     {

@@ -1,4 +1,5 @@
 @page
+@using Travaloud.Domain.Catalog.Tours
 @model FuseHostelsAndTravel.Pages.Tour.Index
 
 <style type="text/css">
@@ -51,7 +52,7 @@
                                         <p><i class="fa-solid fa-circle-dollar-to-slot me-2"></i> $@price.Price @price.Title</p>
                                     }
 
-                                    <div class="form-outline confirm-date-on-select mb-2 mt-4" data-mdb-input-init data-mdb-toggle-button="false">
+                                    <div class="form-outline select-tour-date-picker confirm-date-on-select mb-2 mt-4" data-mdb-input-init data-mdb-toggle-button="false">
                                         <input asp-for="TourDate" type="text" class="form-control" data-mdb-toggle="datepicker" onkeydown="return false;"/>
                                         <label asp-for="TourDate" class="form-label"></label>
                                         <button class="datepicker-toggle-button" data-mdb-toggle="datepicker" aria-label="Select a Date">
@@ -63,6 +64,14 @@
                                     <div class="mb-2">
                                         <select data-mdb-select-init class="select mb-2" asp-for="TourDateStartTime" disabled onchange="selectTourDateTime();">
                                             <option value="" hidden></option>
+                                            
+                                            @if (Model.TourDate.HasValue && Model.Tour.TourDates != null && Model.Tour.TourDates.Any() && Model.TourDateStartTime.HasValue)
+                                            {
+                                                foreach (var tourDate in Model.Tour.TourDates.Where(x => x.StartDate.Date == Model.TourDate.Value.Date))
+                                                {
+                                                    <option selected="@(tourDate.StartDate.TimeOfDay == Model.TourDateStartTime.Value)" value="@tourDate.Id">@tourDate.StartDate.ToString("HH:mm")</option>
+                                                }
+                                            }
                                         </select>
                                         <label class="form-label select-label" asp-for="TourDateStartTime"></label>
                                         <span asp-validation-for="TourDateStartTime" class="travaloud-validation"></span>
@@ -70,9 +79,9 @@
 
                                     <div class="form-outline mb-4" data-mdb-input-init>
                                         <i class="fas fa-users trailing text-primary"></i>
-                                        <input type="number" asp-for="GuestQuantity" class="form-control form-icon-trailing" disabled=""/>
+                                        <input type="number" asp-for="GuestQuantity" class="form-control form-icon-trailing" disabled="" max="@(Model.SelectedTourDate?.AvailableSpaces ?? 99999)"/>
                                         <label class="form-label" asp-for="GuestQuantity"></label>
-                                        <div class="form-helper">Select a Date</div>
+                                        <div class="form-helper">@(Model.SelectedTourDate != null ? $"{Model.SelectedTourDate.AvailableSpaces} spaces available": "Select a Date")</div>
                                     </div>
                                     <span asp-validation-for="GuestQuantity" class="travaloud-validation"></span>
                                 }
@@ -80,8 +89,8 @@
                                 <div class="text-center mb-n7 mt-4">
                                     @if (Model.Tour.TourPrices != null && Model.Tour.TourPrices.Any())
                                     {
-                                        <button class="btn btn-primary add-tour-to-basket-button me-2" disabled onclick="addTourToBasket('@Model.Tour.Id', '@Model.Tour.Name', '@Model.Tour.ImagePath?.FormatImageUrl(600, "fuse")'); return false;">Add To Basket</button>
-                                        <button class="btn btn-outline-primary proceed-to-checkout-button" href="/checkout" disabled>Proceed To Checkout</button>
+                                        <button class="btn btn-primary add-tour-to-basket-button me-2" disabled onclick="addTourToBasket('@Model.Tour.Id', '@Model.Tour.Name', '@Model.Tour.ImagePath?.FormatImageUrl(600, "fuse")'); return false;">@(Model.SelectedTourDate != null ? "Update Basket" : "Add To Basket")</button>
+                                        <button class="btn btn-outline-primary proceed-to-checkout-button" disabled="@(Model.SelectedTourDate == null)">Proceed To Checkout</button>
                                     }
                                     else
                                     {

@@ -50,11 +50,11 @@ public class BasketItemModel
 
     public int GuestCount
     {
-        get { return Rooms?.Sum(x => x.RoomQuantity + x.AdultQuantity) ?? 0; }
+        get { return (Rooms?.Sum(x => x.RoomQuantity + x.AdultQuantity) ?? 0) + (TourDates?.Sum(x => x.GuestQuantity) ?? 0); }
     }
 
     public int RequiredGuestCount => GuestCount - 1;
-    public int MaxGuestCount => PropertyId.HasValue ? RequiredGuestCount : 0;
+    public int MaxGuestCount => RequiredGuestCount;
     public bool ShowTable => Guests != null && Guests.Any();
     public bool MaxGuestCountFulfilled => ShowTable && Guests?.Count >= MaxGuestCount;
     public bool ShowAddGuestButton => !MaxGuestCountFulfilled && GuestsExistInBasket;
@@ -73,9 +73,6 @@ public class BasketItemModel
         TourId = tourId;
         TourImageUrl = tourImageUrl;
         TourDates = tourDates;
-        
-        var url = $"/tours/{tourName.UrlFriendly()}";
-        EditBookingHref = url;
     }
     
     public BasketItemModel(
@@ -112,6 +109,14 @@ public class BasketItemModel
     {
         date.Id = DefaultIdType.NewGuid();
         TourDates?.Add(date);
+    }
+
+    public void SetTourEditBookingHref(string tourName)
+    {
+        if (TourDates == null) return;
+        
+        var url = $"/tours/{tourName.UrlFriendly()}/{TourDates.First().DateId}/{TourDates.First().GuestQuantity}";
+        EditBookingHref = url;
     }
 
     public decimal CalculateTotal()

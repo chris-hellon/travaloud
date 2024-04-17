@@ -56,7 +56,10 @@ public class ExcelWriter : IExcelWriter
         }
 
         using var wb = new XLWorkbook();
-        wb.Worksheets.Add(table);
+        
+        var wsDep =  wb.Worksheets.Add(table);
+        wsDep.Columns().AdjustToContents();
+        
         Stream stream = new MemoryStream();
         wb.SaveAs(stream);
         stream.Seek(0, SeekOrigin.Begin);

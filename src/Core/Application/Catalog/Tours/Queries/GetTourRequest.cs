@@ -38,7 +38,7 @@ public class GetTourRequestHandler : IRequestHandler<GetTourRequest, TourDetails
                    ?? throw new NotFoundException(string.Format(_localizer["tour.notfound"], request.Id));
 
         if (tour.TourDates != null && tour.TourDates.Any())
-            tour.TourDates = tour.TourDates.Where(x => x.StartDate >= DateTime.Today).ToList();
+            tour.TourDates = tour.TourDates.Where(x => x.StartDate >= DateTime.Today.AddDays(1)).ToList();
         
         if (tour.TourItineraries != null)
         {

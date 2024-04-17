@@ -21,6 +21,10 @@ public class CreateStripeSessionRequest : IRequest<Session>
     [Required] public BasketModel? Basket { get; }
 
     [Required] public string? CustomerEmail { get; }
+    
+    [Required] public DefaultIdType? GuestId { get; set; }
+    
+    public string UiMode { get; set; }
 
     public CreateStripeSessionRequest(
         DefaultIdType? bookingId, 
@@ -28,7 +32,8 @@ public class CreateStripeSessionRequest : IRequest<Session>
         string? successUrl, 
         string? cancelUrl,
         BasketModel basket, 
-        string? customerEmail)
+        string? customerEmail,
+        string uiMode = "hosted")
     {
         BookingId = bookingId;
         InvoiceId = invoiceId;
@@ -36,6 +41,21 @@ public class CreateStripeSessionRequest : IRequest<Session>
         CancelUrl = cancelUrl;
         Basket = basket;
         CustomerEmail = customerEmail;
+        UiMode = uiMode;
+    }
+    
+    public CreateStripeSessionRequest(
+        string? successUrl, 
+        string? cancelUrl,
+        BasketModel basket, 
+        string? customerEmail,
+        string uiMode = "hosted")
+    {
+        SuccessUrl = successUrl;
+        CancelUrl = cancelUrl;
+        Basket = basket;
+        CustomerEmail = customerEmail;
+        UiMode = uiMode;
     }
 }
 
@@ -65,28 +85,36 @@ internal class CreateStripeSessionRequestHandler : IRequestHandler<CreateStripeS
 
         var description = string.Join(", ", propertiesLabel, toursLabel);
         description = description.Trim().TrimEnd(',');
-        description += $" - Booking: {request.InvoiceId.ToString()}";
 
         var options = new SessionCreateOptions
         {
-            ClientReferenceId = request.BookingId.ToString(),
+            ClientReferenceId = request.GuestId.ToString(),
             LineItems = lineItems,
             Mode = "payment",
-            SuccessUrl = request.SuccessUrl,
-            CancelUrl = request.CancelUrl,
             PaymentIntentData = new SessionPaymentIntentDataOptions()
             {
                 ReceiptEmail = request.CustomerEmail,
                 Metadata = new Dictionary<string, string>
                 {
-                    {"BookingId", request.BookingId.ToString()!},
-                    {"InvoiceId", request.InvoiceId!.Value.ToString()},
+                    // {"BookingId", request.BookingId.ToString()!},
+                    // {"InvoiceId", request.InvoiceId!.Value.ToString()},
                     {"Properties", propertiesLabel ?? string.Empty},
                     {"Tours", toursLabel ?? string.Empty}
                 },
                 Description = description
-            }
+            },
+            UiMode = request.UiMode
         };
+
+        if (request.UiMode == "hosted")
+        {
+            options.SuccessUrl = request.SuccessUrl;
+            options.CancelUrl = request.CancelUrl;
+        }
+        else
+        {
+            options.ReturnUrl = request.SuccessUrl;
+        }
         
         var existingCustomer = await _stripeService.SearchStripeCustomer(new SearchStripeCustomerRequest(request.CustomerEmail!));
             

@@ -7,13 +7,18 @@
             <MudText Typo="Typo.h6">
                 @if (IsCreate)
                 {
-                    <MudIcon Icon="@Icons.Material.Filled.Add" Class="mr-3 mb-n1" />
-                    @($"{L["Create"]} "); @L["Tour Price"];
+                    <MudIcon Icon="@Icons.Material.Filled.Add" Class="mr-3 mb-n1"/>
+                    @($"{L["Create"]} ")
+                    ;
+                    @L["Tour Price"]
+                    ;
                 }
                 else
                 {
-                    <MudIcon Icon="@Icons.Material.Filled.Update" Class="mr-3 mb-n1" />
-                    @($"{L["Edit"]} "); @L["Tour Price"]
+                    <MudIcon Icon="@Icons.Material.Filled.Update" Class="mr-3 mb-n1"/>
+                    @($"{L["Edit"]} ")
+                    ;
+                    @L["Tour Price"]
                 }
             </MudText>
 
@@ -21,7 +26,7 @@
         </TitleContent>
 
         <DialogContent>
-           <FluentValidationValidator @ref="_fluentValidationValidator"/>
+            <FluentValidationValidator @ref="_fluentValidationValidator"/>
 
             <MudGrid>
                 @if (!IsCreate)
@@ -30,54 +35,57 @@
                 }
 
                 <MudItem xs="12" md="12">
-                    <MudNumericField T="decimal?" Label="@L["Price"]" Required="true" For="@(() => RequestModel.Price)" @bind-Value="RequestModel.Price"  Step=".1M"  Variant="Variant.Outlined" Margin="Margin.Dense" />
+                    <MudNumericField T="decimal?" Label="@L["Price"]" Required="true" For="@(() => RequestModel.Price)" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.AttachMoney" @bind-Value="RequestModel.Price" Step=".1M" Variant="Variant.Outlined" Margin="Margin.Dense"/>
                 </MudItem>
                 <MudItem xs="12" md="12">
-                    <MudTextField Label="@L["Title"]" For="@(() => RequestModel.Title)" @bind-Value="RequestModel.Title" Variant="Variant.Outlined" Margin="Margin.Dense" HelperText="eg. Per Person" />
+                    <MudTextField Label="@L["Title"]" For="@(() => RequestModel.Title)" @bind-Value="RequestModel.Title" Variant="Variant.Outlined" Margin="Margin.Dense" HelperText="eg. Per Person"/>
                 </MudItem>
                 <MudItem xs="12" md="12">
-                    <MudTextField Label="@L["Description"]" For="@(() => RequestModel.Description)" @bind-Value="RequestModel.Description" Variant="Variant.Outlined" Margin="Margin.Dense" HelperText="eg. (3D/2N) or Private Room etc" />
+                    <MudTextField Label="@L["Description"]" For="@(() => RequestModel.Description)" @bind-Value="RequestModel.Description" Variant="Variant.Outlined" Margin="Margin.Dense" HelperText="eg. (3D/2N) or Private Room etc"/>
                 </MudItem>
                 <MudItem xs="12" md="12">
-                    <MudTextField Label="@L["Day Duration"]" @ref="DayDuration" For="@(() => RequestModel.DayDuration)" @bind-Value="RequestModel.DayDuration" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                    <MudTextField Label="@L["Day Duration"]" @ref="DayDuration" For="@(() => RequestModel.DayDuration)" @bind-Value="RequestModel.DayDuration" Variant="Variant.Outlined" Margin="Margin.Dense"/>
                 </MudItem>
                 <MudItem xs="12" md="12">
-                    <MudTextField Label="@L["Night Duration"]" For="@(() => RequestModel.NightDuration)" @bind-Value="RequestModel.NightDuration" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                    <MudTextField Label="@L["Night Duration"]" For="@(() => RequestModel.NightDuration)" @bind-Value="RequestModel.NightDuration" Variant="Variant.Outlined" Margin="Margin.Dense"/>
                 </MudItem>
                 <MudItem xs="12" md="12">
-                    <MudTextField Label="@L["Hour Duration"]" For="@(() => RequestModel.HourDuration)" @bind-Value="RequestModel.HourDuration" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                    <MudTextField Label="@L["Hour Duration"]" For="@(() => RequestModel.HourDuration)" @bind-Value="RequestModel.HourDuration" Variant="Variant.Outlined" Margin="Margin.Dense"/>
+                </MudItem>
+                <MudItem xs="12" md="12">
+                    <MudNumericField T="decimal?" Label="@L["Commission Amount"]" For="@(() => RequestModel.ComissionAmount)" @bind-Value="RequestModel.ComissionAmount" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.AttachMoney" Step=".1M" Variant="Variant.Outlined" Margin="Margin.Dense"/>
                 </MudItem>
                 <MudItem xs="12" md="12">
                     <MudSelect Label="@L["Month From"]" T="string" AnchorOrigin="Origin.BottomCenter" @bind-Value="@RequestModel.MonthFrom" Variant="Variant.Outlined" Margin="Margin.Dense" HelperText="eg. If this price should only be applicable from January - June">
-                        <MudSelectItem Value="@("January")" />
-                        <MudSelectItem Value="@("February")" />
-                        <MudSelectItem Value="@("March")" />
-                        <MudSelectItem Value="@("April")" />
-                        <MudSelectItem Value="@("May")" />
-                        <MudSelectItem Value="@("June")" />
-                        <MudSelectItem Value="@("July")" />
-                        <MudSelectItem Value="@("August")" />
-                        <MudSelectItem Value="@("September")" />
-                        <MudSelectItem Value="@("October")" />
-                        <MudSelectItem Value="@("November")" />
-                        <MudSelectItem Value="@("December")" />
+                        <MudSelectItem Value="@("January")"/>
+                        <MudSelectItem Value="@("February")"/>
+                        <MudSelectItem Value="@("March")"/>
+                        <MudSelectItem Value="@("April")"/>
+                        <MudSelectItem Value="@("May")"/>
+                        <MudSelectItem Value="@("June")"/>
+                        <MudSelectItem Value="@("July")"/>
+                        <MudSelectItem Value="@("August")"/>
+                        <MudSelectItem Value="@("September")"/>
+                        <MudSelectItem Value="@("October")"/>
+                        <MudSelectItem Value="@("November")"/>
+                        <MudSelectItem Value="@("December")"/>
                     </MudSelect>
                 </MudItem>
 
                 <MudItem xs="12" md="12">
                     <MudSelect Label="@L["Month To"]" T="string" AnchorOrigin="Origin.BottomCenter" @bind-Value="@RequestModel.MonthTo" Variant="Variant.Outlined" Margin="Margin.Dense">
-                        <MudSelectItem Value="@("January")" />
-                        <MudSelectItem Value="@("February")" />
-                        <MudSelectItem Value="@("March")" />
-                        <MudSelectItem Value="@("April")" />
-                        <MudSelectItem Value="@("May")" />
-                        <MudSelectItem Value="@("June")" />
-                        <MudSelectItem Value="@("July")" />
-                        <MudSelectItem Value="@("August")" />
-                        <MudSelectItem Value="@("September")" />
-                        <MudSelectItem Value="@("October")" />
-                        <MudSelectItem Value="@("November")" />
-                        <MudSelectItem Value="@("December")" />
+                        <MudSelectItem Value="@("January")"/>
+                        <MudSelectItem Value="@("February")"/>
+                        <MudSelectItem Value="@("March")"/>
+                        <MudSelectItem Value="@("April")"/>
+                        <MudSelectItem Value="@("May")"/>
+                        <MudSelectItem Value="@("June")"/>
+                        <MudSelectItem Value="@("July")"/>
+                        <MudSelectItem Value="@("August")"/>
+                        <MudSelectItem Value="@("September")"/>
+                        <MudSelectItem Value="@("October")"/>
+                        <MudSelectItem Value="@("November")"/>
+                        <MudSelectItem Value="@("December")"/>
                     </MudSelect>
                 </MudItem>
             </MudGrid>

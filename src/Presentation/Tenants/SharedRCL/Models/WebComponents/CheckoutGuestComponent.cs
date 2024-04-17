@@ -9,39 +9,34 @@ public class CheckoutGuestComponent
     public Guid ItemId { get; set; }
         
     [Required]
-    [Display(Name = "First Name")]
+    [Display(Name = "First Name *")]
     [MaxLength(100)]
     public string? FirstName { get; set; }
 
     [Required]
-    [Display(Name = "Surname")]
+    [Display(Name = "Surname *")]
     [MaxLength(100)]
     public string? Surname { get; set; }
-
-    [Required]
+    
     [EmailAddress]
     [Display(Name = "Email")]
     [MaxLength(256)]
     public string? Email { get; set; }
-
-    [Required]
+    
     [Display(Name = "Date Of Birth")]
     [DataType(DataType.Date)]
     public DateTime? DateOfBirth { get; set; }
-
-    [Required]
+    
     [Phone]
     [Display(Name = "Phone Number")]
     [MaxLength(50)]
     [DataType(DataType.PhoneNumber)]
     public string? PhoneNumber { get; set; }
-
-    [Required]
+    
     [Display(Name = "Nationality")]
     [MaxLength(100)]
     public string? Nationality { get; set; }
-
-    [Required]
+    
     [Display(Name = "Gender")]
     [MaxLength(50)]
     public string? Gender { get; set; }

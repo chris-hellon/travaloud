@@ -7,6 +7,22 @@ $("document").ready(function() {
 });
 
 const bindSelectsAndModals = () => {
+    let confirmDateOnSelectPickers = $('.confirm-date-on-select');
+
+    if (confirmDateOnSelectPickers.length)
+    {
+        confirmDateOnSelectPickers.each(function(i, v) {
+            if (!$(v).hasClass('select-tour-date-picker'))
+            {
+                new mdb.Datepicker(v, { 
+                    confirmDateOnSelect: true, 
+                    disableFuture: $(v).hasClass('datepicker-disable-future'),
+                    disablePast: $(v).hasClass('datepicker-disable-past')
+                });
+            }
+        });
+    }
+    
     $('.datepicker-disable-past, .datepicker-disable-future, .datepicker-with-filter, .confirm-date-on-select, .datepicker-close-on-select').on('close.mdb.datepicker', function () {
         $('.datepicker-backdrop').remove();
         window.setTimeout(function () {
@@ -28,6 +44,29 @@ const bindSelectsAndModals = () => {
             "overflow-y": "overlay",
             "overflow-x": "hidden"
         });
+    });
+
+    let dateInputFields = $('.js-date-input-field');
+
+    dateInputFields.on('input', function() {
+        let inputValue = $(this).val();
+        if (inputValue.length === 2 || inputValue.length === 5) {
+            // If the user has entered two characters for day or month, append '/'
+            $(this).val(inputValue + '/');
+        }
+        // If the input is longer than 10 characters, truncate it to 10 characters
+        if (inputValue.length > 10) {
+            $(this).val(inputValue.slice(0, 10));
+        }
+    });
+
+    // Function to enforce DD/MM/YYYY format
+    dateInputFields.on('blur', function() {
+        let inputValue = $(this).val();
+        if (!/^\d{2}\/\d{2}\/\d{4}$/.test(inputValue)) {
+            // If the input is not in the format DD/MM/YYYY, clear the input
+            $(this).val('');
+        }
     });
 }
 
@@ -74,3 +113,4 @@ $('input[type="number"]').on('input', function() {
         }
     }
 });
+

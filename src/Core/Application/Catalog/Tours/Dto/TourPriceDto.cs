@@ -12,4 +12,5 @@ public class TourPriceDto
     public decimal? DayDuration { get; set; }
     public decimal? NightDuration { get; set; }
     public decimal? HourDuration { get; set; }
+    public decimal? ComissionAmount { get; set; }
 }

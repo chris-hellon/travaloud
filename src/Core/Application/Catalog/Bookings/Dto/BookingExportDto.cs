@@ -1,16 +1,21 @@
-﻿namespace Travaloud.Application.Catalog.Bookings.Dto;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Travaloud.Application.Catalog.Bookings.Dto;
 
 public class BookingExportDto
 {
-    [ExportColumn("Invoice Id", true)]
+    [ExportColumn("Reference")]
     public int BookingInvoiceId { get; set; }
 
     [ExportColumn("Booking Date")]
     public DateTime BookingBookingDate { get; set; }
+    
+    [ExportColumn(true)]
+    public DefaultIdType? TourId { get; set; }
 
-    [ExportColumn("Is Paid")]
-    public bool BookingIsPaid { get; set; }
-
+    [ExportColumn("Tour")]
+    public string? TourName { get; set; }
+    
     [ExportColumn("Tour Start Date")]
     public DateTime StartDate { get; set; }
 
@@ -19,12 +24,12 @@ public class BookingExportDto
 
     [ExportColumn("Amount")]
     public decimal Amount { get; set; }
-
-    [ExportColumn(true)]
-    public DefaultIdType? TourId { get; set; }
-
-    [ExportColumn("Tour")]
-    public string? TourName { get; set; }
+    
+    [ExportColumn("Currency")]
+    public string BookingCurrencyCode { get; set; }
+    
+    [ExportColumn("Is Paid")]
+    public bool BookingIsPaid { get; set; }
 
     [ExportColumn(true)]
     public string? BookingGuestId { get; set; }
@@ -33,6 +38,7 @@ public class BookingExportDto
     public string? GuestName { get; set; }
 
     [ExportColumn("Date of Birth")]
+    [DataType(DataType.Date)]
     public DateTime? GuestDateOfBirth { get; set; }
 
     [ExportColumn("Nationality")]
@@ -43,4 +49,7 @@ public class BookingExportDto
 
     [ExportColumn("Passport Number")]
     public string? GuestPassportNumber { get; set; }
+    
+    [ExportColumn(true)]
+    public IList<BookingItemGuestDto>? Guests { get; set; }
 }

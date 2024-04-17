@@ -2,39 +2,17 @@
   <library name="Generated files" type="javaScript">
     <properties>
       <sourceFilesUrls>
-        <item url="file://$PROJECT_DIR$/src/Presentation/Tenants/FuseHostelsAndTravel/wwwroot/js/site.min.js" />
-        <item url="file://$PROJECT_DIR$/src/Presentation/Tenants/FuseHostelsAndTravel/wwwroot/mdb/src/js/mdb.pro.umd.min.js" />
-        <item url="file://$PROJECT_DIR$/src/Presentation/Tenants/FuseHostelsAndTravel/wwwroot/mdb/src/js/pro/datepicker/index.min.js" />
-        <item url="file://$PROJECT_DIR$/src/Presentation/Tenants/FuseHostelsAndTravel/wwwroot/mdb/src/js/pro/datepicker/templates.min.js" />
-        <item url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/js/basket.min.js" />
         <item url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/js/checkout.min.js" />
-        <item url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/js/classes.min.js" />
-        <item url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/js/daterangepickeraddition.min.js" />
-        <item url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/js/propertybooking.min.js" />
+        <item url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/js/stripecheckout.min.js" />
         <item url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/js/tour.min.js" />
         <item url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/js/travaloud.min.js" />
-        <item url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/js/videoplayer.min.js" />
-        <item url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/lib/cookie.min.min.js" />
-        <item url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/lib/daterangepicker.min.js" />
-        <item url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/lib/moment.min.js" />
       </sourceFilesUrls>
     </properties>
     <CLASSES>
-      <root url="file://$PROJECT_DIR$/src/Presentation/Tenants/FuseHostelsAndTravel/wwwroot/js/site.min.js" />
-      <root url="file://$PROJECT_DIR$/src/Presentation/Tenants/FuseHostelsAndTravel/wwwroot/mdb/src/js/mdb.pro.umd.min.js" />
-      <root url="file://$PROJECT_DIR$/src/Presentation/Tenants/FuseHostelsAndTravel/wwwroot/mdb/src/js/pro/datepicker/index.min.js" />
-      <root url="file://$PROJECT_DIR$/src/Presentation/Tenants/FuseHostelsAndTravel/wwwroot/mdb/src/js/pro/datepicker/templates.min.js" />
-      <root url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/js/basket.min.js" />
       <root url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/js/checkout.min.js" />
-      <root url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/js/classes.min.js" />
-      <root url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/js/daterangepickeraddition.min.js" />
-      <root url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/js/propertybooking.min.js" />
+      <root url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/js/stripecheckout.min.js" />
       <root url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/js/tour.min.js" />
       <root url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/js/travaloud.min.js" />
-      <root url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/js/videoplayer.min.js" />
-      <root url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/lib/cookie.min.min.js" />
-      <root url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/lib/daterangepicker.min.js" />
-      <root url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/lib/moment.min.js" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

@@ -7,7 +7,7 @@ public class BookingItem : AuditableEntity, IAggregateRoot
 {
     public DefaultIdType BookingId { get; private set; } = default!;
     public DateTime StartDate { get; private set; } = default!;
-    public DateTime EndDate { get; private set; } = default!;
+    public DateTime? EndDate { get; private set; }
     public decimal Amount { get; private set; } = default!;
     public int? RoomQuantity { get; set; }
     public DefaultIdType? PropertyId { get; private set; }
@@ -22,10 +22,11 @@ public class BookingItem : AuditableEntity, IAggregateRoot
     public virtual TourDate? TourDate { get; set; }
     public virtual Property? Property { get; set; }
     public virtual Booking Booking { get; private set; } = default!;
-
+    public virtual IList<BookingItemGuest>? Guests { get; set; }
+    
     public BookingItem(
         DateTime startDate,
-        DateTime endDate,
+        DateTime? endDate,
         decimal amount,
         int? roomQuantity,
         DefaultIdType? propertyId,
@@ -93,6 +94,21 @@ public class BookingItem : AuditableEntity, IAggregateRoot
     public BookingItem SetReservationId(string reservationId)
     {
         CloudbedsReservationId = reservationId;
+
+        return this;
+    }
+
+    public BookingItem SetEndDate(DateTime endDate)
+    {
+        EndDate = endDate;
+
+        return this;
+    }
+    
+    public BookingItem AddGuest(BookingItemGuest guest)
+    {
+        Guests ??= new List<BookingItemGuest>();
+        Guests.Add(guest);
 
         return this;
     }

@@ -53,6 +53,7 @@ public abstract class TourPageModel : ContactBasePageModel<EmailTemplates.TourEn
 
     [Required]
     [Display(Name = "Select Date")]
+    [DataType(DataType.Date)]
     public DateTime? TourDate { get; set; }
     
     [Required]
@@ -63,6 +64,8 @@ public abstract class TourPageModel : ContactBasePageModel<EmailTemplates.TourEn
     [Display(Name = "No. of Guests")]
     public int? GuestQuantity { get; set; }
     
+    public TourDateDto? SelectedTourDate { get; set; }
+    
     protected TourPageModel(ITourEnquiriesService tourEnquiriesService, IToursService toursService)
     {
         _tourEnquiriesService = tourEnquiriesService;
@@ -72,7 +75,7 @@ public abstract class TourPageModel : ContactBasePageModel<EmailTemplates.TourEn
     [BindProperty]
     public EnquireNowComponent EnquireNowComponent { get; set; }
 
-    public async Task<IActionResult> OnGetTourAsync(string? tourName = null)
+    public async Task<IActionResult> OnGetTourAsync(string? tourName = null, Guid? tourDate = null, int? guestQuantity = null)
     {
         await base.OnGetDataAsync();
 
@@ -96,6 +99,17 @@ public abstract class TourPageModel : ContactBasePageModel<EmailTemplates.TourEn
             };
 
             BookNowComponent = new BookNowComponent(Tours, Tour.Id);
+
+            if (!tourDate.HasValue || Tour.TourDates == null || !Tour.TourDates.Any()) return Page();
+            
+            var matchedTourDate = Tour.TourDates.FirstOrDefault(x => x.Id == tourDate.Value);
+
+            if (matchedTourDate == null) return Page();
+            
+            TourDate = matchedTourDate.StartDate.Date;
+            TourDateStartTime = matchedTourDate.StartDate.TimeOfDay;
+            GuestQuantity = guestQuantity;
+            SelectedTourDate = matchedTourDate;
         }
 
         return Page();

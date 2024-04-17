@@ -36,23 +36,44 @@ function filterDates() {
     datepickerWithFilter.each(function(i, v) {
         new mdb.Datepicker(v, { filter: filterFunction,  confirmDateOnSelect: true });
 
+        let tourDateValue = $('#TourDate').val();
+        if (tourDateValue !== undefined && tourDateValue.length > 0)
+        {
+            $('#GuestQuantity').prop('disabled', false);
+            $('#TourDate').prop('disabled', true);
+            selectTourDateTime();
+            
+            let proceedToCheckoutButton = $('.proceed-to-checkout-button');
+            proceedToCheckoutButton.on('click', function() {
+                window.location.href = "/checkout";
+            })
+        }
+        
         v.addEventListener('valueChanged.mdb.datepicker', (e) => {
             let selectedDate = e.date;
-
-            $(tourDatesParsed).each(function (i, v) {
-                let tourDate = new Date(v.startDate);
-                let tourDateFormatted = tourDate;
-                tourDateFormatted.setHours(0, 0, 0);
-
-                let selectedDateParsed = moment(selectedDate).format('DD/MM/YYYY');
-                let tourDateParsed = moment(tourDateFormatted).format('DD/MM/YYYY');
-                let tourDateTimeParsed = moment(v.startDate).format('HH:mm');
-                
-                if (tourDateParsed === selectedDateParsed) {
-                    $('#TourDateStartTime').append('<option value="' + v.id + '">' + tourDateTimeParsed + '</option>').prop('disabled', false);
-                }
-            });
+            setTourDateTimeDropdown(selectedDate);
         });
+    });
+}
+
+const setTourDateTimeDropdown = function(selectedDate)
+{
+    let tourDateTimeDropdown = $('#TourDateStartTime');
+    tourDateTimeDropdown.html('');
+    tourDateTimeDropdown.append('<option value="" hidden></option>');
+    
+    $(tourDatesParsed).each(function (i, v) {
+        let tourDate = new Date(v.startDate);
+        let tourDateFormatted = tourDate;
+        tourDateFormatted.setHours(0, 0, 0);
+
+        let selectedDateParsed = moment(selectedDate).format('DD/MM/YYYY');
+        let tourDateParsed = moment(tourDateFormatted).format('DD/MM/YYYY');
+        let tourDateTimeParsed = moment(v.startDate).format('HH:mm');
+
+        if (tourDateParsed === selectedDateParsed) {
+            tourDateTimeDropdown.append('<option value="' + v.id + '">' + tourDateTimeParsed + '</option>').prop('disabled', false);
+        }
     });
 }
 
@@ -86,16 +107,21 @@ const addTourToBasket = (tourId, tourName, tourImageUrl) => {
         $('#basketTotal').html('$ ' + basket.total.toFixed(2));
         $('#selectionTotal').html('$ ' + item.total.toFixed(2));
 
-        let guestQuantityControl = $('#GuestQuantity');
-        guestQuantityControl.parent().find('.form-helper').html('Select a Date');
-        
-        $('#TourDate').val('').removeClass('active');
-        guestQuantityControl.val('').prop('disabled', true).removeClass('active');
-        $('#TourDateStartTime').html('<option value="" hidden></option>').val('').prop('disabled', true);
-        $('.add-tour-to-basket-button').prop('disabled', true);
-
         let proceedToCheckoutButton = $('.proceed-to-checkout-button');
+        let addToBasketButton = $('.add-tour-to-basket-button');
         
+        if (addToBasketButton.html() !== 'Update Basket')
+        {
+            let guestQuantityControl = $('#GuestQuantity');
+            guestQuantityControl.parent().find('.form-helper').html('Select a Date');
+
+            $('#TourDate, #TourDateStartTime').val('').removeClass('active');
+            $('#TourDate').prop('disabled', false);
+            guestQuantityControl.val('').prop('disabled', true).removeClass('active');
+            $('#TourDateStartTime').html('<option value="" hidden></option>').val('').prop('disabled', true);
+        }
+        
+        addToBasketButton.prop('disabled', true);
         proceedToCheckoutButton.prop('disabled', false);
         proceedToCheckoutButton.on('click', function() {
             window.location.href = "/checkout";

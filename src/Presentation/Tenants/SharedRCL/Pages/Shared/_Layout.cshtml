@@ -322,32 +322,6 @@
 <partial name="_ValidationScriptsPartial"/>
 <script src="/js/theme.min.js"></script>
 
-@* @if (Model.TenantId == "fuse") *@
-@* { *@
-@*     <environment include="Development"> *@
-@*         <script src="/shared/js/theme.min.js"></script> *@
-@*                 <partial name="_ValidationScriptsPartial"/> *@
-@*         <script src="/js/theme.min.js"></script> *@
-@*     </environment> *@
-@*     <environment exclude="Development"> *@
-@*         <script type="text/javascript" src="https://fusehostelsandtravel.azureedge.net/assets/bundle.min.js"></script> *@
-@*     </environment> *@
-@* } *@
-@* else *@
-@* { *@
-@*     <script type="text/javascript"> *@
-@*         const $cookieName = "@(Model.TenantName.ToLower().Replace(" ", "-"))"; *@
-@*         </script> *@
-@* *@
-@*     <script type="text/javascript" src="https://travaloud.azureedge.net/mdb/js/mdb.min.js"></script> *@
-@*     <script type="text/javascript" src="https://travaloud.azureedge.net/assets/js/travaloud.min.js"></script> *@
-@* *@
-@*     <script type="text/javascript">$(window).on("load", function () { *@
-@*                 $('.select-input.active, .form-control.active').trigger('focus'); *@
-@*             });</script> *@
-@* } *@
-
-
 @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

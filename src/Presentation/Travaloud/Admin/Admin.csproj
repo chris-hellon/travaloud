@@ -24,6 +24,7 @@
         <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0"/>
         <PackageReference Include="MudBlazor" Version="6.15.0" />
         <PackageReference Include="MudBlazor.Extensions" Version="1.7.83" />
+        <PackageReference Include="QRCoderNetCore" Version="1.0.0" />
         <PackageReference Include="TinyMCE.Blazor" Version="1.0.4" />
     </ItemGroup>
 

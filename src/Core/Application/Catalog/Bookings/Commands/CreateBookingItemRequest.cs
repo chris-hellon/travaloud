@@ -3,7 +3,7 @@
 public class CreateBookingItemRequest
 {
     public DateTime StartDate { get; set; }
-    public DateTime EndDate { get; set; }
+    public DateTime? EndDate { get; set; }
     public decimal Amount { get; set; }
     public int? RoomQuantity { get; set; }
 
@@ -19,6 +19,8 @@ public class CreateBookingItemRequest
     public string? CloudbedsReservationId { get; set; }
     public int? CloudbedsPropertyId { get; set; }
     public int ConcurrencyVersion { get; set; } = default!;
+    public int? GuestQuantity { get; set; }
     public UpdateTourDateRequest? TourDate { get; set; }
     public IList<CreateBookingItemRoomRequest>? Rooms { get; set; }
+    public IList<BookingItemGuestRequest>? Guests { get; set; }
 }

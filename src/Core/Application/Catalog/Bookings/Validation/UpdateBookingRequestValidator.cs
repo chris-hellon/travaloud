@@ -18,9 +18,9 @@ public class UpdateBookingRequestValidator : CustomValidator<UpdateBookingReques
 
         RuleFor(b => b.ItemQuantity)
             .GreaterThan(0);
-
-        RuleFor(b => b.GuestId)
-            .NotEmpty();
+        //
+        // RuleFor(b => b.GuestId)
+        //     .NotEmpty();
 
         RuleFor(b => b.Items)
             .NotEmpty()

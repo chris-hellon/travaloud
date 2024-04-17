@@ -11,15 +11,31 @@ public class ExportBookingsSpec : EntitiesByBaseFilterSpec<BookingItem, BookingE
     {
         Query
             .OrderBy(c => c.StartDate)
+            .Include(x => x.Guests)
             .Include(x => x.Booking)
             .Include(x => x.Tour)
             .Include(x => x.TourDate)
-            .Where(x =>
-                (request.TourId.HasValue || (x.TourId.HasValue && x.TourId.Value == request.TourId))
-                && (string.IsNullOrEmpty(request.Description) || x.Booking.Description.Equals(request.Description))
-                && (!request.BookingStartDate.HasValue || !request.BookingEndDate.HasValue
-                                                       || (x.Booking.BookingDate >= request.BookingStartDate.Value && x.Booking.BookingDate <= request.BookingEndDate.Value))
-                && (!request.TourStartDate.HasValue || !request.TourEndDate.HasValue
-                                                    || (x.StartDate >= request.TourStartDate.Value && x.StartDate <= request.TourEndDate.Value)));
+            .Where(
+                x => x.TourId.HasValue &&
+                     (request.TourId.HasValue ? x.TourId.Value == request.TourId : !request.TourId.HasValue),
+                condition: request.IsTourBookings)
+            .Where(
+                x => x.PropertyId.HasValue && (request.PropertyId.HasValue
+                    ? x.PropertyId.Value == request.PropertyId.Value
+                    : !request.PropertyId.HasValue), condition: !request.IsTourBookings)
+            .Where(x => x.Booking.Description.Contains(request.Description),
+                condition: !string.IsNullOrEmpty(request.Description))
+            .Where(
+                x => x.Booking.BookingDate >= request.BookingStartDate.Value &&
+                     x.Booking.BookingDate <= request.BookingEndDate.Value,
+                condition: request is {BookingStartDate: not null, BookingEndDate: not null})
+            .Where(
+                x => x.StartDate >= request.TourStartDate.Value &&
+                     x.StartDate <= request.TourEndDate.Value,
+                condition: request is {TourStartDate: not null, TourEndDate: not null})
+            .Where(
+                x => x.StartDate >= request.CheckInDate.Value &&
+                     x.StartDate <= request.CheckOutDate.Value,
+                condition: request is {CheckInDate: not null, CheckOutDate: not null});
     }
 }

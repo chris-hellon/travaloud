@@ -29,6 +29,7 @@ public static class ToursExtensions
                             tourPriceRequest.DayDuration,
                             tourPriceRequest.NightDuration,
                             tourPriceRequest.HourDuration,
+                            tourPriceRequest.ComissionAmount,
                             tourPriceRequest.Id);
                     }
                     else
@@ -42,7 +43,8 @@ public static class ToursExtensions
                             tourPriceRequest.DayDuration,
                             tourPriceRequest.NightDuration,
                             tourPriceRequest.HourDuration,
-                            tour.Id);
+                            tour.Id,
+                            tourPriceRequest.ComissionAmount);
                     }
 
                     tourPrices.Add(price);

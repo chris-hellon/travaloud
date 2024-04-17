@@ -24,8 +24,7 @@ namespace Travaloud.Infrastructure.Multitenancy.TenantWebsite;
 
 public static class Startup
 {
-    public static IServiceCollection AddTenantWebsite(this IServiceCollection services, IConfiguration config,
-        IHostEnvironment hostEnvironment)
+    public static IServiceCollection AddTenantWebsite(this IServiceCollection services, IConfiguration config, IHostEnvironment hostEnvironment)
     {
         var travaloudSettings = services.GetTravaloudSettings(config);
 
@@ -48,16 +47,20 @@ public static class Startup
                 tourCategoryUrl = $"{urlSection.TourCategoryUrl}";
         }
 
+        var libraryPath = Path.GetFullPath(Path.Combine(hostEnvironment.ContentRootPath, "..", "SharedRCL", "wwwroot"));
+
+        if (hostEnvironment.IsProduction())
+            libraryPath = Path.GetFullPath(Path.Combine(hostEnvironment.ContentRootPath, "wwwroot", "_content", "Travaloud.Tenants.SharedRCL"));
+        
         services.AddRazorPages().AddRazorRuntimeCompilation(options =>
         {
-            var libraryPath = Path.GetFullPath(Path.Combine(hostEnvironment.ContentRootPath, "..", "SharedRCL"));
             options.FileProviders.Add(new PhysicalFileProvider(libraryPath));
         }).AddRazorPagesOptions(options =>
         {
             options.Conventions.AddPageRoute("/PropertyBooking/Index",
                 propertyBookingUrl + "/{propertyName}/{checkInDate?}/{checkOutDate?}/{userId?}");
             options.Conventions.AddPageRoute("/TourBooking/Index", tourBookingUrl);
-            options.Conventions.AddPageRoute("/Tour/Index", tourUrl + "/{tourName}");
+            options.Conventions.AddPageRoute("/Tour/Index", tourUrl + "/{tourName}/{tourDate?}/{guestQuantity?}");
             options.Conventions.AddPageRoute("/JoinOurCrew/Index", "join-our-crew/{tourName?}");
             options.Conventions.AddPageRoute("/TravelGuides/Index", "travel-guides/{pageNumber:int?}");
             options.Conventions.AddPageRoute("/TravelGuide/Index", "travel-guides/{title}");
@@ -108,10 +111,7 @@ public static class Startup
 
         services.AddJsEngineSwitcher(options => options.DefaultEngineName = V8JsEngine.EngineName)
             .AddV8();
-
-
-        var libraryPath = Path.GetFullPath(Path.Combine(hostEnvironment.ContentRootPath, "..", "SharedRCL", "wwwroot"));
-
+        
         services.AddWebOptimizer(pipeline =>
         {
             var provider = new PhysicalFileProvider(libraryPath);
@@ -174,6 +174,12 @@ public static class Startup
                 .MinifyJavaScript()
                 .UseFileProvider(provider);
             
+            pipeline.AddJavaScriptBundle("/shared/js/stripecheckout.min.js",
+                    "/js/stripecheckout.js"
+                )
+                .MinifyJavaScript()
+                .UseFileProvider(provider);
+            
             pipeline.AddJavaScriptBundle("/shared/js/tour.min.js",
                     "/js/tour.js"
                 )
@@ -200,45 +206,13 @@ public static class Startup
             app.UseRollbarMiddleware();
         }
 
-        //app.UseStatusCodePagesWithRedirects("/error/{0}");
+        if (env.IsProduction())
+            app.UseStatusCodePagesWithRedirects("/error/{0}");
 
         app.UseWebOptimizer();
-
-        //var libraryPath = Path.GetFullPath(Path.Combine(env.ContentRootPath, "..", "SharedRCL", "wwwroot"));
-        //app.UseStaticFiles();
-        // app.UseStaticFiles(new StaticFileOptions
-        // {
-        //     FileProvider = new PhysicalFileProvider(libraryPath),
-        //     RequestPath = new PathString("/shared")
-        // });
-        //
-        app.SetAppCulture();
         app.UseSession();
 
         return app;
-    }
-
-    private static void SetAppCulture(this IApplicationBuilder app)
-    {
-        var culture = CultureInfo.CreateSpecificCulture("en-GB");
-        var dateformat = new DateTimeFormatInfo
-        {
-            ShortDatePattern = "dd/MM/yyyy",
-            LongDatePattern = "dd/MM/yyyy hh:mm:ss tt"
-        };
-        culture.DateTimeFormat = dateformat;
-
-        var supportedCultures = new[]
-        {
-            culture
-        };
-
-        app.UseRequestLocalization(new RequestLocalizationOptions
-        {
-            DefaultRequestCulture = new RequestCulture(culture),
-            SupportedCultures = supportedCultures,
-            SupportedUICultures = supportedCultures
-        });
     }
 
     private static void AddRolbarConfiguration(this IServiceCollection services, RollbarSettings rollbarSettings)

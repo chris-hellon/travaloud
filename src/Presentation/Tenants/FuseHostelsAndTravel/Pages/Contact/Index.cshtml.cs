@@ -21,7 +21,7 @@ public class IndexModel : ContactPageModel
 
     public IEnumerable<OvalContainerComponent>? OvalContainers { get; private set; } 
     
-    public override async Task<IActionResult> OnGetAsync(string? tourName = null)
+    public override async Task<IActionResult> OnGetAsync(string? tourName = null, Guid? tourDate = null, int? guestQuantity = null)
     {
         ViewData["Title"] = "Get In Touch";
         

@@ -28,7 +28,7 @@ public class Tour : AuditableEntity, IAggregateRoot
     public string? H2 { get; private set; }
     public string? VideoPath { get; private set; }
     public string? MobileVideoPath { get; private set; }
-
+    public string? BookingConfirmationEmailDetails { get; private set; }
 
     public virtual IList<TourCategoryLookup>? TourCategoryLookups { get; set; }
     public virtual IList<TourPropertyLookup>? TourPropertyLookups { get; private set; }
@@ -42,7 +42,33 @@ public class Tour : AuditableEntity, IAggregateRoot
     {
     }
 
-    public Tour(string name, string description, string? shortDescription, decimal? price, string? priceLabel, string? imagePath, string? thumbnailImagePath, int? maxCapacity, int? minCapacity, string? dayDuration, string? nightDuration, string? hourDuration, string? address, string? telephoneNumber, string? whatsIncluded, string? whatsNotIncluded, string? additionalInformation, string? metaKeywords, string? metaDescription, string? importantInformation, bool? publishToSite, string? urlSlug, string? h1, string? h2, string? videoPath, string? mobileVideoPath)
+    public Tour(string name,
+        string description,
+        string? shortDescription,
+        decimal? price,
+        string? priceLabel,
+        string? imagePath,
+        string? thumbnailImagePath,
+        int? maxCapacity,
+        int? minCapacity,
+        string? dayDuration,
+        string? nightDuration,
+        string? hourDuration,
+        string? address,
+        string? telephoneNumber,
+        string? whatsIncluded,
+        string? whatsNotIncluded,
+        string? additionalInformation,
+        string? metaKeywords,
+        string? metaDescription,
+        string? importantInformation,
+        bool? publishToSite,
+        string? urlSlug,
+        string? h1,
+        string? h2,
+        string? videoPath,
+        string? mobileVideoPath, 
+        string? bookingConfirmationEmailDetails)
     {
         Name = name;
         Description = description;
@@ -70,9 +96,36 @@ public class Tour : AuditableEntity, IAggregateRoot
         H2 = h2;
         VideoPath = videoPath;
         MobileVideoPath = mobileVideoPath;
+        BookingConfirmationEmailDetails = bookingConfirmationEmailDetails;
     }
 
-    public Tour Update(string? name, string? description, string? shortDescription, decimal? price, string? priceLabel, string? imagePath, string? thumbnailImagePath, int? maxCapacity, int? minCapacity, string? dayDuration, string? nightDuration, string? hourDuration, string? address, string? telephoneNumber, string? whatsIncluded, string? whatsNotIncluded, string? additionalInformation, string? metaKeywords, string? metaDescription, string? importantInformation, bool? publishToSite, string? urlSlug, string? h1, string? h2, string? videoPath, string? mobileVideoPath)
+    public Tour Update(string? name,
+        string? description,
+        string? shortDescription,
+        decimal? price,
+        string? priceLabel,
+        string? imagePath,
+        string? thumbnailImagePath,
+        int? maxCapacity,
+        int? minCapacity,
+        string? dayDuration,
+        string? nightDuration,
+        string? hourDuration,
+        string? address,
+        string? telephoneNumber,
+        string? whatsIncluded,
+        string? whatsNotIncluded,
+        string? additionalInformation,
+        string? metaKeywords,
+        string? metaDescription,
+        string? importantInformation,
+        bool? publishToSite,
+        string? urlSlug,
+        string? h1,
+        string? h2,
+        string? videoPath,
+        string? mobileVideoPath, 
+        string? bookingConfirmationEmailDetails)
     {
         if (name is not null && Name?.Equals(name) is not true) Name = name;
         if (description is not null && Description?.Equals(description) is not true) Description = description;
@@ -99,6 +152,7 @@ public class Tour : AuditableEntity, IAggregateRoot
         if (h2 is not null && H2?.Equals(h2) is not true) H2 = h2;
         if (videoPath is not null && VideoPath?.Equals(videoPath) is not true) VideoPath = videoPath;
         if (mobileVideoPath is not null && MobileVideoPath?.Equals(mobileVideoPath) is not true) MobileVideoPath = mobileVideoPath;
+        if (bookingConfirmationEmailDetails is not null && BookingConfirmationEmailDetails?.Equals(bookingConfirmationEmailDetails) is not true) BookingConfirmationEmailDetails = bookingConfirmationEmailDetails;
 
         PublishToSite = publishToSite;
 

@@ -2,12 +2,44 @@
 
 @if (Model.RequiredGuestCount > 0)
 {
-    <div class="border-top py-4 row d-flex align-items-center additional-guests-container" data-basket-item-id="@Model.Id">
+    var assignedGuestsCount = Model.RequiredGuestCount - (Model.Guests?.Count ?? 0);
+    
+    <div class="border-top py-4 row d-flex align-items-center additional-guests-container" data-remaining-guests-count="@assignedGuestsCount" data-basket-item-id="@Model.Id">
         <div class="col-lg-6">
-            <h6>@Model.PropertyName (@Model.RequiredGuestCount guest@(Model.RequiredGuestCount > 1 ? "s" : ""))</h6>
+            @{
+                if (assignedGuestsCount > 0)
+                {
+                    if (Model.PropertyId.HasValue)
+                    {
+                        <h6><i class="fa-solid fa-circle-exclamation text-danger"></i> @Model.PropertyName (@assignedGuestsCount guest@(assignedGuestsCount > 1 ? "s" : "") required)</h6>
+                        
+                    }
+                    else
+                    {
+                        <h6><i class="fa-solid fa-circle-exclamation text-danger"></i> @Model.TourName (@assignedGuestsCount guest@(assignedGuestsCount > 1 ? "s" : "") required)</h6>
+                    }
+                }
+                else
+                {
+                    if (Model.PropertyId.HasValue)
+                    {
+                        <h6><i class="fa-solid fa-circle-check text-success"></i> @Model.PropertyName</h6>
+                       
+                    }
+                    else
+                    {
+                        <h6><i class="fa-solid fa-circle-check text-success"></i> @Model.TourName</h6>
+                    }
+                }
+            }
+
             @if (Model is {CheckInDateParsed: not null, CheckOutDateParsed: not null})
             {
-                <h6>@Model.CheckInDateParsed.Value.ToShortDateString() - @Model.CheckOutDateParsed.Value.ToShortDateString()</h6>   
+                <h6>@Model.CheckInDateParsed.Value.ToShortDateString() - @Model.CheckOutDateParsed.Value.ToShortDateString()</h6>
+            }
+            else
+            {
+                <h6>@Model.TourDates.First().StartDate.ToLongDateString()</h6>
             }
         </div>
         <div class="col-lg-6 d-flex justify-content-end">

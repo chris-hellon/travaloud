@@ -38,7 +38,13 @@
             <MudTextField For="@(() => context.ZipPostalCode)" @bind-Value="context.ZipPostalCode" Label="@L["Zip/Postal Code"]" Required="false"></MudTextField>
         </MudItem>
         <MudItem xs="12" md="6">
-            <MudAutocomplete T="string" Label="@L["Nationality"]" For="@(() => context.Nationality)" @bind-Value="context.Nationality" SearchFunc="@SearchNationalities" AnchorOrigin="Origin.BottomCenter" Required="false"/>
+            @* <MudSelect T="string" Label="@L["Nationality"]" For="@(() => context.Nationality)" @bind-Value="context.Nationality" AnchorOrigin="Origin.BottomCenter" Required="false"> *@
+            @*     @foreach (var nationality in _nationalities) *@
+            @*     { *@
+            @*         <MudSelectItem T="string" Value="@(nationality.Value)" /> *@
+            @*     } *@
+            @* </MudSelect> *@
+            <MudAutocomplete T="string" MaxItems="null" Label="@L["Nationality"]" For="@(() => context.Nationality)" @bind-Value="context.Nationality" SearchFunc="@SearchNationalities" AnchorOrigin="Origin.BottomCenter" Required="false"/>
         </MudItem>
         <MudItem xs="12" md="6">
             <MudSelect For="@(() => context.Gender)" @bind-Value="context.Gender" @bind-SelectedValues="context.Genders" Label="@L["Gender"]" AnchorOrigin="Origin.BottomCenter" MultiSelection="true" Clearable="true" Required="false">

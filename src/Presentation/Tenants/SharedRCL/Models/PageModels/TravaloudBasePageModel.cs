@@ -16,6 +16,8 @@ using Travaloud.Application.Catalog.Tours.Dto;
 using Travaloud.Application.Common.Interfaces;
 using Travaloud.Application.Common.Mailing;
 using Travaloud.Application.Identity.Users;
+using Travaloud.Application.PaymentProcessing;
+using Travaloud.Application.PaymentProcessing.Commands;
 using Travaloud.Infrastructure.Mailing;
 using Travaloud.Infrastructure.Multitenancy;
 using Travaloud.Infrastructure.Multitenancy.TenantWebsite;
@@ -42,6 +44,9 @@ public class TravaloudBasePageModel : PageModel
 
     private IBasketService? _basketService;
     protected IBasketService BasketService => (_basketService ??= HttpContext.RequestServices.GetService<IBasketService>()) ?? throw new InvalidOperationException();
+    
+    private IStripeService? _stripeService;
+    protected IStripeService StripeService => (_stripeService ??= HttpContext.RequestServices.GetService<IStripeService>()) ?? throw new InvalidOperationException();
     
     private ITenantWebsiteService? _tenantWebsiteService;
     protected ITenantWebsiteService TenantWebsiteService => (_tenantWebsiteService ??= HttpContext.RequestServices.GetService<ITenantWebsiteService>()) ?? throw new InvalidOperationException();
@@ -1072,9 +1077,10 @@ public class TravaloudBasePageModel : PageModel
                 Item = basket.Item2
             });
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             // ignored
+            return new JsonResult(ex.Message);
         }
     
         return new JsonResult("fail");
@@ -1287,6 +1293,26 @@ public class TravaloudBasePageModel : PageModel
         }
     
         return new JsonResult("fail");
+    }
+
+    public async Task<ActionResult> OnPostCreateStripeClientSecret()
+    {
+        var basket = await BasketService.GetBasket();
+
+        if (!(bool) HttpContextAccessor.HttpContext?.Session.Keys.Contains("GuestId"))
+            return new JsonResult(new {clientSecret = ""});
+        
+        var guestId = Guid.Parse(HttpContextAccessor.HttpContext?.Session.GetString("GuestId") ?? string.Empty);
+        
+        var session = await StripeService.CreateStripeSessionClientSecret(new CreateStripeSessionClientSecretRequest()
+        {
+            Basket = basket,
+            GuestId = guestId,
+        });
+
+        return new JsonResult(new {clientSecret = session.ClientSecret});
+
+
     }
     
     //

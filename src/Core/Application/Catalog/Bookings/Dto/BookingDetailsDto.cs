@@ -2,6 +2,7 @@
 
 public class BookingDetailsDto
 {
+    public DefaultIdType Id { get; set; }
     public string Description { get; set; } = default!;
     public decimal TotalAmount { get; set; }
     public string CurrencyCode { get; set; } = default!;

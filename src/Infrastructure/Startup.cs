@@ -1,7 +1,9 @@
+using System.Globalization;
 using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
@@ -84,5 +86,31 @@ public static class Startup
             .UseAuthentication()
             .UseCurrentUser()
             .UseAuthorization()
-            .UseRequestLogging(config);
+            .UseRequestLogging(config)
+            .SetAppCulture();
+    
+    private static IApplicationBuilder SetAppCulture(this IApplicationBuilder app)
+    {
+        var culture = CultureInfo.CreateSpecificCulture("en-GB");
+        var dateformat = new DateTimeFormatInfo
+        {
+            ShortDatePattern = "dd/MM/yyyy",
+            LongDatePattern = "dd/MM/yyyy hh:mm:ss tt"
+        };
+        culture.DateTimeFormat = dateformat;
+
+        var supportedCultures = new[]
+        {
+            culture
+        };
+
+        app.UseRequestLocalization(new RequestLocalizationOptions
+        {
+            DefaultRequestCulture = new RequestCulture(culture),
+            SupportedCultures = supportedCultures,
+            SupportedUICultures = supportedCultures
+        });
+
+        return app;
+    }
 }

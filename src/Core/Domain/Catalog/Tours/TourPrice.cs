@@ -11,13 +11,23 @@ public class TourPrice : AuditableEntity, IAggregateRoot
     public decimal? DayDuration { get; set; }
     public decimal? NightDuration { get; set; }
     public decimal? HourDuration { get; set; }
+    public decimal? ComissionAmount { get; private set; }
 
     public TourPrice()
     {
 
     }
 
-    public TourPrice(decimal price, string title, string? description, string? monthFrom, string? monthTo, decimal? dayDuration, decimal? nightDuration, decimal? hourDuration, DefaultIdType? tourId = null)
+    public TourPrice(decimal price,
+        string title,
+        string? description,
+        string? monthFrom,
+        string? monthTo,
+        decimal? dayDuration,
+        decimal? nightDuration,
+        decimal? hourDuration,
+        decimal? comissionAmount,
+        DefaultIdType? tourId = null)
     {
         Price = price;
         Title = title;
@@ -27,14 +37,15 @@ public class TourPrice : AuditableEntity, IAggregateRoot
         DayDuration = dayDuration;
         NightDuration = nightDuration;
         HourDuration = hourDuration;
-
+        ComissionAmount = comissionAmount;
+        
         if (tourId != null)
         {
             TourId = tourId.Value;
         }
     }
 
-    public TourPrice Update(decimal? price, string? title, string? description, string? monthFrom, string? monthTo, decimal? dayDuration, decimal? nightDuration, decimal? hourDuration, DefaultIdType? tourId)
+    public TourPrice Update(decimal? price, string? title, string? description, string? monthFrom, string? monthTo, decimal? dayDuration, decimal? nightDuration, decimal? hourDuration, DefaultIdType? tourId,  decimal? comissionAmount)
     {
         if (price.HasValue && Price != price) Price = price.Value;
         if (title is not null && Title?.Equals(title) is not true) Title = title;
@@ -42,10 +53,11 @@ public class TourPrice : AuditableEntity, IAggregateRoot
         if (tourId.HasValue && tourId.Value != DefaultIdType.Empty && !TourId.Equals(tourId.Value)) TourId = tourId.Value;
         if (monthFrom != null && MonthFrom != monthFrom) MonthFrom = monthFrom;
         if (monthTo != null && MonthTo != monthTo) MonthTo = monthTo;
-        if (dayDuration.HasValue && dayDuration.Value != 0 && !DayDuration.Equals(dayDuration.Value)) DayDuration = dayDuration.Value;
-        if (nightDuration.HasValue && nightDuration.Value != 0 && !NightDuration.Equals(nightDuration.Value)) NightDuration = nightDuration.Value;
-        if (hourDuration.HasValue && hourDuration.Value != 0 && !HourDuration.Equals(hourDuration.Value)) HourDuration = hourDuration.Value;
-
+        if (dayDuration.HasValue && !DayDuration.Equals(dayDuration.Value)) DayDuration = dayDuration.Value;
+        if (nightDuration.HasValue && !NightDuration.Equals(nightDuration.Value)) NightDuration = nightDuration.Value;
+        if (hourDuration.HasValue && !HourDuration.Equals(hourDuration.Value)) HourDuration = hourDuration.Value;
+        if (comissionAmount.HasValue && ComissionAmount != comissionAmount) ComissionAmount = comissionAmount.Value;
+        
         return this;
     }
 }

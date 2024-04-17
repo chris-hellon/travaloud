@@ -116,6 +116,9 @@
                 <MudTabPanel Text="@L["Full Description"]">
                     <Editor @bind-Value="context.Description" Field="@(() => context.Description)" Conf="@TinyMceConfig.Styles()" ApiKey="@TinyMceConfig.ApiKey"></Editor>
                 </MudTabPanel>
+                <MudTabPanel Text="@L["Booking Confirmation Email"]">
+                    <Editor @bind-Value="context.BookingConfirmationEmailDetails" Field="@(() => context.BookingConfirmationEmailDetails)" Conf="@TinyMceConfig.Styles()" ApiKey="@TinyMceConfig.ApiKey"></Editor>
+                </MudTabPanel>
             </MudTabs>
         </MudItem>
     </MudGrid>
@@ -140,6 +143,7 @@
                 <col/>
                 <col/>
                 <col/>
+                <col/>
                 <col style="width:20px;"/>
             </ColGroup>
             <HeaderContent>
@@ -151,6 +155,7 @@
                 <MudTh>Hour Duration</MudTh>
                 <MudTh>Month From</MudTh>
                 <MudTh>Month To</MudTh>
+                <MudTh>Commission Amount</MudTh>
                 <MudTh Style="min-width: 0; width: 100px; text-align: right;"></MudTh>
             </HeaderContent>
             <RowTemplate>
@@ -162,6 +167,7 @@
                 <MudTd DataLabel="Hour Duration">@priceContext.HourDuration</MudTd>
                 <MudTd DataLabel="Month From">@priceContext.MonthFrom</MudTd>
                 <MudTd DataLabel="Month To">@priceContext.MonthTo</MudTd>
+                <MudTd DataLabel="Comission Amount">$@priceContext.ComissionAmount</MudTd>
                 <MudTd DataLabel="Edit" Style="min-width: 0; width: 270px; text-align: right;">
                     <MudButton Variant="Variant.Filled" Size="Size.Small" StartIcon="@Icons.Material.Filled.Edit" Color="Color.Tertiary" OnClick="(() => InvokePriceDialog(priceContext, context))">Edit</MudButton>
                     <MudButton Variant="Variant.Filled" Size="Size.Small" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="(() => RemovePriceRow(context, priceContext.Id))">Delete</MudButton>

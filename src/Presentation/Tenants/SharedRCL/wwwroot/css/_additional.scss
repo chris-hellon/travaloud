@@ -580,6 +580,11 @@ input[type=number] {
   }
 }
 //scss-docs-end video container
+#stripeCheckout {
+  iframe {
+    padding:20px !important;
+  }
+}
 
 .btn:disabled, .btn.disabled, fieldset:disabled .btn {
   box-shadow: var(--mdb-btn-box-shadow) !important;

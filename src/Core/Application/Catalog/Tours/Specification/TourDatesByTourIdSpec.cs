@@ -10,6 +10,6 @@ public class TourDatesByTourIdSpec : EntitiesByBaseFilterSpec<TourDate, TourDate
         : base(request) =>
         Query
             .OrderBy(c => c.StartDate)
-            .Where(p => p.TourId == request.TourId).Include(x => x.TourPrice)
-            .Where(x => x.AvailableSpaces > 0 && x.AvailableSpaces >= request.RequestedSpaces);
+            .Where(p => p.TourId == request.TourId).Include(x => x.TourPrice);
+    // .Where(x => x.AvailableSpaces > 0 && x.AvailableSpaces >= request.RequestedSpaces);
 }

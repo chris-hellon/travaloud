@@ -1,8 +1,10 @@
+using System.Drawing.Imaging;
 using System.Text.Json;
 using Mapster;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using MudBlazor;
+using QRCoder;
 using Travaloud.Admin.Components.Dialogs;
 using Travaloud.Admin.Components.EntityTable;
 using Travaloud.Application.Catalog.Bookings.Commands;
@@ -12,6 +14,8 @@ using Travaloud.Application.Catalog.Interfaces;
 using Travaloud.Application.Catalog.Tours.Dto;
 using Travaloud.Application.Catalog.Tours.Queries;
 using Travaloud.Application.Identity.Users;
+using Travaloud.Application.PaymentProcessing;
+using Travaloud.Application.PaymentProcessing.Commands;
 using Travaloud.Shared.Authorization;
 
 namespace Travaloud.Admin.Components.Pages.Bookings;
@@ -23,6 +27,8 @@ public partial class TourBookings
     [Inject] protected IToursService ToursServive { get; set; } = default!;
 
     [Inject] protected IUserService UserService { get; set; } = default!;
+
+    [Inject] protected IStripeService StripeService { get; set; } = default!;
 
     [Parameter] public string Category { get; set; } = default!;
 
@@ -51,11 +57,11 @@ public partial class TourBookings
             entityResource: TravaloudResource.Bookings,
             fields:
             [
+                new EntityField<BookingDto>(booking => booking.InvoiceId, L["Reference"], "Reference"),
                 new EntityField<BookingDto>(booking => booking.Description, L["Description"], "Description"),
-                new EntityField<BookingDto>(booking => booking.IsPaid, L["Is Paid"], "IsPaid"),
                 new EntityField<BookingDto>(booking => booking.BookingDate, L["Booking Date"], "BookingDate"),
-                new EntityField<BookingDto>(booking => booking.TotalAmount, L["Total Amount"], "TotalAmount"),
-                new EntityField<BookingDto>(booking => booking.CurrencyCode, L["Currency Code"], "CurrencyCode")
+                new EntityField<BookingDto>(booking => $"{booking.TotalAmount} {booking.CurrencyCode}", L["Total Amount"], "TotalAmount"),
+                new EntityField<BookingDto>(booking => booking.IsPaid, L["Is Paid"], "IsPaid")
             ],
             enableAdvancedSearch: false,
             idFunc: booking => booking.Id,
@@ -118,6 +124,7 @@ public partial class TourBookings
                 parsedModel.Tours = guestsAndTours.Item2;
                 parsedModel.CurrencyCode = "USD";
                 parsedModel.Id = id;
+                parsedModel.Guest = guestsAndTours.Item1.FirstOrDefault(x => x.Id.ToString() == parsedModel.GuestId);
                 
                 return parsedModel;
             },
@@ -125,11 +132,38 @@ public partial class TourBookings
             {
                 var parsedBooking = booking.Adapt<CreateBookingRequest>();
                 parsedBooking.BookingDate = DateTime.Now;
+                parsedBooking.GuestId = booking.Guest.Id.ToString();
+                
+                var bookingId = await BookingsService.CreateAsync(parsedBooking);
 
-                await BookingsService.CreateAsync(parsedBooking);
+                if (bookingId.HasValue)
+                {
+                    var stripeCheckoutUrl = await StripeService.CreateStripeQrCodeUrl(new CreateStripeQrCodeRequest()
+                    {
+                        BookingId = bookingId.Value,
+                        GuestEmail = booking.Guest.Email
+                    });
+                    
+                    using MemoryStream ms = new();
+                    QRCodeGenerator qrCodeGenerate = new();
+                    var qrCodeData = qrCodeGenerate.CreateQrCode(stripeCheckoutUrl, QRCodeGenerator.ECCLevel.Q);
+                    QRCode qrCode = new(qrCodeData);
+                    using var qrBitMap = qrCode.GetGraphic(20);
+                    qrBitMap.Save(ms, ImageFormat.Png);
+                        
+                    var base64 = Convert.ToBase64String(ms.ToArray());
+                    var qrCodeImageUrl = $"data:image/png;base64,{base64}";
+
+                    await InvokeStripeQrCodeUrl(qrCodeImageUrl);
+                }
             },
             updateFunc: async (id, booking) =>
-                await BookingsService.UpdateAsync(id, booking.Adapt<UpdateBookingRequest>()),
+            {
+                var request = booking.Adapt<UpdateBookingRequest>();
+                request.GuestId = booking.Guest.Id.ToString();
+                
+                await BookingsService.UpdateAsync(id, request);
+            },
             deleteFunc: async id => await BookingsService.DeleteAsync(id),
             exportFunc: async filter =>
             {
@@ -140,7 +174,8 @@ public partial class TourBookings
                 exportFilter.BookingEndDate = SearchBookingDateRange?.End;
                 exportFilter.TourStartDate = SearchTourStartDateRange?.Start;
                 exportFilter.TourEndDate = SearchTourStartDateRange?.End;
-
+                exportFilter.IsTourBookings = true;
+                
                 if (exportFilter.BookingEndDate.HasValue)
                 {
                     exportFilter.BookingEndDate = exportFilter.BookingEndDate.Value + new TimeSpan(0, 11, 59, 59, 999);
@@ -249,8 +284,7 @@ public partial class TourBookings
         }
     }
 
-    public async Task InvokeBookingItemDialog(UpdateBookingItemRequest requestModel, TourBookingViewModel tourBooking,
-        bool isCreate = false)
+    public async Task InvokeBookingItemDialog(UpdateBookingItemRequest requestModel, TourBookingViewModel tourBooking, bool isCreate = false)
     {
         var initialModel = JsonSerializer.Deserialize<IList<UpdateBookingItemRequest>>(JsonSerializer.Serialize(tourBooking.Items)) ?? new List<UpdateBookingItemRequest>();
         DialogOptions options = new() {CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, DisableBackdropClick = true};
@@ -259,6 +293,7 @@ public partial class TourBookings
             {nameof(Dialogs.Bookings.TourBookingItem.RequestModel), requestModel},
             {nameof(Dialogs.Bookings.TourBookingItem.TourBooking), tourBooking},
             {nameof(Dialogs.Bookings.TourBookingItem.Context), Context},
+            {nameof(Dialogs.Bookings.TourBookingItem.Guests), tourBooking.Guests},
             {nameof(Dialogs.Bookings.TourBookingItem.Id), isCreate ? null : requestModel.Id},
             {nameof(Dialogs.Bookings.TourBookingItem.Tours), tourBooking.Tours},
         };
@@ -275,6 +310,19 @@ public partial class TourBookings
         Context.AddEditModal?.ForceRender();
     }
 
+    public async Task InvokeStripeQrCodeUrl(string qrcodeImageUrl)
+    {
+        DialogOptions options = new() {CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, DisableBackdropClick = true};
+        DialogParameters parameters = new()
+        {
+            {nameof(Dialogs.Bookings.StripeQrCode.QrCodeImageUrl), qrcodeImageUrl},
+        };
+        
+        var dialog = await DialogService.ShowAsync<Components.Dialogs.Bookings.StripeQrCode>(string.Empty, parameters, options);
+
+        var result = await dialog.Result;
+    }
+    
     public async Task RemoveItemRow(TourBookingViewModel tourBooking, Guid id)
     {
         string deleteContent = L["You're sure you want to delete this {0}? Please note, this is final."];
@@ -306,10 +354,32 @@ public partial class TourBookings
             Context.AddEditModal?.ForceRender();
         }
     }
+    
+    private async Task<IEnumerable<UserDetailsDto>> SearchGuests(string value)
+    {
+        await Task.Delay(5);
+
+        return (string.IsNullOrEmpty(value)
+                   ? Context.AddEditModal.RequestModel.Guests
+                   : Context.AddEditModal.RequestModel.Guests.Where(x => (x.FirstName.Contains(value,
+                                                                              StringComparison
+                                                                                  .InvariantCultureIgnoreCase) &&
+                                                                          x.LastName.Contains(value,
+                                                                              StringComparison
+                                                                                  .InvariantCultureIgnoreCase)) ||
+                                                                         x.FirstName.Contains(value,
+                                                                             StringComparison
+                                                                                 .InvariantCultureIgnoreCase) ||
+                                                                         x.LastName.Contains(value,
+                                                                             StringComparison
+                                                                                 .InvariantCultureIgnoreCase))) ??
+               Array.Empty<UserDetailsDto>();
+    }
 }
 
 public class TourBookingViewModel : UpdateBookingRequest
 {
     public ICollection<UserDetailsDto>? Guests { get; set; }
     public ICollection<TourDto>? Tours { get; set; }
+    public UserDetailsDto? Guest { get; set; }
 }

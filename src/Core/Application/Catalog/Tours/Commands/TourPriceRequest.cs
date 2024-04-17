@@ -23,6 +23,6 @@ public class TourPriceRequest : IRequest<DefaultIdType>
     public decimal? HourDuration { get; set; }
 
     public bool IsCreate { get; set; }
-
+    public decimal? ComissionAmount { get; set; }
     public IList<TourDateRequest>? Dates { get; set; }
 }

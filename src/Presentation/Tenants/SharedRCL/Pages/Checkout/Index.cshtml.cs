@@ -1,10 +1,7 @@
 using Microsoft.Extensions.Options;
 using Travaloud.Application.Basket.Dto;
-using Travaloud.Application.Checkout;
-using Travaloud.Application.Checkout.Commands;
 using Travaloud.Application.Cloudbeds;
-using Travaloud.Application.Cloudbeds.Dto;
-using Travaloud.Application.Cloudbeds.Queries;
+using Travaloud.Application.Common.Extensions;
 using Travaloud.Application.PaymentProcessing;
 using Travaloud.Shared.Authorization;
 
@@ -12,14 +9,12 @@ namespace Travaloud.Tenants.SharedRCL.Pages.Checkout;
 
 public class IndexModel : TravaloudBasePageModel
 {
-    private readonly ICheckoutService _checkoutService;
     private readonly ICloudbedsService _cloudbedsService;
     private readonly StripeSettings _stripeSettings;
     public string StripePublicKey { get; set; }
 
-    public IndexModel(ICheckoutService checkoutService, ICloudbedsService cloudbedsService, IOptions<StripeSettings> stripeOptions)
+    public IndexModel(ICloudbedsService cloudbedsService, IOptions<StripeSettings> stripeOptions)
     {
-        _checkoutService = checkoutService;
         _cloudbedsService = cloudbedsService;
         _stripeSettings = stripeOptions.Value;
         StripePublicKey = _stripeSettings.ApiPublishKey;
@@ -44,11 +39,14 @@ public class IndexModel : TravaloudBasePageModel
 
         LoginModal.ReturnUrl = url;
         RegisterModal.ReturnUrl = url;
+
+        var estimatedArrivalTimeRequired = Basket.Items.Any(x => x.PropertyId.HasValue);
+        CheckoutFormComponentModel.EstimatedArrivalTimeRequired = estimatedArrivalTimeRequired;
         
         if (!CurrentUser.IsAuthenticated() || !UserId.HasValue) return Page();
 
         AuthenticatedUser = await UserManager.FindByIdAsync(UserId.ToString()!);
-
+        
         if (AuthenticatedUser != null)
         {
             CheckoutFormComponentModel.Email = AuthenticatedUser.Email;
@@ -91,71 +89,7 @@ public class IndexModel : TravaloudBasePageModel
         var errorMessages = new List<string>();
 
         // We need to check if availability has changed since the session was created 
-        if (basket.Items.Any(x => x.PropertyId.HasValue))
-        {
-            var properties = await TenantWebsiteService.GetProperties(new CancellationToken());
-            if (properties != null)
-            {
-                var propertyBasketItems = basket.Items.Where(x => x.PropertyId.HasValue);
-                foreach (var basketItem in propertyBasketItems)
-                {
-                    if (basketItem.Rooms != null)
-                    {
-                        var property = properties.FirstOrDefault(x =>
-                            basketItem.PropertyId != null && x.Id == basketItem.PropertyId.Value);
-
-                        var cloudbedsAvailabilityResponse = await _cloudbedsService.GetPropertyAvailability(
-                            new GetPropertyAvailabilityRequest()
-                            {
-                                StartDate = basketItem.CheckInDateParsed.Value.ToString("yyyy-MM-dd"),
-                                EndDate = basketItem.CheckOutDateParsed.Value.ToString("yyyy-MM-dd"),
-                                PropertyId = property.CloudbedsPropertyId,
-                                PropertyApiKey = property.CloudbedsApiKey
-                            });
-
-                        if (cloudbedsAvailabilityResponse is {Success: true, Data: not null} && cloudbedsAvailabilityResponse.Data.Any())
-                        {
-                            var propertyData = cloudbedsAvailabilityResponse.Data.First();
-
-                            var propertyRoomTypeIds = basketItem.Rooms.Select(x => x.RoomTypeId);
-                            var existingRooms = propertyData.PropertyRooms.Where(x => propertyRoomTypeIds.Contains(x.RoomTypeId));
-                            var propertyRoomDtos = existingRooms as PropertyRoomDto[] ?? existingRooms.ToArray();
-
-                            if (propertyRoomDtos.Length != 0)
-                            {
-                                foreach (var basketRoomItem in basketItem.Rooms)
-                                {
-                                    var existingRoom = propertyRoomDtos.FirstOrDefault(x => x.RoomTypeId == basketRoomItem.RoomTypeId);
-                                    
-                                    if (existingRoom == null)
-                                    {
-                                        errorMessages.Add($"{basketItem.PropertyName} - {basketRoomItem.RoomTypeName} currently has no availability, please select an alternative room.");
-                                        basket = await BasketService.RemoveRoom(basketRoomItem.Id, basketItem.Id);
-                                        continue;
-                                    }
-                                    
-                                    if (existingRoom.RoomsAvailable >= basketRoomItem.RoomQuantity) continue;
-                                    
-                                    errorMessages.Add($"{basketItem.PropertyName} - {basketRoomItem.RoomTypeName} currently only has {existingRoom.RoomsAvailable} room(s) available, amend your selection.");
-                                    basket = await BasketService.RemoveRoom(basketRoomItem.Id, basketItem.Id);
-                                }
-                            }
-                            else
-                            {
-                                errorMessages.Add($"{basketItem.PropertyName} currently has no availability, please select alternative dates.");
-                                basket = await BasketService.RemoveItem(basketItem.Id);
-                            }
-                        }
-                        else
-                        {
-                            errorMessages.Add($"{basketItem.PropertyName} currently has no availability, please select alternative dates.");
-                            basket = await BasketService.RemoveItem(basketItem.Id);
-                        }
-                    }
-                    else errorMessages.Add($"{basketItem.PropertyName} currently has no rooms selected.");
-                }
-            }
-        }
+        basket = await errorMessages.CheckCloudbedsReservations(basket, TenantWebsiteService, _cloudbedsService, BasketService);
 
         // No concurrency errors, continue to payment
         if (errorMessages.Count == 0)
@@ -205,13 +139,10 @@ public class IndexModel : TravaloudBasePageModel
                 }
             }
 
-            var paymentLinkUrl = await _checkoutService.CreatePaymentLink(new CreatePaymentLinkRequest()
-            {
-                Basket = basket,
-                GuestId = guestId.Value,
-            });
-
-            return Redirect(paymentLinkUrl);
+            if (guestId.HasValue)
+                HttpContextAccessor.HttpContext?.Session.SetString("GuestId", guestId.Value.ToString());
+            
+            return LocalRedirect($"/payment");
         }
 
         foreach (var errorMessage in errorMessages)

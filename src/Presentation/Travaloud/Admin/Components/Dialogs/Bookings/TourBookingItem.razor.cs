@@ -1,14 +1,17 @@
-﻿using Blazored.FluentValidation;
+﻿using System.Text.Json;
+using Blazored.FluentValidation;
 using Mapster;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using MudBlazor;
+using Org.BouncyCastle.Ocsp;
 using Travaloud.Admin.Components.EntityTable;
 using Travaloud.Admin.Components.Pages.Bookings;
 using Travaloud.Application.Catalog.Bookings.Commands;
 using Travaloud.Application.Catalog.Bookings.Dto;
 using Travaloud.Application.Catalog.Interfaces;
 using Travaloud.Application.Catalog.Tours.Dto;
+using Travaloud.Application.Identity.Users;
 using Travaloud.Infrastructure.Common.Services;
 
 namespace Travaloud.Admin.Components.Dialogs.Bookings;
@@ -20,7 +23,7 @@ public partial class TourBookingItem : ComponentBase
     [Parameter] [EditorRequired] public UpdateBookingItemRequest RequestModel { get; set; } = default!;
 
     [Parameter] public TourBookingViewModel TourBooking { get; set; } = default!;
-
+    [Parameter] public IList<UserDetailsDto>? Guests { get; set; }
     [Parameter]
     public EntityServerTableContext<BookingDto, Guid, TourBookingViewModel> Context { get; set; } = default!;
 
@@ -39,14 +42,65 @@ public partial class TourBookingItem : ComponentBase
     private FluentValidationValidator? _fluentValidationValidator;
 
     private EditContext? EditContext { get; set; }
+
+    protected Func<Guid?, string> TourDateToStringConverter;
+    protected Func<Guid?, string> TourToStringConverter;
     
     protected override async Task OnInitializedAsync()
     {
+        TourDateToStringConverter = GenerateTourDateDisplayString;
+        TourToStringConverter = GenerateTourDisplayString;
+
         EditContext = new EditContext(RequestModel);
+
+        if (RequestModel.TourId.HasValue)
+        {
+            if (RequestModel.Guests != null && RequestModel.Guests.Any() && Guests != null && Guests.Any())
+            {
+                foreach (var guest in RequestModel.Guests)
+                {
+                    var matchedGuest = Guests.FirstOrDefault(x => x.Id == Guid.Parse(guest.GuestId));
+
+                    if (matchedGuest == null) continue;
+                    guest.FirstName = matchedGuest.FirstName;
+                    guest.LastName = matchedGuest.LastName;
+                    guest.EmailAddress = matchedGuest.Email;
+                }
+            }
+            
+            var tourDates = await ToursService.GetTourDatesAsync(RequestModel.TourId.Value, 1);
+            
+            TourDates = tourDates.Data;
+            // if (_tourSelect != null)
+            // {
+            //     _tourSelect.Value = RequestModel.TourId.Value;
+            //     _tourSelect.ForceUpdate();
+            // }
+            //
+            // if (RequestModel.TourDateId.HasValue && _tourDateSelect != null)
+            // {
+            //     _tourDateSelect.Value = RequestModel.TourDateId.Value;
+            //     _tourDateSelect.ForceUpdate();
+            // }
+        }
 
         await base.OnInitializedAsync();
     }
 
+    private string GenerateTourDateDisplayString(Guid? tourDateId)
+    {
+        var tourDate = TourDates != null ? TourDates.FirstOrDefault(u => u.Id == tourDateId) : null;
+
+        return tourDate != null ? $"{tourDate.StartDate} ({tourDate.TourPrice?.Price}) - {tourDate.AvailableSpaces} spaces available" : string.Empty;
+    }
+    
+    private string GenerateTourDisplayString(Guid? tourId)
+    {
+        var tour = Tours.FirstOrDefault(u => u.Id == tourId);
+
+        return tour?.Name ?? string.Empty;
+    }
+    
     private void Cancel() =>
         MudDialog.Cancel();
 
@@ -143,5 +197,58 @@ public partial class TourBookingItem : ComponentBase
         }
 
         StateHasChanged();
+    }
+    
+    public async Task InvokeBookingItemGuestDialog(UpdateBookingItemRequest bookingItem)
+    {
+        var initialModel = JsonSerializer.Deserialize<IList<BookingItemGuestRequest>>(JsonSerializer.Serialize(bookingItem.Guests)) ?? new List<BookingItemGuestRequest>();
+        DialogOptions options = new() {CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, DisableBackdropClick = true};
+        DialogParameters parameters = new()
+        {
+            {nameof(TourBookingItemGuest.RequestModel), new BookingItemGuestRequest() { BookingItemId = bookingItem.Id}},
+            {nameof(TourBookingItemGuest.TourBookingItem), bookingItem},
+            {nameof(TourBookingItemGuest.Guests), Guests},
+            //{nameof(Dialogs.Bookings.TourBookingItemGuest.Context), Context}
+        };
+
+        var dialog = await DialogService.ShowAsync<TourBookingItemGuest>(string.Empty, parameters, options);
+
+        var result = await dialog.Result;
+
+        if (result.Canceled)
+        {
+            bookingItem.Guests = initialModel;
+        }
+
+        StateHasChanged();
+        Context.AddEditModal?.ForceRender();
+    }
+    
+    public async Task RemoveGuestRow(UpdateBookingItemRequest bookingItem, string id)
+    {
+        string deleteContent = L["You're sure you want to delete this {0}? Please note, this is final."];
+        var parameters = new DialogParameters
+        {
+            {nameof(DeleteConfirmation.ContentText), string.Format(deleteContent, "Price", id)}
+        };
+
+        var options = new DialogOptions {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, DisableBackdropClick = true};
+        var dialog = await DialogService.ShowAsync<DeleteConfirmation>(L["Delete"], parameters, options);
+
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            var item = bookingItem.Guests?.FirstOrDefault(x => x.GuestId == id);
+            
+            if (item != null)
+            {
+                //await BookingsService.DeleteItemAsync(item.Id);
+
+                bookingItem.Guests?.Remove(item);
+                bookingItem.GuestQuantity++;
+            }
+
+            Context.AddEditModal?.ForceRender();
+        }
     }
 }

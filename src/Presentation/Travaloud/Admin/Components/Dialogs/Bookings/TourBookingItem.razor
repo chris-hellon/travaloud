@@ -1,6 +1,8 @@
 ﻿@inject IStringLocalizer<SharedResource> L
 
 @using Travaloud.Infrastructure.Common
+@using Org.BouncyCastle.Ocsp
+@using Travaloud.Application.Catalog.Bookings.Commands
 
 <EditForm @ref="EditForm" Model="@RequestModel" OnValidSubmit="SaveAsync" Context="_editContext">
     <MudDialog>
@@ -29,7 +31,7 @@
 
             <MudGrid>
                 <MudItem xs="12" md="12">
-                    <MudSelect T="Guid?" For="@(() => RequestModel.TourId)" Label="Tour" Clearable="true" Required="true" HelperText="Select a Tour" Variant="Variant.Outlined" ValueChanged="@(async (Guid? s) => await OnTourValueChanged(s))">
+                    <MudSelect T="Guid?" Value="RequestModel.TourId" For="@(() => RequestModel.TourId)" Label="Tour" Clearable="true" Required="true" HelperText="Select a Tour" Variant="Variant.Outlined" ValueChanged="@(async (Guid? s) => await OnTourValueChanged(s))" ToStringFunc="TourToStringConverter">
                         @foreach (var tour in Tours)
                         {
                             <MudSelectItem T="Guid?" Value="@tour.Id">@tour.Name</MudSelectItem>
@@ -37,13 +39,50 @@
                     </MudSelect>
                 </MudItem>
                 <MudItem xs="12" md="12">
-                    <MudSelect T="Guid?" For="@(() => RequestModel.TourDateId)" Label="Tour Date" Clearable="true" Required="true" HelperText="Select a Tour Date" Variant="Variant.Outlined" ValueChanged="@((Guid? s) => OnTourDateValueChanged(s))">
-                        @foreach (var tourDate in TourDates)
+                    <MudSelect T="Guid?" Value="RequestModel.TourDateId" For="@(() => RequestModel.TourDateId)" Label="Tour Date" Clearable="true" Required="true" HelperText="Select a Tour Date" Variant="Variant.Outlined" ValueChanged="@((Guid? s) => OnTourDateValueChanged(s))" ToStringFunc="TourDateToStringConverter">
+                        @if (TourDates != null)
                         {
-                            <MudSelectItem T="Guid?" Value="@tourDate.Id">@tourDate.StartDate ($@(tourDate.TourPrice?.Price)) - @tourDate.AvailableSpaces spaces available</MudSelectItem>
+                            foreach (var tourDate in TourDates)
+                            {
+                                <MudSelectItem T="Guid?" Value="@tourDate.Id">@tourDate.StartDate ($@tourDate.TourPrice?.Price) - @tourDate.AvailableSpaces spaces available</MudSelectItem>
+                            }
                         }
                     </MudSelect>
                 </MudItem>
+                @if (RequestModel.Guests == null || !RequestModel.Guests.Any())
+                {
+                    <MudItem xs="12" md="12">
+                        <MudButton DisableElevation Size="Size.Small" Variant="Variant.Filled" Color="Color.Primary" OnClick="(() => InvokeBookingItemGuestDialog(RequestModel))" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Surface" Class="mb-2">@L["Add additional Guest"]</MudButton>
+                    </MudItem>
+                }
+                else
+                {
+                    <MudItem xs="12" md="12">
+                        <MudTable T="BookingItemGuestRequest"Style="table-layout:auto; padding:0px !important;" Items="@RequestModel.Guests" Context="itemContext" Hover="false" HorizontalScrollbar="true" Elevation="0" Breakpoint="Breakpoint.Sm" LoadingProgressColor="Color.Info" CanCancelEdit="true" ReadOnly="false">
+                            <ToolBarContent>
+                                <MudButton DisableElevation Size="Size.Small" Variant="Variant.Filled" Color="Color.Primary" OnClick="(() => InvokeBookingItemGuestDialog(RequestModel))" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Surface" Class="mb-2">@L["Add additional Guest"]</MudButton>
+                            </ToolBarContent>
+                            <ColGroup>
+                                <col/>
+                                <col/>
+                                <col style="width:20px;"/>
+                            </ColGroup>
+                            <HeaderContent>
+                                <MudTh>Name</MudTh>
+                                <MudTh>Email Address</MudTh>
+                                <MudTh Style="min-width: 0; width: 100px; text-align: right;"></MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd DataLabel="Name">@itemContext.FirstName @itemContext.LastName</MudTd>
+                                <MudTd DataLabel="Email Address">@itemContext.EmailAddress</MudTd>
+                                <MudTd DataLabel="Edit" Style="min-width: 0; width: 270px; text-align: right;">
+                                    <MudButton Variant="Variant.Filled" Size="Size.Small" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="(() => RemoveGuestRow(RequestModel, itemContext.GuestId))">Delete</MudButton>
+                                </MudTd>
+                            </RowTemplate>
+                        </MudTable>
+                    </MudItem>
+                }
+
             </MudGrid>
         </DialogContent>
         <DialogActions>

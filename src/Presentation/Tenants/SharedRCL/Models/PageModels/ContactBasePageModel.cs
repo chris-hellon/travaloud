@@ -18,14 +18,13 @@ public abstract class ContactBasePageModel<T, T2> : TravaloudBasePageModel
     
     public Func<Task>? SubmitFunction { get; set; }
         
-    public virtual async Task<IActionResult> OnGetAsync(string? tourName = null)
+    public virtual async Task<IActionResult> OnGetAsync(string? tourName = null, Guid? tourDate = null, int? guestQuantity = null)
     {
         await base.OnGetDataAsync();
 
         ModelState.Clear();
         return Page();
     }
-
 
     public virtual async Task<IActionResult> OnPostAsync([FromServices] IReCaptchaService service, T model, T2 formModel)
     {

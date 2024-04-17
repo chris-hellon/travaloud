@@ -1,0 +1,63 @@
+@inject IJSRuntime JS
+
+<MudGrid>
+    <MudItem xs="12" md="12" Class="mb-4">
+        <MudText Typo="Typo.body1">Download your unique Tour Booking QR Codes below.</MudText>
+    </MudItem>
+
+    @if (ToursQRCodes.Any())
+    {
+        foreach (var tourQrCode in ToursQRCodes)
+        {
+            <MudItem xs="12" md="4" Class="mb-2">
+                <MudCard>
+                    <MudCardMedia Image="@tourQrCode.Value" Height="450"/>
+                    <MudCardContent>
+                        <MudText Typo="Typo.h5">@tourQrCode.Key</MudText>
+                    </MudCardContent>
+                    <MudCardActions>
+                        <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="() => Download(tourQrCode.Key, tourQrCode.Value)">Download</MudButton>
+                    </MudCardActions>
+                </MudCard>
+            </MudItem>
+        }
+    }
+    else
+    {
+        <MudItem xs="12" md="4" Class="mb-2">
+            <MudCard>
+                <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="400px"/>
+                <MudCardContent>
+                    <MudSkeleton Width="100%" Height="42px;"/>
+                </MudCardContent>
+                <MudCardActions>
+                    <MudSkeleton Width="64px" Height="40px" Class="ml-2"/>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+
+        <MudItem xs="12" md="4" Class="mb-2">
+            <MudCard>
+                <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="400px"/>
+                <MudCardContent>
+                    <MudSkeleton Width="100%" Height="42px;"/>
+                </MudCardContent>
+                <MudCardActions>
+                    <MudSkeleton Width="64px" Height="40px" Class="ml-2"/>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+
+        <MudItem xs="12" md="4" Class="mb-2">
+            <MudCard>
+                <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="400px"/>
+                <MudCardContent>
+                    <MudSkeleton Width="100%" Height="42px;"/>
+                </MudCardContent>
+                <MudCardActions>
+                    <MudSkeleton Width="64px" Height="40px" Class="ml-2"/>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+    }
+</MudGrid>

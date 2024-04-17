@@ -13,7 +13,7 @@ public interface IBookingsService : ITransientService
 
     Task<IEnumerable<BookingDto>> GetGuestBookingsAsync(GetGuestBookingsRequest request);
     
-    Task<DefaultIdType> CreateAsync(CreateBookingRequest request);
+    Task<DefaultIdType?> CreateAsync(CreateBookingRequest request);
 
     Task<DefaultIdType?> UpdateAsync(DefaultIdType id, UpdateBookingRequest request);
 
