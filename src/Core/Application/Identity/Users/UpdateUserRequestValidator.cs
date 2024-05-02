@@ -11,13 +11,14 @@ public class UpdateUserRequestValidator : CustomValidator<UpdateUserRequest>
         RuleFor(p => p.LastName)
             .NotEmpty()
             .MaximumLength(75);
-
+        
         RuleFor(p => p.Email)
             .NotEmpty()
             .EmailAddress()
                 .WithMessage(localizer["Invalid Email Address."])
             .MustAsync(async (user, email, _) => !await userService.ExistsWithEmailAsync(email, user.Id))
-                .WithMessage((_, email) => string.Format(localizer["Email {0} is already registered."], email));
+                .WithMessage((_, email) => string.Format(localizer["Email {0} is already registered."], email))
+            .When(x => x.EmailRequired);
 
         RuleFor(p => p.Image)
             .SetNonNullableValidator(new FileUploadRequestValidator());

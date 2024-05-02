@@ -1,0 +1,22 @@
+@model bool
+
+<div class="container-fluid bg-primary position-relative">
+    @if (Model)
+    {
+        <img src="https://travaloudcdn.azureedge.net/vbh/assets/images/texture-top.png" class="w-100 top-0 left-0 position-absolute" style="max-height:18px;" alt="Texture border image" />
+    }
+    <div class="container p-5 px-3">
+        <div class="row d-flex justify-content-center align-items-center has-parallax-scroll">
+            <div class="col-lg-8 text-lg-start text-center text-white h-100">
+                <h2 class="header-font display-5 text-white">Design Your Trip</h2>
+                <p>Do you want to design your own trip?</p>
+                <p>Contact us today and let's make your dream trip become reality.</p>
+                <p>We'll make sure your trip matches your dreams and help you to get the most out of your budget - and you get our best travel tips included as well of course. All advice is free!</p>
+                <a asp-page="/Contact/Index" asp- class="btn btn-secondary mt-4">Contact Us <i class="fas fa-angle-right ms-1"></i></a>
+            </div>
+            <div class="col-lg-4 h-100 text-end animate d-none d-lg-block">
+                <img class="img-fluid" style="max-height:200px" src="https://travaloudcdn.azureedge.net/vbh/assets/images/red-buffalo-logo.webp?h=200" alt="Navigation bar brand image" />
+            </div>
+        </div>
+    </div>
+</div>

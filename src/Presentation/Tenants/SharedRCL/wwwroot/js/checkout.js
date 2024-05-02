@@ -43,13 +43,17 @@ const addNewGuestToBasketItem = (button) =>
             nationality,
             gender
         )
-
-        postAjax("AddGuestToBasketItem", request, function (result) {
-            loadBasket(result.basket);
-            $('#addNewGuestModal .btn-close').trigger('click');
-            $('.additional-guests-container').replaceWith(result.html);
-            $('.add-new-guest-modal-body').html('');
-            validateAdditionalGuests();
+        
+        doPost({
+            url : "AddGuestToBasketItem",
+            formData: request,
+            successCallback: (result) => {
+                loadBasket(result.basket);
+                $('#addNewGuestModal .btn-close').trigger('click');
+                $('.additional-guests-container').replaceWith(result.html);
+                $('.add-new-guest-modal-body').html('');
+                validateAdditionalGuests();
+            }
         });
     }
 }
@@ -57,21 +61,29 @@ const addNewGuestToBasketItem = (button) =>
 const removeGuestFromBasketItem = (itemId, id) => {
     let request = new BasketItemGuestRequest(itemId, id);
 
-    postAjax("RemoveGuestFromBasketItem", request, function (result) {
-        loadBasket(result.basket);
-        $('.additional-guests-container').replaceWith(result.html);
-        validateAdditionalGuests();
+    doPost({
+        url : "RemoveGuestFromBasketItem",
+        formData: request,
+        successCallback: (result) => {
+            loadBasket(result.basket);
+            $('.additional-guests-container').replaceWith(result.html);
+            validateAdditionalGuests();
+        }
     });
 }
 
 const editBasketItemGuest = (itemId, id) => {
     let request = new BasketItemGuestRequest(itemId, id);
 
-    postAjax("EditBasketItemGuest", request, function (result) {
-        $('.add-new-guest-modal-body').html(result.html);
+    doPost({
+        url : "EditBasketItemGuest",
+        formData: request,
+        successCallback: (result) => {
+            $('.add-new-guest-modal-body').html(result.html);
 
-        bindAddNewGuestModalInputs();
-        bindSelectsAndModals();
+            bindAddNewGuestModalInputs();
+            bindSelectsAndModals();
+        }
     });
 }
 
@@ -104,23 +116,31 @@ const updateBasketItemGuest = (button, id) => {
             gender,
             id
         )
-
-        postAjax("UpdateBasketItemGuest", request, function (result) {
-            loadBasket(result.basket);
-            $('#addNewGuestModal .btn-close').trigger('click');
-            $('.additional-guests-container').replaceWith(result.html);
-            $('.add-new-guest-modal-body').html('');
+        
+        doPost({
+            url : "UpdateBasketItemGuest",
+            formData: request,
+            successCallback: (result) => {
+                loadBasket(result.basket);
+                $('#addNewGuestModal .btn-close').trigger('click');
+                $('.additional-guests-container').replaceWith(result.html);
+                $('.add-new-guest-modal-body').html('');
+            }
         });
     }
 }
 
 const loadNewGuestModal = () =>
 {
-    postAjax("GetAddNewGuestModal", null, function (result) {
-        $('.add-new-guest-modal-body').html(result.html);
+    doPost({
+        url : "GetAddNewGuestModal",
+        formData: null,
+        successCallback: (result) => {
+            $('.add-new-guest-modal-body').html(result.html);
 
-        bindAddNewGuestModalInputs();
-        bindSelectsAndModals();
+            bindAddNewGuestModalInputs();
+            bindSelectsAndModals();
+        }
     });
 }
 
@@ -128,20 +148,29 @@ const loadSelectGuestModal = (itemId) => {
     $('#addGuestModal').data('basket-item-id', itemId);
 
     let request = new GetBasketItemGuestsRequest(itemId);
-    postAjax("GetSelectGuestModal", request, function (result) {
-        $('.select-guest-modal-body').html(result.html);
+
+    doPost({
+        url : "GetSelectGuestModal",
+        formData: request,
+        successCallback: (result) => {
+            $('.select-guest-modal-body').html(result.html);
+        }
     });
 }
 
 const addExistingGuestToBasketItem = (itemIdFrom, guestId) => {
     let itemId = $('#addGuestModal').data('basket-item-id');
     let request = new AddGuestToBasketItemRequest(itemId, itemIdFrom, guestId);
-
-    postAjax("AddExistingGuestToBasketItem", request, function (result) {
-        loadBasket(result.basket);
-        $('.additional-guests-container').replaceWith(result.html);
-        $('#addGuestModal .btn-close').trigger('click');
-        validateAdditionalGuests();
+    
+    doPost({
+        url : "AddExistingGuestToBasketItem",
+        formData: request,
+        successCallback: (result) => {
+            loadBasket(result.basket);
+            $('.additional-guests-container').replaceWith(result.html);
+            $('#addGuestModal .btn-close').trigger('click');
+            validateAdditionalGuests();
+        }
     });
 }
 

@@ -4,8 +4,11 @@ namespace Travaloud.Application.Identity.Users;
 
 public interface IUserService : ITransientService
 {
-    Task<PaginationResponse<UserDetailsDto>> SearchAsync(UserListFilter filter, CancellationToken cancellationToken);
-
+    Task<PaginationResponse<UserDetailsDto>> SearchByDapperAsync(SearchByDapperRequest request,
+        CancellationToken cancellationToken);
+    Task<PaginationResponse<UserDetailsDto>> SearchAsync(UserListFilter filter, CancellationToken cancellationToken); 
+    Task<List<UserDto>> SearchAsync(List<string> userIds, CancellationToken cancellationToken);
+    
     Task<bool> ExistsWithNameAsync(string name);
     Task<bool> ExistsWithEmailAsync(string email, string? exceptId = null);
     Task<bool> ExistsWithPhoneNumberAsync(string phoneNumber, string? exceptId = null);
@@ -30,5 +33,8 @@ public interface IUserService : ITransientService
     Task ToggleStatusAsync(ToggleUserStatusRequest request);
     
     Task<string> CreateAsync(CreateUserRequest request, string origin, string roleName);
+    Task<string> CreateAsync(CreateUserRequest request, string roleName);
     Task UpdateAsync(UpdateUserRequest request, string userId);
+
+    Task<string> BatchCreateAsync(List<CreateUserRequest> request, string roleName);
 }

@@ -10,6 +10,8 @@ public class CreateGeneralEnquiryRequest : IRequest<DefaultIdType>
     public string ContactNumber { get; set; } = default!;
     public string Message { get; set; } = default!;
     public bool ResponseSent { get; set; }
+    public string? RelatedTour { get; set; }
+    public string? RelatedProperty { get; set; }
 }
 
 public class CreateGeneralEnquiryRequestHandler : IRequestHandler<CreateGeneralEnquiryRequest, DefaultIdType>

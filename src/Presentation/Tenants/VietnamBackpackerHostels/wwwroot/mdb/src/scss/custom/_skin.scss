@@ -1,0 +1,33 @@
+:root{
+  --mdb-font-brandon-printed: #{inspect($font-family-brandon-printed)};
+  --mdb-font-roboto: #{inspect($font-family-roboto)};
+  --mdb-font-carousel-span: #{inspect($font-family-brandon-printed)};
+}
+
+body {
+  overscroll-behavior: none;
+  padding-right: 0px !important;
+  overflow-y: scroll;
+  overflow-y: overlay;
+  overflow-x: hidden;
+  letter-spacing: 2px;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent !important;
+  width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 5px;
+  background: #e5e5e5;
+  border: 1px solid #d5d5d5;
+}
+
+html.no-scrollbar, html.no-scrollbar body {
+  overflow: hidden !important;
+}

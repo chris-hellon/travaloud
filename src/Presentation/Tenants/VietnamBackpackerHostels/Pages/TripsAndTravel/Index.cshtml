@@ -1,0 +1,10 @@
+@page "/trips-and-travel"
+@model VietnamBackpackerHostels.Pages.TripsAndTravel.IndexModel
+
+@Html.DisplayFor(x => x.Cards)
+
+<div class="container bg-white position-relative px-3">
+    @Html.DisplayFor(x => x.DestinationsCards)
+</div>
+
+<partial name="Shared/_DesignYourTripPartial" model="true" />

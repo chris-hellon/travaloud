@@ -6,8 +6,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Serilog;
 using Travaloud.Infrastructure.Auth;
+using Travaloud.Infrastructure.BackgroundJobs;
 using Travaloud.Infrastructure.Caching;
 using Travaloud.Infrastructure.Cloudbeds;
 using Travaloud.Infrastructure.Common;
@@ -33,6 +35,7 @@ public static class Startup
         MapsterSettings.Configure();
         services
             .AddAuth(cookieName, isBlazor)
+            
             .AddCaching(config)
             .AddExceptionMiddleware()
             .AddLocalization(config)
@@ -44,13 +47,15 @@ public static class Startup
             .AddRequestLogging(config)
             .AddHttpContextAccessor()
             .AddStripe(config)
+            .AddMultiTenantStripe(config)
             .AddRouting(options => options.LowercaseUrls = true)
             .AddCloudbedsHttpClient(config);
 
         if (isBlazor)
         {
+            services.AddBackgroundJobs(config);
             services.AddScoped<UserManager<ApplicationUser>, UserManager<ApplicationUser>>();
-
+            
             services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false)
                 .AddRoles<ApplicationRole>()
                 .AddSignInManager()
@@ -74,7 +79,7 @@ public static class Startup
     }
 
     public static IApplicationBuilder UseInfrastructure(this IApplicationBuilder builder, IConfiguration config,
-        IWebHostEnvironment env) =>
+        IWebHostEnvironment env, bool isBlazor) =>
         builder
             .UseHttpsRedirection()
             .UseLocalization(config)
@@ -87,28 +92,34 @@ public static class Startup
             .UseCurrentUser()
             .UseAuthorization()
             .UseRequestLogging(config)
+            .UseHangfireDashboard(config, env, isBlazor)
             .SetAppCulture();
     
     private static IApplicationBuilder SetAppCulture(this IApplicationBuilder app)
     {
-        var culture = CultureInfo.CreateSpecificCulture("en-GB");
-        var dateformat = new DateTimeFormatInfo
-        {
-            ShortDatePattern = "dd/MM/yyyy",
-            LongDatePattern = "dd/MM/yyyy hh:mm:ss tt"
-        };
-        culture.DateTimeFormat = dateformat;
+        var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
 
-        var supportedCultures = new[]
+        app.Use(async (context, next) =>
         {
-            culture
-        };
+            context.Response.Headers.Add("X-Time-Zone", vietnamTimeZone.Id); // Optionally, set the time zone header
+            context.Response.Headers.Add("X-Time-Zone-Offset", vietnamTimeZone.BaseUtcOffset.ToString()); // Optionally, set the time zone offset header
+            await next();
+        });
+
+        var culture = new CultureInfo("en-US")
+        {
+            DateTimeFormat =
+            {
+                ShortDatePattern = "dd/MM/yyyy", // Set short date pattern
+                LongDatePattern = "dd/MM/yyyy hh:mm:ss tt" // Set long date pattern
+            }
+        }; // Use "en-US" for English
 
         app.UseRequestLocalization(new RequestLocalizationOptions
         {
-            DefaultRequestCulture = new RequestCulture(culture),
-            SupportedCultures = supportedCultures,
-            SupportedUICultures = supportedCultures
+            DefaultRequestCulture = new RequestCulture(culture), // Default culture is set
+            SupportedCultures = new[] { culture }, // Supported cultures are set
+            SupportedUICultures = new[] { culture } // Supported UI cultures are set
         });
 
         return app;

@@ -1,0 +1,63 @@
+@page "/"
+@model VietnamBackpackerHostels.Pages.Home.IndexModel
+
+@Html.DisplayFor(x => x.CarouselComponent)
+
+@section Styles {
+    <style type="text/css">
+        .text-gold {
+            color: #DEB55B;
+        }
+    </style>
+}
+
+<section id="tours" class="container-fluid pb-5 position-relative">
+    <div class="container">
+        @Html.DisplayFor(x => x.ToursCarousel)
+    </div>
+</section>
+
+<div class="container-fluid bg-black position-relative">
+    <img src="https://travaloudcdn.azureedge.net/vbh/assets/images/texture-top.png" class="w-100 top-0 left-0 position-absolute" style="max-height:18px;" alt="Texture border image" />
+    <div class="container p-5 px-3">
+        <div class="row d-flex justify-content-center align-items-center has-parallax-scroll">
+            <div class="col-lg-4 h-100 text-start animate d-none d-lg-block">
+                <img class="img-fluid" style="max-height:200px" src="https://travaloudcdn.azureedge.net/vbh/assets/images/red-buffalo-logo.webp?h=200&v=1" alt="Navigation bar brand image" />
+            </div>
+            <div class="col-lg-8 text-lg-start text-center text-white h-100">
+                <h2 class="header-font display-5 text-white">Discover Vietnam</h2>
+                <p>Looking for an unforgettable adventure?</p>
+                <p>Look no further than Vietnam Backpacker Hostels!</p>
+                <p>Book your stay now at our exciting and affordable hostels and experience the trip of a lifetime. Don't wait - contact us today and start planning your epic journey through Vietnam!</p>
+                <a asp-page="/Contact/Index" asp- class="btn btn-primary mt-4">Contact Us <i class="fas fa-angle-right ms-1"></i></a>
+            </div>
+        </div>
+    </div>
+    <img src="https://travaloudcdn.azureedge.net/vbh/assets/images/texture-bottom.png" class="w-100 bottom-0 left-0 position-absolute" style="max-height:18px;" alt="Texture border image" />
+</div>
+
+
+<section id="explore" class="container-fluid pt-8 pb-8 position-relative">
+    <div class="container text-center">
+        <h3 class="mb-5"><strong>Explore</strong></h3>
+        @Html.DisplayFor(x => x.ToursCards)
+    </div>
+</section>
+
+<section id="destinations" class="container-fluid position-relative bg-light-gray">
+    <img src="https://travaloudcdn.azureedge.net/vbh/assets/images/texture-top.png" class="w-100 top-0 left-0 position-absolute" style="max-height:18px;" />
+    <div class="container pt-8 pb-8 text-center">
+        @Html.DisplayFor(x => x.DestinationsCards)
+    </div>
+</section>
+
+<partial name="Shared/_SocialsBannerPartial" model="Model" />
+
+<section id="tours" class="container-fluid pb-5 position-relative">
+    <div class="container">
+        @Html.DisplayFor(x => x.ServicesCarousel)
+    </div>
+</section>
+
+<partial name="Shared/_WhyTravelVBHPartial" />
+<partial name="Shared/_DesignYourTripPartial" model="false" />

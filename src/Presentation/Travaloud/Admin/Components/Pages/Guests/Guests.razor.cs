@@ -3,6 +3,7 @@ using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Travaloud.Admin.Components.EntityTable;
+using Travaloud.Application.Common.Extensions;
 using Travaloud.Application.Identity.Users;
 using Travaloud.Infrastructure.Auth;
 using Travaloud.Shared.Authorization;
@@ -16,7 +17,7 @@ public partial class Guests
 
     [Inject] protected IUserService UserService { get; set; } = default!;
 
-    private EntityClientTableContext<UserDetailsDto, Guid, UpdateUserRequest> Context { get; set; } = default!;
+    private EntityServerTableContext<UserDetailsDto, string, UpdateUserRequest> Context { get; set; } = default!;
 
     private bool _canExportUsers;
     private bool _canEditGuest;
@@ -36,30 +37,47 @@ public partial class Guests
         _canExportUsers = await AuthService.HasPermissionAsync(authStateUser, TravaloudAction.Export, TravaloudResource.Guests);
         _canEditGuest = await AuthService.HasPermissionAsync(authStateUser, TravaloudAction.Update, TravaloudResource.Guests);
 
-        Context = new EntityClientTableContext<UserDetailsDto, Guid, UpdateUserRequest>(
+        Context = new EntityServerTableContext<UserDetailsDto, string, UpdateUserRequest>(
             entityName: L["Guest"],
             entityNamePlural: L["Guests"],
             entityResource: TravaloudResource.Guests,
             deleteAction: string.Empty,
             fields:
             [
-                new EntityField<UserDetailsDto>(user => user.FirstName, L["First Name"]),
-                new EntityField<UserDetailsDto>(user => user.LastName, L["Last Name"]),
-                new EntityField<UserDetailsDto>(user => user.UserName, L["UserName"]),
-                new EntityField<UserDetailsDto>(user => user.Email, L["Email"]),
-                new EntityField<UserDetailsDto>(user => user.PhoneNumber, L["PhoneNumber"]),
+                new EntityField<UserDetailsDto>(user => user.FullName, L["Name"], "FullName"),
+                new EntityField<UserDetailsDto>(user => user.DateOfBirth.HasValue ? user.DateOfBirth.Value.ToShortDateString() : "-", L["Date Of Birth"], "DateOfBirth"),
+                new EntityField<UserDetailsDto>(user => user.Nationality?.TwoLetterCodeToCountry(), L["Nationality"], "Nationality"),
+                new EntityField<UserDetailsDto>(user => user.Gender?.GenderMatch(), L["Gender"], "Gender"),
+                new EntityField<UserDetailsDto>(user => user.Email, L["Email"], "Email"),
+                new EntityField<UserDetailsDto>(user => user.PhoneNumber, L["Phone Number"], "PhoneNumber"),
                 // new EntityField<UserDetailsDto>(user => user.EmailConfirmed, L["Email Confirmation"], Type: typeof(bool)),
                 // new EntityField<UserDetailsDto>(user => user.IsActive, L["Active"], Type: typeof(bool))
             ],
             idFunc: user => user.Id,
-            loadDataFunc: async () => (await UserService.GetListAsync(TravaloudRoles.Guest)).ToList(),
-            searchFunc: (searchString, user) =>
-                string.IsNullOrWhiteSpace(searchString)
-                || user.FirstName?.Contains(searchString, StringComparison.OrdinalIgnoreCase) == true
-                || user.LastName?.Contains(searchString, StringComparison.OrdinalIgnoreCase) == true
-                || user.Email?.Contains(searchString, StringComparison.OrdinalIgnoreCase) == true
-                || user.PhoneNumber?.Contains(searchString, StringComparison.OrdinalIgnoreCase) == true
-                || user.UserName?.Contains(searchString, StringComparison.OrdinalIgnoreCase) == true,
+            // loadDataFunc: async () => (await UserService.GetListAsync(TravaloudRoles.Guest)).ToList(),
+            searchFunc: async (filter) =>
+            {
+                var adaptedFilter = filter.Adapt<SearchByDapperRequest>();
+                adaptedFilter.Role = "Guest";
+                adaptedFilter.TenantId = MultiTenantContextAccessor.MultiTenantContext?.TenantInfo?.Id;
+
+                if (adaptedFilter.OrderBy is {Length: 0})
+                    adaptedFilter.OrderBy =
+                    [
+                        "FullName Ascending"
+                    ];
+                
+                var request = await UserService.SearchByDapperAsync(adaptedFilter, CancellationToken.None);
+
+                return request.Adapt<PaginationResponse<UserDetailsDto>>();
+            },
+            // searchFunc: (searchString, user) => await UserService.SearchAsync()
+            //     string.IsNullOrWhiteSpace(searchString)
+            //     || user.FirstName?.Contains(searchString, StringComparison.OrdinalIgnoreCase) == true
+            //     || user.LastName?.Contains(searchString, StringComparison.OrdinalIgnoreCase) == true
+            //     || user.Email?.Contains(searchString, StringComparison.OrdinalIgnoreCase) == true
+            //     || user.PhoneNumber?.Contains(searchString, StringComparison.OrdinalIgnoreCase) == true
+            //     || user.UserName?.Contains(searchString, StringComparison.OrdinalIgnoreCase) == true,
             getDefaultsFunc: () => Task.FromResult(new UpdateUserRequest
             {
                 IsGuest = true
@@ -68,8 +86,11 @@ public partial class Guests
             {
                 var guest = await UserService.GetAsync(id.ToString());
                 var adaptedGuest = guest.Adapt<UpdateUserRequest>();
+                
+                adaptedGuest.Gender = adaptedGuest.Gender.GenderMatch();
                 adaptedGuest.Genders = adaptedGuest.Gender?.Split(",").ToHashSet();
-
+                adaptedGuest.Nationality = adaptedGuest.Nationality?.TwoLetterCodeToCountry();
+                
                 return adaptedGuest;
             },
             createFunc: async user =>

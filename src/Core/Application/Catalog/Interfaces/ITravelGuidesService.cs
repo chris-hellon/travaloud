@@ -8,9 +8,9 @@ public interface ITravelGuidesService : ITransientService
 {
     Task<PaginationResponse<TravelGuideDto>> SearchAsync(SearchTravelGuidesRequest request);
 
-    Task<TravelGuideDto> GetAsync(DefaultIdType id);
+    Task<TravelGuideDetailsDto> GetAsync(DefaultIdType id);
 
-    Task<TravelGuideDto> GetByFriendlyTitleAsync(string title);
+    Task<TravelGuideDetailsDto> GetByFriendlyTitleAsync(string title);
 
     Task<DefaultIdType> CreateAsync(CreateTravelGuideRequest request);
 

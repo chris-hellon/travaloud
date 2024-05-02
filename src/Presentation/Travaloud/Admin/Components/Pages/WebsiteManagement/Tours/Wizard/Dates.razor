@@ -1,0 +1,258 @@
+@using Travaloud.Application.Catalog.Interfaces
+@using Travaloud.Application.Catalog.Tours.Commands
+@using Travaloud.Application.Catalog.Tours.Dto
+@using Travaloud.Admin.Components.Dialogs
+@using Travaloud.Application.Catalog.Bookings.Queries
+@using System.Text.Json
+@using Travaloud.Admin.Components.Dialogs.WebsiteManagement.Tours
+
+@inject IStringLocalizer<Tours> L    
+@inject IBookingsService BookingsService    
+
+<StickyToolbar>
+    <ToolbarContent>
+        <MudButton DisableElevation Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small" OnClick="@(() => InvokeDatesDialog(new TourDateRequest(), Tour, true))" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Surface" Class="me-1">@L["Add New Date Range"]</MudButton>
+        <MudButton DisableElevation Variant="Variant.Filled" Color="Color.Secondary" Size="Size.Small" OnClick="@(() => InvokeDateDialog(new TourDateRequest(), Tour, true))" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Surface" Class="me-2">@L["Add New Date"]</MudButton>
+        @if (ShowCalendar)
+        {
+            <MudButton DisableElevation Variant="Variant.Filled" Color="Color.Tertiary" Size="Size.Small" OnClick="@(() => ToggleCalendar(false))" StartIcon="@Icons.Material.Filled.TableView" IconColor="Color.Surface">@L["Table View"]</MudButton>
+        }
+        else
+        {
+            <MudButton DisableElevation Variant="Variant.Filled" Color="Color.Tertiary" Size="Size.Small" OnClick="@(() => ToggleCalendar(true))" StartIcon="@Icons.Material.Filled.EditCalendar" IconColor="Color.Surface">@L["Calendar View"]</MudButton>
+        }
+        <MudSpacer/>
+        <MudButton DisableElevation Variant="Variant.Filled" Color="Color.Error" Size="Size.Small" OnClick="@(() => RemoveAllDates(Tour))" StartIcon="@Icons.Material.Filled.Delete" IconColor="Color.Surface">@L["Delete Date Range"]</MudButton>
+    </ToolbarContent>
+</StickyToolbar>
+
+@if (ShowCalendar)
+{
+    <MudCalendar Style="padding-top:50px;" Items="CalendarTourDates" MonthCellMinHeight="60">
+        <CellTemplate>
+            <MudTooltip Inline="false" RootStyle="width:100%; height:100%;">
+                <ChildContent>
+                    <MudChip Color="Color.Primary" Label="true" Class="mud-cal-cell-template-chip" Style="margin-bottom:1px;">@context.Text.Split('|')[0]</MudChip>
+                </ChildContent>
+                <TooltipContent>
+                    <MudText Typo="Typo.h6">@string.Format("{0:f}", context.Start) - @string.Format("{0:f}", context.End)</MudText>
+                    <MudText Typo="Typo.body2">@context.Text.Split('|')[1]</MudText>
+                </TooltipContent>
+            </MudTooltip>
+        </CellTemplate>
+    </MudCalendar>
+}
+else
+{
+    if (Tour.TourDates != null && Tour.TourDates.Any())
+    {
+        <MudTable T="TourDateRequest" Style="table-layout: auto; padding: 0px 0px 0px 0px !important;" Elevation="0" Items="@Tour.TourDates" Context="dateContext" Hover="false" HorizontalScrollbar="true" Breakpoint="Breakpoint.Sm" ReadOnly="false">
+            <ColGroup>
+                <col/>
+                <col/>
+                <col/>
+                <col/>
+                <col style="width:20px;"/>
+            </ColGroup>
+            <HeaderContent>
+                <MudTh>Start Date</MudTh>
+                <MudTh>End Date</MudTh>
+                <MudTh>Price</MudTh>
+                <MudTh>Available Spaces</MudTh>
+                <MudTh Style="min-width: 0; width: 270px; text-align: right;"></MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                @{
+                    var startDate = dateContext.StartDate.HasValue ? dateContext.StartDate.Value.ToShortDateString() : "-";
+                    var endDate = dateContext.EndDate.HasValue ? dateContext.EndDate.Value.ToShortDateString() : "-";
+
+                    var startTime = "-";
+                    var endTime = "-";
+
+                    if (dateContext.StartTime.HasValue)
+                    {
+                        startTime = dateContext.StartTime.Value.ToString();
+                    }
+                    else if (dateContext.StartDate.HasValue)
+                    {
+                        startTime = dateContext.StartDate.Value.TimeOfDay.ToString();
+                        dateContext.StartTime = dateContext.StartDate.Value.TimeOfDay;
+                    }
+
+                    if (dateContext.EndTime.HasValue)
+                    {
+                        endTime = dateContext.EndTime.Value.ToString();
+                    }
+                    else if (dateContext.EndDate.HasValue)
+                    {
+                        endTime = dateContext.EndDate.Value.TimeOfDay.ToString();
+                        dateContext.EndTime = dateContext.EndDate.Value.TimeOfDay;
+                    }
+
+                    <MudTd DataLabel="Start Date">@startDate @startTime</MudTd>
+                    <MudTd DataLabel="End Date">@endDate @endTime</MudTd>
+                    <MudTd DataLabel="Price">@(dateContext.PriceOverride.HasValue ? dateContext.PriceOverride.Value : Tour.TourPrices?.FirstOrDefault(x => x.Id == dateContext.TourPriceId) != null ? Tour.TourPrices.First(x => x.Id == dateContext.TourPriceId).Price : "-")</MudTd>
+                    <MudTd DataLabel="Available Spaces">@dateContext.AvailableSpaces</MudTd>
+                    <MudTd DataLabel="Edit" Style="min-width: 0; width: 270px; text-align: right;">
+                        <MudButton Variant="Variant.Filled" Size="Size.Small" StartIcon="@Icons.Material.Filled.Edit" Color="Color.Tertiary" OnClick="@(() => InvokeDateDialog(dateContext, Tour))">Edit</MudButton>
+                        <MudButton Variant="Variant.Filled" Size="Size.Small" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="@(() => RemoveDateRow(Tour, dateContext.Id))">Delete</MudButton>
+                    </MudTd>
+                }
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager/>
+            </PagerContent>
+        </MudTable>
+    }
+}
+
+@code {
+    [Parameter] public required TourViewModel Tour { get; set; }
+    [Parameter] public required EntityServerTableContext<TourDto, Guid, TourViewModel> Context { get; set; } = default!;
+
+    private List<CalendarItem>? CalendarTourDates { get; set; }
+
+    private string GetColor(Color color) => $"var(--mud-palette-{color.ToDescriptionString()})";
+
+    protected override Task OnParametersSetAsync()
+    {
+        if (Tour.TourDates != null && Tour.TourDates.Any())
+        {
+            CalendarTourDates = Tour.TourDates.Select(x => new CalendarItem()
+            {
+                Start = x.StartDate.Value,
+                End = x.EndDate.Value,
+                Text = $"{x.StartDate.Value.TimeOfDay.ToString()}|{x.AvailableSpaces} spaces available."
+            }).ToList();
+        }
+
+        return base.OnParametersSetAsync();
+    }
+
+    private bool ShowCalendar { get; set; }
+
+    private void ToggleCalendar(bool showCalendar)
+    {
+        ShowCalendar = showCalendar;
+    }
+
+    private async Task InvokeDateDetailsDialog(CalendarItem item)
+    {
+        Console.WriteLine(item.Text);
+    }
+
+    private async Task InvokeDateDialog(TourDateRequest requestModel, TourViewModel tour, bool isCreate = false)
+    {
+        var initialModel = JsonSerializer.Deserialize<IList<TourDateRequest>>(JsonSerializer.Serialize(tour.TourDates)) ?? new List<TourDateRequest>();
+        DialogOptions options = new() {CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, DisableBackdropClick = true};
+        DialogParameters parameters = new()
+        {
+            {nameof(Dialogs.WebsiteManagement.Tours.TourDate.RequestModel), requestModel},
+            {nameof(Dialogs.WebsiteManagement.Tours.TourDate.Tour), tour},
+            {nameof(Dialogs.WebsiteManagement.Tours.TourDate.Context), Context},
+            {nameof(Dialogs.WebsiteManagement.Tours.TourDate.Id), isCreate ? null : requestModel.Id}
+        };
+
+        var dialog = await DialogService.ShowAsync<Dialogs.WebsiteManagement.Tours.TourDate>(string.Empty, parameters, options);
+
+        var result = await dialog.Result;
+
+        tour.TourDates = result.Canceled ? initialModel : (tour.TourDates ?? new List<TourDateRequest>()).OrderBy(x => x.StartDate).ToList();
+
+        Context.AddEditModal?.ForceRender();
+    }
+
+    private async Task InvokeDatesDialog(TourDateRequest requestModel, TourViewModel tour, bool isCreate = false)
+    {
+        var initialModel = JsonSerializer.Deserialize<IList<TourDateRequest>>(JsonSerializer.Serialize(tour.TourDates)) ?? new List<TourDateRequest>();
+        DialogOptions options = new() {CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, DisableBackdropClick = true};
+        DialogParameters parameters = new()
+        {
+            {nameof(Dialogs.WebsiteManagement.Tours.TourDates.RequestModel), requestModel},
+            {nameof(Dialogs.WebsiteManagement.Tours.TourDates.Tour), tour},
+            {nameof(Dialogs.WebsiteManagement.Tours.TourDates.Context), Context},
+            {nameof(Dialogs.WebsiteManagement.Tours.TourDates.Id), isCreate ? null : requestModel.Id}
+        };
+
+        var dialog = await DialogService.ShowAsync<Dialogs.WebsiteManagement.Tours.TourDates>(string.Empty, parameters, options);
+
+        var result = await dialog.Result;
+
+        tour.TourDates = result.Canceled ? initialModel : (tour.TourDates ?? new List<TourDateRequest>()).OrderBy(x => x.StartDate).ToList();
+
+        Context.AddEditModal?.ForceRender();
+    }
+
+
+    private async Task RemoveDateRow(TourViewModel tour, Guid id)
+    {
+        string deleteContent = L["You're sure you want to delete this {0}? Please note, this is not final. Refresh the page if you've made a mistake."];
+        var parameters = new DialogParameters
+        {
+            {nameof(DeleteConfirmation.ContentText), string.Format(deleteContent, "Date", id)}
+        };
+
+        var options = new DialogOptions {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, DisableBackdropClick = true};
+        var dialog = await DialogService.ShowAsync<DeleteConfirmation>(L["Delete"], parameters, options);
+
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            var tourDate = tour.TourDates?.FirstOrDefault(x => x.Id == id);
+
+            if (tourDate != null)
+            {
+                var bookingsExists = await BookingsService.GetBookingsByDateAsync(new BookingsByTourStartDateRequest(tourDate.Id));
+
+                if (!bookingsExists)
+                    tour.TourDates?.Remove(tourDate);
+                else
+                {
+                    Snackbar.Add("Unable to delete Tour Date as there are bookings attached to it.",
+                        Severity.Error);
+                }
+            }
+
+            Context.AddEditModal?.ForceRender();
+        }
+    }
+
+    private async Task RemoveAllDates(TourViewModel tour)
+    {
+        var currentTimes = tour.TourDates != null ? tour.TourDates.Where(x => x.StartTime.HasValue).Select(x => x.StartTime.Value).Distinct().ToList() : new List<TimeSpan>();
+        DialogParameters parameters = new()
+        {
+            {nameof(DeleteTourDates.Tour), tour},
+            {nameof(DeleteTourDates.CurrentTimes), currentTimes},
+            {nameof(DeleteTourDates.Context), Context},
+        };
+
+        var options = new DialogOptions {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, DisableBackdropClick = true};
+        var dialog = await DialogService.ShowAsync<DeleteTourDates>(L["Delete"], parameters, options);
+
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            // if (tour.TourDates != null)
+            // {
+            //     var toursDates = tour.TourDates.Select(x => x.Id);
+            //     var tourDateIds = toursDates as Guid[] ?? toursDates.ToArray();
+            //     
+            //     var bookingsExists = await BookingsService.GetBookingsByDatesAsync(new BookingsByTourStartDatesRequest(tourDateIds));
+            //
+            //     if (bookingsExists.Any())
+            //     {
+            //         var matchedTourDates = tour.TourDates.Where(x => bookingsExists.Contains(x.Id));
+            //         tour.TourDates = matchedTourDates.ToList();
+            //     }
+            //     else
+            //     {
+            //         tour.TourDates = new List<TourDateRequest>();
+            //     }
+            // }
+
+            Context.AddEditModal?.ForceRender();
+        }
+    }
+
+}

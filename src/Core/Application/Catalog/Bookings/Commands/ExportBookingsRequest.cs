@@ -16,6 +16,7 @@ public class ExportBookingsRequest : BaseFilter, IRequest<Stream>
     public DateTime? CheckInDate { get; set; }
     public DateTime? CheckOutDate { get; set; }
     public DefaultIdType? TourId { get; set; }
+    public DefaultIdType? TourDateId { get; set; }
     public DefaultIdType? PropertyId { get; set; }
     public List<UserDetailsDto>? Guests { get; set; }
     public bool IsTourBookings { get; set; }
@@ -42,7 +43,7 @@ public class ExportBookingsRequestHandler : IRequestHandler<ExportBookingsReques
         foreach (var item in list)
         {
             if (item.BookingGuestId == null || request.Guests == null) continue;
-            var guest = request.Guests.FirstOrDefault(g => g.Id == DefaultIdType.Parse(item.BookingGuestId));
+            var guest = request.Guests.FirstOrDefault(g => g.Id == item.BookingGuestId);
 
             if (guest == null) continue;
             
@@ -56,7 +57,7 @@ public class ExportBookingsRequestHandler : IRequestHandler<ExportBookingsReques
 
             if (item.Guests == null || !item.Guests.Any()) continue;
             {
-                parsedList.AddRange(item.Guests.Select(additionalGuest => request.Guests.FirstOrDefault(g => g.Id == additionalGuest.GuestId))
+                parsedList.AddRange(item.Guests.Select(additionalGuest => request.Guests.FirstOrDefault(g => Guid.Parse(g.Id) == additionalGuest.GuestId))
                 .Select(additionalGuestMatch => new BookingExportDto()
                 {
                     Amount = item.Amount,
@@ -78,49 +79,6 @@ public class ExportBookingsRequestHandler : IRequestHandler<ExportBookingsReques
             }
         }
         
-        // list = list.ConvertAll(x =>
-        // {
-        //     if (x.BookingGuestId == null || request.Guests == null) return x;
-        //     var guest = request.Guests.FirstOrDefault(g => g.Id == DefaultIdType.Parse(x.BookingGuestId));
-        //
-        //     if (guest == null) return x;
-        //     
-        //     x.GuestName = $"{guest.FirstName} {guest.LastName}";
-        //     x.GuestGender = guest.Gender;
-        //     x.GuestDateOfBirth = guest.DateOfBirth;
-        //     x.GuestNationality = guest.Nationality;
-        //     x.GuestPassportNumber = guest.PassportNumber;
-        //
-        //     if (x.Guests != null && x.Guests.Any())
-        //     {
-        //         foreach (var additionalGuest in x.Guests)
-        //         {
-        //             var additionalGuestMatch = request.Guests.FirstOrDefault(g => g.Id == additionalGuest.GuestId);
-        //             
-        //             var guestModel = new BookingExportDto()
-        //             {
-        //                 Amount = x.Amount,
-        //                 BookingBookingDate = x.BookingBookingDate,
-        //                 BookingInvoiceId = x.BookingInvoiceId,
-        //                 BookingIsPaid = x.BookingIsPaid,
-        //                 StartDate = x.StartDate,
-        //                 EndDate = x.EndDate,
-        //                 TourId = x.TourId,
-        //                 TourName = x.TourName,
-        //                 BookingGuestId = x.BookingGuestId,
-        //                 GuestName = $"{additionalGuestMatch.FirstName} {additionalGuestMatch.LastName}",
-        //                 GuestGender = additionalGuestMatch.Gender,
-        //                 GuestDateOfBirth = additionalGuestMatch.DateOfBirth,
-        //                 GuestNationality = additionalGuestMatch.Nationality,
-        //                 GuestPassportNumber = additionalGuestMatch.PassportNumber
-        //             };
-        //         }
-        //
-        //     }
-        //     
-        //     return x;
-        // });
-
         return _excelWriter.WriteToStream(parsedList);
     }
 }

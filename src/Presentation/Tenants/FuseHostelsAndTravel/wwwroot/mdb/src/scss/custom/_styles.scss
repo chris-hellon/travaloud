@@ -17,6 +17,11 @@ footer {
 // scss-docs-start end
 
 // scss-docs-start navigation
+.navbar-brand-desktop,
+.navbar-brand-mobile {
+  top: 5px;
+  position: absolute;
+}
 .nav-pills-container {
   .nav-pills{
     .nav-link {

@@ -74,7 +74,7 @@ public partial class TourPrice : ComponentBase
                     },
                     Snackbar,
                     Logger,
-                    $"Tour Price {(IsCreate ? L["Created"] : L["Updated"])}."))
+                    $"Tour Price {(IsCreate ? L["Created"] : L["Updated"])}. Please note this is not final, you must Save the Tour to confirm these Prices."))
             {
                 MudDialog.Close(RequestModel);
             }

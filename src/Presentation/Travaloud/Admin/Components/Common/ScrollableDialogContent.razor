@@ -1,0 +1,8 @@
+<div style="max-height: 600px; overflow-y:scroll; overflow-x: hidden; padding: 8px 24px !important; max-width: unset !important;">
+    @ChildContent
+</div>
+
+@code {
+    [Parameter] public int MaxHeight { get; set; } = 600;
+    [Parameter] public required RenderFragment ChildContent { get; set; }
+}

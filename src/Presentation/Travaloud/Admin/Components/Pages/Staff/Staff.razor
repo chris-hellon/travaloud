@@ -7,7 +7,7 @@
 
 <TravaloudPageTitle Title="@L["Staff"]" Description="@L["Manage Staff"]" />
 
-<EntityTable TEntity="UserDetailsDto" TId="Guid" TRequest="CreateUserRequest" Context="@Context">
+<EntityTable TEntity="UserDetailsDto" TId="string" TRequest="CreateUserRequest" Context="@Context">
     <ExtraActions>
         <MudMenuItem OnClick="(() => ViewProfile(context.Id))">@L["Manage User"]</MudMenuItem>
         @if (_canViewRoles)

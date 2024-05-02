@@ -31,7 +31,7 @@ public class IndexModel : TravaloudBasePageModel
 
     [BindProperty] public HeaderBannerComponent? HeaderBanner { get; private set; }
 
-    [BindProperty] public TravelGuideDto? TravelGuide { get; private set; }
+    [BindProperty] public TravelGuideDetailsDto? TravelGuide { get; private set; }
     
     [BindProperty] public TravelGuideDto? RelatedTravelGuide { get; private set; }
     

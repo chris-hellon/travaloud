@@ -21,12 +21,17 @@ public class IndexModel : ContactPageModel
 
     public IEnumerable<OvalContainerComponent>? OvalContainers { get; private set; } 
     
-    public override async Task<IActionResult> OnGetAsync(string? tourName = null, Guid? tourDate = null, int? guestQuantity = null)
+    public override async Task<IActionResult> OnGetAsync(string? tourName = null, Guid? tourDate = null, int? guestQuantity = null, string? userId = null)
     {
         ViewData["Title"] = "Get In Touch";
         
         await base.OnGetDataAsync();
 
+        ContactComponent = new ContactComponent()
+        {
+            Tours = Tours,
+            Properties = Properties
+        };
         OvalContainers = new List<OvalContainerComponent>()
             {
                 new("contactPageOvals1", -20, null, -18, null),

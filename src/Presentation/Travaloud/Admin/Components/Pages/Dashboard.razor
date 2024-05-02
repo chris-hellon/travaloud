@@ -1,69 +1,205 @@
 @page "/"
+@using Travaloud.Application.Catalog.Bookings.Dto
 @attribute [MustHavePermission(TravaloudAction.View, TravaloudResource.Dashboard)]
 
 @inject IStringLocalizer<Dashboard> L
 
-<TravaloudPageTitle Title="@L["Dashboard"]" />
+<TravaloudPageTitle Title="@L["Dashboard"]"/>
 
-@if (!_loaded)
-{
-    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
-}
-else
-{
 <MudGrid>
-    <MudItem xs="12" sm="6" md="3">
+    <MudItem xs="12" sm="6" md="6">
         <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
-            <MudIcon Icon="@Icons.Material.Filled.Payments" Color="Color.Primary" Class="mx-4"
-                     Style="width:54px; height:54px;"></MudIcon>
+            <MudIcon Icon="@Icons.Material.Filled.BookOnline" Color="Color.Primary" Class="mx-4"
+                     Style="width:54px; height:54px;">
+            </MudIcon>
             <div>
-                <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">@L["Bookings"]</MudText>
-                <MudText Typo="Typo.h5">@BookingsCount</MudText>
+                <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">@L["Tour Bookings"]</MudText>
+
+                @if (!TourBookingsCount.HasValue)
+                {
+                    <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Small"/>
+                }
+                else
+                {
+                    <MudText Typo="Typo.h5">@TourBookingsCount</MudText>
+                }
             </div>
         </MudPaper>
     </MudItem>
-    <MudItem xs="12" sm="6" md="3">
+    @if (UserIsAdmin)
+    {
+        <MudItem xs="12" sm="6" md="6">
+            <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                <MudIcon Icon="@Icons.Material.Filled.MonetizationOn" Color="Color.Primary" Class="mx-4"
+                         Style="width:54px; height:54px;">
+                </MudIcon>
+                <div>
+                    <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">@L["Tour Bookings Revenue"]</MudText>
+
+                    @if (!TourBookingsRevenue.HasValue)
+                    {
+                        <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Small"/>
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.h5">@($"$ {TourBookingsRevenue:n2}")</MudText>
+                    }
+                </div>
+            </MudPaper>
+        </MudItem>
+    }
+   
+    <MudItem xs="12" sm="6" md="@(UserIsAdmin ? 3 : 6)">
+        <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+            <MudIcon Icon="@Icons.Material.Filled.Payments" Color="Color.Primary" Class="mx-4"
+                     Style="width:54px; height:54px;">
+            </MudIcon>
+            <div>
+                <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">@L["Property Bookings"]</MudText>
+
+                @if (!PropertyBookingsCount.HasValue)
+                {
+                    <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Small"/>
+                }
+                else
+                {
+                    <MudText Typo="Typo.h5">@(PropertyBookingsCount.HasValue ? PropertyBookingsCount.Value : "Loading")</MudText>
+                }
+            </div>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="6" md="@(UserIsAdmin ? 3 : 4)">
         <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
             <MudIcon Icon="@Icons.Material.Filled.Groups" Color="Color.Success" Class="mx-4"
-                     Style="width:54px; height:54px;"></MudIcon>
+                     Style="width:54px; height:54px;">
+            </MudIcon>
             <div>
                 <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">
                     @L["Guests"]
                 </MudText>
-                <MudText Typo="Typo.h5">@GuestsCount</MudText>
+                @if (!GuestsCount.HasValue)
+                {
+                    <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Small"/>
+                }
+                else
+                {
+                    <MudText Typo="Typo.h5">@GuestsCount</MudText>
+                }
             </div>
         </MudPaper>
     </MudItem>
-    <MudItem xs="12" sm="6" md="3">
+    <MudItem xs="12" sm="6" md="@(UserIsAdmin ? 3 : 4)">
         <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
             <MudIcon Icon="@Icons.Material.Filled.Route" Color="Color.Success" Class="mx-4"
-                     Style="width:54px; height:54px;"></MudIcon>
+                     Style="width:54px; height:54px;">
+            </MudIcon>
             <div>
                 <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">
                     @L["Tours"]
                 </MudText>
-                <MudText Typo="Typo.h5">@ToursCount</MudText>
+
+                @if (!ToursCount.HasValue)
+                {
+                    <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Small"/>
+                }
+                else
+                {
+                    <MudText Typo="Typo.h5">@ToursCount</MudText>
+                }
             </div>
         </MudPaper>
     </MudItem>
-    <MudItem xs="12" sm="6" md="3">
+    <MudItem xs="12" sm="6" md="@(UserIsAdmin ? 3 : 4)">
         <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
             <MudIcon Icon="@Icons.Material.Filled.LocationCity" Color="Color.Success" Class="mx-4"
-                     Style="width:54px; height:54px;"></MudIcon>
+                     Style="width:54px; height:54px;">
+            </MudIcon>
             <div>
                 <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">
                     @L["Properties"]
                 </MudText>
-                <MudText Typo="Typo.h5">@PropertiesCount</MudText>
+
+                @if (!PropertiesCount.HasValue)
+                {
+                    <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Small"/>
+                }
+                else
+                {
+                    <MudText Typo="Typo.h5">@PropertiesCount</MudText>
+                }
             </div>
         </MudPaper>
     </MudItem>
     <MudItem xs="12" sm="12">
+        <MudPaper Elevation="25" Class="pa-4">
+            <MudText Typo="Typo.h4">Today's Tours</MudText>
+
+            @if (TourDayBookingsContext != null)
+            {
+                <EntityTable @ref="@_todaysToursTable" TEntity="BookingExportDto" TId="Guid" TRequest="BookingExportDto" Context="@TourDayBookingsContext" ModalWidth="MaxWidth.Large" Elevation="0">
+                    <AdvancedSearchContent>
+                        @if (Tours is {Count: > 0})
+                        {
+                            <MudSelect T="Guid?" @bind-Value="SearchTourId" Label="Tour" Clearable="true">
+                                @foreach (var tour in Tours)
+                                {
+                                    <MudSelectItem T="Guid?" Value="tour.Id">@tour.Name</MudSelectItem>
+                                }
+                            </MudSelect>
+                        }
+                    </AdvancedSearchContent>
+                </EntityTable>
+            }
+            else
+            {
+                <MudSkeleton Height="500px" SkeletonType="SkeletonType.Rectangle"/>
+            }
+        </MudPaper>
+    </MudItem>
+    @if (UserIsAdmin)
+    {
+        <MudItem xs="12" sm="12">
+            <MudPaper Elevation="25" Class="pa-4">
+                <MudText Typo="Typo.h4">Staff Bookings Report</MudText>
+
+                @if (StaffBookingsContext != null)
+                {
+                    <MudText Typo="Typo.h6">@($"{SearchStaffBookingsDateRange.Start.Value.ToShortDateString()} - {SearchStaffBookingsDateRange.End.Value.ToShortDateString()}")</MudText>
+                    <EntityTable @ref="@_staffBookingsTable" TEntity="StaffBookingDto" TId="string" TRequest="StaffBookingDto" Context="@StaffBookingsContext" ModalWidth="MaxWidth.Large" Elevation="0">
+                        <AdvancedSearchContent>
+                            <MudDateRangePicker @ref="_staffBookingsDateRangePicker" PickerVariant="PickerVariant.Dialog" Label="@L["Date Range"]" @bind-DateRange="SearchStaffBookingsDateRange" Clearable="false">
+                                <PickerActions>
+                                    <MudButton Class="mr-auto align-self-start" OnClick="@(() => _staffBookingsDateRangePicker.Clear())">@L["Clear"]</MudButton>
+                                    <MudButton OnClick="@(() => _staffBookingsDateRangePicker.Close(false))">@L["Cancel"]</MudButton>
+                                    <MudButton Color="Color.Primary" OnClick="@(() => _staffBookingsDateRangePicker.Close())">@L["Ok"]</MudButton>
+                                </PickerActions>
+                            </MudDateRangePicker>
+                        </AdvancedSearchContent>
+                    </EntityTable>
+                }
+                else
+                {
+                    <MudSkeleton Height="500px" SkeletonType="SkeletonType.Rectangle"/>
+                }
+
+            </MudPaper>
+        </MudItem>
+    }
+ 
+    <MudItem xs="12" sm="12">
         <MudPaper Elevation="25" Class="pa-4" Style="height:500px;">
-            <MudChart ChartType="ChartType.Bar" ChartSeries="@_dataEnterBarChartSeries"
-                      XAxisLabels="@_dataEnterBarChartXAxisLabels.Select(a => L[a].Value).ToArray()" Width="100%"
-                      Height="400px"></MudChart>
+            @if (ToursCount.HasValue)
+            {
+                <MudChart ChartType="ChartType.Bar" ChartSeries="@_dataEnterBarChartSeries"
+                          XAxisLabels="@_dataEnterBarChartXAxisLabels.Select(a => L[a].Value).ToArray()" Width="100%"
+                          Height="400px">
+                </MudChart>
+            }
+            else
+            {
+                <MudSkeleton Height="400px" SkeletonType="SkeletonType.Rectangle"/>
+            }
+
         </MudPaper>
     </MudItem>
 </MudGrid>
-}

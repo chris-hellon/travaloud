@@ -1,0 +1,282 @@
+@page
+@model VietnamBackpackerHostels.Pages.Tour.IndexModel
+
+<!--Section: Booking Header-->
+<div class="custom-height pt-3 pt-lg-5 mt-n5 bg-primary-dark position-relative">
+    <div class="container py-5">
+        <div class="row my-4">
+            <div class="col-12 has-parallax-scroll">
+                <h1 class="display-4 fw-bold ls-tight text-white">@Model.PageTitle</h1>
+                <h4 class="mb-0 text-light opacity-50">
+                    @Model.Tour.Name
+                </h4>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="container custom-mt">
+    <div class="row g-0 mb-0 align-items-center">
+        <div class="col-lg-7 mb-0 mb-lg-0 has-parallax-scroll tour-main-image">
+            @{
+                var thumbnailImageSrc = Model.Tour.ImagePath.Replace("tr=w-1000", $"w=1000").Replace("tr=w-2000", $"w=1000").Replace($"{Model.TenantId}/", "").Replace("https://ik.imagekit.io/rqlzhe7ko/", $"https://travaloudcdn.azureedge.net/{Model.TenantId}/assets/images/").Replace("https://travaloud.azureedge.net", "https://travaloudcdn.azureedge.net").Replace("https://travaloudcdn.azureedge.net/assets/images/", $"https://travaloudcdn.azureedge.net/{Model.TenantId}/assets/images/");
+                <img src="@thumbnailImageSrc" class="w-100 rounded-6 h-100" alt="@Model.Tour.Name"/>
+
+                @* @if (Model.Tour) *@
+            }
+        </div>
+        <div class="col-lg-5 has-parallax-scroll mt-3 mt-lg-0">
+            <div class="card cascading-left rounded-6 shadow-5 has-parallax-scroll">
+                <div class="card-body px-4 p-4 p-md-5 p-lg-4 p-xl-5">
+                    @{
+                        <div class="row g-0">
+                            <div class="col-lg-12">
+                                <h3 class="mb-4 float-left text-black">@Model.Tour.Name</h3>
+
+                            </div>
+                        </div>
+
+                        var tripInformationValues = new List<Tuple<string, string>>();
+
+                        bool priceExists = Model.Tour.TourPrices != null && Model.Tour.TourPrices.Any();
+                        bool minCapacityExists = Model.Tour.MinCapacity.HasValue;
+                        bool maxCapacityExists = Model.Tour.MaxCapacity.HasValue && Model.Tour.MaxCapacity.Value != 99999;
+                        bool addressExists = !string.IsNullOrEmpty(Model.Tour.Address);
+                        bool telphoneNumberExists = !string.IsNullOrEmpty(Model.Tour.TelephoneNumber);
+                        bool dayDurationExists = !string.IsNullOrEmpty(Model.Tour.DayDuration);
+                        bool nightDurationExists = !string.IsNullOrEmpty(Model.Tour.NightDuration);
+                        bool hourDurationExists = !string.IsNullOrEmpty(Model.Tour.HourDuration);
+                        bool additionalInformationExists = !string.IsNullOrEmpty(Model.Tour.AdditionalInformation);
+
+                        if (priceExists)
+                        {
+                            foreach (var price in Model.Tour.TourPrices)
+                            {
+                                tripInformationValues.Add(new Tuple<string, string>("fa-money-check-dollar", $"${price.Price} {price.Title}{(price.Description != null ? $" {price.Description}" : "")}"));
+                            }
+                        }
+
+                        var includeTimeFrame = Model.TenantId == "uncut";
+
+                        if (dayDurationExists || nightDurationExists || hourDurationExists)
+                        {
+                            string duration = "";
+                            if (dayDurationExists)
+                                duration += $"{Model.Tour.DayDuration}{(includeTimeFrame ? $" Day{(Model.Tour.DayDuration != "1" ? "s" : "")}" : "")}";
+
+                            if (nightDurationExists)
+                                duration += $"{(dayDurationExists ? " " : "")}{Model.Tour.NightDuration}{(includeTimeFrame ? $" Night{(Model.Tour.NightDuration != "1" ? "s" : "")}" : "")}";
+
+                            if (hourDurationExists)
+                                duration += $"{(dayDurationExists ? " " : "")}{Model.Tour.HourDuration}{(includeTimeFrame ? $" Hour{(Model.Tour.HourDuration != "1" ? "s" : "")}" : "")}";
+
+                            tripInformationValues.Add(new Tuple<string, string>("fa-clock", duration));
+                        }
+
+                        if (minCapacityExists || maxCapacityExists)
+                        {
+                            if (minCapacityExists)
+                                tripInformationValues.Add(new Tuple<string, string>("fa-user-group", $"Min {Model.Tour.MinCapacity} persons"));
+
+                            if (maxCapacityExists)
+                                tripInformationValues.Add(new Tuple<string, string>("fa-user-group", $"Max {Model.Tour.MaxCapacity} persons"));
+                        }
+
+                        if (addressExists)
+                            tripInformationValues.Add(new Tuple<string, string>("fa-location-pin", Model.Tour.Address));
+
+                        if (additionalInformationExists)
+                            tripInformationValues.Add(new Tuple<string, string>("fa-circle-info", Model.Tour.AdditionalInformation));
+
+                        if (tripInformationValues.Count > 0)
+                        {
+                            var index = 0;
+                            var valuesCount = tripInformationValues.Count;
+
+                            <div class="row">
+                                @foreach (var tripInformationValue in tripInformationValues)
+                                {
+                                    var cssClass = "col-lg-12";
+                                    <div class="@cssClass mb-2">
+                                        <span class="badge bg-black text-white p-2 w-100">
+                                            <i class="fas @tripInformationValue.Item1 dark-grey-text" aria-hidden="true"></i> @tripInformationValue.Item2
+                                        </span>
+                                    </div>
+
+                                    index++;
+                                }
+                            </div>
+                        }
+
+                        <div class="row">
+                            <div class="col-lg-12 mb-2 mb-lg-0 text-lg-end">
+                                <button type="button" class="btn btn-primary btn-sm w-100 w-lg-auto" data-mdb-toggle="modal" data-mdb-target="#enquireNowModal">
+                                    Enquire now
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section id="bookBanner" class="bg-black px-3 px-lg-0 pb-5 pt-5 position-relative">
+    @*@Html.DisplayFor(x => x.BookNowComponent)*@
+
+    @if (Model.Tour.TourPrices != null && Model.Tour.TourPrices.Any() && Model.Tour.TourDates != null && Model.Tour.TourDates.Any())
+    {
+        <div class="container bg-light-gray p-4 rounded">
+            <div class="row">
+                <div class="col-lg-3">
+                    <div class="form-outline select-tour-date-picker confirm-date-on-select" data-mdb-input-init data-mdb-toggle-button="false">
+                        <input asp-for="TourDate" type="text" class="form-control" data-mdb-toggle="datepicker" onkeydown="return false;"/>
+                        <label asp-for="TourDate" class="form-label"></label>
+                        <button class="datepicker-toggle-button" data-mdb-toggle="datepicker" aria-label="Select a Date">
+                            <i class="fas fa-calendar-days datepicker-toggle-icon text-primary"></i>
+                        </button>
+                    </div>
+                    <span asp-validation-for="TourDate" class="travaloud-validation"></span>
+                </div>
+                <div class="col-lg-3">
+                    <select data-mdb-select-init class="select" asp-for="TourDateStartTime" disabled onchange="selectTourDateTime();">
+                        <option value="" hidden></option>
+
+                        @if (Model.TourDate.HasValue && Model.Tour.TourDates != null && Model.Tour.TourDates.Any() && Model.TourDateStartTime.HasValue)
+                        {
+                            foreach (var tourDate in Model.Tour.TourDates.Where(x => x.StartDate.Date == Model.TourDate.Value.Date))
+                            {
+                                <option selected="@(tourDate.StartDate.TimeOfDay == Model.TourDateStartTime.Value)" value="@tourDate.Id">@tourDate.StartDate.ToString("HH:mm")</option>
+                            }
+                        }
+                    </select>
+                    <label class="form-label select-label" asp-for="TourDateStartTime"></label>
+                    <span asp-validation-for="TourDateStartTime" class="travaloud-validation"></span>
+                </div>
+                <div class="col-lg-3">
+                    <div class="form-outline" data-mdb-input-init>
+                        <i class="fas fa-users trailing text-primary"></i>
+                        <input type="number" asp-for="GuestQuantity" class="form-control form-icon-trailing" disabled="" max="@(Model.SelectedTourDate?.AvailableSpaces ?? 99999)" data-tour-id="@Model.Tour.Id" data-tour-name="@Model.Tour.Name" data-tour-image-url="@Model.Tour.ImagePath?.FormatImageUrl(600, "fuse")"/>
+                        <label class="form-label" asp-for="GuestQuantity"></label>
+                        @* <div class="form-helper">@(Model.SelectedTourDate != null ? $"{Model.SelectedTourDate.AvailableSpaces} spaces available" : "Select a Date")</div> *@
+                    </div>
+                    <span asp-validation-for="GuestQuantity" class="travaloud-validation"></span>
+                </div>
+                <div class="col-lg-3">
+                    @* <button class="btn btn-primary add-tour-to-basket-button me-2" disabled onclick="addTourToBasket('@Model.Tour.Id', '@Model.Tour.Name', '@Model.Tour.ImagePath?.FormatImageUrl(600, "fuse")'); return false;">@(Model.SelectedTourDate != null ? "Update Basket" : "Add To Basket")</button> *@
+                    <button class="btn btn-primary proceed-to-checkout-button w-100 h-100" disabled="@(Model.SelectedTourDate == null)">Proceed To Checkout</button>
+                </div>
+            </div>
+        </div>
+    }
+
+    <img src="https://travaloudcdn.azureedge.net/vbh/assets/images/texture-bottom.png" class="w-100 bottom-0 left-0 position-absolute" style="max-height:18px;" alt="Texture border image"/>
+</section>
+
+<section id="intro" class="container-fluid position-relative bg-white">
+    <div class="container py-5">
+        <p class="text-muted mb-4">@Html.Raw(Model.Tour.Description)</p>
+
+        @if (!string.IsNullOrEmpty(Model.Tour.WhatsIncluded))
+        {
+            <span class="mb-2 d-block">
+                <strong>What's Included?</strong>
+            </span>
+
+            @Html.Raw(Model.Tour.WhatsIncluded)
+        }
+
+        @if (!string.IsNullOrEmpty(Model.Tour.WhatsNotIncluded))
+        {
+            <span class="mb-2 d-block">
+                <strong>What's not Included?</strong>
+            </span>
+
+            @Html.Raw(Model.Tour.WhatsNotIncluded)
+        }
+    </div>
+</section>
+
+@if (Model.Tour.TourItineraries != null && Model.Tour.TourItineraries.Any())
+{
+    foreach (var itinerary in Model.Tour.TourItineraries)
+    {
+        <div class="container-fluid p-0 bg-white">
+            <h3 class="text-white w-100 text-center m-0 py-2 position-relative bg-black" style="z-index:2">
+                <strong class="has-parallax-scroll">@itinerary.Header</strong>
+            </h3>
+            <div class="container">
+                <div class="row">
+                    @if (itinerary.Sections != null && itinerary.Sections.Count() == 1)
+                    {
+                        var itinerarySection = itinerary.Sections.First();
+                        var carousel = new CarouselComponent($"tourItinerarySectionImages{itinerarySection.Id.ToString().Replace("-", "")}", itinerarySection.Images.Select(i => i.ImagePath).ToList()) {TenantId = Model.TenantId};
+                        <partial name="Shared/_ItinerarySectionFullWidthPartial" model="@new TourItinerarySectionModel(itinerarySection, carousel)"/>
+                    }
+                    else
+                    {
+                        <div class="main-timeline-2 py-5">
+                            @{
+                                var alignment = "left-2";
+                                foreach (var itinerarySection in itinerary.Sections)
+                                {
+                                    var carousel = new CarouselComponent($"tourItinerarySectionImages{itinerarySection.Id.ToString().Replace("-", "")}", itinerarySection.Images.Select(i => i.ImagePath).ToList()) {TenantId = Model.TenantId};
+
+                                    <div class="timeline-2 @alignment has-parallax-scroll">
+                                        <partial name="Shared/_ItinerarySectionPartial" model="new TourItinerarySectionModel(itinerarySection, carousel)"/>
+                                    </div>
+
+                                    if (alignment == "left-2")
+                                        alignment = "right-2";
+                                    else
+                                        alignment = "left-2";
+                                }
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+}
+@if (Model.RelatedToursCards != null)
+{
+    <section id="relatedTours" class="pb-5 position-relative text-center bg-light">
+        @Html.DisplayFor(x => x.RelatedToursCards)
+    </section>
+}
+
+@section Styles {
+    <style type="text/css">
+        .tour-main-image {
+            height: 400px;
+            object-fit: cover;
+        }
+        
+        .tour-main-image img {
+            object-fit: cover;
+        }
+        
+        .badge {
+            white-space: unset;
+        }
+        
+        main {
+            background-color: #000;
+        }
+        
+        .cascading-left {
+            margin-left: -50px;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script type="text/javascript">
+                let tourDatesParsed = @Html.Raw(Json.Serialize(Model.Tour.TourDates?.ToList()));
+            </script>
+
+    <script src="/shared/js/tour.min.js" type="text/javascript"></script>
+}

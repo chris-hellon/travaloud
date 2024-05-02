@@ -38,11 +38,9 @@
         <link href="/favicon.ico" rel="icon">
 
         var loadCssUrl = Model.GetAzureBlobUrl("load.min.css", "css");
-        var fontsCssUrl = Model.GetAzureBlobUrl("fonts.min.css", "css");
-        var siteCssUrl = Model.GetAzureBlobUrl("site.min.css", "css");
 
         <link rel="stylesheet" href="@loadCssUrl"/>
-
+        
         <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
         <noscript>
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
@@ -50,46 +48,6 @@
         
         <link rel="stylesheet" href="/shared/css/theme.min.css"/>
         <link rel="stylesheet" href="/css/theme.min.css"/>
-
-        @* @if (Model.TenantId == "fuse") *@
-        @* { *@
-        @*     <environment include="Development"> *@
-        @*         <link rel="stylesheet" href="/shared/css/theme.min.css"/> *@
-        @*         <link rel="stylesheet" href="/css/theme.min.css"/> *@
-        @*     </environment> *@
-        @*     <environment exclude="Development"> *@
-        @*         <link rel="preload" href="https://fusehostelsandtravel.azureedge.net/assets/bundle.css" as="style" onload="this.onload=null;this.rel='stylesheet'"/> *@
-        @*         <noscript> *@
-        @*             <link rel="stylesheet" href="https://fusehostelsandtravel.azureedge.net/assets/bundle.css"/> *@
-        @*         </noscript> *@
-        @*     </environment> *@
-        @* } *@
-        @* else *@
-        @* { *@
-        @*     <link rel="preload" href="@fontsCssUrl" as="style" onload="this.onload=null;this.rel='stylesheet'"/> *@
-        @*     <noscript> *@
-        @*         <link rel="stylesheet" href="@fontsCssUrl"/> *@
-        @*     </noscript> *@
-        @* *@
-        @*     <link rel="preload" href="https://travaloud.azureedge.net/mdb/css/mdb.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'"/> *@
-        @*     <noscript> *@
-        @*         <link rel="stylesheet" href="https://travaloud.azureedge.net/mdb/css/mdb.min.css"/> *@
-        @*     </noscript> *@
-        @* *@
-        @*     <link rel="preload" href="https://travaloud.azureedge.net/assets/css/travaloud.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'"/> *@
-        @*     <noscript> *@
-        @*         <link rel="stylesheet" href="https://travaloudcdn.azureedge.net/assets/css/travaloud.min.css"/> *@
-        @*     </noscript> *@
-        @* *@
-        @*     <link rel="preload" href="@siteCssUrl" as="style" onload="this.onload=null;this.rel='stylesheet'"/> *@
-        @*     <noscript> *@
-        @*         <link rel="stylesheet" href="@siteCssUrl"/> *@
-        @*     </noscript> *@
-        @* *@
-        @*     <partial name="_CssOverridesPartial" model="Model.TravaloudSettings?.Theme"/> *@
-        @* } *@
-
-        <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css"/>
 
         if (url == $"{Model.WebsiteUrl}/" || url == Model.WebsiteUrl)
         {
@@ -316,10 +274,31 @@
             offset += 130;
         }
     }
+    
+    <div class="toast fade mx-auto shadow-6"
+         id="ajaxFeedbackToast"
+         role="alert"
+         aria-live="assertive"
+         aria-atomic="true"
+         data-mdb-toast-init
+         data-mdb-autohide="true"
+         data-mdb-delay="2000"
+         data-mdb-position="top-right"
+         data-mdb-append-to-body="true"
+         data-mdb-stacking="true"
+         data-mdb-width="350px" style="top:@(offset)px;">
+        <div class="toast-header bg-primary text-white">
+            <i class="fas fa-lg me-2 text-white" id="ajaxFeedbackToastImage"></i>
+            <strong class="me-auto" id="ajaxFeedbackHeader"></strong>
+            <a role="button" class="text-white" data-mdb-dismiss="toast" aria-label="Close">
+                <i class="fas fa-xmark"></i>
+            </a>
+        </div>
+        <div class="toast-body" id="ajaxFeedbackToastBody"></div>
+    </div>
 }
 
 <script src="/shared/js/theme.min.js"></script>
-<partial name="_ValidationScriptsPartial"/>
 <script src="/js/theme.min.js"></script>
 
 @await RenderSectionAsync("Scripts", required: false)

@@ -1,0 +1,135 @@
+@using Travaloud.Application.Catalog.Tours.Dto
+@using Travaloud.Application.Catalog.Tours.Commands
+@using System.Text.Json
+@using Travaloud.Admin.Components.Dialogs
+@using Travaloud.Application.Catalog.Interfaces
+@using Travaloud.Application.Catalog.Tours.Queries
+
+@inject IStringLocalizer<Tours> L    
+@inject IToursService ToursService
+
+<StickyToolbar>
+    <ToolbarContent>
+        <MudButton DisableElevation Size="Size.Small" Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => InvokePriceDialog(new TourPriceRequest(), Tour, true))" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Surface">@L["Add New Price"]</MudButton>
+    </ToolbarContent>
+</StickyToolbar>
+
+
+@if (Tour.TourPrices != null && Tour.TourPrices.Any())
+{
+    <MudTable T="TourPriceRequest" Style="table-layout:auto; padding:0px !important;" Items="@Tour.TourPrices" Context="priceContext" Hover="false" HorizontalScrollbar="true" Elevation="0" Breakpoint="Breakpoint.Sm" LoadingProgressColor="Color.Info" CanCancelEdit="true" ReadOnly="false">
+        <ToolBarContent>
+        </ToolBarContent>
+        <ColGroup>
+            <col/>
+            <col/>
+            <col/>
+            <col/>
+            <col/>
+            <col/>
+            <col/>
+            <col/>
+            <col/>
+            <col/>
+            <col/>
+        </ColGroup>
+        <HeaderContent>
+            <MudTh>Price</MudTh>
+            <MudTh>Title</MudTh>
+            <MudTh>Description</MudTh>
+            <MudTh>Day Duration</MudTh>
+            <MudTh>Night Duration</MudTh>
+            <MudTh>Hour Duration</MudTh>
+            <MudTh>Month From</MudTh>
+            <MudTh>Month To</MudTh>
+            <MudTh>Commission Amount</MudTh>
+            <MudTh>Published to Website?</MudTh>
+            <MudTh Style="min-width: 0; width: 100px; text-align: right;"></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Price">$@priceContext.Price</MudTd>
+            <MudTd DataLabel="Title">@priceContext.Title</MudTd>
+            <MudTd DataLabel="Description">@priceContext.Description</MudTd>
+            <MudTd DataLabel="Day Duration">@priceContext.DayDuration</MudTd>
+            <MudTd DataLabel="Night Duration">@priceContext.NightDuration</MudTd>
+            <MudTd DataLabel="Hour Duration">@priceContext.HourDuration</MudTd>
+            <MudTd DataLabel="Month From">@priceContext.MonthFrom</MudTd>
+            <MudTd DataLabel="Month To">@priceContext.MonthTo</MudTd>
+            <MudTd DataLabel="Commission Amount">$@priceContext.ComissionAmount</MudTd>
+            <MudTd DataLabel="Published to Website?">@(priceContext.PublishToWebsite.HasValue && priceContext.PublishToWebsite.Value ? "Yes" : "No")</MudTd>
+            <MudTd DataLabel="Edit" Style="min-width: 0; width: 270px; text-align: right;">
+                <MudButton Variant="Variant.Filled" Size="Size.Small" StartIcon="@Icons.Material.Filled.Edit" Color="Color.Tertiary" OnClick="@(() => InvokePriceDialog(priceContext, Tour))">Edit</MudButton>
+                <MudButton Variant="Variant.Filled" Size="Size.Small" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="@(() => RemovePriceRow(Tour, priceContext.Id))">Delete</MudButton>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+}
+
+
+@code {
+    [Parameter] public required TourViewModel Tour { get; set; }
+    [Parameter] public required EntityServerTableContext<TourDto, Guid, TourViewModel> Context { get; set; } = default!;
+
+    private async Task InvokePriceDialog(TourPriceRequest requestModel, TourViewModel tour, bool isCreate = false)
+    {
+        var initialModel = JsonSerializer.Deserialize<IList<TourPriceRequest>>(JsonSerializer.Serialize(tour.TourPrices)) ?? new List<TourPriceRequest>();
+        DialogOptions options = new() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, DisableBackdropClick = true};
+        DialogParameters parameters = new()
+        {
+            {nameof(Dialogs.WebsiteManagement.Tours.TourPrice.RequestModel), requestModel},
+            {nameof(Dialogs.WebsiteManagement.Tours.TourPrice.Tour), tour},
+            {nameof(Dialogs.WebsiteManagement.Tours.TourPrice.Context), Context},
+            {nameof(Dialogs.WebsiteManagement.Tours.TourPrice.Id), isCreate ? null : requestModel.Id}
+        };
+
+        var dialog = await DialogService.ShowAsync<Dialogs.WebsiteManagement.Tours.TourPrice>(string.Empty, parameters, options);
+        var result = await dialog.Result;
+
+        if (result.Canceled)
+        {
+            tour.TourPrices = initialModel;
+        }
+
+        Context.AddEditModal?.ForceRender();
+    }
+
+    private async Task RemovePriceRow(TourViewModel tour, Guid id)
+    {
+        string deleteContent =
+            L[
+                "You're sure you want to delete this {0}? Please note, this is not final. Refresh the page if you've made a mistake."];
+        var parameters = new DialogParameters
+        {
+            {nameof(DeleteConfirmation.ContentText), string.Format(deleteContent, "Price", id)}
+        };
+
+        var options = new DialogOptions
+            {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, DisableBackdropClick = true};
+        var dialog = await DialogService.ShowAsync<DeleteConfirmation>(L["Delete"], parameters, options);
+
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            var tourPrice = tour.TourPrices?.FirstOrDefault(x => x.Id == id);
+            if (tourPrice != null)
+            {
+                var tourDatesExist = await ToursService.GetTourDatesByPriceAsync(new GetTourDatesByPriceRequest()
+                {
+                    PriceId = tourPrice.Id
+                });
+
+                if (!tourDatesExist)
+                {
+                    tour.TourPrices?.Remove(tourPrice);
+                }
+                else
+                {
+                    Snackbar.Add("Unable to delete this Price as there are Dates attached to it.", Severity.Error);
+                }
+            }
+
+            Context.AddEditModal?.ForceRender();
+        }
+    }
+
+}

@@ -5,17 +5,16 @@ using Travaloud.Domain.Catalog.Tours;
 
 namespace Travaloud.Application.Catalog.Tours.Specification;
 
-public class TourByIdWithDetailsSpec : Specification<Tour, TourDetailsDto>, ISingleResultSpecification<Tour>
+public class TourByIdWithDetailsSpec : Specification<Tour, TourWithoutDatesDto>, ISingleResultSpecification<Tour>
 {
 
     public TourByIdWithDetailsSpec(DefaultIdType id) =>
         Query
-            .Where(p => p.Id == id)
             .Include(p => p.Images)
-            .Include(p => p.TourDates).ThenInclude(x => x.TourPrice)
             .Include(p => p.TourPrices)
             .Include(p => p.TourDestinationLookups).ThenInclude(x => x.Destination)
             .Include(p => p.TourItineraries)
             .ThenInclude(p => p.Sections)
-            .ThenInclude(p => p.Images);
+            .ThenInclude(p => p.Images)
+            .Where(p => p.Id == id);
 }

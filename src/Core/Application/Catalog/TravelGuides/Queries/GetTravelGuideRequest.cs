@@ -4,7 +4,7 @@ using Travaloud.Domain.Catalog.TravelGuides;
 
 namespace Travaloud.Application.Catalog.TravelGuides.Queries;
 
-public class GetTravelGuideRequest : IRequest<TravelGuideDto>
+public class GetTravelGuideRequest : IRequest<TravelGuideDetailsDto>
 {
     public GetTravelGuideRequest(DefaultIdType id)
     {
@@ -14,7 +14,7 @@ public class GetTravelGuideRequest : IRequest<TravelGuideDto>
     public DefaultIdType Id { get; set; }
 }
 
-public class GetTravelGuideRequestHandler : IRequestHandler<GetTravelGuideRequest, TravelGuideDto>
+public class GetTravelGuideRequestHandler : IRequestHandler<GetTravelGuideRequest, TravelGuideDetailsDto>
 {
     private readonly IRepositoryFactory<TravelGuide> _repository;
     private readonly IStringLocalizer<GetTravelGuideRequestHandler> _localizer;
@@ -26,7 +26,7 @@ public class GetTravelGuideRequestHandler : IRequestHandler<GetTravelGuideReques
         _localizer = localizer;
     }
 
-    public async Task<TravelGuideDto> Handle(GetTravelGuideRequest request, CancellationToken cancellationToken) =>
+    public async Task<TravelGuideDetailsDto> Handle(GetTravelGuideRequest request, CancellationToken cancellationToken) =>
         await _repository.FirstOrDefaultAsync(
             new TravelGuideByIdSpec(request.Id), cancellationToken)
         ?? throw new NotFoundException(string.Format(_localizer["travelGuide.notfound"], request.Id));

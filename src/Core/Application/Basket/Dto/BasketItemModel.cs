@@ -42,6 +42,7 @@ public class BasketItemModel
     public string? TourName { get; set; }
     public string? TourImageUrl { get; set; }
     public IList<BasketItemDateModel>? TourDates { get; set; }
+    public TourDto? Tour { get; set; }
     #endregion
 
     public decimal Total => CalculateTotal();
@@ -111,12 +112,20 @@ public class BasketItemModel
         TourDates?.Add(date);
     }
 
-    public void SetTourEditBookingHref(string tourName)
+    public void SetTourEditBookingHref(string tourName, string tenantId)
     {
         if (TourDates == null) return;
-        
-        var url = $"/tours/{tourName.UrlFriendly()}/{TourDates.First().DateId}/{TourDates.First().GuestQuantity}";
-        EditBookingHref = url;
+
+        if (tenantId == "fuse")
+        {
+            var url = $"/tours/{tourName.UrlFriendly()}/{TourDates.First().DateId}/{TourDates.First().GuestQuantity}";
+            EditBookingHref = url;
+        }
+        else
+        {
+            var url = $"/explore/tour/{tourName.UrlFriendly()}/{TourDates.First().DateId}/{TourDates.First().GuestQuantity}";
+            EditBookingHref = url;
+        }
     }
 
     public decimal CalculateTotal()

@@ -1,4 +1,5 @@
 using Travaloud.Application.Catalog.Tours.Commands;
+using Travaloud.Application.Common.Utils;
 using Travaloud.Domain.Catalog.Tours;
 using Travaloud.Domain.Common.Events;
 
@@ -30,12 +31,13 @@ public static class ToursExtensions
                             tourPriceRequest.NightDuration,
                             tourPriceRequest.HourDuration,
                             tourPriceRequest.ComissionAmount,
+                            tourPriceRequest.PublishToWebsite,
                             tourPriceRequest.Id);
                     }
                     else
                     {
                         // Update an existing TourPrice
-                        price.Update(tourPriceRequest.Price,
+                        price = price.Update(tourPriceRequest.Price,
                             tourPriceRequest.Title,
                             tourPriceRequest.Description,
                             tourPriceRequest.MonthFrom,
@@ -44,11 +46,12 @@ public static class ToursExtensions
                             tourPriceRequest.NightDuration,
                             tourPriceRequest.HourDuration,
                             tour.Id,
-                            tourPriceRequest.ComissionAmount);
+                            tourPriceRequest.ComissionAmount,
+                            tourPriceRequest.PublishToWebsite);
                     }
-
+                    
                     tourPrices.Add(price);
-
+                    
                     var priceDates = dates != null ? dates.Where(x => x.TourPriceId == tourPriceRequest.Id) : Array.Empty<TourDateRequest>();
                     var tourDateRequests = priceDates as TourDateRequest[] ?? priceDates.ToArray();
                     
@@ -59,13 +62,18 @@ public static class ToursExtensions
                         var date = tour.TourDates?.FirstOrDefault(td => td.Id == tourDateRequest.Id);
 
                         if (tourDateRequest is not
-                            {StartDate: not null, EndDate: not null, StartTime: not null}) continue;
+                            {StartDate: not null, EndDate: not null}) continue;
 
-                        tourDateRequest.StartDate = tourDateRequest.StartDate.Value.Date + tourDateRequest.StartTime.Value;
+                        if (tourDateRequest.StartTime.HasValue)
+                            tourDateRequest.StartDate = tourDateRequest.StartDate.Value.Date + tourDateRequest.StartTime.Value;
                         
-                        if (tourDateRequest.EndTime != null)
-                            tourDateRequest.EndDate =
-                                tourDateRequest.EndDate.Value.Date + tourDateRequest.EndTime.Value;
+                        tourDateRequest.EndDate = DateTimeUtils.CalculateEndDate(tourDateRequest.StartDate.Value, price.DayDuration,
+                            price.NightDuration, price.HourDuration);
+                        tourDateRequest.EndTime = tourDateRequest.EndDate.Value.TimeOfDay;
+                        
+                        // if (tourDateRequest.EndTime != null)
+                        //     tourDateRequest.EndDate =
+                        //         tourDateRequest.EndDate.Value.Date + tourDateRequest.EndTime.Value;
 
                         if (date is null)
                         {
@@ -103,7 +111,7 @@ public static class ToursExtensions
                                 tourDateRequest.AvailableSpaces = availableSpaces;
                             }
 
-                            date.Update(tourDateRequest.StartDate, tourDateRequest.EndDate,
+                            date = date.Update(tourDateRequest.StartDate, tourDateRequest.EndDate,
                                 tourDateRequest.AvailableSpaces, tourDateRequest.PriceOverride, tour.Id,
                                 tourDateRequest.TourPriceId);
                         }
@@ -124,9 +132,12 @@ public static class ToursExtensions
         {
             foreach (var tourDate in tourDatesToRemove)
             {
-                tourDate.DomainEvents.Add(EntityDeletedEvent.WithEntity(tourDate));
-                tourDate.FlagAsDeleted(userId);
-                tourDates.Add(tourDate);
+                if (tourDate.StartDate >= DateTime.Now)
+                {
+                    tourDate.DomainEvents.Add(EntityDeletedEvent.WithEntity(tourDate));
+                    tourDate.FlagAsDeleted(userId);
+                    tourDates.Add(tourDate);
+                }
             }
         }
 

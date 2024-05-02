@@ -44,6 +44,13 @@ public interface IStripeService : ITransientService
     Task<Customer?> SearchStripeCustomer(SearchStripeCustomerRequest request);
 
     /// <summary>
+    /// Searches for a Multi Tenant Stripe Customer.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    Task<Customer?> SearchStripeCustomer(SearchMultiTenantStripeCustomerRequest request);
+    
+    /// <summary>
     /// Creates a Stripe Client Secret for use in stripe.js
     /// </summary>
     /// <param name="request"></param>

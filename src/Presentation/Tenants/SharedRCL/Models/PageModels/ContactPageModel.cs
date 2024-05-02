@@ -16,11 +16,15 @@ public abstract class ContactPageModel : ContactBasePageModel<EmailTemplates.Con
     [BindProperty]
     public ContactComponent ContactComponent { get; set; }
 
-    public override async Task<IActionResult> OnGetAsync(string? tourName = null, Guid? tourDate = null, int? guestQuantity = null)
+    public override async Task<IActionResult> OnGetAsync(string? tourName = null, Guid? tourDate = null, int? guestQuantity = null, string? userId = null)
     {
         await base.OnGetDataAsync();
 
-        ContactComponent = null;
+        ContactComponent = new ContactComponent()
+        {
+            Tours = Tours,
+            Properties = Properties
+        };
         ModelState.Clear();
 
         return Page();
@@ -33,7 +37,9 @@ public abstract class ContactPageModel : ContactBasePageModel<EmailTemplates.Con
             Name = ContactComponent.Name,
             Email = ContactComponent.Email,
             ContactNumber = ContactComponent.ContactNumber,
-            Message = ContactComponent.Message
+            Message = ContactComponent.Message,
+            RelatedProperty = ContactComponent.RelatedProperty,
+            RelatedTour = ContactComponent.RelatedTour
         });
 
         return base.OnPostAsync(service,
@@ -46,7 +52,9 @@ public abstract class ContactPageModel : ContactBasePageModel<EmailTemplates.Con
                 ContactComponent.Name,
                 ContactComponent.Email,
                 ContactComponent.Message,
-                ContactComponent.ContactNumber),
+                ContactComponent.ContactNumber,
+                ContactComponent.RelatedTour,
+                ContactComponent.RelatedProperty),
             ContactComponent);
     }
 }

@@ -42,6 +42,8 @@ public class IndexModel : TravaloudBasePageModel
         if (string.IsNullOrEmpty(stripeSessionId))
             return LocalRedirect("/order-failed");
 
+        Logger.Information("Processing Payment for stripeSessionId: {StripeSessionId}", stripeSessionId);
+        
         try
         {
             var stripeStatus = await _stripeService.GetStripePaymentStatus(
@@ -49,6 +51,8 @@ public class IndexModel : TravaloudBasePageModel
 
             if (stripeStatus == null)
                 return LocalRedirect("/order-failed");
+            
+            Logger.Information("StripeSessionId {StripeSessionId} status is {Status}", stripeSessionId, stripeStatus.Status);
             
             paymentIntentId = stripeStatus.PaymentIntentId;
             var cardToken = stripeStatus.CustomerId; 
@@ -71,6 +75,8 @@ public class IndexModel : TravaloudBasePageModel
                         stripeStatus.PaymentIntentId, Basket.Total);
                 }
                     
+                Logger.Information("Booking {BookingId} created for StripeSessionId {StripeSessionId} ", bookingId, stripeSessionId);
+                
                 var booking = await BookingService.GetAsync(bookingId.Value);
 
                 var propertyBookingsProcessed = await _paymentConfirmationService.ProcessPropertyBookings(
@@ -95,6 +101,13 @@ public class IndexModel : TravaloudBasePageModel
                 BookingId = booking.InvoiceId;
                 BookingDate = booking.BookingDate;
 
+                Basket.Items = Basket.Items.Select(x =>
+                {
+                    if (!x.TourId.HasValue) return x;
+                    if (Tours != null) x.Tour = Tours.FirstOrDefault(t => t.Id == x.TourId);
+                    return x;
+                }).ToList();
+                
                 // Send confirmation email
                 var emailModel = new BookingConfirmationTemplateModel(
                     TenantName,
@@ -120,6 +133,8 @@ public class IndexModel : TravaloudBasePageModel
 
                 await MailService.SendAsync(mailRequest);
 
+                Logger.Information("Confirmation email sent for BookingId {BookingId}", bookingId);
+                
                 if (!(bool) HttpContextAccessor.HttpContext?.Session.Keys.Contains("GuestId"))
                 {
                     HttpContextAccessor.HttpContext?.Session.Remove("GuestId");
@@ -134,6 +149,8 @@ public class IndexModel : TravaloudBasePageModel
         {
             StatusMessage = ex.Message;
             StatusSeverity = "danger";
+            
+            Logger.Error(ex.Message);
         }
 
         return await RefundAndFail(bookingId, paymentAuthorizationCode,
@@ -151,6 +168,8 @@ public class IndexModel : TravaloudBasePageModel
         if (bookingId.HasValue)
             await BookingService.DeleteAsync(bookingId.Value);
 
+        BasketService.EmptyBasket();
+        
         return LocalRedirect("/order-failed");
     }
 }

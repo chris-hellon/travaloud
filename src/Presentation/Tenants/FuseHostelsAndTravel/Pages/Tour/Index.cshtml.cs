@@ -9,7 +9,7 @@ public class Index : TourPageModel
     {
     }
 
-    public override async Task<IActionResult> OnGetAsync(string? tourName = null, Guid? tourDate = null, int? guestQuantity = null)
+    public override async Task<IActionResult> OnGetAsync(string? tourName = null, Guid? tourDate = null, int? guestQuantity = null, string? userId = null)
     {
         await OnGetTourAsync(tourName, tourDate, guestQuantity);
 

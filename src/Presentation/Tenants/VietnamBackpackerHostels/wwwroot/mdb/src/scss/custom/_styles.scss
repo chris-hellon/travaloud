@@ -1,0 +1,221 @@
+// scss-docs-start navigation
+.navbar, .navbar-collapse {
+  min-height:75px;
+}
+.navbar.shadow {
+  background-color:var(--mdb-black) !important;
+}
+.navbar.shadow .nav-link:not(.navbar-brand) {
+  color:var(--mdb-white) !important;
+}
+// scss-docs-end navigation
+
+// scss-docs-start accordion
+.accordion-body {
+  .nav-link {
+    text-transform: none !important;
+  }
+
+  ul {
+    list-style-type: none;
+    padding-left: 0px;
+
+    li {
+      margin-bottom: 15px;
+
+      &:last-of-type {
+        margin-bottom: 0px;
+      }
+    }
+  }
+
+  padding: 20px 20px 10px 0px;
+}
+.accordion-button {
+  font-size: var(--mdb-nav-link-font-size) !important;
+  font-weight: var(--mdb-nav-link-font-weight);
+  text-shadow: none;
+  letter-spacing: 0.063rem;
+  margin-left: 0rem;
+  margin-right: 0rem;
+  font-family:  var(--mdb-font-brandon-printed);;
+
+  &:after {
+    display: none;
+  }
+}
+.accordion-borderless {
+  .accordion-item {
+    .accordion-button:not(.collapsed) {
+      color: #fff;
+      background-color: transparent;
+    }
+  }
+}
+.accordion-flush .accordion-item .accordion-button, .accordion-flush .accordion-item .accordion-button.collapsed {
+  text-transform: uppercase;
+}
+// scss-docs-end accordion
+
+//scss-docs-start form controls
+.form-control, .form-label {
+  font-family: var(--mdb-font-roboto);
+  font-size: .875rem !important;
+  color: var(--mdb-gray);
+  letter-spacing: 1px;
+}
+.form-label {
+  font-family: var(--mdb-font-brandon-printed) !important;
+}
+//scss-docs-end form controls
+
+//scss-docs-start miscellaneous
+#tourEnquireNowMobileButton {
+  @media (max-width: 991px) {
+    position: absolute;
+    bottom: -20px;
+    width: calc(100% - 20px);
+  }
+}
+#toursCarousel .card-body {
+  @media (max-width: 991px) {
+    padding: 32px 24px !important;
+  }
+}
+//scss-docs-end miscellaneous
+
+h2:not(h2.fs-4):not(.header-font):not(.accordion-header):not(#logInModalLabel):not(#registerModalLabel), h3 strong:not(.has-parallax-scroll) {
+  color: #fff;
+  background-color: #000;
+  display: inline-block;
+  padding: .4rem 3.5rem;
+}
+
+h2:not(h2.fs-4):not(.header-font):not(.accordion-header) {
+  margin-bottom: 2rem;
+}
+
+#fullPageCarousel {
+  @media (min-width: 1200px) {
+    .fs-1 {
+      font-size: 7rem !important;
+    }
+
+    .fs-4 {
+      font-size: 2.7rem !important;
+    }
+  }
+  
+  small {
+    font-family:  var(--mdb-font-brandon-printed);
+  }
+}
+
+h4.tilted {
+  transform: rotate(-4deg);
+
+  @media (max-width: 968px) {
+    transform: unset !important;
+    display: block !important;
+    text-align: center !important;
+  }
+}
+
+
+#socials i {
+  font-size: 2rem;
+}
+
+.card .bg-image, .small-carousel .carousel-item {
+  height: 300px;
+  object-fit: cover;
+}
+
+.card .bg-image img, .small-carousel .carousel-item img {
+  object-fit: cover;
+  height: 100%;
+  width: 100%;
+}
+
+.roomToggleButton, .itemToggleButton, .checkout-order-summary h6 {
+  font-size:0.75rem !important;
+  letter-spacing: 1px !important;
+}
+
+@media (min-width: 1200px) {
+  .modal .display-5 {
+    font-size: 2rem !important;
+  }
+}
+
+.owl-item .col-lg-12 {
+  height: 98% !important;
+}
+
+.custom-height {
+  height: 500px;
+}
+
+.custom-mt {
+  margin-top: -240px;
+}
+
+.main-timeline-2, .timeline-2, div {
+  position: relative;
+}
+
+.left-2 {
+  padding: 0 40px 20px 0;
+  left: 0;
+}
+
+.timeline-2 {
+  background-color: inherit;
+  width: 50%;
+}
+
+.right-2 {
+  padding: 0 0 20px 40px;
+  left: 50%;
+}
+
+.left-2::before {
+  content: " ";
+  top: 18px;
+  right: 30px;
+  border: solid #fff;
+  border-width: 10px 0 10px 10px;
+  border-color: transparent transparent transparent #fff;
+}
+.right-2::before {
+  content: " ";
+  top: 18px;
+  left: 30px;
+  border: solid #fff;
+  border-width: 10px 10px 10px 0;
+  border-color: transparent #fff transparent transparent;
+}
+
+.left-2::before, .right-2::before, .timeline-2::after {
+  z-index: 1;
+  position: absolute;}
+
+.timeline-2::after {
+  content: "";
+  width: 25px;
+  height: 25px;
+  right: -11px;
+  background-color: var(--mdb-black);
+  top: 15px;
+  border-radius: 50%;
+}
+.main-timeline-2::after {
+  content: "";
+  position: absolute;
+  width: 3px;
+  background-color: var(--mdb-black);
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  margin-left: -3px;
+}

@@ -17,6 +17,7 @@ public class GetTourRequest : IRequest<TourDetailsDto>
 public class GetTourRequestHandler : IRequestHandler<GetTourRequest, TourDetailsDto>
 {
     private readonly IRepositoryFactory<Tour> _repository;
+    private readonly IRepositoryFactory<TourDate> _tourDatesRepository;
     private readonly IRepositoryFactory<TourCategory> _tourCategoriesRepository;
     private readonly IRepositoryFactory<TourCategoryLookup> _tourCategoryLookupsRepository;
     private readonly IStringLocalizer<GetTourRequestHandler> _localizer;
@@ -24,21 +25,30 @@ public class GetTourRequestHandler : IRequestHandler<GetTourRequest, TourDetails
     public GetTourRequestHandler(IRepositoryFactory<Tour> repository,
         IRepositoryFactory<TourCategory> tourCategoriesRepository,
         IRepositoryFactory<TourCategoryLookup> tourCategoryLookupsRepository,
-        IStringLocalizer<GetTourRequestHandler> localizer)
+        IStringLocalizer<GetTourRequestHandler> localizer, 
+        IRepositoryFactory<TourDate> tourDatesRepository)
     {
         _repository = repository;
         _tourCategoriesRepository = tourCategoriesRepository;
         _tourCategoryLookupsRepository = tourCategoryLookupsRepository;
         _localizer = localizer;
+        _tourDatesRepository = tourDatesRepository;
     }
 
     public async Task<TourDetailsDto> Handle(GetTourRequest request, CancellationToken cancellationToken)
     {
-        var tour = await _repository.FirstOrDefaultAsync(new TourByIdWithDetailsSpec(request.Id), cancellationToken) 
+        var tourWithoutDates = await _repository.FirstOrDefaultAsync(new TourByIdWithDetailsSpec(request.Id), cancellationToken) 
                    ?? throw new NotFoundException(string.Format(_localizer["tour.notfound"], request.Id));
 
+        var tourDates =
+            await _tourDatesRepository.ListAsync(new TourDatesByTourIdSpec(new GetTourDatesRequest(request.Id)), cancellationToken);
+
+        var tour = tourWithoutDates.Adapt<TourDetailsDto>();
+        
+        tour.TourDates = tourDates;
+        
         if (tour.TourDates != null && tour.TourDates.Any())
-            tour.TourDates = tour.TourDates.Where(x => x.StartDate >= DateTime.Today.AddDays(1)).ToList();
+            tour.TourDates = tour.TourDates.Where(x => x.StartDate > DateTime.Now).ToList();
         
         if (tour.TourItineraries != null)
         {

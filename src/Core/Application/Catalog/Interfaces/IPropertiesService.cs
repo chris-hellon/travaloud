@@ -18,4 +18,8 @@ public interface IPropertiesService : ITransientService
     Task<DefaultIdType?> DeleteAsync(DefaultIdType id);
 
     Task<FileResponse?> ExportAsync(ExportPropertiesRequest filter);
+
+    Task<IEnumerable<PropertyDto>> GetPropertiesByDestination(GetPropertiesByDestinationRequest request);
+
+    Task<PropertyDetailsDto?> GetPropertyWithTours(GetPropertyWithToursRequest request);
 }

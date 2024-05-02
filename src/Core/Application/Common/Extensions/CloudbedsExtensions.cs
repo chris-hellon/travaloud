@@ -11,6 +11,13 @@ namespace Travaloud.Application.Common.Extensions;
 
 public static class CloudbedsExtensions
 {
+    public static string ReplaceFunkyFirstnames(this string firstName)
+    {
+        const string pattern = @"\[[^\]]*\]|\([^()]*\)";
+        const string replacement = ""; // Replace with empty string
+        return Regex.Replace(firstName, pattern, replacement);
+    }
+    
     public static int GetMaximumOccupancy(this PropertyRoomDto propertyRoom)
     {
         if (!propertyRoom.IsSharedRoom)

@@ -1,4 +1,5 @@
-﻿using Travaloud.Application.Identity.Users;
+﻿using Travaloud.Application.Catalog.Bookings.Specification;
+using Travaloud.Application.Identity.Users;
 using Travaloud.Domain.Catalog.Bookings;
 using Travaloud.Domain.Catalog.Properties;
 using Travaloud.Domain.Catalog.Tours;
@@ -7,6 +8,7 @@ namespace Travaloud.Application.Dashboard;
 
 public class GetStatsRequest : IRequest<StatsDto>
 {
+    public List<UserDetailsDto> Guests { get; set; }
 }
 
 public class GetStatsRequestHandler : IRequestHandler<GetStatsRequest, StatsDto>
@@ -14,28 +16,47 @@ public class GetStatsRequestHandler : IRequestHandler<GetStatsRequest, StatsDto>
     private readonly IUserService _userService;
     private readonly IRepositoryFactory<Property> _propertiesRepo;
     private readonly IRepositoryFactory<Booking> _bookingsRepo;
+    private readonly IRepositoryFactory<BookingItem> _bookingItemsRepo;
     private readonly IRepositoryFactory<Tour> _toursRepo;
     private readonly IStringLocalizer<GetStatsRequestHandler> _localizer;
-
     public GetStatsRequestHandler(IUserService userService, IRepositoryFactory<Property> propertiesRepo,
         IRepositoryFactory<Booking> bookingsRepo, IRepositoryFactory<Tour> toursRepo,
-        IStringLocalizer<GetStatsRequestHandler> localizer)
+        IStringLocalizer<GetStatsRequestHandler> localizer, IRepositoryFactory<BookingItem> bookingItemsRepo)
     {
         _userService = userService;
         _propertiesRepo = propertiesRepo;
         _bookingsRepo = bookingsRepo;
         _toursRepo = toursRepo;
         _localizer = localizer;
+        _bookingItemsRepo = bookingItemsRepo;
     }
 
     public async Task<StatsDto> Handle(GetStatsRequest request, CancellationToken cancellationToken)
     {
+        var tourBookings = await _bookingsRepo.ListAsync(new TourBookingsCountSpec(), cancellationToken);
+        var tourItemBookings = tourBookings.GroupBy(x => new
+        {
+            Booking = x,
+            PaidItems = x.Items.Where(i => i.TourId.HasValue && x.IsPaid),
+            AllItems = x.Items.Where(i => i.TourId.HasValue)
+        })
+        .Select(group => new
+        {
+            GroupKey = group.Key,
+            PaidItemCount = group.Key.PaidItems.Count(),
+            AllItemsCount = group.Key.AllItems.Count(),
+            Revenue = group.Key.PaidItems.Sum(x => x.TotalAmount)
+        });
+
         var stats = new StatsDto()
         {
             PropertiesCount = await _propertiesRepo.CountAsync(cancellationToken),
             BookingsCount = await _bookingsRepo.CountAsync(cancellationToken),
-            GuestsCount = await _userService.GetCountAsync(cancellationToken, "Guest"),
-            ToursCount = await _toursRepo.CountAsync(cancellationToken)
+            TourBookingsCount = tourItemBookings.Sum(x => x.AllItemsCount),
+            TourBookingsRevenue = tourItemBookings.Sum(x => x.Revenue),
+            PropertyBookingsCount = await _bookingsRepo.CountAsync(new PropertyBookingsCountSpec(), cancellationToken),
+            GuestsCount = request.Guests.Count,
+            ToursCount = await _toursRepo.CountAsync(cancellationToken),
         };
 
         var selectedYear = DateTime.Now.Year;

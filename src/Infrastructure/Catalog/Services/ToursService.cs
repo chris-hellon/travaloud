@@ -56,10 +56,30 @@ public class ToursService : BaseService, IToursService
         return Mediator.Send(new GetTourDatesRequest(tourId, requestedSpaces));
     }
     
+    public Task<bool> GetTourDatesByPriceAsync(GetTourDatesByPriceRequest request)
+    {
+        return Mediator.Send(request);
+    }
+    
     public async Task<FileResponse?> ExportAsync(ExportToursRequest filter)
     {
         var response = await Mediator.Send(filter);
         
         return new FileResponse(response);
+    }
+
+    public Task<IEnumerable<TourWithoutDatesDto>> GetToursWithDetails(GetToursWithDetailsRequest request)
+    {
+        return Mediator.Send(request);
+    }
+
+    public Task<IEnumerable<TourWithoutDatesDto>> GetToursByDestinations(GetToursByDestinationsRequest request)
+    {
+        return Mediator.Send(request);
+    }
+    
+    public Task<IEnumerable<TourDetailsDto>> GetToursByDestinations(GetToursByDestinationsWithDatesRequest request)
+    {
+        return Mediator.Send(request);
     }
 }

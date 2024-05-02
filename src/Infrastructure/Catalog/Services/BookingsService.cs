@@ -32,6 +32,21 @@ public class BookingsService : BaseService, IBookingsService
     {
         return Mediator.Send(request);
     }
+
+    public Task<string> CreateStaffTourBookingQrCodeUrl(CreateStaffTourBookingQrCodeUrlRequest request)
+    {
+        return Mediator.Send(request);
+    }
+    
+    public Task<bool> GetBookingsByDateAsync(BookingsByTourStartDateRequest request)
+    {
+        return Mediator.Send(request);
+    }
+    
+    public Task<IList<DefaultIdType?>> GetBookingsByDatesAsync(BookingsByTourStartDatesRequest request)
+    {
+        return Mediator.Send(request);
+    }
     
     public Task<DefaultIdType?> CreateAsync(CreateBookingRequest request)
     {
@@ -76,6 +91,18 @@ public class BookingsService : BaseService, IBookingsService
     {
         filter.Guests = await _userService.GetListAsync(TravaloudRoles.Guest);
         
+        var response = await Mediator.Send(filter);
+        
+        return new FileResponse(response);
+    }
+
+    public Task<IEnumerable<StaffBookingDto>> StaffBookingsByDateRange(StaffBookingsByDateRangeRequest request)
+    {
+        return Mediator.Send(request);
+    }
+    
+    public async Task<FileResponse> ExportStaffBookingsAsync(ExportStaffBookingsRequest filter)
+    {
         var response = await Mediator.Send(filter);
         
         return new FileResponse(response);

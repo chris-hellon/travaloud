@@ -1,0 +1,16 @@
+.tour-main-image {
+    height: 400px;
+    object-fit: cover;
+}
+
+.tour-main-image img {
+    object-fit: cover;
+}
+
+.badge {
+    white-space: unset;
+}
+
+main {
+    background-color: #000;
+}

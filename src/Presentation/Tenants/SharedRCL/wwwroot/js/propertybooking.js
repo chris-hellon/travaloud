@@ -31,16 +31,18 @@ $('.js-room-quantity').on('change', function() {
     
     let request = new BasketItemRoomModel(roomTypeId, roomTypeName, roomIsShared, roomQuantity, room.roomRate, adultQuantity, childQuantity, cloudbedsPropertyId)
     
-    console.log(request);
-    
-    postAjax("AddRoomToBasket", request, function (result) {
-        let basket = result.basket;
-        let item = result.item;
-        let itemsCount = basket.itemsCount;
+    doPost({
+        url : "AddRoomToBasket",
+        formData: request,
+        successCallback: (result) => {
+            let basket = result.basket;
+            let item = result.item;
+            let itemsCount = basket.itemsCount;
 
-        $('.basketItemsNavQuantity').html(itemsCount).removeClass('d-none');
-        $('#basketTotal').html('$ ' + basket.total.toFixed(2));
-        $('#selectionTotal').html('$ ' + item.total.toFixed(2));
-        $('#selectionRoomCount').html(item.rooms.length + ' rooms');
+            $('.basketItemsNavQuantity').html(itemsCount).removeClass('d-none');
+            $('#basketTotal').html('$ ' + basket.total.toFixed(2));
+            $('#selectionTotal').html('$ ' + item.total.toFixed(2));
+            $('#selectionRoomCount').html(item.rooms.length + ' rooms');
+        }
     });
 });

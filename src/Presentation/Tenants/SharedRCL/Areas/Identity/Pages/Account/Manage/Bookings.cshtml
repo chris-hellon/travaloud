@@ -1,7 +1,7 @@
 ﻿@page "/my-account/bookings/{bookingId?}"
 @model Travaloud.Tenants.SharedRCL.Areas.Identity.Pages.Account.Manage.BookingsModel
 @using Travaloud.Tenants.SharedRCL.Areas.Identity.Pages.Account.Manage
-@using Microsoft.AspNetCore.Mvc.TagHelpers
+
 @{
     ViewData["Title"] = "Bookings";
     ViewData["ActivePage"] = ManageNavPages.Bookings;
@@ -11,106 +11,35 @@
 {
     <div class="container pt-8 pb-0">
         <div class="row d-flex justify-content-center">
-            <div class="col-lg-12 has-parallax-scroll">
+            <div class="col-lg-7 has-parallax-scroll">
                 <section class="mb-10">
-                    <style>
-
-                        @@media (min-width: 451px) {
-                            .product-image {
-                                width: 150px;
-                            }
-                        }
-                    </style>
                     <div class="row mx-auto">
-                        <div class="col-xl-12">
-                            <div class="row">
-                                <div class="col-lg-8 mb-5 mb-lg-0">
-                                    <h4 class="border-bottom pb-3 mb-4">Booking details</h4>
-                                    <div class="form-check pb-2 mb-0">
-                                        <h5>Booking Date</h5>
-                                        <p class="text-muted mb-2 small">@Model.Booking.BookingDate.ToShortDateString()</p>
-                                    </div>
-                                    <div class="form-check mb-5">
-                                        <h5>Booking Reference</h5>
-                                        <p class="text-muted mb-2 small">@(Model.BookingProperty != null ? Model.Booking.Items.FirstOrDefault().CloudbedsReservationId : Model.Booking.InvoiceId)</p>
-                                    </div>
-                                </div>
-                                @if (Model.BookingProperty != null)
-                                {
-                                    <div class="col-lg-4">
-                                        <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4">
-                                            <h4 class="mb-0">Hostel Address</h4>
-                                        </div>
-                                        <h5><a class="text-primary text-decoration-underline text-uppercase" asp-page="/Hostels/Index" asp-route-propertyName="@Model.BookingProperty.FriendlyUrl">@Model.BookingProperty.Name</a></h5>
-                                        <p class="mb-0 small">@Model.BookingProperty.AddressLine1</p>
-                                        <p class="mb-0 small">@Model.BookingProperty.AddressLine2</p>
-                                        <p class="mb-0 small">@Model.BookingProperty.TelephoneNumber</p>
-
-                                        @{
-                                            var hostelAddressGoogleFormat = $"{Model.BookingProperty.AddressLine1.Replace(" ", "+").Replace(",", "")}+{Model.BookingProperty.AddressLine2.Replace(" ", "+").Replace(",", "")}";
-                                            <a class="small text-primary text-decoration-underline" href="@($"http://maps.google.com?saddr=My+Location&daddr={hostelAddressGoogleFormat}")" target="_blank">DIRECTIONS</a>
-                                        }
-                                    </div>
-                                }
+                        <div class="d-flex justify-content-center">
+                            <h4 class="tilted display-6">BOOKING DETAILS</h4>
+                        </div>
+                        <div class="d-flex justify-content-between mt-5 border-bottom pb-3 mb-4">
+                            <div>
+                                <h6>Booking Reference</h6>
+                                <p>@Model.Booking.InvoiceId</p>
+                            </div>
+                            <div>
+                                <h6>Date of Order</h6>
+                                <p>@Model.Booking.BookingDate.ToLongDateString()</p>
                             </div>
                         </div>
-                        <div class="col-lg-12">
-                            <h4 class="border-bottom pb-3 mb-4">Booking Items</h4>
 
-                            @foreach (var item in Model.Booking.Items)
+                        @if (Model.Booking.Items != null && Model.Booking.Items.Any())
+                        {
+                            foreach (var item in Model.Booking.Items)
                             {
-                                if (item.Rooms != null && item.Rooms.Any())
-                                {
-                                    foreach (var room in item.Rooms)
-                                    {
-                                        <div class="d-md-flex justify-content-start border-bottom pb-4 @(room != item.Rooms.Last() ? "mb-4" : "")">
-                                            <div class="w-100 ps-md-4">
-                                                <div class="d-flex justify-content-between">
-                                                    <div class="">
-                                                        <h5>@room.RoomName</h5>
-                                                        <p class="text-muted pt-1 mb-0 small">@room.Nights nights</p>
-                                                        <p class="text-muted pt-1 mb-0 small">@room.CheckInDate.ToShortDateString() - @room.CheckOutDate.ToShortDateString()</p>
-                                                        <p class="text-muted pt-1 mb-0 small">@room.Amount VND</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    }
-                                }
-                                else if (item.Tour != null)
-                                {
-                                    <div class="d-md-flex justify-content-start border-bottom pb-4 @(item != Model.Booking.Items.Last() ? "mb-4" : "")">
-                                        <div class="w-100 ps-md-4">
-                                            <div class="d-flex justify-content-between">
-                                                <div class="">
-                                                    <h5>@item.Tour.Name</h5>
-                                                    <p class="text-muted pt-1 mb-0 small">$@item.Amount</p>
-                                                    <p class="text-muted pt-1 mb-0 small">@item.StartDate - @item.EndDate</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                }
+                                @Html.DisplayFor(x => item)
                             }
-                        </div>
+                        }
                     </div>
                 </section>
-                @if (Model.BookingProperty != null)
-                {
-                    <section id="facilities">
-                        @Html.DisplayFor(x => x.FacilitiesTable)
-                    </section>
-                }
             </div>
         </div>
     </div>
-
-    @if (Model.BookingProperty != null)
-    {
-        <section id="@($"tours-in-{Model.BookingProperty.PageTitle.UrlFriendly()}")" class="bg-light">
-            @Html.DisplayFor(x => x.ToursCards)
-        </section>
-    }
 }
 else
 {
@@ -126,93 +55,11 @@ else
 
 
 @section Scripts {
-    @if (Model.Booking == null)
-    {
-        <script type="text/javascript">
-            function DataTableRow(description, startDate, endDate, status) {
-                this.Description = description;
-                this.StartDate = startDate;
-                this.EndDate = endDate;
-                this.Status = status;
-            }
-
-            function Booking(reference, description, id) {
-                this.Reference = reference;
-                this.Description = description;
-                this.Id = id;
-                this.StartDate = "";
-                this.EndDate = "";
-                this.Status = "";
-            }
-
-        $(window).on("load", function () {
-            let dataTableColumns = [
-                //{ label: 'Reference', field: 'reference' },
-                { label: 'Description', field: 'description' },
-                { label: 'Start Date', field: 'startDate' },
-                { label: 'End Date', field: 'endDate' },
-                { label: 'Status', field: 'status', sort: false}
-                //{ label: '', field: 'id', sort: false }
-            ];
-            let dataTableRows = [];
-            let bookings = [];
-
-            @if (Model.Bookings.Any())
-            {
-                @:let bookingModel = new Booking("", "", "");
-
-                @foreach (var booking in Model.Bookings)
-                {
-                    @:bookingModel = new Booking("@booking.InvoiceId.ToString()", "@booking.Description", "@booking.Id");
-
-                    @:bookingModel.reference = "@booking.InvoiceId.ToString()";
-                    @:bookingModel.description = "@booking.Description";
-
-                    if (booking.Items.Any())
-                    {
-                        foreach (var bookingItem in booking.Items)
-                        {
-                            @:bookingModel.StartDate = "@bookingItem.StartDate.ToShortDateString()";
-                            @:bookingModel.EndDate = "@bookingItem.EndDate.ToShortDateString()";
-                            @:bookingModel.Status = '@(bookingItem.StartDate > DateTime.Now ? "Upcoming" : bookingItem.StartDate <= DateTime.Now && bookingItem.EndDate > DateTime.Now ? "Current" : "Past")';
-                        }
-                    }
-
-                    @:bookings.push(bookingModel);
-                 }
-            }
-
-            $(bookings).each(function (i, v) {
-                dataTableRows.push(new DataTableRow(v.Description, v.StartDate, v.EndDate, v.Status));
-            });
-
-            const customDatatable = document.getElementById('datatable-custom');
-
-            customDatatable.addEventListener('rowClick.mdb.datatable', (e) => {
-                let index = e.index;
-                let booking = bookings[index];
-                let id = booking.Id;
-
-                window.location.href = '/my-account/bookings/' + id;
-            });
-
-            new mdb.Datatable(customDatatable, {
-                columns: dataTableColumns,
-                rows: dataTableRows.map((row) => {
-                    return {
-                        //reference: `<p class='m-0 p-0'>#${row.Reference}</p>`,
-                        description: `<p class='m-0 p-0'>${row.Description}</p>`,
-                        startDate: `<p class='m-0 p-0'>${row.StartDate}</p>`,
-                        endDate: `<p class='m-0 p-0'>${row.EndDate}</p>`,
-                        status: '<span class="d-block w-100 badge badge-' + (row.Status == "Past" ? "warning" : row.Status == "Current" ? "success" : "primary") + ' rounded-pill d-inline">' + row.Status + '</span>'
-                        //id: `<a class="btn btn-primary btn-sm text-decoration-none d-block w-100" href="/my-account/bookings/${row.Id}">View</button>`,
-                    };
-                }),
-            }, { hover: true, clickableRows: true });
-        });
-        </script>
-    }
-
+    <script type="text/javascript">
+        const bookingsSerialized = @Html.Raw(Json.Serialize(@Model.Bookings));
+    </script>
+    
+    <script type="text/javascript" src="/shared/js/guestbookings.min.js"></script>
 }
 
 @section Styles {
@@ -235,8 +82,8 @@ else
         }
 
         @if (Model.BookingProperty != null)
-            {
-                @:.header-banner-image-background { background-image:url('@Model.BookingProperty.ImagePath'); }
-            }
+        {
+            @:.header-banner-image-background { background-image:url('@Model.BookingProperty.ImagePath'); }
+        }
     </style>
 }

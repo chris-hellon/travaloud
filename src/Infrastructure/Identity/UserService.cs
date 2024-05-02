@@ -1,6 +1,7 @@
 using Ardalis.Specification.EntityFrameworkCore;
 using Finbuckle.MultiTenant;
 using Mapster;
+using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -14,6 +15,7 @@ using Travaloud.Application.Common.Models;
 using Travaloud.Application.Common.Specification;
 using Travaloud.Application.Identity.Users;
 using Travaloud.Domain.Identity;
+using Travaloud.Infrastructure.Identity.Specification;
 using Travaloud.Infrastructure.Multitenancy;
 using Travaloud.Infrastructure.Persistence;
 using Travaloud.Infrastructure.Persistence.Context;
@@ -39,6 +41,7 @@ internal partial class UserService : IUserService
     private readonly IOptions<DatabaseSettings> _dbSettings;
     private readonly IEventPublisher _events;
     private readonly IPasswordHasher<ApplicationUser> _passwordHasher;
+    private readonly ISender _mediator;
     
     public UserService(
         IStringLocalizer<UserService> localizer,
@@ -55,7 +58,7 @@ internal partial class UserService : IUserService
         IMultiTenantContextAccessor<TravaloudTenantInfo> multiTenantContextAccessor,
         IConfiguration configuration,
         ISerializerService serializer,
-        IOptions<DatabaseSettings> dbSettings, IPasswordHasher<ApplicationUser> passwordHasher)
+        IOptions<DatabaseSettings> dbSettings, IPasswordHasher<ApplicationUser> passwordHasher, ISender mediator)
     {
         _localizer = localizer;
         // _mailService = mailService;
@@ -72,7 +75,13 @@ internal partial class UserService : IUserService
         _serializer = serializer;
         _dbSettings = dbSettings;
         _passwordHasher = passwordHasher;
+        _mediator = mediator;
         // _securitySettings = securitySettings.Value;
+    }
+
+    public Task<PaginationResponse<UserDetailsDto>> SearchByDapperAsync(SearchByDapperRequest request, CancellationToken cancellationToken)
+    {
+        return _mediator.Send(request, cancellationToken);
     }
 
     public async Task<PaginationResponse<UserDetailsDto>> SearchAsync(UserListFilter filter, CancellationToken cancellationToken)
@@ -80,15 +89,47 @@ internal partial class UserService : IUserService
         await using var dbContext = CreateDbContext();
         var spec = new EntitiesByPaginationFilterSpec<ApplicationUser>(filter);
 
+        if (!string.IsNullOrEmpty(filter.Role))
+        {
+            var getUsersInRole = await GetUsersInRole(dbContext, filter.Role);
+            var userIdsInRole = getUsersInRole.Select(x => x.Id).Distinct();
+
+            var usersInRole = await dbContext.Users
+                .AsNoTracking()
+                .Where(u => userIdsInRole.Contains(u.Id)) // Filter users by user IDs in the specified role
+                .WithSpecification(spec)
+                .ProjectToType<UserDetailsDto>()
+                .ToListAsync(cancellationToken);
+    
+            var usersInRoleCount = getUsersInRole.Count; // Count the number of users in the specified role
+
+            return new PaginationResponse<UserDetailsDto>(usersInRole, usersInRoleCount, filter.PageNumber, filter.PageSize);
+        }
+
         var users = await dbContext.Users
             .AsNoTracking()
             .WithSpecification(spec)
             .ProjectToType<UserDetailsDto>()
             .ToListAsync(cancellationToken);
+        
         var count = await dbContext.Users
             .CountAsync(cancellationToken);
 
         return new PaginationResponse<UserDetailsDto>(users, count, filter.PageNumber, filter.PageSize);
+    }
+
+    public async Task<List<UserDto>> SearchAsync(List<string> userIds, CancellationToken cancellationToken)
+    {
+        await using var dbContext = CreateDbContext();
+        var spec = new UsersByIdsSpec(new UsersByIdsRequest(userIds));
+        
+        var users = await dbContext.Users
+            .AsNoTracking()
+            .WithSpecification(spec)
+            .ProjectToType<UserDto>()
+            .ToListAsync(cancellationToken);
+
+        return users;
     }
 
     public async Task<bool> ExistsWithNameAsync(string name)
@@ -105,6 +146,8 @@ internal partial class UserService : IUserService
         
         await using var dbContext = CreateDbContext();
 
+        if (string.IsNullOrEmpty(email)) return false;
+        
         var user = await dbContext.Users.FirstOrDefaultAsync(x => x.Email == email.Normalize());
         return !string.IsNullOrEmpty(exceptId) && user != null && user.Id != exceptId || string.IsNullOrEmpty(exceptId) && user != null;
     }

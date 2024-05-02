@@ -17,6 +17,8 @@ public interface IToursService : ITransientService
 
     Task<PaginationResponse<TourDateDto>> GetTourDatesAsync(DefaultIdType tourId, int requestedSpaces);
     
+    Task<bool> GetTourDatesByPriceAsync(GetTourDatesByPriceRequest request);
+    
     Task<DefaultIdType?> CreateAsync(CreateTourRequest request);
 
     Task<DefaultIdType?> UpdateAsync(DefaultIdType id, UpdateTourRequest request);
@@ -24,4 +26,10 @@ public interface IToursService : ITransientService
     Task<DefaultIdType?> DeleteAsync(DefaultIdType id);
 
     Task<FileResponse?> ExportAsync(ExportToursRequest filter);
+
+    Task<IEnumerable<TourWithoutDatesDto>> GetToursWithDetails(GetToursWithDetailsRequest request);
+
+    Task<IEnumerable<TourWithoutDatesDto>> GetToursByDestinations(GetToursByDestinationsRequest request);
+
+    Task<IEnumerable<TourDetailsDto>> GetToursByDestinations(GetToursByDestinationsWithDatesRequest request);
 }

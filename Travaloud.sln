@@ -33,6 +33,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedRCL", "src\Presentati
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Admin", "src\Presentation\Travaloud\Admin\Admin.csproj", "{2DD8D01B-2341-445A-B862-2DF223DD2BCF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VietnamBackpackerHostels", "src\Presentation\Tenants\VietnamBackpackerHostels\VietnamBackpackerHostels.csproj", "{9239C17C-AA08-4C43-A9B3-1FC1E122744C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,6 +73,10 @@ Global
 		{2DD8D01B-2341-445A-B862-2DF223DD2BCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2DD8D01B-2341-445A-B862-2DF223DD2BCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2DD8D01B-2341-445A-B862-2DF223DD2BCF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9239C17C-AA08-4C43-A9B3-1FC1E122744C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9239C17C-AA08-4C43-A9B3-1FC1E122744C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9239C17C-AA08-4C43-A9B3-1FC1E122744C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9239C17C-AA08-4C43-A9B3-1FC1E122744C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -89,5 +95,6 @@ Global
 		{BD621EAD-04F3-478B-A1CB-ECA54F856D1C} = {7C1B1A41-4EB2-43BB-9FB6-D2B80229C13D}
 		{4032A842-A632-4DBB-85AA-7734730EDC00} = {7C1B1A41-4EB2-43BB-9FB6-D2B80229C13D}
 		{2DD8D01B-2341-445A-B862-2DF223DD2BCF} = {539BE1BD-0C2D-4020-AFA3-39508D1139B0}
+		{9239C17C-AA08-4C43-A9B3-1FC1E122744C} = {7C1B1A41-4EB2-43BB-9FB6-D2B80229C13D}
 	EndGlobalSection
 EndGlobal

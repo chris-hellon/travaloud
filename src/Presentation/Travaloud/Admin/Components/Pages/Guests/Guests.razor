@@ -7,11 +7,7 @@
 
 <TravaloudPageTitle Title="@L["Guests"]" Description="@L["Manage Guests"]" />
 
-<EntityTable TEntity="UserDetailsDto" TId="Guid" TRequest="UpdateUserRequest" Context="@Context">
-    <ExtraActions>
-        <MudMenuItem OnClick="(() => ViewProfile(context.Id))">@L["View Profile"]</MudMenuItem>
-    </ExtraActions>
-
+<EntityTable TEntity="UserDetailsDto" TId="string" TRequest="UpdateUserRequest" Context="@Context">
     <EditFormContent>
         <MudItem xs="12" md="6">
             <MudTextField For="@(() => context.FirstName)" @bind-Value="context.FirstName" Label="@L["First Name"]" Required="true"/>
@@ -20,7 +16,7 @@
             <MudTextField For="@(() => context.LastName)" @bind-Value="context.LastName" Label="@L["Last Name"]" Required="true"/>
         </MudItem>
         <MudItem xs="12" md="6">
-            <MudDatePicker For="@(() => context.DateOfBirth)" @bind-Date="context.DateOfBirth" Culture="@_culture" TitleDateFormat="dd, MM yyyy" Label="@L["Date Of Birth"]" Required="true"/>
+            <MudDatePicker For="@(() => context.DateOfBirth)" @bind-Date="context.DateOfBirth" Culture="@_culture" TitleDateFormat="dd, MM yyyy" Label="@L["Date Of Birth"]"/>
         </MudItem>
         <MudItem xs="12" md="6">
             <MudTextField For="@(() => context.Email)" InputType="InputType.Email" @bind-Value="context.Email" Label="@L["Email"]" Required="true"/>
@@ -38,23 +34,13 @@
             <MudTextField For="@(() => context.ZipPostalCode)" @bind-Value="context.ZipPostalCode" Label="@L["Zip/Postal Code"]" Required="false"></MudTextField>
         </MudItem>
         <MudItem xs="12" md="6">
-            @* <MudSelect T="string" Label="@L["Nationality"]" For="@(() => context.Nationality)" @bind-Value="context.Nationality" AnchorOrigin="Origin.BottomCenter" Required="false"> *@
-            @*     @foreach (var nationality in _nationalities) *@
-            @*     { *@
-            @*         <MudSelectItem T="string" Value="@(nationality.Value)" /> *@
-            @*     } *@
-            @* </MudSelect> *@
             <MudAutocomplete T="string" MaxItems="null" Label="@L["Nationality"]" For="@(() => context.Nationality)" @bind-Value="context.Nationality" SearchFunc="@SearchNationalities" AnchorOrigin="Origin.BottomCenter" Required="false"/>
         </MudItem>
         <MudItem xs="12" md="6">
             <MudSelect For="@(() => context.Gender)" @bind-Value="context.Gender" @bind-SelectedValues="context.Genders" Label="@L["Gender"]" AnchorOrigin="Origin.BottomCenter" MultiSelection="true" Clearable="true" Required="false">
                 <MudSelectItem Value="@("Male")"/>
                 <MudSelectItem Value="@("Female")"/>
-                <MudSelectItem Value="@("Transgender")"/>
-                <MudSelectItem Value="@("Non-binary/non-conforming")"/>
-                <MudSelectItem Value="@("Intersex")"/>
-                <MudSelectItem Value="@("Other")"/>
-                <MudSelectItem Value="@("Prefer not to say")"/>
+                <MudSelectItem Value="@("N/A")"/>
             </MudSelect>
         </MudItem>
         <MudItem xs="12" md="6">

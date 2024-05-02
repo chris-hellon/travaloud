@@ -15,9 +15,13 @@ const removeItemFromBasket = (id) =>
 {
     let request = new BasketItemModel(id);
 
-    postAjax("RemoveItemFromBasket", request, function (result) {
-        $('.basketItem[data-id="' + id + '"], .basketItemSpacer[data-id="' + id + '"], .basketItemDetails[data-id="' + id + '"]').remove();
-        loadBasket(result.basket);
+    doPost({
+        url : "RemoveItemFromBasket",
+        formData: request,
+        successCallback: (result) => {
+            $('.basketItem[data-id="' + id + '"], .basketItemSpacer[data-id="' + id + '"], .basketItemDetails[data-id="' + id + '"]').remove();
+            loadBasket(result.basket);
+        }
     });
 }
 
@@ -42,8 +46,12 @@ const loadBasket = (updatedBasket) =>
 }
 
 const postBasket = () => {
-    postAjax("UpdateBasket", basket, function (result) {
-        loadBasket(result.basket);
+    doPost({
+        url : "UpdateBasket",
+        formData: basket,
+        successCallback: (result) => {
+            loadBasket(result.basket);
+        }
     });
 }
 

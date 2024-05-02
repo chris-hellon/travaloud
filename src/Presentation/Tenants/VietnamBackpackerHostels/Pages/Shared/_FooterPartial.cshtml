@@ -1,0 +1,95 @@
+@model TravaloudBasePageModel
+
+@*<partial name="/Pages/Shared/_DesignYourTripPartial.cshtml" />*@
+
+<footer class="bg-black text-center text-white">
+    <div class="container p-4">
+        <section class="mb-4">
+            <a class="btn btn-outline-light btn-floating m-1" href="https://www.facebook.com/vietnambackpackerhostels" role="button">
+                <i class="fab fa-facebook-f"></i>
+            </a>
+            <a class="btn btn-outline-light btn-floating m-1" href="https://www.youtube.com/channel/UCtpYKc-XtNS1XkgFGIp-HCw" role="button">
+                <i class="fab fa-youtube"></i>
+            </a>
+            <a class="btn btn-outline-light btn-floating m-1" href="https://www.instagram.com/vbh_vietnam" role="button">
+                <i class="fab fa-instagram"></i>
+            </a>
+        </section>
+        <section>
+            <div class="row">
+                <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
+                    <h5><a asp-page="/Destinations/Index" class="text-white">Hostels</a></h5>
+
+                    <ul class="list-unstyled mb-0">
+                        @if (Model.Destinations.Any())
+                        {
+                            foreach (var destination in Model.Destinations)
+                            {
+                                <li>
+                                    <a asp-page="/Destination/Index" asp-route-destinationName="@destination.FriendlyUrl" class="text-white">@destination.Name</a>
+                                </li>
+                            }
+                        }
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
+                    <h5><a class="text-white" asp-page="/Explore/Index">Explore</a></h5>
+
+                    <ul class="list-unstyled mb-0">
+                        @if (Model.ToursWithCategories.Any())
+                        {
+                            foreach (var tourCategory in Model.ToursWithCategories)
+                            {
+                                if (!tourCategory.CategoryId.HasValue && !tourCategory.ParentTourCategoryId.HasValue)
+                                {
+                                    <li>
+                                        <a asp-page="/TourCategory/Index" asp-route-tourCategoryName="@tourCategory.FriendlyUrl" class="text-white">@tourCategory.Name</a>
+                                    </li>
+                                }
+                            }
+                        }
+                    </ul>
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
+                    <h5><a asp-page="/Services/Index" asp-route-category="" class="text-white">Services</a></h5>
+
+                    <ul class="list-unstyled mb-0">
+                        @if (Model.Services.Any())
+                        {
+                            foreach (var service in Model.Services)
+                            {
+                                <li>
+                                    <a asp-page="/Service/Index" asp-route-serviceName="@service.FriendlyUrl" class="text-white">@service.Title</a>
+                                </li>
+                            }
+                        }
+                    </ul>
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
+                    <h5><a href="/about-us" class="text-white">About Us</a></h5>
+
+                    <ul class="list-unstyled mb-0">
+                        <li>
+                            <a class="text-white" asp-page="/AboutUs/CityGuides/Index">City Guides</a>
+                        </li>
+                        <li>
+                            <a class="text-white" asp-page="/AboutUs/Community/Index">Community</a>
+                        </li>
+                        <li>
+                            <a class="text-white" asp-page="/AboutUs/JoinOurCrew/Index">Join Our Crew</a>
+                        </li>
+                        <li>
+                            <a class="text-white" asp-page="/TermsAndConditions/Index">Terms & Conditions</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </div>
+    <div class="text-center p-3 header-font bg-black mb-0">
+        © @DateTime.Now.Year
+        Vietnam Backpacker Hostels
+    </div>
+</footer>

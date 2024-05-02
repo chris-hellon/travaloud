@@ -9,7 +9,19 @@ public class TourDatesByTourIdSpec : EntitiesByBaseFilterSpec<TourDate, TourDate
     public TourDatesByTourIdSpec(GetTourDatesRequest request)
         : base(request) =>
         Query
+            .Include(x => x.TourPrice)
             .OrderBy(c => c.StartDate)
-            .Where(p => p.TourId == request.TourId).Include(x => x.TourPrice);
+            .Where(p => p.TourId == request.TourId)
+            .Where(p => p.StartDate > DateTime.Now);
+    // .Where(x => x.AvailableSpaces > 0 && x.AvailableSpaces >= request.RequestedSpaces);
+}
+
+public class TourDatesByTourIdNoLimitSpec : Specification<TourDate, TourDateDto>
+{
+    public TourDatesByTourIdNoLimitSpec(DefaultIdType tourId) =>
+        Query
+            .Include(x => x.TourPrice)
+            .OrderBy(c => c.StartDate)
+            .Where(p => p.TourId == tourId);
     // .Where(x => x.AvailableSpaces > 0 && x.AvailableSpaces >= request.RequestedSpaces);
 }

@@ -35,13 +35,6 @@ internal static class Startup
             .AddScoped<ITenantService, TenantService>();
     }
 
-    private static string GetTenantIdentifierFromJson(IConfiguration configuration)
-    {
-        var tenantSettings = GetTenantSettings(configuration);
-
-        return tenantSettings != null ? tenantSettings.Identifier : string.Empty;
-    }
-    
     internal static IApplicationBuilder UseMultiTenancy(this IApplicationBuilder app) =>
         app.UseMultiTenant();
 

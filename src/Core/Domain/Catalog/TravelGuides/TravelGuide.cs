@@ -9,10 +9,11 @@ public class TravelGuide : AuditableEntity, IAggregateRoot
     public string? ImagePath { get; private set; }
     public string? MetaKeywords { get; private set; }
     public string? MetaDescription { get; private set; }
+    public string? UrlFriendlyTitle { get; private set; }
 
     public virtual IEnumerable<TravelGuideGalleryImage>? TravelGuideGalleryImages { get; set; }
 
-    public TravelGuide(string title, string subTitle, string description, string shortDescription, string? imagePath, string? metaKeywords, string? metaDescription)
+    public TravelGuide(string title, string subTitle, string description, string shortDescription, string? imagePath, string? metaKeywords, string? metaDescription, string? urlFriendlyTitle)
     {
         Title = title;
         SubTitle = subTitle;
@@ -21,9 +22,10 @@ public class TravelGuide : AuditableEntity, IAggregateRoot
         ImagePath = imagePath;
         MetaKeywords = metaKeywords;
         MetaDescription = metaDescription;
+        UrlFriendlyTitle = urlFriendlyTitle;
     }
     
-    public TravelGuide Update(string? title, string? subTitle, string? description, string? shortDescription, string? imagePath, string? metaKeywords, string? metaDescription)
+    public TravelGuide Update(string? title, string? subTitle, string? description, string? shortDescription, string? imagePath, string? metaKeywords, string? metaDescription, string? urlFriendlyTitle)
     {
         if (title is not null && Title != title)
             Title = title;
@@ -45,6 +47,9 @@ public class TravelGuide : AuditableEntity, IAggregateRoot
         
         if (metaDescription is not null && MetaDescription != metaDescription)
             MetaDescription = metaDescription;
+        
+        if (urlFriendlyTitle is not null && UrlFriendlyTitle != urlFriendlyTitle)
+            UrlFriendlyTitle = urlFriendlyTitle;
 
         return this;
     }

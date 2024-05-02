@@ -18,7 +18,7 @@ public static class Startup
 
     public static void UseTenantWebsiteInfrastructure(this IApplicationBuilder app, IConfiguration configuration, IWebHostEnvironment env)
     {
-        app.UseInfrastructure(configuration, env);
+        app.UseInfrastructure(configuration, env, false);
         Infrastructure.Multitenancy.TenantWebsite.Startup.UseTenantWebsite(app, env);
     }
 }

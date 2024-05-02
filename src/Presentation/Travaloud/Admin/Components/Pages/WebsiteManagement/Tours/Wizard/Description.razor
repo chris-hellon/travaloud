@@ -1,0 +1,27 @@
+@inject IStringLocalizer<Tours> L
+
+<MudGrid>
+    <MudItem xs="12" md="12">
+        <MudTabs Elevation="0" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6" Outlined="true">
+            <MudTabPanel Text="@L["Short Description"]">
+                <Editor @bind-Value="Tour.ShortDescription" Field="@(() => Tour.ShortDescription)" Conf="@TinyMceConfig.Styles(600)" ApiKey="@TinyMceConfig.ApiKey"></Editor>
+            </MudTabPanel>
+            <MudTabPanel Text="@L["Full Description"]">
+                <Editor @bind-Value="Tour.Description" Field="@(() => Tour.Description)" Conf="@TinyMceConfig.Styles(600)" ApiKey="@TinyMceConfig.ApiKey"></Editor>
+            </MudTabPanel>
+            <MudTabPanel Text="@L["Booking Confirmation Email"]">
+                <Editor @bind-Value="Tour.BookingConfirmationEmailDetails" Field="@(() => Tour.BookingConfirmationEmailDetails)" Conf="@TinyMceConfig.Styles(600)" ApiKey="@TinyMceConfig.ApiKey"></Editor>
+            </MudTabPanel>
+            <MudTabPanel Text="@L["Terms & Conditions"]">
+                <Editor @bind-Value="Tour.TermsAndConditions" Field="@(() => Tour.TermsAndConditions)" Conf="@TinyMceConfig.Styles(600)" ApiKey="@TinyMceConfig.ApiKey"></Editor>
+            </MudTabPanel>
+            @* <MudTabPanel Text="@L["Booking Confirmation Email"]"> *@
+            @*     <Editor @bind-Value="context.CancellationPolicy" Field="@(() => context.BookingConfirmationEmailDetails)" Conf="@TinyMceConfig.Styles()" ApiKey="@TinyMceConfig.ApiKey"></Editor> *@
+            @* </MudTabPanel> *@
+        </MudTabs>
+    </MudItem>
+</MudGrid>
+
+@code {
+    [Parameter] public required TourViewModel Tour { get; set; }
+}

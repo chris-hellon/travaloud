@@ -4,7 +4,7 @@ using Travaloud.Domain.Catalog.TravelGuides;
 
 namespace Travaloud.Application.Catalog.TravelGuides.Queries;
 
-public class GetTravelGuideByFriendlyTitleRequest : IRequest<TravelGuideDto>
+public class GetTravelGuideByFriendlyTitleRequest : IRequest<TravelGuideDetailsDto>
 {
     public GetTravelGuideByFriendlyTitleRequest(string title)
     {
@@ -14,7 +14,7 @@ public class GetTravelGuideByFriendlyTitleRequest : IRequest<TravelGuideDto>
     public string Title { get; set; }
 }
 
-public class GetTravelGuideByFriendlyTitleRequestHandler : IRequestHandler<GetTravelGuideByFriendlyTitleRequest, TravelGuideDto>
+public class GetTravelGuideByFriendlyTitleRequestHandler : IRequestHandler<GetTravelGuideByFriendlyTitleRequest, TravelGuideDetailsDto>
 {
     private readonly IRepositoryFactory<TravelGuide> _repository;
     private readonly IStringLocalizer<GetTravelGuideByFriendlyTitleRequestHandler> _localizer;
@@ -25,13 +25,9 @@ public class GetTravelGuideByFriendlyTitleRequestHandler : IRequestHandler<GetTr
         _repository = repository;
         _localizer = localizer;
     }
-
-    public async Task<TravelGuideDto> Handle(GetTravelGuideByFriendlyTitleRequest request, CancellationToken cancellationToken)
-    {
-        var spec = new TravelGuidesWithDetailsSpec(new SearchTravelGuidesRequest());
-        var travelGuides = await _repository.PaginatedListAsync(spec, 1, 99999, cancellationToken: cancellationToken);
-        var travelGuide = travelGuides.Data.FirstOrDefault(x => x.Title.UrlFriendly() == request.Title);
-        
-        return travelGuide != null ? travelGuide.Adapt<TravelGuideDto>() : throw new NotFoundException(string.Format(_localizer["travelGuide.notfound"], request.Title));
-    }
+    
+    public async Task<TravelGuideDetailsDto> Handle(GetTravelGuideByFriendlyTitleRequest request, CancellationToken cancellationToken) =>
+        await _repository.FirstOrDefaultAsync(
+            new TravelGuideByFriendlyTitleSpec(request.Title), cancellationToken)
+        ?? throw new NotFoundException(string.Format(_localizer["travelGuide.notfound"], request.Title));
 }

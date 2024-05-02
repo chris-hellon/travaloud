@@ -19,6 +19,7 @@ using Rollbar;
 using Rollbar.NetCore.AspNet;
 using Travaloud.Application.Common.Interfaces;
 using Travaloud.Infrastructure.Common.Services;
+using Travaloud.Infrastructure.PaymentProcessing;
 
 namespace Travaloud.Infrastructure.Multitenancy.TenantWebsite;
 
@@ -49,7 +50,7 @@ public static class Startup
 
         var libraryPath = Path.GetFullPath(Path.Combine(hostEnvironment.ContentRootPath, "..", "SharedRCL", "wwwroot"));
 
-        if (hostEnvironment.IsProduction())
+        if (hostEnvironment.IsProduction() || hostEnvironment.IsStaging())
             libraryPath = Path.GetFullPath(Path.Combine(hostEnvironment.ContentRootPath, "wwwroot", "_content", "Travaloud.Tenants.SharedRCL"));
         
         services.AddRazorPages().AddRazorRuntimeCompilation(options =>
@@ -61,6 +62,7 @@ public static class Startup
                 propertyBookingUrl + "/{propertyName}/{checkInDate?}/{checkOutDate?}/{userId?}");
             options.Conventions.AddPageRoute("/TourBooking/Index", tourBookingUrl);
             options.Conventions.AddPageRoute("/Tour/Index", tourUrl + "/{tourName}/{tourDate?}/{guestQuantity?}");
+            options.Conventions.AddPageRoute("/StaffBooking/Tour/Index", tourUrl + "/staff-booking/{tourName}/{userId}");
             options.Conventions.AddPageRoute("/JoinOurCrew/Index", "join-our-crew/{tourName?}");
             options.Conventions.AddPageRoute("/TravelGuides/Index", "travel-guides/{pageNumber:int?}");
             options.Conventions.AddPageRoute("/TravelGuide/Index", "travel-guides/{title}");
@@ -123,6 +125,7 @@ public static class Startup
             pipeline.AddScssBundle("/shared/css/theme.min.css",
                     "/css/_additional.scss",
                     "/css/_daterangepicker.scss",
+                    "/lib/daterangepicker.css",
                     "/lib/owlcarousel/owlcarousel.min.css",
                     "/lib/owlcarousel/owlcarousel.theme.min.css")
                 .MinifyCss()
@@ -137,6 +140,8 @@ public static class Startup
             
             pipeline.AddJavaScriptBundle("/shared/js/theme.min.js",
                     "/lib/jquery/dist/jquery.min.js",
+                    "/lib/jquery-validation/dist/jquery.validate.min.js",
+                    "/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js",
                     "/lib/cookie.min.js",
                     "/lib/owlcarousel/owl.carousel.min.js",
                     "/lib/moment.min.js",
@@ -186,10 +191,15 @@ public static class Startup
                 .MinifyJavaScript()
                 .UseFileProvider(provider);
             
+            pipeline.AddJavaScriptBundle("/shared/js/guestbookings.min.js",
+                    "/js/guestbookings.js"
+                )
+                .MinifyJavaScript()
+                .UseFileProvider(provider);
+            
             pipeline.CompileScssFiles().MinifyCss();
         });
-
-
+        
         return services;
     }
 
@@ -206,7 +216,7 @@ public static class Startup
             app.UseRollbarMiddleware();
         }
 
-        if (env.IsProduction())
+        if (env.IsProduction() || env.IsStaging())
             app.UseStatusCodePagesWithRedirects("/error/{0}");
 
         app.UseWebOptimizer();

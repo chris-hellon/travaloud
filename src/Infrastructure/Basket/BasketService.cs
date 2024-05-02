@@ -1,8 +1,8 @@
+using Finbuckle.MultiTenant;
 using Travaloud.Application.Basket;
 using Travaloud.Application.Basket.Commands;
 using Travaloud.Application.Basket.Dto;
 using Travaloud.Application.Basket.Queries;
-using Travaloud.Application.Catalog.Tours.Dto;
 using Travaloud.Infrastructure.Common.Extensions;
 
 namespace Travaloud.Infrastructure.Basket;
@@ -11,10 +11,12 @@ public class BasketService : IBasketService
 {
     private readonly ISession? _session;
     private const string BasketKey = "BookingBasket";
+    private readonly IMultiTenantContextAccessor _multiTenantContextAccessor;
 
-    public BasketService(IHttpContextAccessor httpContextAccessor)
+    public BasketService(IHttpContextAccessor httpContextAccessor, IMultiTenantContextAccessor multiTenantContextAccessor)
     {
         _session = httpContextAccessor.HttpContext?.Session;
+        _multiTenantContextAccessor = multiTenantContextAccessor;
     }
 
     public Task<BasketModel> GetBasket()
@@ -31,6 +33,16 @@ public class BasketService : IBasketService
     {
         var basket = await GetBasket();
         basket.SetPromoCode(promoCode);
+        
+        _session.UpdateObjectInSession(BasketKey, basket);
+
+        return basket;
+    }
+    
+    public async Task<BasketModel> SetCreateId(string createId)
+    {
+        var basket = await GetBasket();
+        basket.SetCreateId(createId);
         
         _session.UpdateObjectInSession(BasketKey, basket);
 
@@ -93,50 +105,50 @@ public class BasketService : IBasketService
                                                     x.CheckInDateParsed.Value.Date == room.CheckInDateParsed.Date &&
                                                     x.CheckOutDateParsed.Value.Date == room.CheckOutDateParsed.Date);
 
-        item = await AddItem(
-            basket: basket,
-            item: new BasketItemModel(room.PropertyName,
-                room.PropertyId,
-                room.PropertyImageUrl,
-                room.CheckInDate,
-                room.CheckOutDate,
-                propertyBookingUrl,
-                room.CloudbedsPropertyId,
-                userId,
-                new List<BasketItemRoomModel>()));
-
-        item.AddRoom(room);
+        // item = await AddItem(
+        //     basket: basket,
+        //     item: new BasketItemModel(room.PropertyName,
+        //         room.PropertyId,
+        //         room.PropertyImageUrl,
+        //         room.CheckInDate,
+        //         room.CheckOutDate,
+        //         propertyBookingUrl,
+        //         room.CloudbedsPropertyId,
+        //         userId,
+        //         new List<BasketItemRoomModel>()));
+        //
+        // item.AddRoom(room);
         
-        // if (item == null)
-        // {
-        //     item = await AddItem(
-        //         basket: basket,
-        //         item: new BasketItemModel(room.PropertyName,
-        //             room.PropertyId,
-        //             room.PropertyImageUrl,
-        //             room.CheckInDate,
-        //             room.CheckOutDate,
-        //             propertyBookingUrl,
-        //             room.CloudbedsPropertyId,
-        //             userId,
-        //             new List<BasketItemRoomModel>()));
-        //
-        //     item.AddRoom(room);
-        // }
-        // else
-        // {
-        //     var existingRoom = item.Rooms?.FirstOrDefault(x =>
-        //         x.RoomTypeId == room.RoomTypeId &&
-        //         x.CheckInDateParsed.Date == room.CheckInDateParsed.Date &&
-        //         x.CheckOutDateParsed.Date == room.CheckOutDateParsed.Date);
-        //
-        //     if (existingRoom == null)
-        //         item.AddRoom(room);
-        //     else if (room.RoomQuantity == 0)
-        //         item.Rooms?.Remove(existingRoom);
-        //     else
-        //         existingRoom.Update(room.RoomQuantity, room.AdultQuantity, room.ChildrenQuantity);
-        // }
+        if (item == null)
+        {
+            item = await AddItem(
+                basket: basket,
+                item: new BasketItemModel(room.PropertyName,
+                    room.PropertyId,
+                    room.PropertyImageUrl,
+                    room.CheckInDate,
+                    room.CheckOutDate,
+                    propertyBookingUrl,
+                    room.CloudbedsPropertyId,
+                    userId,
+                    new List<BasketItemRoomModel>()));
+        
+            item.AddRoom(room);
+        }
+        else
+        {
+            var existingRoom = item.Rooms?.FirstOrDefault(x =>
+                x.RoomTypeId == room.RoomTypeId &&
+                x.CheckInDateParsed.Date == room.CheckInDateParsed.Date &&
+                x.CheckOutDateParsed.Date == room.CheckOutDateParsed.Date);
+        
+            if (existingRoom == null)
+                item.AddRoom(room);
+            else if (room.RoomQuantity == 0)
+                item.Rooms?.Remove(existingRoom);
+            else
+                existingRoom.Update(room.RoomQuantity, room.AdultQuantity, room.ChildrenQuantity);
+        }
 
         if (item is {Rooms.Count: 0})
             basket.Items.Remove(item);
@@ -183,8 +195,9 @@ public class BasketService : IBasketService
             else
                 existingDate.Update(date.GuestQuantity);
         }
-        
-        item.SetTourEditBookingHref(date.TourName!);
+
+        var tenantId = _multiTenantContextAccessor?.MultiTenantContext?.TenantInfo?.Id;
+        item.SetTourEditBookingHref(date.TourName!, tenantId);
 
         if (item is {TourDates.Count: 0})
             basket.Items.Remove(item);

@@ -55,7 +55,7 @@ public class IndexModel : TravaloudBasePageModel
             }
         );
 
-        var events = await _eventsService.SearchAsync(new SearchEventsRequest()
+        var eventsRequest = _eventsService.SearchAsync(new SearchEventsRequest()
         {
             PageNumber = 1,
             PageSize = 99999
@@ -64,42 +64,36 @@ public class IndexModel : TravaloudBasePageModel
         var hostelContainers = WebComponentsBuilder.FuseHostelsAndTravel.GetHostelsContainersAsync(Properties);
         var toursCards = WebComponentsBuilder.FuseHostelsAndTravel.GetToursCardsAsync(Tours);
         var toursCarousel = WebComponentsBuilder.FuseHostelsAndTravel.GetToursCarouselCardsAsync(Tours);
-        var eventsCards = WebComponentsBuilder.FuseHostelsAndTravel.GetEventsCarouselCardsAsync(events.Data);
+        var carouselImages = Task.Run(GetHomePageCarouselImages);
+        
+        await Task.WhenAll(hostelContainers, toursCards, toursCarousel, eventsRequest, carouselImages);
 
-        await Task.WhenAll(hostelContainers, toursCards, toursCarousel, eventsCards);
-
+        var eventsCards = await WebComponentsBuilder.FuseHostelsAndTravel.GetEventsCarouselCardsAsync(eventsRequest.Result.Data);
+        
         HostelsContainers = hostelContainers.Result;
         ToursCards = toursCards.Result;
         ToursCarousel = toursCarousel.Result;
-        EventsCards = eventsCards.Result;
-        CarouselComponent = new FullImageCarouselComponent(await GetHomePageCarouselImages(), new BookNowComponent(Properties, null, true));
+        EventsCards = eventsCards;
+        CarouselComponent = new FullImageCarouselComponent(carouselImages.Result, new BookNowComponent(Properties, null, true));
 
         return Page();
     }
 
-    public async Task<List<ImageDto>> GetHomePageCarouselImages()
+    public Task<List<ImageDto>> GetHomePageCarouselImages()
     {
-        var images = new List<ImageDto>();
-
-        await Task.Run(() =>
+        return Task.FromResult(new List<ImageDto>()
         {
-            images =
-            [
-                new ImageDto
-                {
-                    //ImagePath = "https://travaloudcdn.azureedge.net/fuse/assets/images/home-page-banner-1.webp?w=2000",
-                    //ThumbnailImagePath = "https://travaloudcdn.azureedge.net/fuse/assets/images/home-page-banner-1.webp?w=2000",
-                    ImagePath =
-                        "https://travaloudcdn.azureedge.net/fuse/assets/images/POOLPARTY_23-03-22-12.jpg?w=2000",
-                    ThumbnailImagePath =
-                        "https://travaloudcdn.azureedge.net/fuse/assets/images/POOLPARTY_23-03-22-08.jpg?w=2000",
-                    Title = "FUSE",
-                    SubTitle1 = "COME TOGETHER AT",
-                    SubTitle2 = "HOSTELS AND TRAVEL"
-                }
-            ];
+            new() {
+                //ImagePath = "https://travaloudcdn.azureedge.net/fuse/assets/images/home-page-banner-1.webp?w=2000",
+                //ThumbnailImagePath = "https://travaloudcdn.azureedge.net/fuse/assets/images/home-page-banner-1.webp?w=2000",
+                ImagePath =
+                    "https://travaloudcdn.azureedge.net/fuse/assets/images/POOLPARTY_23-03-22-12.jpg?w=2000",
+                ThumbnailImagePath =
+                    "https://travaloudcdn.azureedge.net/fuse/assets/images/POOLPARTY_23-03-22-08.jpg?w=2000",
+                Title = "FUSE",
+                SubTitle1 = "COME TOGETHER AT",
+                SubTitle2 = "HOSTELS AND TRAVEL"
+            }
         });
-
-        return images;
     }
 }

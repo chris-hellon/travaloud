@@ -41,6 +41,11 @@ public class StripeService : IStripeService
         return _mediator.Send(request);
     }
 
+    public Task<Customer?> SearchStripeCustomer(SearchMultiTenantStripeCustomerRequest request)
+    {
+        return _mediator.Send(request);
+    }
+    
     public Task<Session> CreateStripeSessionClientSecret(CreateStripeSessionClientSecretRequest request)
     {
         return _mediator.Send(request);

@@ -6,6 +6,8 @@ public class ContactTemplateModel : EmailTemplateBaseModel
     public string Email { get; init; }
     public string ContactNumber { get; init; }
     public string Message { get; init; }
+    public string? RelatedTour { get; set; }
+    public string? RelatedProperty { get; set; }
 
     public ContactTemplateModel()
     {
@@ -21,7 +23,9 @@ public class ContactTemplateModel : EmailTemplateBaseModel
         string name,
         string email,
         string message,
-        string contactNumber) : base(tenantName,
+        string contactNumber,
+        string? relatedTour,
+        string? relatedProperty) : base(tenantName,
         primaryBackgroundColor,
         secondaryBackgroundColor,
         headerBackgroundColor,
@@ -32,5 +36,7 @@ public class ContactTemplateModel : EmailTemplateBaseModel
         Email = email;
         Message = message;
         ContactNumber = contactNumber;
+        RelatedTour = relatedTour;
+        RelatedProperty = relatedProperty;
     }
 }

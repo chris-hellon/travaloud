@@ -11,10 +11,10 @@ public static class WebComponentsBuilder
 {
     public static class FuseHostelsAndTravel
     {
-        public static async Task<List<ContainerHalfImageTextComponent>> GetHostelsContainersAsync(
+        public static Task<List<ContainerHalfImageTextComponent>> GetHostelsContainersAsync(
             IEnumerable<PropertyDto>? properties)
         {
-            return await Task.Run(() => GetHostelsContainers(properties));
+            return Task.Run(() => GetHostelsContainers(properties));
         }
 
         private static List<ContainerHalfImageTextComponent> GetHostelsContainers(IEnumerable<PropertyDto>? properties)
@@ -49,12 +49,12 @@ public static class WebComponentsBuilder
             return hostelsContainers;
         }
 
-        public static async Task<AlternatingCardHeightComponent> GetToursCardsAsync(IEnumerable<TourDto>? tours,
+        public static Task<AlternatingCardHeightComponent> GetToursCardsAsync(IEnumerable<TourDto>? tours,
             string? animationStart = "onScroll", string title = "TAILORED TOURS",
             string body =
                 "Whether you're hitting up the Hoi An Old Town Hostel, chilling at the Hoi An Beachside Hostel, or soaking in the vibes at our Nha Trang Hostel, we've got your adventure covered.<br /><br />Our crew knows the ins and outs of this beautiful country like nobody else. They're like your personal tour guides, making sure you have the time of your life. From exploring ancient streets in Hoi An to lounging by the beach in Nha Trang, we've got tailored experiences that'll blow your mind.")
         {
-            return await Task.Run(() => GetToursCards(tours, animationStart, title, body));
+            return Task.Run(() => GetToursCards(tours, animationStart, title, body));
         }
 
         private static AlternatingCardHeightComponent GetToursCards(IEnumerable<TourDto>? tours,
@@ -90,12 +90,12 @@ public static class WebComponentsBuilder
             return toursCards;
         }
 
-        public static async Task<CarouselCardsComponent> GetToursCarouselCardsAsync(IEnumerable<TourDto>? tours,
+        public static Task<CarouselCardsComponent> GetToursCarouselCardsAsync(IEnumerable<TourDto>? tours,
             string? animationStart = "onScroll", string title = "TAILORED TOURS",
             string? body =
                 "Explore the breathtaking culture of Vietnam with FUSE travel. Our experienced travel crew will help you get the most out of your time and FUSE Travel offers up unique tailored experiences for all our guests.")
         {
-            return await Task.Run(() => GetToursCarouselCards(tours, animationStart, title));
+            return Task.Run(() => GetToursCarouselCards(tours, animationStart, title));
         }
 
         public static CarouselCardsComponent GetToursCarouselCards(IEnumerable<TourDto>? tours,
@@ -126,9 +126,9 @@ public static class WebComponentsBuilder
             return toursCards;
         }
 
-        public static async Task<CarouselCardsComponent> GetEventsCarouselCardsAsync(IEnumerable<EventDto> events)
+        public static Task<CarouselCardsComponent> GetEventsCarouselCardsAsync(IEnumerable<EventDto> events)
         {
-            return await Task.Run(() => GetEventsCarouselCards(events));
+            return Task.Run(() => GetEventsCarouselCards(events));
         }
 
         private static CarouselCardsComponent GetEventsCarouselCards(IEnumerable<EventDto> events)
@@ -346,7 +346,7 @@ public static class WebComponentsBuilder
             return await Task.Run(() => GetToursCarouselCards(tours, animationStart, title));
         }
 
-        private static CarouselCardsComponent GetToursCarouselCards(IEnumerable<TourDetailsDto> tours,
+        public static CarouselCardsComponent GetToursCarouselCards(IEnumerable<TourDetailsDto> tours,
             string? animationStart = "onScroll", string title = "Upcoming Trips",
             string body =
                 "Discover the hidden gems of Vietnam from North to South with our upcoming tours - explore the vibrant streets of Hanoi, soak up the rich history and stunning landscapes of Central Vietnam, and indulge in the ultimate backpacking adventure with Vietnam Backpacker Hostels!")

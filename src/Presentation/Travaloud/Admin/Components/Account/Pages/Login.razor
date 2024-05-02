@@ -28,7 +28,7 @@
 <EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login">
     <MudGrid>
         <DataAnnotationsValidator/>
-
+        <StatusMessage Message="@ErrorMessage"></StatusMessage>
         <MudItem xs="12">
             <div class="mud-input-control mud-input-input-control">
                 <div class="mud-input-control-input-container">
@@ -39,6 +39,8 @@
                     </div>
                 </div>
             </div>
+            
+            <ValidationMessage For="() => Input.Email" class="text-danger"/>
         </MudItem>
         <MudItem xs="12">
             <div class="mud-input-control mud-input-input-control">
@@ -50,15 +52,9 @@
                     </div>
                 </div>
             </div>
+            
+            <ValidationMessage For="() => Input.Password" class="text-danger"/>
         </MudItem>
-
-        @* @if (!TenantExists || IsLocalHost || TenantId == "root") *@
-        @* { *@
-        @*     <MudItem xs="12"> *@
-        @*         <MudTextField T="string" Label="@L["Tenant"]" Variant="Variant.Outlined" @bind-Value="TenantId" *@
-        @*                       For="@(() => TenantId)" Required /> *@
-        @*     </MudItem> *@
-        @* } *@
 
         <MudItem xs="12" md="6">
             <MudButton StartIcon="@Icons.Material.Filled.LockReset" Link="/account/forgot-password">@L["Forgot password?"]</MudButton>
@@ -69,11 +65,5 @@
                 @L["Sign In"]
             </MudButton>
         </MudItem>
-        @* @if (IsLocalHost) *@
-        @* { *@
-        @*     <MudItem xs="12"> *@
-        @*         <MudButton StartIcon="@Icons.Material.Filled.Password" OnClick="FillAdministratorCredentials">@L["Fill Administrator Credentials"]</MudButton> *@
-        @*     </MudItem> *@
-        @* } *@
     </MudGrid>
 </EditForm>

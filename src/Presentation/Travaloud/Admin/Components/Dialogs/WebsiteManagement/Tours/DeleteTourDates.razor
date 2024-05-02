@@ -1,0 +1,39 @@
+@using Travaloud.Infrastructure.Common
+@inject IStringLocalizer<SharedResource> L
+
+<EditForm @ref="EditForm" Model="@this" OnValidSubmit="SaveAsync" Context="editContext">
+    <MudDialog>
+        <TitleContent>
+            <MudText Typo="Typo.h6">
+                <MudIcon Icon="@Icons.Material.Filled.Add" Class="mr-3 mb-n1"/>
+                @($"{L["Delete"]} {L["Tour Dates"]}")
+            </MudText>
+        </TitleContent>
+
+        <DialogContent>
+            <FluentValidationValidator @ref="_fluentValidationValidator"/>
+
+            <MudGrid>
+                <MudItem xs="12" md="12">
+                <MudText Typo="Typo.body1">Delete a range of Dates by selecting a Range and/or Start Time below. If no range is selected, all dates without a booking will be deleted.</MudText>
+                </MudItem>
+                <MudItem xs="12" md="12">
+                    <MudDateRangePicker @bind-DateRange="@DeleteDateRange" Margin="Margin.Dense" MinDate="DateTime.Now.AddDays(-1)" Variant="Variant.Outlined" DateFormat="dd/MM/yyyy" Clearable="true" PlaceholderStart="Start Date" PlaceholderEnd="End Date"/>
+                </MudItem>
+
+                <MudItem xs="12" md="12">
+                    <MudSelect T="TimeSpan?" Label="Start Time" @bind-Value="DeleteTimeSpan" For="@(() => DeleteTimeSpan)" Variant="Variant.Outlined" Margin="Margin.Dense" AnchorOrigin="Origin.BottomCenter">
+                        @foreach (var time in CurrentTimes)
+                        {
+                            <MudSelectItem T="TimeSpan?" Value="@time"/>
+                        }
+                    </MudSelect>
+                </MudItem>
+            </MudGrid>
+        </DialogContent>
+        <DialogActions>
+            <MudButton DisableElevation Variant="Variant.Filled" OnClick="Cancel" StartIcon="@Icons.Material.Filled.Cancel">@L["Cancel"]</MudButton>
+            <MudButton DisableElevation Variant="Variant.Filled" ButtonType="ButtonType.Submit" Color="Color.Success" StartIcon="@Icons.Material.Filled.Save">@L["Confirm"]</MudButton>
+        </DialogActions>
+    </MudDialog>
+</EditForm>

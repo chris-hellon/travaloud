@@ -17,12 +17,18 @@ public class BasketModel
 	public string? Password { get; set; }
 	public string? ConfirmPassword { get; set; }
 	public TimeSpan? EstimatedArrivalTime { get; set; }
+	public string? CreateId { get; set; }
 
 	public void SetPromoCode(string promoCode)
 	{
 		PromoCode = promoCode;
 	}
 
+	public void SetCreateId(string createId)
+	{
+		CreateId = createId;
+	}
+	
 	public void CalculateTotal()
 	{
 		Total = 0M;

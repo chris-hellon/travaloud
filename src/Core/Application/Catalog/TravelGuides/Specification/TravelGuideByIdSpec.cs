@@ -3,7 +3,7 @@ using Travaloud.Domain.Catalog.TravelGuides;
 
 namespace Travaloud.Application.Catalog.TravelGuides.Specification;
 
-public class TravelGuideByIdSpec : Specification<TravelGuide, TravelGuideDto>, ISingleResultSpecification<TravelGuide>
+public class TravelGuideByIdSpec : Specification<TravelGuide, TravelGuideDetailsDto>, ISingleResultSpecification<TravelGuide>
 {
     public TravelGuideByIdSpec(DefaultIdType id) =>
         Query

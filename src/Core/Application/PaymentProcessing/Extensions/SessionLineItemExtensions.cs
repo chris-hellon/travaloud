@@ -67,7 +67,7 @@ public static class SessionLineItemExtensions
                 PriceData = new SessionLineItemPriceDataOptions
                 {
                     Currency = "usd",
-                    UnitAmount = x.Amount.ConvertToCents(),
+                    UnitAmount = x.TotalAmount.ConvertToCents(),
                     ProductData = new SessionLineItemPriceDataProductDataOptions
                     {
                         Name = x.Property.Name,
@@ -87,7 +87,7 @@ public static class SessionLineItemExtensions
             PriceData = new SessionLineItemPriceDataOptions
             {
                 Currency = "usd",
-                UnitAmount = x.Amount.ConvertToCents(),
+                UnitAmount = x.TotalAmount.ConvertToCents(),
                 ProductData = new SessionLineItemPriceDataProductDataOptions
                 {
                     Name = x.Tour.Name,

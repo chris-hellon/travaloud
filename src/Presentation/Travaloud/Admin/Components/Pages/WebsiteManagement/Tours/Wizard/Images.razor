@@ -1,0 +1,243 @@
+@using Travaloud.Application.Catalog.Tours.Dto
+@using Travaloud.Infrastructure.Common.Services
+@using Travaloud.Application.Catalog.Tours.Commands
+@inject IStringLocalizer<Tours> L    
+
+<StickyToolbar>
+    <ToolbarContent>
+        <MudButton HtmlTag="label" DisableElevation Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
+                   StartIcon="@Icons.Material.Filled.CloudUpload" for="fileInput">
+            @L["Select Banner Image"]
+        </MudButton>
+
+        @if (Context.AddEditModal is {IsCreate: false} && !string.IsNullOrEmpty(Tour.ImagePath) && string.IsNullOrEmpty(Tour.ImageInBytes))
+        {
+            <MudButton HtmlTag="label" DisableElevation Variant="Variant.Filled" Color="Color.Info" Size="Size.Small" Target="_blank"
+                       StartIcon="@Icons.Material.Filled.RemoveRedEye" Link="@(Tour.ImagePath)" Style="margin-left: 5px;">
+                @L["View"]
+            </MudButton>
+
+            <MudButton HtmlTag="label" DisableElevation Variant="Variant.Filled" Color="Color.Error" Size="Size.Small"
+                       StartIcon="@Icons.Material.Filled.Delete" OnClick="SetDeleteCurrentImageFlag" Style="margin-left: 5px;">
+                @L["Delete"]
+            </MudButton>
+        }
+        @if (!string.IsNullOrEmpty(Tour.ImageInBytes))
+        {
+            <MudButton HtmlTag="label" DisableElevation OnClick="ClearImageInBytes" Variant="Variant.Filled" Color="Color.Warning" Size="Size.Small" Target="_blank"
+                       StartIcon="@Icons.Material.Filled.Clear" Style="margin-left: 5px;">
+                @L["Clear"]
+            </MudButton>
+        }
+
+        <MudSpacer/>
+
+        <MudButton HtmlTag="label" DisableElevation Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
+                   StartIcon="@Icons.Material.Filled.CloudUpload" for="slideshowImageFileInput">
+            @L["Add Slideshow Image"]
+        </MudButton>
+    </ToolbarContent>
+</StickyToolbar>
+
+<MudGrid>
+    <MudItem xs="12" md="6">
+        <MudStack>
+            <MudItem xs="12" md="12">
+                <InputFile id="fileInput" hidden OnChange="UploadFiles"/>
+                @if (!string.IsNullOrEmpty(Tour.ImageInBytes))
+                {
+                    <MudImage Src="@Tour.ImageInBytes" Square="true" Elevation="25" Class="rounded-lg" Style="height: auto; max-width: 100%; max-height: 100%"> </MudImage>
+                }
+                else
+                {
+                    <MudImage Src="@(string.IsNullOrEmpty(@Tour.ImagePath) ? string.Empty : (@Tour.ImagePath))" Elevation="25" Class="rounded-lg" Square="true" Style="height: auto; max-width: 100%; max-height: 100%"> </MudImage>
+                }
+            </MudItem>
+        </MudStack>
+    </MudItem>
+    <MudItem xs="12" md="6">
+        <MudStack>
+            <MudItem xs="12" md="12">
+                <InputFile id="slideshowImageFileInput" hidden OnChange="UploadSlideshowImage"/>
+                @if (Tour.Images != null)
+                {
+                    <MudGrid>
+                        @foreach (var image in Tour.Images)
+                        {
+                            if (!string.IsNullOrEmpty(image.ImagePath) || !string.IsNullOrEmpty(image.ImageInBytes))
+                            {
+                                <MudItem xs="12" md="6" Style="height:220px;">
+                                    @if (!string.IsNullOrEmpty(image.ImageInBytes))
+                                    {
+                                        <MudImage ObjectFit="ObjectFit.Cover" Style="width:100%; height:85%;" Src="@image.ImageInBytes" Alt="Örebro Slott" Elevation="25" Class="rounded-lg"/>
+                                    }
+                                    else
+                                    {
+                                        <MudImage ObjectFit="ObjectFit.Cover" Style="width:100%; height:85%;" Src="@image.ImagePath" Alt="Örebro Slott" Elevation="25" Class="rounded-lg"/>
+                                    }
+
+                                    @if (image != Tour.Images.First())
+                                    {
+                                        <MudIconButton Icon="@Icons.Material.Filled.ArrowCircleLeft" OnClick="@(() => SetSlideshowImagesSortOrder(image))" Color="Color.Primary" aria-label="left" Style="margin-right: 5px;"></MudIconButton>
+                                    }
+
+                                    @if (!string.IsNullOrEmpty(image.ImageInBytes))
+                                    {
+                                        <MudButton HtmlTag="label" DisableElevation OnClick="@(() => ClearSlideshowImageInBytes(image))" Variant="Variant.Filled" Color="Color.Warning" Size="Size.Small" Target="_blank"
+                                                   StartIcon="@Icons.Material.Filled.Clear" Style="margin-left: 5px;">
+                                            @L["Clear"]
+                                        </MudButton>
+                                    }
+                                    else
+                                    {
+                                        <MudButton HtmlTag="label" DisableElevation Variant="Variant.Filled" Color="Color.Info" Size="Size.Small" Target="_blank"
+                                                   StartIcon="@Icons.Material.Filled.RemoveRedEye" Link="@(image.ImagePath)" Style="margin-left: 5px;">
+                                            @L["View"]
+                                        </MudButton>
+
+                                        <MudButton HtmlTag="label" DisableElevation Variant="Variant.Filled" Color="Color.Error" Size="Size.Small"
+                                                   StartIcon="@Icons.Material.Filled.Delete" OnClick="@(() => SetDeleteSlideshowImageFlag(image))" Style="margin-left: 5px;">
+                                            @L["Delete"]
+                                        </MudButton>
+                                    }
+
+                                    @if (image != Tour.Images.Last())
+                                    {
+                                        <MudIconButton Icon="@Icons.Material.Filled.ArrowCircleRight" OnClick="@(() => SetSlideshowImagesSortOrder(image, true))" Color="Color.Primary" aria-label="right" Style="margin-left: 5px;"></MudIconButton>
+                                    }
+                                </MudItem>
+                            }
+                        }
+                    </MudGrid>
+                }
+            </MudItem>
+        </MudStack>
+    </MudItem>
+</MudGrid>
+
+@code {
+    [Parameter] public required TourViewModel Tour { get; set; }
+    [Parameter] public required EntityServerTableContext<TourDto, Guid, TourViewModel> Context { get; set; } = default!;
+
+    public void ClearImageInBytes()
+    {
+        if (Context.AddEditModal?.RequestModel == null) return;
+        Context.AddEditModal.RequestModel.ImageInBytes = string.Empty;
+        Context.AddEditModal.ForceRender();
+    }
+
+    public void SetDeleteCurrentImageFlag()
+    {
+        if (Context.AddEditModal?.RequestModel == null) return;
+        Context.AddEditModal.RequestModel.ImageInBytes = string.Empty;
+        Context.AddEditModal.RequestModel.ImagePath = string.Empty;
+        Context.AddEditModal.RequestModel.DeleteCurrentImage = true;
+        Context.AddEditModal.ForceRender();
+    }
+
+    private async Task UploadFiles(InputFileChangeEventArgs e)
+    {
+        if (Context.AddEditModal != null)
+        {
+            var fileUploadDetails = await FileUploadHelper.UploadFile(e, Snackbar);
+
+            if (fileUploadDetails != null)
+            {
+                Context.AddEditModal.RequestModel.ImageExtension = fileUploadDetails.Extension;
+                Context.AddEditModal.RequestModel.ImageInBytes = fileUploadDetails.FileInBytes;
+                Context.AddEditModal.ForceRender();
+            }
+        }
+    }
+
+    private async Task UploadSlideshowImage(InputFileChangeEventArgs e)
+    {
+        if (Context.AddEditModal != null)
+        {
+            var fileUploadDetails = await FileUploadHelper.UploadFile(e, Snackbar);
+
+            if (fileUploadDetails != null)
+            {
+                var newImageRequest = new TourImageRequest()
+                {
+                    ImageExtension = fileUploadDetails.Extension,
+                    ImageInBytes = fileUploadDetails.FileInBytes,
+                    ImagePath = fileUploadDetails.FileInBytes,
+                    ThumbnailImagePath = fileUploadDetails.FileInBytes
+                };
+
+                (Context.AddEditModal.RequestModel.Images ??= new List<TourImageRequest>()).Insert(0, newImageRequest);
+                SetSlideshowImagesSortOrder();
+            }
+        }
+    }
+
+    private void SetSlideshowImagesSortOrder(TourImageRequest? imageRequest = null, bool right = false)
+    {
+        if (Context.AddEditModal?.RequestModel == null ||
+            Context.AddEditModal.RequestModel.Images?.Any() != true) return;
+
+        if (imageRequest != null)
+        {
+            if (right)
+            {
+                var maxSortOrder = Context.AddEditModal.RequestModel.Images.Max(r => r.SortOrder);
+                if (imageRequest.SortOrder < maxSortOrder)
+                {
+                    var nextRequest =
+                        Context.AddEditModal.RequestModel.Images.FirstOrDefault(r =>
+                            r.SortOrder == imageRequest.SortOrder + 1);
+                    if (nextRequest != null)
+                    {
+                        nextRequest.SortOrder--;
+                        imageRequest.SortOrder++;
+                    }
+                }
+            }
+            else
+            {
+                var previousRequest =
+                    Context.AddEditModal.RequestModel.Images.FirstOrDefault(r =>
+                        r.SortOrder == imageRequest.SortOrder - 1);
+                if (previousRequest != null)
+                {
+                    previousRequest.SortOrder++;
+                    imageRequest.SortOrder--;
+                }
+            }
+
+            Context.AddEditModal.RequestModel.Images =
+                Context.AddEditModal.RequestModel.Images.OrderBy(x => x.SortOrder).ToList();
+        }
+        else
+        {
+            for (var i = 0; i < Context.AddEditModal.RequestModel.Images.Count; i++)
+            {
+                var image = Context.AddEditModal.RequestModel.Images[i];
+                image.SortOrder = i;
+            }
+        }
+
+        Context.AddEditModal.ForceRender();
+    }
+
+    private void ClearSlideshowImageInBytes(TourImageRequest image)
+    {
+        if (Context.AddEditModal == null) return;
+
+        image.ImageInBytes = string.Empty;
+        Context.AddEditModal.RequestModel.Images?.Remove(image);
+        Context.AddEditModal.ForceRender();
+    }
+
+    private void SetDeleteSlideshowImageFlag(TourImageRequest image)
+    {
+        if (Context.AddEditModal?.RequestModel == null) return;
+
+        image.ImageInBytes = string.Empty;
+        image.ImagePath = string.Empty;
+        image.DeleteCurrentImage = true;
+        Context.AddEditModal.ForceRender();
+    }
+
+}

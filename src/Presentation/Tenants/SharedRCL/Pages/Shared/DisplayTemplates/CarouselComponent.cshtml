@@ -5,7 +5,7 @@
     {
         var index = 0;
 
-        <div id="@Model.Id" class="carousel slide small-carousel @(Model.Rounded ? "rounded-6" : "")" data-mdb-ride="carousel">
+        <div id="@Model.Id" class="carousel slide small-carousel @(Model.Rounded ? "rounded-6" : "")" data-mdb-ride="carousel" data-mdb-carousel-init>
             @if (Model.Images.Count > 1)
             {
                 <!--Section: Header Carousel Indicators -->

@@ -2,17 +2,31 @@
   <library name="Generated files" type="javaScript">
     <properties>
       <sourceFilesUrls>
+        <item url="file://$PROJECT_DIR$/src/Presentation/Tenants/FuseHostelsAndTravel/wwwroot/js/site.min.js" />
+        <item url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/js/basket.min.js" />
         <item url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/js/checkout.min.js" />
+        <item url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/js/classes.min.js" />
+        <item url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/js/guestbookings.min.js" />
+        <item url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/js/property.min.js" />
+        <item url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/js/propertybooking.min.js" />
         <item url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/js/stripecheckout.min.js" />
         <item url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/js/tour.min.js" />
         <item url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/js/travaloud.min.js" />
+        <item url="file://$PROJECT_DIR$/src/Presentation/Tenants/VietnamBackpackerHostels/wwwroot/js/site.min.js" />
       </sourceFilesUrls>
     </properties>
     <CLASSES>
+      <root url="file://$PROJECT_DIR$/src/Presentation/Tenants/FuseHostelsAndTravel/wwwroot/js/site.min.js" />
+      <root url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/js/basket.min.js" />
       <root url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/js/checkout.min.js" />
+      <root url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/js/classes.min.js" />
+      <root url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/js/guestbookings.min.js" />
+      <root url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/js/property.min.js" />
+      <root url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/js/propertybooking.min.js" />
       <root url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/js/stripecheckout.min.js" />
       <root url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/js/tour.min.js" />
       <root url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/js/travaloud.min.js" />
+      <root url="file://$PROJECT_DIR$/src/Presentation/Tenants/VietnamBackpackerHostels/wwwroot/js/site.min.js" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

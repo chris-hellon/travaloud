@@ -16,6 +16,7 @@
         <PackageReference Include="BlazorTemplater" Version="1.5.1" />
         <PackageReference Include="CG.Blazor.Wizard" Version="2023.1.3" />
         <PackageReference Include="CodeBeam.MudExtensions" Version="6.3.0" />
+        <PackageReference Include="Heron.MudCalendar" Version="1.1.1" />
         <PackageReference Include="InputTinyMCEEditor.Blazor" Version="1.0.1" />
         <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.0"/>
         <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.0"/>
@@ -40,5 +41,15 @@
     <ItemGroup>
       <_ContentIncludedByDefault Remove="wwwroot\bootstrap\bootstrap.min.css" />
       <_ContentIncludedByDefault Remove="wwwroot\bootstrap\bootstrap.min.css.map" />
+      <_ContentIncludedByDefault Remove="Components\Pages\Bookings\Wizard\SelectGuest.razor" />
+      <_ContentIncludedByDefault Remove="Components\Pages\Bookings\Wizard\SelectTours.razor" />
+      <_ContentIncludedByDefault Remove="Components\Wizard\Step1.razor" />
+      <_ContentIncludedByDefault Remove="Components\Wizard\Step2.razor" />
+      <_ContentIncludedByDefault Remove="Components\Wizard\Step3.razor" />
+      <_ContentIncludedByDefault Remove="Components\Wizard\Step4.razor" />
+      <_ContentIncludedByDefault Remove="Components\Wizard\Step5.razor" />
+      <_ContentIncludedByDefault Remove="Components\Wizard\Step6.razor" />
+      <_ContentIncludedByDefault Remove="Components\Wizard\Step7.razor" />
+      <_ContentIncludedByDefault Remove="Components\Wizard\Step8.razor" />
     </ItemGroup>
 </Project>

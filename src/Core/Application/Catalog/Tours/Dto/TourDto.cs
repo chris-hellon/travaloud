@@ -22,5 +22,8 @@ public class TourDto
     public string? AdditionalInformation { get; set; }
     public string? MetaKeywords { get; set; }
     public string? MetaDescription { get; set; }
+    public string? BookingConfirmationEmailDetails { get; set; }
+    public string? TermsAndConditions { get; set; }
+    public string? CancellationPolicy { get; set; }
     public string FriendlyUrl => Name.UrlFriendly();
 }

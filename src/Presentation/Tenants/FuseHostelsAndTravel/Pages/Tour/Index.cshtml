@@ -1,5 +1,4 @@
 @page
-@using Travaloud.Domain.Catalog.Tours
 @model FuseHostelsAndTravel.Pages.Tour.Index
 
 <style type="text/css">
@@ -79,7 +78,7 @@
 
                                     <div class="form-outline mb-4" data-mdb-input-init>
                                         <i class="fas fa-users trailing text-primary"></i>
-                                        <input type="number" asp-for="GuestQuantity" class="form-control form-icon-trailing" disabled="" max="@(Model.SelectedTourDate?.AvailableSpaces ?? 99999)"/>
+                                        <input type="number" asp-for="GuestQuantity" class="form-control form-icon-trailing" disabled="" max="@(Model.SelectedTourDate?.AvailableSpaces ?? 99999)" data-tour-id="@Model.Tour.Id" data-tour-name="@Model.Tour.Name" data-tour-image-url="@Model.Tour.ImagePath?.FormatImageUrl(600, "fuse")" />
                                         <label class="form-label" asp-for="GuestQuantity"></label>
                                         <div class="form-helper">@(Model.SelectedTourDate != null ? $"{Model.SelectedTourDate.AvailableSpaces} spaces available": "Select a Date")</div>
                                     </div>
@@ -109,6 +108,8 @@
         @section Scripts {
             <script type="text/javascript">
                 let tourDatesParsed = @Html.Raw(Json.Serialize(Model.Tour.TourDates?.ToList()));
+                let multiplePrices = '@(Model.Tour.TourPrices is {Count: > 1})';
+
             </script>
 
             <script src="/shared/js/tour.min.js" type="text/javascript"></script>

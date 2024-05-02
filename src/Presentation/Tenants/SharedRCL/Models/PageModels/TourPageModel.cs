@@ -90,6 +90,14 @@ public abstract class TourPageModel : ContactBasePageModel<EmailTemplates.TourEn
 
             if (Tour == null) return Page();
 
+
+            if (Tour.TourPrices != null)
+                Tour.TourPrices = Tour.TourPrices.Where(x => x.PublishToWebsite.HasValue && x.PublishToWebsite.Value)
+                    .ToList();
+
+            if (Tour.TourDates != null)
+                Tour.TourDates = Tour.TourDates.Where(x => x.TourPrice is {PublishToWebsite: not null} && x.TourPrice.PublishToWebsite.Value).ToList();
+            
             ViewData["Title"] = Tour?.Name;
 
             EnquireNowComponent = new EnquireNowComponent()
@@ -100,6 +108,10 @@ public abstract class TourPageModel : ContactBasePageModel<EmailTemplates.TourEn
 
             BookNowComponent = new BookNowComponent(Tours, Tour.Id);
 
+            var tourCategoryNavLink = NavigationSettings?.NavigationLinks.FirstOrDefault(x => x.ChildrenEntity != null && (x.ChildrenEntity == "Tours" || x.ChildrenEntity == "ToursWithCategories"));
+            if (tourCategoryNavLink != null)
+                PageTitle = tourCategoryNavLink.Title;
+            
             if (!tourDate.HasValue || Tour.TourDates == null || !Tour.TourDates.Any()) return Page();
             
             var matchedTourDate = Tour.TourDates.FirstOrDefault(x => x.Id == tourDate.Value);

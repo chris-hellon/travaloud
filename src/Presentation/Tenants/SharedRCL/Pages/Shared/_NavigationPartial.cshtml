@@ -15,7 +15,7 @@
             var navbarId = $"{Model.TenantName.Replace(" ", "").Replace("&", "").ConvertToCamelCase()}Navbar";
 
             <!-- Navbar -->
-            <nav class="navbar navbar-expand-lg navbar-dark d-lg-block bg-lg-white fixed-top @(Model.TenantId == "fuse" ? "py-4 py-lg-3" : "py-0") @(currentPath != "/" ? "shadow always-shadow" : "")">
+            <nav class="navbar navbar-expand-lg navbar-dark d-lg-block bg-lg-@(Model.TenantId == "vbh" ? "black" : "white") fixed-top @(Model.TenantId == "fuse" ? "py-4 py-lg-3" : "py-0") @(currentPath != "/" ? "shadow always-shadow" : "")">
                 <div class="container@(Model.NavigationSettings.FullWidth ? "-fluid" : "")">
                     <a class="navbar-brand navbar-brand-mobile nav-link d-flex d-lg-none" asp-page="/Home/Index">
                         <img src="@navigationConfiguration.NavBrandLogo" alt="@($"{Model.TenantName} Brand Logo")" height="@(Model.TenantId == "fuse" ? 85 : 60)"/>
@@ -86,11 +86,11 @@
                                                 </ul>
                                                 <div class="accordion accordion-flush accordion-borderless d-lg-none d-block" id="@accordionId">
                                                     <div class="accordion-item">
-                                                        <span class="accordion-header" id="@accordionHeadingId">
-                                                            <button class="accordion-button collapsed @activeClass" data-mdb-collapse-init data-mdb-target="#@accordionCollapseId" aria-expanded="false" aria-controls="@accordionCollapseId" type="button">
+                                                        <h2 class="accordion-header" id="@accordionHeadingId">
+                                                            <button class="accordion-button collapsed @activeClass" data-mdb-toggle="collapse" data-mdb-target="#@accordionCollapseId" aria-expanded="false" aria-controls="@accordionCollapseId" type="button">
                                                                 @navigationLink.Title <i class="fa-solid fa-caret-down ms-3"></i>
                                                             </button>
-                                                        </span>
+                                                        </h2>
                                                         <div id="@accordionCollapseId" class="accordion-collapse collapse" aria-labelledby="@accordionHeadingId" data-mdb-parent="#@accordionId">
                                                             <div class="accordion-body mt-4 mb-1">
                                                                 <ul>
@@ -119,7 +119,7 @@
                                         }
                                     }
                                 }
-                                
+
                                 @{
                                     var basket = await BasketService.GetBasket();
                                     var basketHasItems = basket is {Items.Count: > 0};

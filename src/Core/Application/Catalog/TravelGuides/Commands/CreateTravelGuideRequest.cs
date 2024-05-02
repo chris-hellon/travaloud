@@ -39,7 +39,8 @@ public class CreateTravelGuideRequestHandler : IRequestHandler<CreateTravelGuide
             request.ShortDescription,
             imagePath,
             request.MetaKeywords,
-            request.MetaDescription
+            request.MetaDescription,
+            request.Title.UrlFriendly()
         );
 
         await travelGuide.ProcessImages(request.TravelGuideGalleryImages, _currentUser.GetUserId(), _file, cancellationToken);

@@ -1,0 +1,14 @@
+@inject IStringLocalizer<Tours> L    
+
+<MudGrid>
+    <MudItem xs="12" md="12">
+        <MudTextField Label="@L["Meta Keywords"]" For="@(() => Tour.MetaKeywords)" @bind-Value="Tour.MetaKeywords" HelperText="Enter Meta Keywords (recommended max limit of 20)" Variant="Variant.Outlined"/>
+    </MudItem>
+    <MudItem xs="12" md="12">
+        <MudTextField Label="@L["Meta Description"]" Lines="5" For="@(() => Tour.MetaDescription)" @bind-Value="Tour.MetaDescription" HelperText="Enter a Meta Description" Variant="Variant.Outlined"/>
+    </MudItem>
+</MudGrid>
+
+@code {
+    [Parameter] public required TourViewModel Tour { get; set; }
+}

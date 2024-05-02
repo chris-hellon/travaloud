@@ -1,0 +1,97 @@
+@page "/contact"
+@model Travaloud.Tenants.SharedRCL.Pages.Contact.IndexModel
+
+@{
+    ViewData["Title"] = "Contact";
+
+    <div class="custom-height mt-n5 py-5 bg-black">
+        <div class="container py-5">
+            <div class="row my-4">
+                <div class="col-12">
+                    <h1 class="display-4 fw-bold ls-tight text-white">Contact</h1>
+                    <h4 class="mb-0 text-light-gray text-shadow-0">Remember, there are no silly questions</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container custom-mt bg-white rounded-top">
+        <div class="row">
+            <div class="col-lg-6 p-0">
+                <h3 class="bg-primary text-white text-center py-2">Get In Touch</h3>
+                <div class="row p-3">
+                    @*<p>We'd love to hear about any of your questions.</p>
+                        <p>Fill out the form to send a question to the helpdesk, or contact a hostel directly using the contact details below.</p>
+                        <p>Alternatively, you can contact us directly using the following information:</p>
+                        <p>Phone : (+84) 24 6295 8836</p>
+                        <p>Email : info@vietnambackpackerhostels.com</p>*@
+
+                    <p>Thank you for taking the time to read about our company and the services we offer. We are excited to help you plan your next trip and are available to answer any questions you may have.</p>
+                    <p>Whether you are looking for recommendations or need assistance with booking, we are here to help.</p>
+                    <p>
+                        Please don't hesitate to reach out to us at <a href="mailto:info@vietnambackpackerhostels.com">info@vietnambackpackerhostels.com</a>
+                    </p>
+                    <p>We look forward to hearing from you and assisting you in any way we can.</p>
+                </div>
+            </div>
+            <div class="col-lg-6 p-0">
+                <h3 class="bg-primary text-white text-center py-2">Send Us A Message</h3>
+                <div class="row pb-3 pe-3">
+                    @Html.DisplayFor(x => x.ContactComponent)
+                </div>
+            </div>
+        </div>
+        <div class="row pb-5 pt-4">
+            @if (Model.Properties != null && Model.Properties.Any())
+            {
+                foreach (var destination in Model.Properties)
+                {
+                    var title = "";
+                    var subTitle = "";
+
+                    @if (destination.Name.Contains('-'))
+                    {
+                        var propertyNameSplit = destination.Name.Split('-');
+                        title = propertyNameSplit[0].Trim();
+                        subTitle = propertyNameSplit[1].Trim();
+                    }
+                    else
+                    {
+                        title = destination.Name;
+                    }
+
+                    @if (destination.Id == new Guid("E4DCD399-2CAE-4F7A-9041-0D7A27B52773"))
+                    {
+                        subTitle = "Operated by Mad Monkey";
+                    }
+
+                    <div class="col-lg-4">
+                        <div class="card h-100">
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="text-black mb-3">
+                                    @title
+                                </h5>
+                                <h6 class="text-muted text-shadow-0 mb-3">
+                                    @subTitle
+                                </h6>
+                                <p class="mb-0">
+                                    <i class="fas fa-phone dark-grey-text" aria-hidden="true"></i> @destination.TelephoneNumber
+                                </p>
+                                @if (!string.IsNullOrEmpty(destination.EmailAddress))
+                                {
+                                    <p class="mb-0">
+                                        <i class="fas fa-at dark-grey-text" aria-hidden="true"></i> @destination.EmailAddress
+                                    </p>
+                                }
+                                <p class="mb-0">
+                                    <i class="fas fa-location-pin dark-grey-text" aria-hidden="true"></i> @destination.AddressLine1, @destination.AddressLine2
+                                </p>
+
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+}

@@ -1,14 +1,16 @@
 @page "/bookings/tour-bookings"
 @using Travaloud.Application.Catalog.Bookings.Dto
 @using Travaloud.Application.Catalog.Bookings.Commands
+@using Travaloud.Application.Common.Extensions
 @using Travaloud.Application.Identity.Users
+@using Travaloud.Admin.Components.Pages.Bookings.Wizard
 
 @attribute [MustHavePermission(TravaloudAction.View, TravaloudResource.Bookings)]
 
 @inject IStringLocalizer<TourBookings> L
 
 <EntityTable @ref="_table" TEntity="BookingDto" TId="Guid" TRequest="TourBookingViewModel" Context="@Context" ModalWidth="MaxWidth.Large">
-    <AdvancedSearchContent>
+    <AdvancedSearchContent> 
         <MudDateRangePicker @ref="_bookingDateRangePicker" PickerVariant="PickerVariant.Dialog" Label="@L["Booking Date Range"]" @bind-DateRange="SearchBookingDateRange" Clearable="true">
             <PickerActions>
                 <MudButton Class="mr-auto align-self-start" OnClick="@(() => _bookingDateRangePicker.Clear())">@L["Clear"]</MudButton>
@@ -25,10 +27,10 @@
             </PickerActions>
         </MudDateRangePicker>
 
-        @if (_tours is {Count: > 0})
+        @if (Tours is {Count: > 0})
         {
             <MudSelect T="Guid?" @bind-Value="SearchTourId" Label="Tour" Clearable="true">
-                @foreach (var tour in _tours)
+                @foreach (var tour in Tours)
                 {
                     <MudSelectItem T="Guid?" Value="tour.Id">@tour.Name</MudSelectItem>
                 }
@@ -36,20 +38,31 @@
         }
     </AdvancedSearchContent>
 
+    @* <WizardStep1Content> *@
+    @*     <SelectPrimaryGuest RequestModel="@context"></SelectPrimaryGuest> *@
+    @* </WizardStep1Content> *@
+    @* *@
+    @* <WizardStep2Content> *@
+    @*     <SelectTours RequestModel="@context"></SelectTours> *@
+    @* </WizardStep2Content> *@
+    @* *@
+    @* <WizardStep3Content> *@
+    @*     <SelectAdditionalGuests></SelectAdditionalGuests> *@
+    @* </WizardStep3Content> *@
+    @* *@
     <EditFormContent>
         <MudItem xs="12" md="10">
-            <MudAutocomplete T="UserDetailsDto" MaxItems="null" Label="@L["Primary Guest"]" For="@(() => context.Guest)" @bind-Value="context.Guest" SearchFunc="@SearchGuests" AnchorOrigin="Origin.BottomCenter" Variant="Variant.Outlined" Required="false" ToStringFunc="@(e=> e==null?null : $"{e.FirstName} {e.LastName} - {e.Email}")"/>
+            <MudAutocomplete @ref="@_guestsList" T="UserDetailsDto" Label="@L["Search Primary Guest"]" For="@(() => context.Guest)"
+                             @bind-Value="context.Guest" CoerceText="true" SearchFuncWithCancel="@SearchGuests" AnchorOrigin="Origin.BottomCenter" Variant="Variant.Outlined" Required="false" 
+                             ShowProgressIndicator="true"
+                             MinCharacters="3"
+                             DebounceInterval="300"
+                             KeyDownPreventDefault="true"
+                             ToStringFunc="@(e=> e==null?null : GetUserDetailsLabel(e))"/>
         </MudItem>
         <MudItem xs="12" md="2" Class="d-flex align-content-center" Style="height:93px">
-            <MudButton Href="/guests" Color="Color.Primary" Variant="Variant.Filled" Style="height: 40px; flex: auto; margin: auto;">Create Guest</MudButton>
+            <MudButton OnClick="@(() => InvokeCreateGuestDialog(context))" Color="Color.Primary" Variant="Variant.Filled" Style="height: 40px; flex: auto; margin: auto;">Create Guest</MudButton>
         </MudItem>
-        @* <MudItem xs="12" md="5"> *@
-        @*     <div class="d-flex justify-space-between align-content-center" style="height:65px"> *@
-        @*         <MudButton Href="/guests" Color="Color.Primary" Variant="Variant.Filled" Style="height: 40px; flex: auto; margin: auto;">Create Guest</MudButton> *@
-        @*         <MudCheckBox @bind-Checked="@context.IsPaid" For="@(() => context.IsPaid)" Label="Is the booking paid for?" Color="Color.Primary" Style="flex:auto; margin: auto;"></MudCheckBox> *@
-        @*     </div> *@
-        @* *@
-        @* </MudItem> *@
         <MudItem xs="12" md="12">
             <MudTextField Label="@L["Description"]" For="@(() => context.Description)" HelperText="Enter a description for the booking" Required="true" @bind-Value="context.Description" Variant="Variant.Outlined"/>
         </MudItem>
@@ -77,7 +90,7 @@
                         <MudTh>Start Date</MudTh>
                         <MudTh>End Date</MudTh>
                         <MudTh>Price</MudTh>
-                         <MudTh>Additional Guests</MudTh>
+                        <MudTh>Additional Guests</MudTh>
                         <MudTh Style="min-width: 0; width: 100px; text-align: right;"></MudTh>
                     </HeaderContent>
                     <RowTemplate>
@@ -95,10 +108,16 @@
             }
         </MudItem>
     </EditFormContent>
-
+    
+    <ExtraActions>
+        @if (context.IsPaid == false)
+        {
+            <MudMenuItem OnClick="@(() => GenerateBookingQRCode(context.Id, context.GuestEmail))">@L["Generate Payment QR"]</MudMenuItem>
+        }
+    </ExtraActions>
 
     <ActionsContent>
-        <MudButton Variant="Variant.Filled" DisableElevation="true" Style="margin-right:10px; margin-top:-5px;" EndIcon="@Icons.Material.Filled.KeyboardArrowDown" IconColor="Color.Secondary"
+        <MudButton Variant="Variant.Filled" DisableElevation="true" Style="margin-right:10px; margin-top:-1px;" EndIcon="@Icons.Material.Filled.KeyboardArrowDown" IconColor="Color.Secondary"
                    OnClick="@(() => ShowBtnPress(context))">
             @((context.ShowDetails == true) ? L["Hide"] : L["Show"]) @L["Items"]
         </MudButton>
@@ -110,7 +129,7 @@
             if (context.Items?.Any() == true)
             {
                 <MudTr>
-                    <td colspan="7">
+                    <td colspan="8">
                         <MudCard Elevation="25" style="margin: 10px !important;">
                             <MudCardHeader>
                                 <CardHeaderContent>
@@ -125,6 +144,7 @@
                                         <col/>
                                         <col/>
                                         <col/>
+                                        <col/>
                                     </ColGroup>
                                     <HeaderContent>
                                         <MudTh>Tour</MudTh>
@@ -132,13 +152,15 @@
                                         <MudTh>Start Date</MudTh>
                                         <MudTh>End Date</MudTh>
                                         <MudTh>Price</MudTh>
+                                        <MudTh>Total Price</MudTh>
                                     </HeaderContent>
                                     <RowTemplate>
                                         <MudTd DataLabel="Tour">@ItemContext.Tour?.Name</MudTd>
                                         <MudTd DataLabel="Additional Guests">@ItemContext.Guests.Count</MudTd>
                                         <MudTd DataLabel="Start Date">@ItemContext.StartDate</MudTd>
                                         <MudTd DataLabel="End Date">@ItemContext.EndDate</MudTd>
-                                        <MudTd DataLabel="Tour Start Date">@ItemContext.Amount</MudTd>
+                                        <MudTd DataLabel="Price">@($"$ {string.Format("{0:n2}", ItemContext.Amount)}")</MudTd>
+                                        <MudTd DataLabel="Total Price">@($"$ {string.Format("{0:n2}", ItemContext.TotalAmount)}")</MudTd>
                                     </RowTemplate>
                                 </MudTable>
                             </MudCardContent>

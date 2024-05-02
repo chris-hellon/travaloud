@@ -61,13 +61,13 @@
             <MudTextField Label="@L["Google Maps Place Id"]" For="@(() => context.GoogleMapsPlaceId)" @bind-Value="context.GoogleMapsPlaceId" HelperText="Enter a Google Maps Place Id" Variant="Variant.Outlined"/>
         </MudItem>
         <MudItem xs="12" md="4">
-            <MudTextField Label="@L["Cloudbeds Property Id"]" For="@(() => context.CloudbedsPropertyId)" @bind-Value="context.CloudbedsPropertyId" HelperText="Enter a Cloudbeds Property Id (needed for API access)" Variant="Variant.Outlined"/>
+            <MudTextField Label="@L["Cloudbeds Property Id"]" Disabled="true" For="@(() => context.CloudbedsPropertyId)" @bind-Value="context.CloudbedsPropertyId" HelperText="Enter a Cloudbeds Property Id (needed for API access)" Variant="Variant.Outlined"/>
         </MudItem>
         <MudItem xs="12" md="4">
-            <MudTextField Label="@L["Cloudbeds Key"]" For="@(() => context.CloudbedsKey)" @bind-Value="context.CloudbedsKey" HelperText="Enter a Cloudbeds Key (needed for Widget)" Variant="Variant.Outlined"/>
+            <MudTextField Label="@L["Cloudbeds Key"]" Disabled="true" For="@(() => context.CloudbedsKey)" @bind-Value="context.CloudbedsKey" HelperText="Enter a Cloudbeds Key (needed for Widget)" Variant="Variant.Outlined"/>
         </MudItem>
         <MudItem xs="12" md="4">
-            <MudTextField Label="@L["Cloudbeds Api Key"]" For="@(() => context.CloudbedsApiKey)" @bind-Value="context.CloudbedsApiKey" HelperText="Enter a Cloudbeds Api Key (needed for API access)" Variant="Variant.Outlined"/>
+            <MudTextField Label="@L["Cloudbeds Api Key"]" Disabled="true" For="@(() => context.CloudbedsApiKey)" @bind-Value="context.CloudbedsApiKey" HelperText="Enter a Cloudbeds Api Key (needed for API access)" Variant="Variant.Outlined"/>
         </MudItem>
     </MudGrid>
 </WizardStep1Content>

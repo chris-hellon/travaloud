@@ -13,9 +13,14 @@ public partial class NavMenu
     
     [Inject] protected IAuthorizationService AuthService { get; set; } = default!;
     
+    [Inject]
+    protected IHostEnvironment Env { get; set; } = default!;
+    
     [CascadingParameter] private TravaloudTenantInfo? TenantInfo { get; set; }
     
+    private string? _hangfireUrl;
     private bool _canViewDashboard;
+    private bool _canViewHangfire;
     private bool _canViewRoles;
     private bool _canViewUsers;
     private bool _canViewDestinations;
@@ -56,11 +61,14 @@ public partial class NavMenu
 
     private async Task RenderPage()
     {
+        _hangfireUrl = "/jobs";
+        
         SetCurrentUser();
         
         var authState = await AuthState.GetAuthenticationStateAsync();
         var user = authState.User;
         
+        _canViewHangfire = Env.IsDevelopment();
         _canViewDashboard = await AuthService.HasPermissionAsync(user, TravaloudAction.View, TravaloudResource.Dashboard);
         _canViewRoles = await AuthService.HasPermissionAsync(user, TravaloudAction.View, TravaloudResource.Roles);
         _canViewUsers = await AuthService.HasPermissionAsync(user, TravaloudAction.View, TravaloudResource.Users);
@@ -84,7 +92,7 @@ public partial class NavMenu
         {
             case "fuse":
                 _canViewDestinations = true;
-                _canViewTourDropdown = false;
+                _canViewTourDropdown = true;
                 _canViewPartners = false;
                 _canViewServices = false;
                 _canViewEvents = true;

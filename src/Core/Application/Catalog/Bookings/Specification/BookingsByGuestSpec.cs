@@ -10,13 +10,13 @@ public class BookingsByGuestSpec : EntitiesByPaginationFilterSpec<Booking, Booki
         : base(request)
     {
         Query
-            .OrderBy(c => c.BookingDate, !request.HasOrderBy())
+            .OrderByDescending(c => c.BookingDate, !request.HasOrderBy())
             .Include(x => x.Items)
             .ThenInclude(item => item.Tour)
             .Include(x => x.Items)
             .ThenInclude(item => item.TourDate)
             .Include(x => x.Items)
             .ThenInclude(item => item.Property)
-            .Where(x => x.GuestId == request.GuestId);
+            .Where(x => x.GuestId == request.GuestId && x.Items.Count > 0);
     }
 }

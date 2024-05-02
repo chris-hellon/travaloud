@@ -48,7 +48,7 @@ try
     
     builder.Services.AddMudServices(configuration =>
     {
-        configuration.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomRight;
+        configuration.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomCenter;
         configuration.SnackbarConfiguration.HideTransitionDuration = 100;
         configuration.SnackbarConfiguration.ShowTransitionDuration = 100;
         configuration.SnackbarConfiguration.VisibleStateDuration = 3000;
@@ -67,7 +67,7 @@ try
 
     await app.Services.InitializeDatabasesAsync();
 
-    app.UseInfrastructure(builder.Configuration, builder.Environment);
+    app.UseInfrastructure(builder.Configuration, builder.Environment, true);
 
     app.MapRazorComponents<App>()
         .AddInteractiveServerRenderMode();

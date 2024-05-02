@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Travaloud.Application.Catalog.Bookings.Commands;
+using Travaloud.Application.Catalog.Bookings.Dto;
 using Travaloud.Application.Common.Mailing;
 using Travaloud.Application.PaymentProcessing;
 using Travaloud.Application.PaymentProcessing.Commands;
@@ -13,6 +14,7 @@ public class IndexModel : TravaloudBasePageModel
     private readonly IStripeService _stripeService;
     public int? BookingId { get; set; }
     public DateTime? BookingDate { get; set; }
+    public BookingDetailsDto? Booking { get; set; }
     
     public IndexModel(IStripeService stripeService)
     {
@@ -25,14 +27,16 @@ public class IndexModel : TravaloudBasePageModel
 
         if (!string.IsNullOrEmpty(stripeSessionId))
         {
+            Logger.Information("Processing Travaloud Payment for stripeSessionId: {StripeSessionId}", stripeSessionId);
+            
             try
             {
                 var stripeStatus = await _stripeService.GetStripePaymentStatus(
                     new GetStripePaymentStatusRequest(stripeSessionId));
                 
-                var paymentIntentId = stripeStatus.PaymentIntentId;
-                var cardToken = stripeStatus.CustomerId; 
-                var paymentAuthorizationCode = stripeStatus.PaymentIntent.LatestChargeId;
+                var paymentAuthorizationCode = stripeStatus?.PaymentIntent.LatestChargeId;
+                
+                Logger.Information("StripeSessionId {StripeSessionId} status is {Status}", stripeSessionId, stripeStatus?.Status);
                 
                 if (stripeStatus?.Status == "complete")
                 {
@@ -41,12 +45,12 @@ public class IndexModel : TravaloudBasePageModel
                             stripeStatus.PaymentIntentId, 0);
                     
                     var bookingId = Guid.Parse(stripeStatus.ClientReferenceId);
-                    var booking = await BookingService.GetAsync(bookingId);
+                    Booking = await BookingService.GetAsync(bookingId);
                     
-                    if (booking == null)
+                    if (Booking == null)
                     {
                         return await RefundAndFail(bookingId, paymentAuthorizationCode,
-                            stripeStatus.PaymentIntentId, booking.TotalAmount);
+                            stripeStatus.PaymentIntentId, Booking.TotalAmount);
                     }
                     
                     await BookingService.FlagBookingAsPaidAsync(bookingId, new FlagBookingAsPaidRequest()
@@ -54,34 +58,41 @@ public class IndexModel : TravaloudBasePageModel
                         Id = bookingId
                     });
 
-                    BookingId = booking.InvoiceId;
-                    BookingDate = booking.BookingDate;
+                    BookingId = Booking.InvoiceId;
+                    BookingDate = Booking.BookingDate;
                     
-                    // Send confirmation email
-                    var emailModel = new BookingConfirmationTemplateModel(
-                        TenantName,
-                        MailSettings?.PrimaryBackgroundColor,
-                        MailSettings?.SecondaryBackgroundColor,
-                        MailSettings?.HeaderBackgroundColor,
-                        MailSettings?.TextColor,
-                        MailSettings?.LogoImageUrl,
-                        booking,
-                        booking.InvoiceId,
-                        $"{HttpContextAccessor.HttpContext?.Request.Scheme}://{HttpContextAccessor.HttpContext?.Request.Host}{HttpContextAccessor.HttpContext?.Request.PathBase}/contact",
-                        stripeStatus.CustomerEmail
-                    );
+                    Logger.Information("Booking {BookingId} flagged as paid for StripeSessionId {StripeSessionId} ", bookingId, stripeSessionId);
 
-                    var emailHtml =
-                        await RazorPartialToStringRenderer.RenderPartialToStringAsync(
-                            $"/Pages/EmailTemplates/BookingConfirmation.cshtml", emailModel);
+                    if (!Booking.IsPaid)
+                    {
+                        // Send confirmation email
+                        var emailModel = new BookingConfirmationTemplateModel(
+                            TenantName,
+                            MailSettings?.PrimaryBackgroundColor,
+                            MailSettings?.SecondaryBackgroundColor,
+                            MailSettings?.HeaderBackgroundColor,
+                            MailSettings?.TextColor,
+                            MailSettings?.LogoImageUrl,
+                            Booking,
+                            Booking.InvoiceId,
+                            $"{HttpContextAccessor.HttpContext?.Request.Scheme}://{HttpContextAccessor.HttpContext?.Request.Host}{HttpContextAccessor.HttpContext?.Request.PathBase}/contact",
+                            stripeStatus.CustomerDetails.Email
+                        );
 
-                    var mailRequest = new MailRequest(
-                        to: [stripeStatus.CustomerEmail!],
-                        subject: $"{TenantName} Order Confirmation",
-                        body: emailHtml,
-                        bcc: MailSettings?.BccAddress != null ? MailSettings?.BccAddress.ToList() : []);
+                        var emailHtml =
+                            await RazorPartialToStringRenderer.RenderPartialToStringAsync(
+                                $"/Pages/EmailTemplates/BookingConfirmation.cshtml", emailModel);
 
-                    await MailService.SendAsync(mailRequest);
+                        var mailRequest = new MailRequest(
+                            to: [stripeStatus.CustomerDetails.Email!],
+                            subject: $"{TenantName} Order Confirmation",
+                            body: emailHtml,
+                            bcc: MailSettings?.BccAddress != null ? MailSettings?.BccAddress.ToList() : []);
+
+                        await MailService.SendAsync(mailRequest);
+                    
+                        Logger.Information("Confirmation email sent for BookingId {BookingId}", bookingId);
+                    }
                     
                     return Page();
                 }
@@ -89,6 +100,7 @@ public class IndexModel : TravaloudBasePageModel
             catch (Exception ex)
             {
                 //ignored
+                Logger.Error(ex.Message);
             }
         }
         
@@ -97,8 +109,8 @@ public class IndexModel : TravaloudBasePageModel
     
     private async Task<IActionResult> RefundAndFail(
         Guid? bookingId,
-        string paymentAuthorizationCode,
-        string paymentIntentId,
+        string? paymentAuthorizationCode,
+        string? paymentIntentId,
         decimal total)
     {
         await _stripeService.RefundSession(new RefundSessionRequest(paymentAuthorizationCode, paymentIntentId, total));

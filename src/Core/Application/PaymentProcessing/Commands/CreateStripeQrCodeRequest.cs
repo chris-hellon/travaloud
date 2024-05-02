@@ -1,4 +1,5 @@
-using Microsoft.AspNetCore.Http;
+using Finbuckle.MultiTenant;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Options;
 using Stripe;
 using Stripe.Checkout;
@@ -22,18 +23,44 @@ internal class CreateStripeQrCodeRequestHandler : IRequestHandler<CreateStripeQr
     private readonly IStringLocalizer<CreateStripeQrCodeRequestHandler> _localizer;
     private readonly IStripeService _stripeService;
     private readonly StripeSettings _stripeSettings;
-    
-    public CreateStripeQrCodeRequestHandler(IOptions<StripeSettings> stripeSettings,
+
+    public CreateStripeQrCodeRequestHandler(
         IRepositoryFactory<Booking> repository,
         IStringLocalizer<CreateStripeQrCodeRequestHandler> localizer,
-        IStripeService stripeService, 
-        IHttpContextAccessor httpContextAccessor)
+        IStripeService stripeService,
+        IHostingEnvironment hostingEnvironment, 
+        IMultiTenantContextAccessor multiTenantContextAccessor,
+        IOptions<MultiTenantStripeSettings> multiTenantStripeOptions)
     {
         _repository = repository;
         _localizer = localizer;
         _stripeService = stripeService;
-        _stripeSettings = stripeSettings.Value;
-        _stripeClient = new StripeClient(stripeSettings.Value.ApiSecretKey);
+
+        var multiTenantStripeSettings = multiTenantStripeOptions.Value;
+        var tenantIdentifier = multiTenantContextAccessor?.MultiTenantContext?.TenantInfo?.Identifier;
+        var tenantSettings = multiTenantStripeSettings.Tenants.FirstOrDefault(x => x.TenantIdentifier == tenantIdentifier);
+
+        if (tenantSettings == null)
+        {
+            throw new ArgumentException($"No settings found for tenant '{tenantIdentifier}'.");
+        }
+
+        if (tenantSettings.Environments == null) 
+            throw new ArgumentException($"No settings found for tenant '{tenantIdentifier}'.");
+            
+        foreach (var environment in tenantSettings.Environments.Where(environment => environment.Environment == hostingEnvironment.EnvironmentName))
+        {
+            if (environment.StripeSettings == null)
+                throw new ArgumentException($"No settings found for tenant '{tenantIdentifier}'.");
+            
+            if (environment.StripeSettings != null)
+            {
+                _stripeSettings = environment.StripeSettings;
+                _stripeClient = new StripeClient(_stripeSettings.ApiSecretKey);
+            }
+            
+            break;
+        }
     }
     
     public async Task<string> Handle(CreateStripeQrCodeRequest request, CancellationToken cancellationToken)
@@ -76,7 +103,7 @@ internal class CreateStripeQrCodeRequestHandler : IRequestHandler<CreateStripeQr
             CancelUrl = _stripeSettings.QRCodeUrl + "/order-failed"
         };
         
-        var existingCustomer = await _stripeService.SearchStripeCustomer(new SearchStripeCustomerRequest(request.GuestEmail!));
+        var existingCustomer = await _stripeService.SearchStripeCustomer(new SearchMultiTenantStripeCustomerRequest(request.GuestEmail!));
             
         string? customerId = null;
 

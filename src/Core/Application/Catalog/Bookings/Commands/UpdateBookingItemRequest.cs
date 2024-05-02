@@ -7,7 +7,12 @@ public class UpdateBookingItemRequest : IRequest<DefaultIdType>
     public DateTime? EndDate { get; set; }
     public decimal? Amount { get; set; }
     public int? RoomQuantity { get; set; }
-    public int? GuestQuantity { get; set; }
+
+    public int GuestQuantity
+    {
+        get => Guests?.Count + 1 ?? 1;
+        set { }
+    }
 
     [RequiredIfNull("TourId", ErrorMessage = "A Property is required")]
     public DefaultIdType? PropertyId { get; set; }

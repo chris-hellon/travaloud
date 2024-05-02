@@ -1,17 +1,25 @@
+using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using MudBlazor;
 using Travaloud.Admin.Theme;
+using Travaloud.Application.Identity.Users;
 using Travaloud.Infrastructure.Multitenancy;
+using Travaloud.Shared.Authorization;
+using Color = MudBlazor.Color;
 
 namespace Travaloud.Admin.Components.Layout;
 
 public partial class MainLayout
 {
+    [Inject] private IUserService UserService { get; set; } = default!;
+    
     private string? _currentUrl;
     private bool _isDarkMode;
     private MudTheme _currentTheme = new LightTheme();
     private bool _drawerOpen = true;
     private TravaloudTenantInfo? TenantInfo;
+    private List<UserDetailsDto>? Guests;
     
     protected override void OnInitialized()
     {

@@ -134,8 +134,33 @@ public class IndexModel : TravaloudBasePageModel
                 }
                 else
                 {
+                    existingUser.Nationality = CheckoutFormComponentModel.Nationality;
+                    existingUser.Gender = CheckoutFormComponentModel.Gender;
+                    existingUser.PhoneNumber = CheckoutFormComponentModel.PhoneNumber;
+                    existingUser.DateOfBirth = CheckoutFormComponentModel.DateOfBirth;
+                    existingUser.FirstName = CheckoutFormComponentModel.FirstName;
+                    existingUser.LastName = CheckoutFormComponentModel.Surname;
+
+                    await UserManager.UpdateAsync(existingUser);
+                    
                     guestId = Guid.Parse(existingUser.Id);
                     await SignInManager.SignInAsync(existingUser, isPersistent: false);
+                }
+            }
+            else
+            {
+                var existingUser = await UserManager.FindByIdAsync(guestId.Value.ToString());
+
+                if (existingUser != null)
+                {
+                    existingUser.Nationality = CheckoutFormComponentModel.Nationality;
+                    existingUser.Gender = CheckoutFormComponentModel.Gender;
+                    existingUser.PhoneNumber = CheckoutFormComponentModel.PhoneNumber;
+                    existingUser.DateOfBirth = CheckoutFormComponentModel.DateOfBirth;
+                    existingUser.FirstName = CheckoutFormComponentModel.FirstName;
+                    existingUser.LastName = CheckoutFormComponentModel.Surname;
+
+                    await UserManager.UpdateAsync(existingUser);
                 }
             }
 

@@ -41,6 +41,16 @@ public class PropertiesService : BaseService, IPropertiesService
         return await Mediator.Send(new GetPropertyRequest(id));
     }
 
+    public Task<IEnumerable<PropertyDto>> GetPropertiesByDestination(GetPropertiesByDestinationRequest request)
+    {
+        return Mediator.Send(request);
+    }
+
+    public Task<PropertyDetailsDto?> GetPropertyWithTours(GetPropertyWithToursRequest request)
+    {
+        return Mediator.Send(request);
+    }
+
     public async Task<FileResponse?> ExportAsync(ExportPropertiesRequest filter)
     {
         var response = await Mediator.Send(filter);

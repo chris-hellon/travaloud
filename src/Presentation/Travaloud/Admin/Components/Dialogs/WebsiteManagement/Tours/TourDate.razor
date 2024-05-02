@@ -35,7 +35,7 @@
                 }
 
                 <MudItem xs="12" md="12">
-                    <MudDatePicker Label="@L["Start Date"]" @bind-Date="RequestModel.StartDate" For="@(() => RequestModel.StartDate)" DateFormat="dd/MM/yyyy" Variant="Variant.Outlined" Margin="Margin.Dense" Required="true"/>
+                    <MudDatePicker Label="@L["Start Date"]" @bind-Date="RequestModel.StartDate" For="@(() => RequestModel.StartDate)" MinDate="DateTime.Now.AddDays(-1)" DateFormat="dd/MM/yyyy" Variant="Variant.Outlined" Margin="Margin.Dense" Required="true"/>
                 </MudItem>
 
                 <MudItem xs="12" md="12">

@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Finbuckle.MultiTenant;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Serilog;
 using Travaloud.Application.Basket;
 using Travaloud.Application.Basket.Commands;
 using Travaloud.Application.Basket.Dto;
@@ -10,9 +11,11 @@ using Travaloud.Application.Catalog.Bookings.Commands;
 using Travaloud.Application.Catalog.Destinations.Dto;
 using Travaloud.Application.Catalog.Interfaces;
 using Travaloud.Application.Catalog.PageSorting.Dto;
+using Travaloud.Application.Catalog.PageSorting.Queries;
 using Travaloud.Application.Catalog.Properties.Dto;
 using Travaloud.Application.Catalog.Services.Dto;
 using Travaloud.Application.Catalog.Tours.Dto;
+using Travaloud.Application.Catalog.Tours.Queries;
 using Travaloud.Application.Common.Interfaces;
 using Travaloud.Application.Common.Mailing;
 using Travaloud.Application.Identity.Users;
@@ -29,63 +32,117 @@ namespace Travaloud.Tenants.SharedRCL.Models.PageModels;
 public class TravaloudBasePageModel : PageModel
 {
     #region Injected Services
-    
+
+    private ILogger? _logger;
+
+    public ILogger Logger => (_logger ??= HttpContext.RequestServices.GetService<ILogger>()) ??
+                             throw new InvalidOperationException();
+
     private IHttpContextAccessor? _httpContextAccessor;
-    public IHttpContextAccessor HttpContextAccessor => (_httpContextAccessor ??= HttpContext.RequestServices.GetService<IHttpContextAccessor>()) ?? throw new InvalidOperationException();
+
+    public IHttpContextAccessor HttpContextAccessor =>
+        (_httpContextAccessor ??= HttpContext.RequestServices.GetService<IHttpContextAccessor>()) ??
+        throw new InvalidOperationException();
 
     private ICurrentUser? _currentUser;
-    protected ICurrentUser CurrentUser => (_currentUser ??= HttpContext.RequestServices.GetService<ICurrentUser>()) ?? throw new InvalidOperationException();
+
+    protected ICurrentUser CurrentUser => (_currentUser ??= HttpContext.RequestServices.GetService<ICurrentUser>()) ??
+                                          throw new InvalidOperationException();
 
     private IPropertiesService? _propertiesService;
-    protected IPropertiesService PropertiesService => (_propertiesService ??= HttpContext.RequestServices.GetService<IPropertiesService>()) ?? throw new InvalidOperationException();
+
+    protected IPropertiesService PropertiesService =>
+        (_propertiesService ??= HttpContext.RequestServices.GetService<IPropertiesService>()) ??
+        throw new InvalidOperationException();
 
     private IBookingsService? _bookingService;
-    protected IBookingsService BookingService => (_bookingService ??= HttpContext.RequestServices.GetService<IBookingsService>()) ?? throw new InvalidOperationException();
+
+    protected IBookingsService BookingService =>
+        (_bookingService ??= HttpContext.RequestServices.GetService<IBookingsService>()) ??
+        throw new InvalidOperationException();
 
     private IBasketService? _basketService;
-    protected IBasketService BasketService => (_basketService ??= HttpContext.RequestServices.GetService<IBasketService>()) ?? throw new InvalidOperationException();
-    
+
+    protected IBasketService BasketService =>
+        (_basketService ??= HttpContext.RequestServices.GetService<IBasketService>()) ??
+        throw new InvalidOperationException();
+
     private IStripeService? _stripeService;
-    protected IStripeService StripeService => (_stripeService ??= HttpContext.RequestServices.GetService<IStripeService>()) ?? throw new InvalidOperationException();
-    
+
+    protected IStripeService StripeService =>
+        (_stripeService ??= HttpContext.RequestServices.GetService<IStripeService>()) ??
+        throw new InvalidOperationException();
+
     private ITenantWebsiteService? _tenantWebsiteService;
-    protected ITenantWebsiteService TenantWebsiteService => (_tenantWebsiteService ??= HttpContext.RequestServices.GetService<ITenantWebsiteService>()) ?? throw new InvalidOperationException();
+
+    protected ITenantWebsiteService TenantWebsiteService =>
+        (_tenantWebsiteService ??= HttpContext.RequestServices.GetService<ITenantWebsiteService>()) ??
+        throw new InvalidOperationException();
 
     private IMultiTenantContextAccessor<TravaloudTenantInfo>? _multiTenantContextAccessor;
-    protected IMultiTenantContextAccessor<TravaloudTenantInfo>? MultiTenantContextAccessor => _multiTenantContextAccessor ??= HttpContext.RequestServices.GetService<IMultiTenantContextAccessor<TravaloudTenantInfo>>();
-    
+
+    protected IMultiTenantContextAccessor<TravaloudTenantInfo>? MultiTenantContextAccessor =>
+        _multiTenantContextAccessor ??=
+            HttpContext.RequestServices.GetService<IMultiTenantContextAccessor<TravaloudTenantInfo>>();
+
     private IRazorPartialToStringRenderer? _razorPartialToStringRenderer;
-    protected IRazorPartialToStringRenderer RazorPartialToStringRenderer => (_razorPartialToStringRenderer ??= HttpContext.RequestServices.GetService<IRazorPartialToStringRenderer>()) ?? throw new InvalidOperationException();
+
+    protected IRazorPartialToStringRenderer RazorPartialToStringRenderer =>
+        (_razorPartialToStringRenderer ??= HttpContext.RequestServices.GetService<IRazorPartialToStringRenderer>()) ??
+        throw new InvalidOperationException();
 
     private IMailService? _mailService;
-    protected IMailService MailService => (_mailService ??= HttpContext.RequestServices.GetService<IMailService>()) ?? throw new InvalidOperationException();
-    
+
+    protected IMailService MailService => (_mailService ??= HttpContext.RequestServices.GetService<IMailService>()) ??
+                                          throw new InvalidOperationException();
+
     private SignInManager<ApplicationUser>? _signInManager;
-    protected SignInManager<ApplicationUser> SignInManager => (_signInManager ??= HttpContext.RequestServices.GetService<SignInManager<ApplicationUser>>()) ?? throw new InvalidOperationException();
+
+    protected SignInManager<ApplicationUser> SignInManager =>
+        (_signInManager ??= HttpContext.RequestServices.GetService<SignInManager<ApplicationUser>>()) ??
+        throw new InvalidOperationException();
 
     private UserManager<ApplicationUser>? _userManager;
-    protected UserManager<ApplicationUser> UserManager => (_userManager ??= HttpContext.RequestServices.GetService<UserManager<ApplicationUser>>()) ?? throw new InvalidOperationException();
-    
+
+    protected UserManager<ApplicationUser> UserManager =>
+        (_userManager ??= HttpContext.RequestServices.GetService<UserManager<ApplicationUser>>()) ??
+        throw new InvalidOperationException();
+
     #endregion
 
     private TravaloudTenantInfo? _tenantInfo;
-    protected TravaloudTenantInfo TenantInfo => (_tenantInfo ??= MultiTenantContextAccessor?.MultiTenantContext?.TenantInfo) ?? throw new InvalidOperationException();
+
+    protected TravaloudTenantInfo TenantInfo =>
+        (_tenantInfo ??= MultiTenantContextAccessor?.MultiTenantContext?.TenantInfo) ??
+        throw new InvalidOperationException();
 
     //TODO: App configuration > add this into travaloud admin
     private TravaloudSettings? _travaloudSettings;
-    public TravaloudSettings TravaloudSettings => (_travaloudSettings ??= HttpContext.RequestServices.GetService<IOptions<TravaloudSettings>>()?.Value) ?? throw new InvalidOperationException();
+
+    public TravaloudSettings TravaloudSettings =>
+        (_travaloudSettings ??= HttpContext.RequestServices.GetService<IOptions<TravaloudSettings>>()?.Value) ??
+        throw new InvalidOperationException();
 
     private TravaloudTenantSettings? _tenantSettings;
-    public TravaloudTenantSettings TenantSettings => (_tenantSettings ??= TravaloudSettings.Tenant) ?? throw new InvalidOperationException();
+
+    public TravaloudTenantSettings TenantSettings =>
+        (_tenantSettings ??= TravaloudSettings.Tenant) ?? throw new InvalidOperationException();
 
     private TravaloudUrlSettings? _urlSettings;
-    public TravaloudUrlSettings UrlSettings => (_urlSettings ??= TravaloudSettings.UrlConfiguration) ?? throw new InvalidOperationException();
+
+    public TravaloudUrlSettings UrlSettings => (_urlSettings ??= TravaloudSettings.UrlConfiguration) ??
+                                               throw new InvalidOperationException();
 
     private TravaloudMetaDataSettings? _metaDataSettings;
-    public TravaloudMetaDataSettings MetaDataSettings => (_metaDataSettings ??= TravaloudSettings.MetaData) ?? throw new InvalidOperationException();
+
+    public TravaloudMetaDataSettings MetaDataSettings => (_metaDataSettings ??= TravaloudSettings.MetaData) ??
+                                                         throw new InvalidOperationException();
 
     private MailSettings? _mailSettings;
-    protected MailSettings MailSettings => (_mailSettings ??= HttpContext.RequestServices.GetService<IOptions<MailSettings>>()?.Value) ?? throw new InvalidOperationException();
+
+    protected MailSettings MailSettings =>
+        (_mailSettings ??= HttpContext.RequestServices.GetService<IOptions<MailSettings>>()?.Value) ??
+        throw new InvalidOperationException();
 
     public TravaloudNavigationSettings? NavigationSettings
     {
@@ -155,7 +212,7 @@ public class TravaloudBasePageModel : PageModel
     /// An array of Tenant Tours
     /// </summary>
     public IEnumerable<TourDto>? Tours { get; private set; }
-    
+
     /// <summary>
     /// An array of Tenant Destinations
     /// </summary>
@@ -189,6 +246,7 @@ public class TravaloudBasePageModel : PageModel
     /// Retrieves a Tenants Id from appsettings.json
     /// </summary>
     private string? _tenantId;
+
     public string TenantId
     {
         get
@@ -206,6 +264,7 @@ public class TravaloudBasePageModel : PageModel
     /// Retrieves a Tenants Name from appsettings.json
     /// </summary>
     private string? _tenantName;
+
     public string TenantName
     {
         get
@@ -223,6 +282,7 @@ public class TravaloudBasePageModel : PageModel
     /// Retrieves a Tenants Tagline from appsettings.json
     /// </summary>
     private string? _tenantTagLine;
+
     public string TenantTagLine
     {
         get
@@ -235,11 +295,12 @@ public class TravaloudBasePageModel : PageModel
             throw new Exception("No TenantTagLine provided in appsettings.json.");
         }
     }
-    
+
     /// <summary>
     /// Retrieves a Tenants Website Url from appsettings.json
     /// </summary>
     private string? _websiteUrl;
+
     public string WebsiteUrl
     {
         get
@@ -257,12 +318,14 @@ public class TravaloudBasePageModel : PageModel
     /// Retrieves a Tenants Azure Storage Url from appsettings.json
     /// </summary>
     private string? _tenantAzureStorageUrl;
+
     protected string TenantAzureStorageUrl => _tenantAzureStorageUrl ??= $"https://travaloud.azureedge.net/{TenantId}";
 
     /// <summary>
     /// Retrieves a Tenants Property Booking Url from appsettings.json, or returns a default
     /// </summary>
     private string? _propertyBookingUrl;
+
     public string PropertyBookingUrl
     {
         get
@@ -277,6 +340,7 @@ public class TravaloudBasePageModel : PageModel
     /// Retrieves a Tenants Property Booking Url from appsettings.json, or returns a default
     /// </summary>
     private string? _tourBookingUrl;
+
     public string TourBookingUrl
     {
         get
@@ -291,6 +355,7 @@ public class TravaloudBasePageModel : PageModel
     /// Retrieves a Tenants Account Management Url from appsettings.json, or returns a default
     /// </summary>
     private string? _accountManagementUrl;
+
     protected string AccountManagementUrl
     {
         get
@@ -305,12 +370,14 @@ public class TravaloudBasePageModel : PageModel
     /// Retrieves a Tenants Account Management Url from appsettings.json
     /// </summary>
     private string? _accountManagementImageUrl;
+
     public string AccountManagementImageUrl => _accountManagementImageUrl ??= UrlSettings.AccountManagementImageUrl;
 
     /// <summary>
     /// Retrieves a Tenants Google Analytics Tag from appsettings.json
     /// </summary>
     private string? _googleTagManagerKey;
+
     public string GoogleTagManagerKey
     {
         get
@@ -328,12 +395,15 @@ public class TravaloudBasePageModel : PageModel
     /// Retrieves a Tenants Google Site Verification from appsettings.json
     /// </summary>
     private string? _googleSiteVerificationKey;
-    public string GoogleSiteVerificationKey => (_googleSiteVerificationKey ??= TenantSettings.GoogleSiteVerificationKey);
+
+    public string GoogleSiteVerificationKey =>
+        (_googleSiteVerificationKey ??= TenantSettings.GoogleSiteVerificationKey);
 
     /// <summary>
     /// Retrieves a Tenants Facebook Page Id from appsettings.json
     /// </summary>
     private string? _facebookPageId;
+
     public string FacebookPageId
     {
         get
@@ -351,6 +421,7 @@ public class TravaloudBasePageModel : PageModel
     /// Retrieves a Tenants Email Address for sending mail from appsettings.json
     /// </summary>
     private string? _emailAddress;
+
     protected string EmailAddress
     {
         get
@@ -367,6 +438,7 @@ public class TravaloudBasePageModel : PageModel
     /// Retrieves a Tenants Email Display name for sending mail from appsettings.json
     /// </summary>
     private string? _emailDisplayName;
+
     protected string EmailDisplayName
     {
         get
@@ -433,7 +505,8 @@ public class TravaloudBasePageModel : PageModel
     /// Retrieves a logged in User Id
     /// </summary>
     private Guid? _userId;
-    public Guid? UserId 
+
+    public Guid? UserId
     {
         get
         {
@@ -486,19 +559,36 @@ public class TravaloudBasePageModel : PageModel
         var toursTask = Task.Run(() => TenantWebsiteService.GetTours(cancellationToken), cancellationToken);
         var servicesTask = Task.Run(() => TenantWebsiteService.GetServices(cancellationToken), cancellationToken);
         var destinationsTask = Task.Run(() => TenantWebsiteService.GetDestinations(cancellationToken), cancellationToken);
-        
-        await Task.WhenAll(propertiesTask, toursTask, servicesTask, destinationsTask);
 
+        await Task.WhenAll(propertiesTask, toursTask, servicesTask, destinationsTask);
+        
         Properties = propertiesTask.Result;
         Tours = toursTask.Result;
         Services = servicesTask.Result;
         Destinations = destinationsTask.Result;
+
+        if (TenantId != "fuse")
+        {
+            var toursWithCategoriesTask = TenantWebsiteService.GetToursWithCategories(TenantId, cancellationToken);
+            var pageSortingsTask = TenantWebsiteService.GetPageSortings(new GetPageSortingsRequest());
+
+            await Task.WhenAll(toursWithCategoriesTask, pageSortingsTask);
+            
+            ToursWithCategories = toursWithCategoriesTask.Result;
+            await SetToursPrices(ToursWithCategories);
+            PageSortings = pageSortingsTask.Result;
+        }
         
         StatusSeverity ??= "success";
 
         LoginModal.BookingUrl = PropertyBookingUrl;
     }
-    
+
+    /// <summary>
+    /// Creates a Property Booking Url.
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
     public async Task<IActionResult> OnPostSearchRoomsAsync()
     {
         Guid? userId = CurrentUser.GetUserId();
@@ -522,7 +612,8 @@ public class TravaloudBasePageModel : PageModel
                 var property = await PropertiesService.GetAsync(propertyIdParsed);
                 var propertyName = property?.Name.UrlFriendly();
 
-                var url = $"/{PropertyBookingUrl}/{propertyName}/{checkInDateParsed.ToString("yyyy-MM-dd").UrlFriendly()}/{checkOutDateParsed.ToString("yyyy-MM-dd").UrlFriendly()}{(userId != null ? $"/{userId}" : "")}";
+                var url =
+                    $"/{PropertyBookingUrl}/{propertyName}/{checkInDateParsed.ToString("yyyy-MM-dd").UrlFriendly()}/{checkOutDateParsed.ToString("yyyy-MM-dd").UrlFriendly()}{(userId != null ? $"/{userId}" : "")}";
                 return LocalRedirect(url);
             }
         }
@@ -541,7 +632,8 @@ public class TravaloudBasePageModel : PageModel
         var parentTourWithCategories = ToursWithCategories?.Where(x =>
             !x.CategoryId.HasValue && !x.ParentTourCategoryId.HasValue && !x.GroupParentCategoryId.HasValue);
 
-        return parentTourWithCategories?.Select(ConvertTourToNavigationLinkModel).ToArray() ?? Array.Empty<NavigationLinkModel>();
+        return parentTourWithCategories?.Select(ConvertTourToNavigationLinkModel).ToArray() ??
+               Array.Empty<NavigationLinkModel>();
     }
 
     /// <summary>
@@ -572,7 +664,8 @@ public class TravaloudBasePageModel : PageModel
 
         // If there are child tours, recursively convert each one to a NavigationLinkModel and add to the Children array
         if (childTours is {Count: 0}) return navigationLinkModel;
-        navigationLinkModel.Children = childTours?.Select(ConvertTourToNavigationLinkModel).ToArray() ?? Array.Empty<NavigationLinkModel>();
+        navigationLinkModel.Children = childTours?.Select(ConvertTourToNavigationLinkModel).ToArray() ??
+                                       Array.Empty<NavigationLinkModel>();
 
         return navigationLinkModel;
     }
@@ -593,65 +686,64 @@ public class TravaloudBasePageModel : PageModel
             if (Request.Form.ContainsKey($"{parentKey}.{key}"))
                 returnValue = Request.Form[keyValue].ToString();
         }
-        
+
         if (string.IsNullOrEmpty(returnValue) && Request.Form.ContainsKey(key))
             returnValue = Request.Form[key].ToString();
 
         return returnValue;
     }
 
-    // public void SetToursPrices(IList<TourWithCategoryDto>? toursWithCategories)
-    // {
-    //     toursWithCategories = toursWithCategories?.Select(x =>
-    //     {
-    //         var tour = Tours.FirstOrDefault(t => t.Id == x.Id);
-    //
-    //         if (tour != null)
-    //             x.TourPrices = tour.TourPrices;
-    //         else
-    //         {
-    //             var categoriesWithinCategory = ToursWithCategories.Where(t =>
-    //                 t.ParentTourCategoryId.HasValue && t.ParentTourCategoryId.Value == x.Id);
-    //             var toursWithinCategory = ToursWithCategories.Where(t => t.CategoryId == x.Id);
-    //
-    //             var tourWithCategoryDtos =
-    //                 toursWithinCategory as TourWithCategoryDto[] ?? toursWithinCategory.ToArray();
-    //             var withCategoryDtos = categoriesWithinCategory as TourWithCategoryDto[] ??
-    //                                    categoriesWithinCategory.ToArray();
-    //
-    //             if (tourWithCategoryDtos.Length == 0 && withCategoryDtos.Length == 0) return x;
-    //             {
-    //                 var mergedTours = new List<TourWithCategoryDto>();
-    //                 mergedTours.AddRange(tourWithCategoryDtos);
-    //                 mergedTours.AddRange(withCategoryDtos);
-    //
-    //                 x.ChildTours = mergedTours.OrderBy(tourWithCategoryDto => tourWithCategoryDto.Name).ToList();
-    //
-    //                 var tourIds = tourWithCategoryDtos.Select(tourWithCategoryDto => tourWithCategoryDto.Id).ToList();
-    //
-    //                 if (withCategoryDtos.Length != 0)
-    //                 {
-    //                     var categoryIds = withCategoryDtos.Select(tourWithCategoryDto => tourWithCategoryDto.Id)
-    //                         .ToList();
-    //                     var categoryTours = ToursWithCategories.Where(t =>
-    //                         t.CategoryId.HasValue && categoryIds.Contains(t.CategoryId.Value));
-    //
-    //                     var categoryDtos = categoryTours as TourWithCategoryDto[] ?? categoryTours.ToArray();
-    //                     if (categoryDtos.Length != 0)
-    //                         tourIds.AddRange(categoryDtos.Select(t => t.Id));
-    //                 }
-    //
-    //                 var toursPrices = Tours.Where(t => tourIds.Contains(t.Id))
-    //                     .SelectMany(t => (t.TourPrices ?? null) ?? new List<TourPriceDto>()).MinBy(t => t.Price);
-    //
-    //                 if (toursPrices != null)
-    //                     x.TourPrices = new List<TourPriceDto>() {toursPrices};
-    //             }
-    //         }
-    //
-    //         return x;
-    //     }).ToList();
-    // }
+    public async Task SetToursPrices(IEnumerable<TourWithCategoryDto> toursWithCategories)
+    {
+        var tourWithCategoryDtos = toursWithCategories as TourWithCategoryDto[] ?? toursWithCategories.ToArray();
+        var tourIds = tourWithCategoryDtos.Select(x => x.Id).Distinct();
+        var tourPrices = await TenantWebsiteService.GetTourPrices(new GetTourPricesRequest(tourIds), CancellationToken.None);
+        
+        toursWithCategories = tourWithCategoryDtos.Select(x =>
+        {
+            var tour = Tours.FirstOrDefault(t => t.Id == x.Id);
+
+            if (tour != null)
+            {
+                var prices = tourPrices.Where(x => x.TourId == tour.Id);
+                x.TourPrices = prices;
+            }
+            else
+            {
+                var categoriesWithinCategory = ToursWithCategories.Where(t =>
+                    t.ParentTourCategoryId.HasValue && t.ParentTourCategoryId.Value == x.Id);
+                var toursWithinCategory = ToursWithCategories.Where(t => t.CategoryId == x.Id);
+
+                if (!toursWithinCategory.Any() && !categoriesWithinCategory.Any()) return x;
+                {
+                    var mergedTours = new List<TourWithCategoryDto>();
+                    mergedTours.AddRange(toursWithinCategory);
+                    mergedTours.AddRange(categoriesWithinCategory);
+
+                    x.ChildTours = mergedTours.OrderBy(x => x.Name).ToList();
+
+                    var tourIds = toursWithinCategory.Select(x => x.Id).ToList();
+
+                    if (categoriesWithinCategory.Any())
+                    {
+                        var categoryIds = categoriesWithinCategory.Select(x => x.Id).ToList();
+                        var categoryTours = ToursWithCategories.Where(t =>
+                            t.CategoryId.HasValue && categoryIds.Contains(t.CategoryId.Value));
+
+                        if (categoryTours.Any())
+                            tourIds.AddRange(categoryTours.Select(t => t.Id));
+                    }
+                    
+                    var toursPrices = Tours.Where(t => tourIds.Contains(t.Id)).SelectMany(t => tourPrices.Where(x => x.TourId == t.Id)).MinBy(t => t.Price);
+
+                    if (toursPrices != null)
+                        x.TourPrices = new List<TourPriceDto>() {toursPrices};
+                }
+            }
+
+            return x;
+        }).ToList();
+    }
 
     public async Task SetPropertyInformation(PropertyDetailsDto property)
     {
@@ -787,7 +879,7 @@ public class TravaloudBasePageModel : PageModel
     public async Task<IActionResult> OnPostSignInAsync()
     {
         var returnUrl = LoginModal.ReturnUrl;
-        
+
         var user = await UserManager.FindByEmailAsync(LoginModal.Email);
 
         if (user != null)
@@ -799,11 +891,12 @@ public class TravaloudBasePageModel : PageModel
             {
                 if (TenantInfo is {Identifier: not null})
                 {
+                    //Set user claims of current tenant for Finbuckle MultiTenancy
                     await SignInManager.SignInWithClaimsAsync(user, null, new Claim[]
                     {
-                        new (TravaloudClaims.Tenant, TenantInfo.Identifier)
-                    });   
-                    
+                        new(TravaloudClaims.Tenant, TenantInfo.Identifier)
+                    });
+
                     var localRedirect = returnUrl == null;
 
                     if (returnUrl != null && returnUrl.Contains(PropertyBookingUrl))
@@ -815,21 +908,23 @@ public class TravaloudBasePageModel : PageModel
                     return localRedirect ? LocalRedirect(returnUrl) : Redirect(returnUrl);
                 }
             }
+
             if (result.RequiresTwoFactor)
             {
                 returnUrl = $"/login-with-2fa{(returnUrl != null ? $"?returnUrl={returnUrl}" : "")}";
                 return LocalRedirect(returnUrl);
             }
+
             if (result.IsLockedOut)
             {
                 return RedirectToPage("/lockout");
             }
         }
-        
+
         ModelState.AddModelError(string.Empty, "Invalid login attempt.");
         StatusMessage = "Invalid login attempt.";
         StatusSeverity = "danger;";
-        
+
         return LocalRedirect("/");
     }
 
@@ -878,6 +973,7 @@ public class TravaloudBasePageModel : PageModel
             {
                 FirstName = RegisterModal.FirstName,
                 LastName = RegisterModal.Surname,
+                FullName = $"{RegisterModal.FirstName} {RegisterModal.Surname}",
                 PhoneNumber = RegisterModal.PhoneNumber,
                 Gender = RegisterModal.Gender,
                 Nationality = RegisterModal.Nationality,
@@ -890,37 +986,47 @@ public class TravaloudBasePageModel : PageModel
                 RefreshTokenExpiryTime = DateTime.Now
             };
 
-            var result = await UserManager.CreateAsync(user, RegisterModal.Password);
-
-            if (result.Succeeded)
+            if (RegisterModal.Password != null)
             {
-                var userResult = await UserManager.AddToRoleAsync(user, TravaloudRoles.Guest);
+                //Register user
+                var result = await UserManager.CreateAsync(user, RegisterModal.Password);
 
-                if (userResult.Succeeded)
+                if (result.Succeeded)
                 {
-                    await SignInManager.SignInAsync(user, isPersistent: false);
+                    //Assign user to Guest role
+                    var userResult = await UserManager.AddToRoleAsync(user, TravaloudRoles.Guest);
 
-                    var returnUrl = RegisterModal.ReturnUrl;
-                    var localRedirect = returnUrl == null;
+                    if (userResult.Succeeded)
+                    {
+                        //Sign user in
+                        await SignInManager.SignInAsync(user, isPersistent: false);
 
-                    if (returnUrl != null && returnUrl.Contains(PropertyBookingUrl))
-                        returnUrl += $"/{user.Id}";
+                        Logger.Information("User with email {Email} registered successfully", user.Email);
 
-                    returnUrl ??= $"/{AccountManagementUrl}";
-                    return localRedirect ? LocalRedirect(returnUrl) : Redirect(returnUrl);
+                        var returnUrl = RegisterModal.ReturnUrl;
+                        var localRedirect = returnUrl == null;
+
+                        //If we're on the property booking page, append user id to the url
+                        if (returnUrl != null && returnUrl.Contains(PropertyBookingUrl))
+                            returnUrl += $"/{user.Id}";
+
+                        returnUrl ??= $"/{AccountManagementUrl}";
+                        return localRedirect ? LocalRedirect(returnUrl) : Redirect(returnUrl);
+                    }
                 }
-            }
-            else
-            {
-                var errorMessage = result.Errors.Aggregate("", (current, error) => current + (error.Description + ". "));
+                else
+                {
+                    var errorMessage =
+                        result.Errors.Aggregate("", (current, error) => current + (error.Description + ". "));
 
-                StatusMessage = errorMessage;
-                StatusSeverity = "danger;";
+                    StatusMessage = errorMessage;
+                    StatusSeverity = "danger;";
+                }
             }
         }
         catch (Exception)
         {
-            StatusMessage = "Invalid sign in attempt.";
+            StatusMessage = "An error occured registering you. Please try again or Contact Us for assistance.";
             StatusSeverity = "danger;";
         }
 
@@ -932,15 +1038,16 @@ public class TravaloudBasePageModel : PageModel
     #endregion
 
     #region Ajax Methods
-    
+
     /// <summary>
     /// Validates a user for login
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
-    public async Task<JsonResult> OnPostValidateUser([FromBody] ValidateUserDTO model)
+    public async Task<IActionResult> OnPostValidateUser([FromBody] ValidateUserDTO model)
     {
-        var message = "<p><strong>We were unable to find a user with the details provided.</strong></p><p>Please ensure your details are correct, or Contact Us</p>";
+        var message =
+            "<p><strong>We were unable to find a user with the details provided.</strong></p><p>Please ensure your details are correct, or Contact Us</p>";
 
         try
         {
@@ -951,93 +1058,92 @@ public class TravaloudBasePageModel : PageModel
                 var passwordCorrect = await UserManager.CheckPasswordAsync(user, model.Password);
 
                 if (passwordCorrect)
-                    return new JsonResult(new
-                    {
-                        Success = true,
-                        Message = ""
-                    });
-                else message = "<p><strong>Your password is incorrect.</strong></p><p>Please ensure you've inserted the correct password, or reset your password.</p>";
+                    return JsonSuccessResult();
+
+                message =
+                    "<p><strong>Your password is incorrect.</strong></p><p>Please ensure you've inserted the correct password, or reset your password.</p>";
             }
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // ignored
+            Logger.Error("Error: {Message}", ex.Message);
+            return StatusCode(500, "There was an error submitting tour request.");
         }
 
-        return new JsonResult(new
-        {
-            Success = false,
-            Message = message
-        });
+        return JsonFailResult(modalMessage: message);
     }
-    
+
     /// <summary>
     /// Checks if a user exists before registering
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
-    public async Task<JsonResult> OnPostCheckIfUserExists([FromBody] ValidateUserDTO model)
+    public async Task<IActionResult> OnPostCheckIfUserExists([FromBody] ValidateUserDTO model)
     {
-        var message = "<p><strong>A user with this Email Address already exists.</strong></p><p>Please choose a different Email Address.</p>";
-    
-        var user = await UserManager.FindByEmailAsync(model.Username);
+        var message =
+            "<p><strong>A user with this Email Address already exists.</strong></p><p>Please choose a different Email Address.</p>";
 
-        if (user == null)
-            return new JsonResult(new
-            {
-                Success = false,
-                Message = message
-            });
-        
-        var passwordOk = true;
-        message = "<p><strong>Password validation failed.</strong>";
-    
-        foreach (var passwordValidator in UserManager.PasswordValidators)
+        try
         {
-            if (user != null)
-            {
-                var result = await passwordValidator.ValidateAsync(UserManager, user, model.Password);
+            var user = await UserManager.FindByEmailAsync(model.Username);
 
-                if (result.Succeeded) continue;
-                    
-                message = result.Errors.Aggregate(message, (current, error) => current + $"<p>{error.Description}</p>");
+            if (user == null)
+                return JsonFailResult(modalMessage: message);
+
+            var passwordOk = true;
+            message = "<p><strong>Password validation failed.</strong>";
+
+            foreach (var passwordValidator in UserManager.PasswordValidators)
+            {
+                if (user != null)
+                {
+                    var result = await passwordValidator.ValidateAsync(UserManager, user, model.Password);
+
+                    if (result.Succeeded) continue;
+
+                    message = result.Errors.Aggregate(message,
+                        (current, error) => current + $"<p>{error.Description}</p>");
+                }
+
+                passwordOk = false;
             }
 
-            passwordOk = false;
+            if (passwordOk)
+                return JsonSuccessResult();
         }
-    
-        if (passwordOk)
-            return new JsonResult(new
-            {
-                Success = true,
-                Message = ""
-            });
-
-        return new JsonResult(new
+        catch (Exception ex)
         {
-            Success = false,
-            Message = message
-        });
+            Logger.Error("Error: {Message}", ex.Message);
+            return StatusCode(500, "There was an error submitting tour request.");
+        }
+
+        return JsonFailResult(modalMessage: message);
     }
-    
-    //TODO: implement basket
+
     /// <summary>
     /// Updates a basket in session
     /// </summary>
     /// <param name="basket"></param>
     /// <returns></returns>
-    public JsonResult OnPostUpdateBasket([FromBody] BasketModel basket)
+    public IActionResult OnPostUpdateBasket([FromBody] BasketModel basket)
     {
-        basket.CalculateTotal();
-        HttpContext.Session.UpdateObjectInSession("BookingBasket", basket);
-    
-        return new JsonResult(new
+        try
         {
-            Success = true,
-            Basket = basket
-        });
+            basket.CalculateTotal();
+            HttpContext.Session.UpdateObjectInSession("BookingBasket", basket);
+
+            return JsonSuccessResult(new
+            {
+                Basket = basket
+            });
+        }
+        catch (Exception ex)
+        {
+            Logger.Error("Error: {Message}", ex.Message);
+            return StatusCode(500, "There was an error submitting tour request.");
+        }
     }
-    
+
     /// <summary>
     /// Creates a Property Booking on success of a Cloudbeds booking
     /// </summary>
@@ -1048,20 +1154,18 @@ public class TravaloudBasePageModel : PageModel
         try
         {
             var basket = await BasketService.AddItem(request, PropertyBookingUrl, UserId);
-            
-            return new JsonResult(new
+
+            return JsonSuccessResult(new
             {
-                Success = true,
                 Basket = basket.Item1,
                 Item = basket.Item2
             });
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // ignored
+            Logger.Error("Error: {Message}", ex.Message);
+            return StatusCode(500, "There was an error submitting tour request.");
         }
-    
-        return new JsonResult("fail");
     }
 
     public async Task<IActionResult> OnPostAddTourDateToBasket([FromBody] BasketItemDateModel request)
@@ -1069,39 +1173,43 @@ public class TravaloudBasePageModel : PageModel
         try
         {
             var basket = await BasketService.AddItem(request);
-            
-            return new JsonResult(new
+
+            return JsonSuccessResult(new
             {
-                Success = true,
                 Basket = basket.Item1,
                 Item = basket.Item2
             });
         }
         catch (Exception ex)
         {
-            // ignored
-            return new JsonResult(ex.Message);
+            Logger.Error("Error: {Message}", ex.Message);
+            return StatusCode(500, "There was an error submitting tour request.");
         }
-    
-        return new JsonResult("fail");
     }
-    
+
     /// <summary>
     /// Updates a basket in session
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
-    public async Task<JsonResult> OnPostRemoveItemFromBasket([FromBody] BasketItemModel request)
+    public async Task<IActionResult> OnPostRemoveItemFromBasket([FromBody] BasketItemModel request)
     {
-        var basket = await BasketService.RemoveItem(request.Id);
-
-        return new JsonResult(new
+        try
         {
-            Success = true,
-            Basket = basket
-        });
+            var basket = await BasketService.RemoveItem(request.Id);
+
+            return JsonSuccessResult(new
+            {
+                Basket = basket
+            });
+        }
+        catch (Exception ex)
+        {
+            Logger.Error("Error: {Message}", ex.Message);
+            return StatusCode(500, "There was an error submitting tour request.");
+        }
     }
-    
+
     /// <summary>
     /// Add a Guest to a basket item.
     /// </summary>
@@ -1113,22 +1221,20 @@ public class TravaloudBasePageModel : PageModel
         {
             var basket = await BasketService.AddGuest(request.ItemId, request);
 
-            return new JsonResult(new
+            return JsonSuccessResult(new
             {
-                Success = true,
                 Basket = basket.Item1,
-                Html = await RazorPartialToStringRenderer.RenderPartialToStringAsync("/Pages/Checkout/_AdditionalGuestsPartial.cshtml", basket.Item1)
+                Html = await RazorPartialToStringRenderer.RenderPartialToStringAsync(
+                    "/Pages/Checkout/_AdditionalGuestsPartial.cshtml", basket.Item1)
             });
         }
         catch (Exception ex)
         {
-            // ignored
-            string message = ex.Message;
+            Logger.Error("Error: {Message}", ex.Message);
+            return StatusCode(500, "There was an error submitting tour request.");
         }
-    
-        return new JsonResult("fail");
     }
-    
+
     /// <summary>
     /// Returns a fresh modal for adding a new guest.
     /// </summary>
@@ -1138,19 +1244,19 @@ public class TravaloudBasePageModel : PageModel
     {
         try
         {
-            return new JsonResult(new
+            return JsonSuccessResult(new
             {
-                Html = await RazorPartialToStringRenderer.RenderPartialToStringAsync("/Pages/Checkout/_AddNewGuestModalPartial.cshtml", new CheckoutGuestComponent())
+                Html = await RazorPartialToStringRenderer.RenderPartialToStringAsync(
+                    "/Pages/Checkout/_AddNewGuestModalPartial.cshtml", new CheckoutGuestComponent())
             });
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // ignored
+            Logger.Error("Error: {Message}", ex.Message);
+            return StatusCode(500, "There was an error submitting tour request.");
         }
-    
-        return new JsonResult("fail");
     }
-    
+
     /// <summary>
     /// Returns a list of guests within the basket.
     /// </summary>
@@ -1161,18 +1267,18 @@ public class TravaloudBasePageModel : PageModel
         try
         {
             var guests = await BasketService.GetGuests(request);
-            
-            return new JsonResult(new
+
+            return JsonSuccessResult(new
             {
-                Html = await RazorPartialToStringRenderer.RenderPartialToStringAsync("/Pages/Checkout/_SelectGuestsPartial.cshtml", guests)
+                Html = await RazorPartialToStringRenderer.RenderPartialToStringAsync(
+                    "/Pages/Checkout/_SelectGuestsPartial.cshtml", guests)
             });
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // ignored
+            Logger.Error("Error: {Message}", ex.Message);
+            return StatusCode(500, "There was an error submitting tour request.");
         }
-    
-        return new JsonResult("fail");
     }
 
     /// <summary>
@@ -1186,21 +1292,20 @@ public class TravaloudBasePageModel : PageModel
         {
             var basket = await BasketService.RemoveGuestFromBasketItem(request.ItemId, request.Id);
 
-            return new JsonResult(new
+            return JsonSuccessResult(new
             {
-                Success = true,
                 Basket = basket?.Item1,
-                Html = await RazorPartialToStringRenderer.RenderPartialToStringAsync("/Pages/Checkout/_AdditionalGuestsPartial.cshtml", basket.Item1)
+                Html = await RazorPartialToStringRenderer.RenderPartialToStringAsync(
+                    "/Pages/Checkout/_AdditionalGuestsPartial.cshtml", basket.Item1)
             });
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // ignored
+            Logger.Error("Error: {Message}", ex.Message);
+            return StatusCode(500, "There was an error submitting tour request.");
         }
-    
-        return new JsonResult("fail");
     }
-    
+
     /// <summary>
     /// Removes a Guest from a basket item.
     /// </summary>
@@ -1212,22 +1317,21 @@ public class TravaloudBasePageModel : PageModel
         {
             var basket = await BasketService.AddExistingGuestToBasketItem(request);
 
-            return new JsonResult(new
+            return JsonSuccessResult(new
             {
-                Success = true,
                 Basket = basket,
-                Html = await RazorPartialToStringRenderer.RenderPartialToStringAsync("/Pages/Checkout/_AdditionalGuestsPartial.cshtml", basket)
+                Html = await RazorPartialToStringRenderer.RenderPartialToStringAsync(
+                    "/Pages/Checkout/_AdditionalGuestsPartial.cshtml", basket)
             });
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // ignored
+            Logger.Error("Error: {Message}", ex.Message);
+            return StatusCode(500, "There was an error submitting tour request.");
         }
-    
-        return new JsonResult("fail");
     }
-    
-    // <summary>
+
+    /// <summary>
     /// Retrieves a Guest from a basket item.
     /// </summary>
     /// <param name="request"></param>
@@ -1241,34 +1345,33 @@ public class TravaloudBasePageModel : PageModel
 
             var guest = basketItem?.Guests!.FirstOrDefault(x => x.Id == request.Id);
 
-            if (guest != null)
+            if (guest == null) return JsonFailResult(modalMessage: "No guest found with this Id");
+
+            var model = new CheckoutGuestComponent(
+                request.Id,
+                request.ItemId,
+                guest.FirstName,
+                guest.Surname,
+                guest.Email,
+                guest.DateOfBirth,
+                guest.PhoneNumber,
+                guest.Nationality,
+                guest.Gender
+            );
+
+            return JsonSuccessResult(new
             {
-                var model = new CheckoutGuestComponent(
-                    request.Id,
-                    request.ItemId,
-                    guest.FirstName,
-                    guest.Surname,
-                    guest.Email,
-                    guest.DateOfBirth,
-                    guest.PhoneNumber,
-                    guest.Nationality,
-                    guest.Gender
-                );
-                    
-                return new JsonResult(new
-                {
-                    Html = await RazorPartialToStringRenderer.RenderPartialToStringAsync("/Pages/Checkout/_AddNewGuestModalPartial.cshtml", model)
-                });
-            }
+                Html = await RazorPartialToStringRenderer.RenderPartialToStringAsync(
+                    "/Pages/Checkout/_AddNewGuestModalPartial.cshtml", model)
+            });
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // ignored
+            Logger.Error("Error: {Message}", ex.Message);
+            return StatusCode(500, "There was an error submitting tour request.");
         }
-    
-        return new JsonResult("fail");
     }
-    
+
     /// <summary>
     /// Updates a basket item guest.
     /// </summary>
@@ -1280,41 +1383,47 @@ public class TravaloudBasePageModel : PageModel
         {
             var basket = await BasketService.UpdateGuest(request.ItemId, request);
 
-            return new JsonResult(new
+            return JsonSuccessResult(new
             {
-                Success = true,
                 Basket = basket?.Item1,
-                Html = await RazorPartialToStringRenderer.RenderPartialToStringAsync("/Pages/Checkout/_AdditionalGuestsPartial.cshtml", basket.Item1)
+                Html = await RazorPartialToStringRenderer.RenderPartialToStringAsync(
+                    "/Pages/Checkout/_AdditionalGuestsPartial.cshtml", basket.Item1)
             });
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // ignored
+            Logger.Error("Error: {Message}", ex.Message);
+            return StatusCode(500, "There was an error submitting tour request.");
         }
-    
-        return new JsonResult("fail");
     }
 
-    public async Task<ActionResult> OnPostCreateStripeClientSecret()
+    public async Task<IActionResult> OnPostCreateStripeClientSecret()
     {
-        var basket = await BasketService.GetBasket();
-
-        if (!(bool) HttpContextAccessor.HttpContext?.Session.Keys.Contains("GuestId"))
-            return new JsonResult(new {clientSecret = ""});
-        
-        var guestId = Guid.Parse(HttpContextAccessor.HttpContext?.Session.GetString("GuestId") ?? string.Empty);
-        
-        var session = await StripeService.CreateStripeSessionClientSecret(new CreateStripeSessionClientSecretRequest()
+        try
         {
-            Basket = basket,
-            GuestId = guestId,
-        });
+            var basket = await BasketService.GetBasket();
 
-        return new JsonResult(new {clientSecret = session.ClientSecret});
+            if (!(bool) HttpContextAccessor.HttpContext?.Session.Keys.Contains("GuestId"))
+                return new JsonResult(new {clientSecret = ""});
 
+            var guestId = Guid.Parse(HttpContextAccessor.HttpContext?.Session.GetString("GuestId") ?? string.Empty);
 
+            var session = await StripeService.CreateStripeSessionClientSecret(
+                new CreateStripeSessionClientSecretRequest()
+                {
+                    Basket = basket,
+                    GuestId = guestId,
+                });
+
+            return JsonSuccessResult(new {clientSecret = session.ClientSecret});
+        }
+        catch (Exception ex)
+        {
+            Logger.Error("Error: {Message}", ex.Message);
+            return StatusCode(500, "There was an error submitting tour request.");
+        }
     }
-    
+
     //
     // /// <summary>
     // /// Retreieves tour dates for a given tour
@@ -1329,7 +1438,7 @@ public class TravaloudBasePageModel : PageModel
     //         TourDates = await ApplicationRepository.GetTourDatesAsync(model.TourId, model.GuestQuantity)
     //     });
     // }
-    
+
     /// <summary>
     /// Creates a Property Booking on success of a Cloudbeds booking
     /// </summary>
@@ -1340,23 +1449,50 @@ public class TravaloudBasePageModel : PageModel
         try
         {
             await BookingService.CreateAsync(new CreateBookingRequest(
-                booking.Description, 
+                booking.Description,
                 booking.TotalAmount,
                 booking.CurrencyCode,
                 booking.ItemQuantity,
                 booking.IsPaid,
                 booking.BookingDate,
-                UserId != null ? UserId.Value.ToString() : string.Empty));
-            
-            return new JsonResult(booking);
-        }
-        catch (Exception)
-        {
-            // ignored
-        }
+                UserId != null ? UserId.Value.ToString() : string.Empty,
+                booking.GuestName,
+                booking.GuestEmail));
 
-        return new JsonResult("fail");
+            return JsonSuccessResult(booking);
+        }
+        catch (Exception ex)
+        {
+            Logger.Error("Error: {Message}", ex.Message);
+            return StatusCode(500, "There was an error submitting tour request.");
+        }
     }
-    
+
+    /// <summary>
+    /// Returns a successful json result, with a value and a modalMessage. If modalMessage is supplied, a modal popup will be displayed.
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="modalMessage"></param>
+    /// <returns></returns>
+    public IActionResult JsonSuccessResult(object? value = null, string? modalMessage = null)
+    {
+        return new JsonResult(new JsonResultResponse(true, value, modalMessage));
+    }
+
+    /// <summary>
+    /// Returns a successful json result, with a modalMessage. A modal popup will be displayed on success.
+    /// </summary>
+    /// <param name="modalMessage"></param>
+    /// <returns></returns>
+    public IActionResult JsonSuccessResult(string modalMessage)
+    {
+        return new JsonResult(new JsonResultResponse(true, null, modalMessage));
+    }
+
+    public IActionResult JsonFailResult(object? value = null, string? modalMessage = null)
+    {
+        return new JsonResult(new JsonResultResponse(false, value, modalMessage));
+    }
+
     #endregion
 }

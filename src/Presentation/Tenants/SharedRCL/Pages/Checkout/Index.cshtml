@@ -34,7 +34,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xl-4 sticky mb-4" data-mdb-sticky-init data-mdb-sticky-direction="both" data-mdb-sticky-offset="92" data-mdb-sticky-delay="82" data-mdb-sticky-media="968">
+            <div class="col-xl-4 sticky mb-4" data-mdb-sticky-init data-mdb-sticky-direction="both" data-mdb-sticky-offset="@(Model.TenantId == "fuse" ? "92" : "123")" data-mdb-sticky-delay="82" data-mdb-sticky-media="968">
                 <div class="card checkout-order-summary">
                     <div class="card-body">
                         <div class="p-3 bg-light mb-3">

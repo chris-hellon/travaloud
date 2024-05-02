@@ -77,3 +77,13 @@ class AddGuestToBasketItemRequest {
         this.GuestId = guestId;
     }
 }
+
+class DataTableRow {
+    constructor(id, reference, bookingDate, description, itemQuantity){
+        this.Id = id;
+        this.Reference = reference;
+        this.BookingDate = bookingDate;
+        this.Description = description;
+        this.ItemQuantity = itemQuantity;
+    }
+}

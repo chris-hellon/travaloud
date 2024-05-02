@@ -3,6 +3,7 @@ using System.Drawing.Imaging;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using QRCoder;
+using Travaloud.Application.Catalog.Bookings.Commands;
 using Travaloud.Application.Catalog.Interfaces;
 using Travaloud.Application.Catalog.Tours.Queries;
 using Travaloud.Infrastructure.Common.Extensions;
@@ -13,7 +14,8 @@ namespace Travaloud.Admin.Components.Pages.User;
 public partial class QRCodes
 {
     [Inject] private IToursService ToursService { get; set; }
-
+    [Inject] private IBookingsService BookingsService { get; set; }
+    
     private string? _userId;
 
     private Dictionary<string, string> ToursQRCodes { get; set; } = new();
@@ -38,7 +40,8 @@ public partial class QRCodes
                     {
                         using MemoryStream ms = new();
                         QRCodeGenerator qrCodeGenerate = new();
-                        var qrCodeData = qrCodeGenerate.CreateQrCode($"https://fusehostelsandtravel.com/tours/staff-booking/{tour.Name.UrlFriendly()}/{_userId}", QRCodeGenerator.ECCLevel.Q);
+                        var url = await BookingsService.CreateStaffTourBookingQrCodeUrl(new CreateStaffTourBookingQrCodeUrlRequest(_userId, tour.Name));
+                        var qrCodeData = qrCodeGenerate.CreateQrCode(url, QRCodeGenerator.ECCLevel.Q);
                         QRCode qrCode = new(qrCodeData);
                         using var qrBitMap = qrCode.GetGraphic(20);
                         qrBitMap.Save(ms, ImageFormat.Png);

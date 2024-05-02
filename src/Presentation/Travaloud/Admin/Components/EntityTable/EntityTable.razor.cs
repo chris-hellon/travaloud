@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.JSInterop;
+using Mono.TextTemplating;
 using MudBlazor;
 using Travaloud.Admin.Components.Dialogs;
 using Travaloud.Admin.Components.Layout;
@@ -30,6 +31,8 @@ public partial class EntityTable<TEntity, TId, TRequest>
 
     [Parameter] public RenderFragment<TRequest>? EditFormContent { get; set; }
 
+    [Parameter] public WizardStep<TRequest>? WizardStep1 { get; set; }
+    
     [Parameter] public RenderFragment<TRequest>? WizardStep1Content { get; set; }
 
     [Parameter] public RenderFragment<TRequest>? WizardStep2Content { get; set; }
@@ -51,6 +54,12 @@ public partial class EntityTable<TEntity, TId, TRequest>
     [Parameter] public Dictionary<string, bool>? WizardSteps { get; set; }
 
     [Parameter] public MaxWidth ModalWidth { get; set; } = MaxWidth.ExtraLarge;
+    
+    [Parameter] public bool FullScreenModal { get; set; }
+
+    [Parameter] public int Elevation { get; set; } = 25;
+
+    [Parameter] public bool ShowActionsMenu { get; set; } = true;
     
     [Inject] protected IAuthorizationService AuthService { get; set; } = default!;
 
@@ -284,6 +293,7 @@ public partial class EntityTable<TEntity, TId, TRequest>
         var parameters = new DialogParameters()
         {
             {nameof(AddEditModal<TRequest>.EditFormContent), EditFormContent},
+            {nameof(AddEditModal<TRequest>.WizardStep1), WizardStep1},
             {nameof(AddEditModal<TRequest>.WizardStep1Content), WizardStep1Content},
             {nameof(AddEditModal<TRequest>.WizardStep2Content), WizardStep2Content},
             {nameof(AddEditModal<TRequest>.WizardStep3Content), WizardStep3Content},
@@ -295,7 +305,9 @@ public partial class EntityTable<TEntity, TId, TRequest>
             {nameof(AddEditModal<TRequest>.OnInitializedFunc), Context.EditFormInitializedFunc},
             {nameof(AddEditModal<TRequest>.EntityName), Context.EntityName},
             {nameof(AddEditModal<TRequest>.IsWizard), IsWizard},
+            {nameof(AddEditModal<TRequest>.IsFullScreenModal), FullScreenModal},
             {nameof(AddEditModal<TRequest>.WizardSteps), WizardSteps},
+            {nameof(AddEditModal<TRequest>.CanSaveEntity), _canCreate || _canUpdate},
         };
 
         TRequest requestModel;
@@ -343,7 +355,7 @@ public partial class EntityTable<TEntity, TId, TRequest>
 
         parameters.Add(nameof(AddEditModal<TRequest>.RequestModel), requestModel);
 
-        var options = new DialogOptions {CloseButton = true, MaxWidth = ModalWidth, FullWidth = true, DisableBackdropClick = true};
+        var options = new DialogOptions {CloseButton = true, MaxWidth = ModalWidth, FullScreen = FullScreenModal, FullWidth = true, DisableBackdropClick = true};
 
         var dialog = await DialogService.ShowAsync<AddEditModal<TRequest>>(string.Empty, parameters, options);
         

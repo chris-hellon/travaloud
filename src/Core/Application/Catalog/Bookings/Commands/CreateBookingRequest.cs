@@ -15,15 +15,19 @@ public class CreateBookingRequest : IRequest<DefaultIdType?>
     public bool IsPaid { get; set; }
     public DateTime BookingDate { get; set; }
     public string? GuestId { get; set; }
+    public string? GuestName { get; set; }
+    public string? GuestEmail { get; set; }
     public int ConcurrencyVersion { get; set; }
+    public bool? WaiverSigned { get; set; }
     public IList<CreateBookingItemRequest> Items { get; set; } = default!;
+    public string? CreatedBy { get; set; }
 
     public CreateBookingRequest()
     {
         
     }
     
-    public CreateBookingRequest(string description, decimal totalAmount, string currencyCode, int itemQuantity, bool isPaid, DateTime bookingDate, string? guestId, int concurrencyVersion, IList<CreateBookingItemRequest> items)
+    public CreateBookingRequest(string description, decimal totalAmount, string currencyCode, int itemQuantity, bool isPaid, DateTime bookingDate, string? guestId, string? guestName, string? guestEmail, int concurrencyVersion, IList<CreateBookingItemRequest> items)
     {
         Description = description;
         TotalAmount = totalAmount;
@@ -32,11 +36,13 @@ public class CreateBookingRequest : IRequest<DefaultIdType?>
         IsPaid = isPaid;
         BookingDate = bookingDate;
         GuestId = guestId;
+        GuestName = guestName;
         ConcurrencyVersion = concurrencyVersion;
         Items = items;
+        GuestEmail = guestEmail;
     }
     
-    public CreateBookingRequest(string description, decimal totalAmount, string currencyCode, int itemQuantity, bool isPaid, DateTime bookingDate, string? guestId)
+    public CreateBookingRequest(string description, decimal totalAmount, string currencyCode, int itemQuantity, bool isPaid, DateTime bookingDate, string? guestId, string? guestName, string? guestEmail)
     {
         Description = description;
         TotalAmount = totalAmount;
@@ -45,6 +51,8 @@ public class CreateBookingRequest : IRequest<DefaultIdType?>
         IsPaid = isPaid;
         BookingDate = bookingDate;
         GuestId = guestId;
+        GuestName = guestName;
+        GuestEmail = guestEmail;
     }
 }
 
@@ -79,7 +87,16 @@ public class CreateBookingRequestHandler : IRequestHandler<CreateBookingRequest,
             request.IsPaid,
             request.BookingDate,
             request.GuestId, 
-            null);
+            null,
+            request.WaiverSigned,
+            request.GuestName,
+            request.GuestEmail);
+
+        if (!string.IsNullOrEmpty(request.CreatedBy))
+        {
+            booking.OverrideCreatedBy = true;
+            booking.CreatedBy = DefaultIdType.Parse(request.CreatedBy);
+        }
 
         // Create booking items and associate them with the booking
         if (request.Items?.Any() == true)
@@ -97,6 +114,12 @@ public class CreateBookingRequestHandler : IRequestHandler<CreateBookingRequest,
                     itemRequest.TourDateId,
                     itemRequest.CloudbedsReservationId,
                     itemRequest.CloudbedsPropertyId);
+                
+                if (!string.IsNullOrEmpty(request.CreatedBy))
+                {
+                    bookingItem.OverrideCreatedBy = true;
+                    bookingItem.CreatedBy = DefaultIdType.Parse(request.CreatedBy);
+                }
 
                 var userId = _currentUser.GetUserId();
                 bookingItem.ProcessBookingItemGuests(itemRequest.Guests, userId);

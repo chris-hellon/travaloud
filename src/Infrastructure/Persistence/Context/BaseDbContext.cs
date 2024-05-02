@@ -68,8 +68,15 @@ public class BaseDbContext
             switch (entry.State)
             {
                 case EntityState.Added:
-                    entry.Entity.CreatedBy = userId;
-                    entry.Entity.LastModifiedBy = userId;
+                    if (!entry.Entity.OverrideCreatedBy)
+                    {
+                        entry.Entity.CreatedBy = userId;
+                        entry.Entity.LastModifiedBy = userId;
+                    }
+                    else
+                    {
+                        entry.Entity.LastModifiedBy = entry.Entity.CreatedBy;
+                    }
                     break;
 
                 case EntityState.Modified:

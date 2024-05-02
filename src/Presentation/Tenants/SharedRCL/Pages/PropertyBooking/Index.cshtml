@@ -169,9 +169,13 @@
         let bookingInserted = false;
         var postPropertyBooking = function (booking) {
             if (!bookingInserted) {
-                postAjax("CreatePropertyBooking", booking, function (result) {
-                    bookingInserted = true;
-                });
+                doPost({
+                                    url : "CreatePropertyBooking",
+                                    formData: booking,
+                                    successCallback: (result) => {
+                                       bookingInserted = true;
+                                    }
+                                });
             }
         }
 

@@ -44,7 +44,10 @@ public class UpdateTourRequest : IRequest<DefaultIdType>
     public bool DeleteCurrentMobileVideo { get; set; }
     public string? MetaKeywords { get; set; }
     public string? MetaDescription { get; set; }
-
+    public string? BookingConfirmationEmailDetails { get; set; }
+    public string? TermsAndConditions { get; set; }
+    public string? CancellationPolicy { get; set; }
+    
     [Display(Name = "Url Slug")]
     public string? UrlSlug { get; set; }
 
@@ -53,8 +56,6 @@ public class UpdateTourRequest : IRequest<DefaultIdType>
 
     [Display(Name = "H2 Tag")]
     public string? H2 { get; set; }
-
-    public string? BookingConfirmationEmailDetails { get; set; }
     
     public FileUploadRequest? Image { get; set; }
     public FileUploadRequest? Video { get; set; }
@@ -79,6 +80,7 @@ public class UpdateTourRequest : IRequest<DefaultIdType>
     public IEnumerable<TourDestinationLookupRequest>? TourDestinationLookups { get; set; }
     
     public bool? PublishToSite { get; set; }
+    public bool? AdditionalGuestDetailsRequired { get; set; }
 }
 
 public class UpdateTourRequestHandler : IRequestHandler<UpdateTourRequest, DefaultIdType>
@@ -187,7 +189,10 @@ public class UpdateTourRequestHandler : IRequestHandler<UpdateTourRequest, Defau
             request.H2,
             tourVideoPath,
             tourMobileVideoPath,
-            request.BookingConfirmationEmailDetails);
+            request.BookingConfirmationEmailDetails,
+            request.TermsAndConditions,
+            request.CancellationPolicy,
+            request.AdditionalGuestDetailsRequired);
 
         updatedTour.ProcessTourPricesAndDates(request.TourPrices, request.TourDates, request.MaxCapacity ?? 99999, tour.MaxCapacity, userId);
         

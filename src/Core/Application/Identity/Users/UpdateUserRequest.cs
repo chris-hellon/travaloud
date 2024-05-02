@@ -24,4 +24,5 @@ public class UpdateUserRequest
     public DateTime? VisaExpiryDate { get; set; }
     public bool IsGuest { get; set; }
     public IEnumerable<string>? Genders { get; set; }
+    public bool EmailRequired { get; set; } = true;
 }

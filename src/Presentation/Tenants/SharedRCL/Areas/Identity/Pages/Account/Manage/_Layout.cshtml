@@ -39,7 +39,7 @@
 </section>
 
 @section Scripts {
-    @RenderSection("Scripts", required: false)
+    @await RenderSectionAsync("Scripts", required: false)
 }
 
 @section Styles {
@@ -72,5 +72,5 @@
         }
     </style>
 
-    @RenderSection("Styles", required: false)
+    @await RenderSectionAsync("Styles", required: false)
 } 

@@ -30,15 +30,18 @@ public class PaymentConfirmationService : IPaymentConfirmationService
         var tourBookingsModels = tourBookings as BasketItemModel[] ?? tourBookings.ToArray();
 
         var bookingRequest = new CreateBookingRequest(
-            $"{basket.FirstName} {basket.Surname}: {(propertyBookingsModels.Length != 0 ? $"{propertyBookingsModels.Length} x Propert{(propertyBookingsModels.Length > 1 ? "ies" : "y")}" : "")}{(tourBookingsModels.Length != 0 ? $"{(propertyBookingsModels.Length > 0 ? " & " : "")}{tourBookingsModels.Length} x Tour{(tourBookingsModels.Length > 1 ? "s" : "")}" : "")}",
+            $"Web Booking: {(propertyBookingsModels.Length != 0 ? $"{propertyBookingsModels.Length} x Propert{(propertyBookingsModels.Length > 1 ? "ies" : "y")}" : "")}{(tourBookingsModels.Length != 0 ? $"{(propertyBookingsModels.Length > 0 ? " & " : "")}{tourBookingsModels.Length} x Tour{(tourBookingsModels.Length > 1 ? "s" : "")}" : "")}",
             basket.Total,
             "USD",
             basket.Items.Count,
             false,
             DateTime.Now,
-            guestId.ToString())
+            guestId.ToString(),
+            $"{basket.FirstName} {basket.Surname}",
+            basket.Email)
         {
-            Items = new List<CreateBookingItemRequest>()
+            CreatedBy = basket.CreateId,
+            Items = new List<CreateBookingItemRequest>(),
         };
 
         foreach (var propertyBooking in basket.Items.Where(x => x.PropertyId.HasValue))
@@ -219,7 +222,11 @@ public class PaymentConfirmationService : IPaymentConfirmationService
     private async Task<DefaultIdType?> CreateGuest(BasketItemGuestModel guest, BasketModel basket)
     {
         DefaultIdType? guestId = null;
-        var existingUser = await _userManager.FindByEmailAsync(guest.Email);
+
+        var emailToUse = string.IsNullOrEmpty(guest.Email)
+            ? $"{DefaultIdType.NewGuid()}@travaloudguest.com" 
+            : guest.Email;
+        var existingUser = await _userManager.FindByEmailAsync(emailToUse);
 
         if (existingUser == null)
         {
@@ -231,12 +238,8 @@ public class PaymentConfirmationService : IPaymentConfirmationService
                 Gender = guest.Gender,
                 Nationality = guest.Nationality,
                 DateOfBirth = guest.DateOfBirth,
-                UserName = string.IsNullOrEmpty(guest.Email)
-                    ? $"{guest.FirstName.ToLower().Replace(" ", "")}{guest.Surname.ToLower().Replace(" ", "")}{basket.Email}"
-                    : guest.Email,
-                Email = string.IsNullOrEmpty(guest.Email)
-                    ? $"{guest.FirstName.ToLower().Replace(" ", "")}{guest.Surname.ToLower().Replace(" ", "")}{basket.Email}"
-                    : guest.Email,
+                UserName = emailToUse,
+                Email = emailToUse,
                 SignUpDate = DateTime.Now,
                 IsActive = true,
                 EmailConfirmed = true,

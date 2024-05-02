@@ -25,12 +25,6 @@ footer {
   .navbar-brand strong {
     margin-bottom: -5px;
   }
-
-  .navbar-brand-desktop,
-  .navbar-brand-mobile {
-    top: 5px;
-    position: absolute;
-  }
   
   .navbar-brand-mobile {
     font-size: 1.5rem;
@@ -41,24 +35,34 @@ footer {
   .navbar-collapse.show {
     height:100vh;
   }
-
+  
   .dropdown-menu {
     padding-top: 0 !important;
     border: 0 !important;
     box-shadow: unset !important;
     top: 95% !important;
     left: 1rem !important;
-    padding-left: 0.85rem;
-    padding-right: 0.85rem;
+    padding-left: 0rem;
+    padding-right: 0rem;
     padding-bottom: 0.85rem;
+    
+    li:hover > .dropdown-submenu {
+      display: block;
+    }
+    
+    .dropdown-submenu {
+      display: none;
+      position: absolute !important;
+      left: 100% !important;
+      top: -2px !important;
+    }
 
     .dropdown-item {
-      padding: 0px;
       display: inline-block;
       width: auto;
       margin: 0px 0px 10px 0px;
       font-family: var(--mdb-nav-link-font-family);
-
+      padding:0rem 0.85rem;
       &:first-of-type {
         margin-top: 10px;
       }
@@ -94,7 +98,7 @@ footer {
       .nav-link:not(.navbar-brand) {
         &:focus, &:hover, &.active {
           color: var(--mdb-body-color);
-          background: linear-gradient(to top, var(--mdb-pink) 55%, transparent 0);
+          background: linear-gradient(to top, var(--mdb-teritary) 55%, transparent 0);
         }
       }
     }
@@ -523,7 +527,7 @@ input[type=number] {
     .owl-dot span {
       width: 12px !important;
       height: 12px !important;
-      background-color: var(--mdb-pink) !important;
+      background-color: var(--mdb-teritary) !important;
       border-radius: 100% !important;
 
       &.active, &:hover {
@@ -621,6 +625,22 @@ a[data-mdb-toggle], a[data-mdb-dismiss] {
 
 .book-now-login-titles {
   display: none;
+}
+
+.roomToggleButton, .itemToggleButton {
+  font-size:0.85rem !important;
+}
+
+.add-tour-to-basket-button, .proceed-to-checkout-button{
+  @media(max-width: 991px) {
+    width:100%;
+  }
+}
+
+.add-tour-to-basket-button {
+  @media(max-width: 991px) {
+    margin-bottom:10px;
+  }
 }
 
 

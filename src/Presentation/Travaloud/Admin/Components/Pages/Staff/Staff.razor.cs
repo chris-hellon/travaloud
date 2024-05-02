@@ -14,7 +14,7 @@ public partial class Staff
 
     [Inject] protected IUserService UserService { get; set; } = default!;
 
-    private EntityClientTableContext<UserDetailsDto, Guid, CreateUserRequest> Context { get; set; } = default!;
+    private EntityClientTableContext<UserDetailsDto, string, CreateUserRequest> Context { get; set; } = default!;
 
     private bool _canExportUsers;
     private bool _canViewRoles;
@@ -31,7 +31,7 @@ public partial class Staff
         _canExportUsers = await AuthService.HasPermissionAsync(authStateUser, TravaloudAction.Export, TravaloudResource.Users);
         _canViewRoles = await AuthService.HasPermissionAsync(authStateUser, TravaloudAction.View, TravaloudResource.UserRoles);
 
-        Context = new EntityClientTableContext<UserDetailsDto, Guid, CreateUserRequest>(
+        Context = new EntityClientTableContext<UserDetailsDto, string, CreateUserRequest>(
             entityName: L["Staff"],
             entityNamePlural: L["Staff"],
             entityResource: TravaloudResource.Users,
@@ -63,10 +63,10 @@ public partial class Staff
             viewAction: string.Empty);
     }
 
-    private void ViewProfile(in Guid userId) =>
+    private void ViewProfile(in string userId) =>
         NavigationManager.NavigateTo($"/staff/{userId}/profile");
 
-    private void ManageRoles(in Guid userId) =>
+    private void ManageRoles(in string userId) =>
         NavigationManager.NavigateTo($"/staff/{userId}/roles");
 
     private void TogglePasswordVisibility()

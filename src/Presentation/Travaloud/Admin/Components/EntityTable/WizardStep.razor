@@ -1,0 +1,8 @@
+@typeparam TRequest
+
+
+
+@code {
+    [Parameter] public RenderFragment<TRequest>? WizardStepToolbar { get; set; }
+    [Parameter] public RenderFragment<TRequest>? WizardStepContent { get; set; }
+}

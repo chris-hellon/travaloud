@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Mapster;
+using Microsoft.AspNetCore.Mvc;
 using Travaloud.Application.Catalog.Events.Queries;
 using Travaloud.Application.Catalog.Properties.Dto;
+using Travaloud.Application.Catalog.Tours.Dto;
+using Travaloud.Application.Catalog.Tours.Queries;
 
 namespace FuseHostelsAndTravel.Pages.Property;
 
@@ -8,11 +11,13 @@ public class IndexModel : TravaloudBasePageModel
 {
     private readonly IEventsService _eventsService;
     private readonly IPropertiesService _propertiesService;
+    private readonly IToursService _toursService;
 
-    public IndexModel(IEventsService eventsService, IPropertiesService propertiesService) 
+    public IndexModel(IEventsService eventsService, IPropertiesService propertiesService, IToursService toursService) 
     {
         _eventsService = eventsService;
         _propertiesService = propertiesService;
+        _toursService = toursService;
     }
 
     public override string MetaKeywords()
@@ -122,8 +127,15 @@ public class IndexModel : TravaloudBasePageModel
                         HeaderBanner.BackgroundTop = 50;
                     }
 
+                    var tours = await _toursService.GetToursByDestinations(
+                        new GetToursByDestinationsRequest(
+                            (Property.PropertyDestinationLookups ?? new List<PropertyDestinationLookupDto>()).Select(
+                                x => x.DestinationId)));
+                    
+                    var tourDetails = tours.Adapt<IEnumerable<TourDto>>();
+                    
                     var directionsNavPills = Task.Run(() => WebComponentsBuilder.FuseHostelsAndTravel.GetHostelDirectionsNavPillsAsync(Property)) ;
-                    var toursCards = Task.Run(() => WebComponentsBuilder.FuseHostelsAndTravel.GetToursCarouselCardsAsync(Tours, "onScroll", (property.Id == new Guid("8E1F2B64-6EF8-4321-B6AB-B9B578E0E6CB") ? "NHA TRANG" : "HOI AN") + " EXPERIENCES", null));
+                    var toursCards = Task.Run(() => WebComponentsBuilder.FuseHostelsAndTravel.GetToursCarouselCardsAsync(tourDetails.Any() ? tourDetails : Tours, "onScroll", (property.Id == new Guid("8E1F2B64-6EF8-4321-B6AB-B9B578E0E6CB") ? "NHA TRANG" : "HOI AN") + " EXPERIENCES", null));
                     var accommodationCards = Task.Run(() => WebComponentsBuilder.FuseHostelsAndTravel.GetHostelAccommodationCardsAsync(
                         Property.Rooms!, "onScroll", "ACCOMMODATION",
                         Property.Id == new Guid("7335037B-853F-4E66-B61B-8E02BDCA9251") ? $"All private & shared rooms at FUSE {property.Name} Hostel come with pool or ocean views as standard so there is no better place to stay if beach vibes are your thing." :

@@ -1,0 +1,7 @@
+<MudToolBar DisableGutters="true" Style="position: sticky; top: -10px; background-color: white; margin-top: -25px; z-index: 2; margin-left: -25px; padding-left: 25px; margin-right: -25px; padding-right: 25px;">
+    @ToolbarContent
+</MudToolBar>
+
+@code {
+    [Parameter] public required RenderFragment ToolbarContent { get; set; }
+}

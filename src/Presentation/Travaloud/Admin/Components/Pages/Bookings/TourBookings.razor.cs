@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Components.Forms;
 using MudBlazor;
 using QRCoder;
 using Travaloud.Admin.Components.Dialogs;
+using Travaloud.Admin.Components.Dialogs.Bookings;
 using Travaloud.Admin.Components.EntityTable;
 using Travaloud.Application.Catalog.Bookings.Commands;
 using Travaloud.Application.Catalog.Bookings.Dto;
@@ -13,9 +14,11 @@ using Travaloud.Application.Catalog.Bookings.Queries;
 using Travaloud.Application.Catalog.Interfaces;
 using Travaloud.Application.Catalog.Tours.Dto;
 using Travaloud.Application.Catalog.Tours.Queries;
+using Travaloud.Application.Common.Extensions;
 using Travaloud.Application.Identity.Users;
 using Travaloud.Application.PaymentProcessing;
 using Travaloud.Application.PaymentProcessing.Commands;
+using Travaloud.Infrastructure.Multitenancy;
 using Travaloud.Shared.Authorization;
 
 namespace Travaloud.Admin.Components.Pages.Bookings;
@@ -32,22 +35,28 @@ public partial class TourBookings
 
     [Parameter] public string Category { get; set; } = default!;
 
+    [CascadingParameter] private TravaloudTenantInfo? TenantInfo { get; set; }
+    
     private EntityServerTableContext<BookingDto, Guid, TourBookingViewModel> Context { get; set; } = default!;
 
-    private EditContext? _editContext { get; set; }
-
     private EntityTable<BookingDto, Guid, TourBookingViewModel> _table = default!;
-
-    private List<string> _wizardSteps => new List<string>()
-        {"Basic Information", "Description", "Additional Information", "Image"};
-
+    
     private MudDateRangePicker _bookingDateRangePicker = default!;
 
     private MudDateRangePicker _tourDateRangePicker = default!;
 
-    private MudTable<UpdateBookingItemRequest>? _itemsTable;
+    private MudTable<UpdateBookingItemRequest> _itemsTable = default!;
+    
+    private ICollection<TourDto> Tours { get; set; } = default!;
 
-    private ICollection<TourDto> _tours { get; set; } = default!;
+    private MudAutocomplete<UserDetailsDto> _guestsList = default!;
+    
+    private static Dictionary<string, bool> WizardSteps { get; set; } = new()
+    {
+        {"Select Primary Guest", true},
+        {"Select Tours", true},
+        {"Select Additional Guests", true}
+    };
     
     protected override void OnInitialized()
     {
@@ -57,10 +66,12 @@ public partial class TourBookings
             entityResource: TravaloudResource.Bookings,
             fields:
             [
-                new EntityField<BookingDto>(booking => booking.InvoiceId, L["Reference"], "Reference"),
+                new EntityField<BookingDto>(booking => booking.InvoiceId, L["Reference"], "InvoiceId"),
                 new EntityField<BookingDto>(booking => booking.Description, L["Description"], "Description"),
+                new EntityField<BookingDto>(booking => booking.GuestName, L["Guest"], "GuestName"),
+                // new EntityField<BookingDto>(booking => booking.GuestEmail, L["Guest Email"], "GuestEmail"),
                 new EntityField<BookingDto>(booking => booking.BookingDate, L["Booking Date"], "BookingDate"),
-                new EntityField<BookingDto>(booking => $"{booking.TotalAmount} {booking.CurrencyCode}", L["Total Amount"], "TotalAmount"),
+                new EntityField<BookingDto>(booking => $"$ {string.Format("{0:n2}", booking.TotalAmount)}", L["Total Amount"], "TotalAmount"),
                 new EntityField<BookingDto>(booking => booking.IsPaid, L["Is Paid"], "IsPaid")
             ],
             enableAdvancedSearch: false,
@@ -68,7 +79,7 @@ public partial class TourBookings
             searchFunc: async (filter) =>
             {
                 var tours = await ToursServive.SearchAsync(new SearchToursRequest() {PageNumber = 1, PageSize = 99999});
-                _tours = tours?.Data!;
+                Tours = tours?.Data!;
 
                 var adaptedFilter = filter.Adapt<SearchBookingsRequest>();
                 adaptedFilter.IsTours = true;
@@ -103,12 +114,12 @@ public partial class TourBookings
             hasExtraActionsFunc: () => true,
             getDefaultsFunc: async () =>
             {
-                var guestsAndTours = await GetGuestsAndTours(); 
+                var tours = await GetTours(); 
                 
                 var tourBooking = new TourBookingViewModel
                 {
-                    Guests = guestsAndTours.Item1,
-                    Tours = guestsAndTours.Item2,
+                    //Guests = guestsAndTours.Item1,
+                    Tours = tours,
                     CurrencyCode = "USD"
                 };
 
@@ -118,13 +129,17 @@ public partial class TourBookings
             {
                 var tourBooking = await BookingsService.GetAsync(id);
                 var parsedModel = tourBooking.Adapt<TourBookingViewModel>();
-                var guestsAndTours = await GetGuestsAndTours(); 
+
+                var toursTask = GetTours();
+                var guestTask = UserService.GetAsync(parsedModel.GuestId, CancellationToken.None);
+
+                await Task.WhenAll(toursTask, guestTask);
                 
-                parsedModel.Guests = guestsAndTours.Item1;
-                parsedModel.Tours = guestsAndTours.Item2;
+                //parsedModel.Guests = guestsAndTours.Item1;
+                parsedModel.Tours = toursTask.Result;
                 parsedModel.CurrencyCode = "USD";
                 parsedModel.Id = id;
-                parsedModel.Guest = guestsAndTours.Item1.FirstOrDefault(x => x.Id.ToString() == parsedModel.GuestId);
+                parsedModel.Guest = guestTask.Result;
                 
                 return parsedModel;
             },
@@ -133,35 +148,26 @@ public partial class TourBookings
                 var parsedBooking = booking.Adapt<CreateBookingRequest>();
                 parsedBooking.BookingDate = DateTime.Now;
                 parsedBooking.GuestId = booking.Guest.Id.ToString();
+                parsedBooking.GuestName = $"{booking.Guest.FirstName} {booking.Guest.LastName}";
+                parsedBooking.GuestEmail = booking.Guest.Email;
+                parsedBooking.TotalAmount = booking.Items.Sum(item => item.Amount.Value *
+                                                                       (item.Guests != null && item.Guests.Any() ? item.Guests.Count + 1 : 1));
                 
                 var bookingId = await BookingsService.CreateAsync(parsedBooking);
 
                 if (bookingId.HasValue)
                 {
-                    var stripeCheckoutUrl = await StripeService.CreateStripeQrCodeUrl(new CreateStripeQrCodeRequest()
-                    {
-                        BookingId = bookingId.Value,
-                        GuestEmail = booking.Guest.Email
-                    });
-                    
-                    using MemoryStream ms = new();
-                    QRCodeGenerator qrCodeGenerate = new();
-                    var qrCodeData = qrCodeGenerate.CreateQrCode(stripeCheckoutUrl, QRCodeGenerator.ECCLevel.Q);
-                    QRCode qrCode = new(qrCodeData);
-                    using var qrBitMap = qrCode.GetGraphic(20);
-                    qrBitMap.Save(ms, ImageFormat.Png);
-                        
-                    var base64 = Convert.ToBase64String(ms.ToArray());
-                    var qrCodeImageUrl = $"data:image/png;base64,{base64}";
-
-                    await InvokeStripeQrCodeUrl(qrCodeImageUrl);
+                    await GenerateBookingQRCode(bookingId.Value, booking.Guest.Email);
                 }
             },
             updateFunc: async (id, booking) =>
             {
                 var request = booking.Adapt<UpdateBookingRequest>();
                 request.GuestId = booking.Guest.Id.ToString();
-                
+                request.GuestName = $"{booking.Guest.FirstName} {booking.Guest.LastName}";
+                request.GuestEmail = booking.Guest.Email;
+                request.TotalAmount = booking.Items.Sum(item => item.Amount.Value *
+                                                                 (item.Guests != null && item.Guests.Any() ? item.Guests.Count + 1: 1)) ;
                 await BookingsService.UpdateAsync(id, request);
             },
             deleteFunc: async id => await BookingsService.DeleteAsync(id),
@@ -178,7 +184,7 @@ public partial class TourBookings
                 
                 if (exportFilter.BookingEndDate.HasValue)
                 {
-                    exportFilter.BookingEndDate = exportFilter.BookingEndDate.Value + new TimeSpan(0, 11, 59, 59, 999);
+                    exportFilter.BookingEndDate = exportFilter.BookingEndDate.Value + new TimeSpan(0, 23, 59, 59, 999);
                 }
 
                 if (exportFilter.BookingStartDate.HasValue)
@@ -203,17 +209,13 @@ public partial class TourBookings
             }
         );
     }
-    
-    private async Task<Tuple<ICollection<UserDetailsDto>, ICollection<TourDto>>> GetGuestsAndTours()
+
+    private async Task<ICollection<TourDto>> GetTours()
     {
-        var guestsTask = UserService.GetListAsync(TravaloudRoles.Guest);
-        var toursTask = ToursServive.SearchAsync(new SearchToursRequest() {PageNumber = 1, PageSize = 99999});
-
-        await Task.WhenAll(guestsTask, toursTask);
-
-        return new Tuple<ICollection<UserDetailsDto>, ICollection<TourDto>>(guestsTask.Result, toursTask.Result?.Data ?? []);
+        var tours = await ToursServive.SearchAsync(new SearchToursRequest() {PageNumber = 1, PageSize = 99999});
+        return tours?.Data ?? [];
     }
-
+    
     private string? _searchDescription;
 
     private string SearchDescription
@@ -293,7 +295,6 @@ public partial class TourBookings
             {nameof(Dialogs.Bookings.TourBookingItem.RequestModel), requestModel},
             {nameof(Dialogs.Bookings.TourBookingItem.TourBooking), tourBooking},
             {nameof(Dialogs.Bookings.TourBookingItem.Context), Context},
-            {nameof(Dialogs.Bookings.TourBookingItem.Guests), tourBooking.Guests},
             {nameof(Dialogs.Bookings.TourBookingItem.Id), isCreate ? null : requestModel.Id},
             {nameof(Dialogs.Bookings.TourBookingItem.Tours), tourBooking.Tours},
         };
@@ -310,7 +311,57 @@ public partial class TourBookings
         Context.AddEditModal?.ForceRender();
     }
 
-    public async Task InvokeStripeQrCodeUrl(string qrcodeImageUrl)
+    private async Task InvokeCreateGuestDialog(TourBookingViewModel tourBooking)
+    {
+        DialogOptions options = new() {CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, DisableBackdropClick = true};
+        DialogParameters parameters = new()
+        {
+            {nameof(CreateGuest.TitleLabel), "Primary"},
+            {nameof(CreateGuest.EmailRequired), true}
+        };
+
+        var dialog = await DialogService.ShowAsync<CreateGuest>(string.Empty, parameters, options);
+
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            var guests = await UserService.GetListAsync(TravaloudRoles.Guest);
+            //tourBooking.Guests = guests;
+
+            var guestId = result.Data.ToString();
+            tourBooking.GuestId = guestId;
+            tourBooking.Guest = guests.FirstOrDefault(x => x.Id == guestId);
+        }
+        
+        Context.AddEditModal?.ForceRender();
+    }
+    
+    private async Task GenerateBookingQRCode(Guid bookingId, string guestEmail)
+    {
+        await LoadingService.ToggleLoaderVisibility(true);
+        
+        var stripeCheckoutUrl = await StripeService.CreateStripeQrCodeUrl(new CreateStripeQrCodeRequest()
+        {
+            BookingId = bookingId,
+            GuestEmail = guestEmail
+        });
+                    
+        using MemoryStream ms = new();
+        QRCodeGenerator qrCodeGenerate = new();
+        var qrCodeData = qrCodeGenerate.CreateQrCode(stripeCheckoutUrl, QRCodeGenerator.ECCLevel.Q);
+        QRCode qrCode = new(qrCodeData);
+        using var qrBitMap = qrCode.GetGraphic(20);
+        qrBitMap.Save(ms, ImageFormat.Png);
+                        
+        var base64 = Convert.ToBase64String(ms.ToArray());
+        var qrCodeImageUrl = $"data:image/png;base64,{base64}";
+
+        await LoadingService.ToggleLoaderVisibility(false);
+        await InvokeStripeQrCodeUrl(qrCodeImageUrl);
+    }
+
+    private async Task InvokeStripeQrCodeUrl(string qrcodeImageUrl)
     {
         DialogOptions options = new() {CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, DisableBackdropClick = true};
         DialogParameters parameters = new()
@@ -340,14 +391,15 @@ public partial class TourBookings
             var item = tourBooking.Items.FirstOrDefault(x => x.Id == id);
             if (item != null)
             {
-                await BookingsService.DeleteItemAsync(item.Id);
+                // await BookingsService.DeleteItemAsync(item.Id);
 
                 tourBooking.Items.Remove(item);
                 tourBooking.ItemQuantity++;
 
                 if (item.Amount.HasValue)
                 {
-                    tourBooking.TotalAmount -= item.Amount.Value;
+                    tourBooking.TotalAmount -= item.Amount.Value *
+                                               (item.Guests != null && item.Guests.Any() ? item.Guests.Count : 1);
                 }
             }
 
@@ -355,31 +407,35 @@ public partial class TourBookings
         }
     }
     
-    private async Task<IEnumerable<UserDetailsDto>> SearchGuests(string value)
+    private async Task<IEnumerable<UserDetailsDto>> SearchGuests(string value, CancellationToken token)
     {
-        await Task.Delay(5);
+        if (string.IsNullOrEmpty(value))
+            return Array.Empty<UserDetailsDto>();
 
-        return (string.IsNullOrEmpty(value)
-                   ? Context.AddEditModal.RequestModel.Guests
-                   : Context.AddEditModal.RequestModel.Guests.Where(x => (x.FirstName.Contains(value,
-                                                                              StringComparison
-                                                                                  .InvariantCultureIgnoreCase) &&
-                                                                          x.LastName.Contains(value,
-                                                                              StringComparison
-                                                                                  .InvariantCultureIgnoreCase)) ||
-                                                                         x.FirstName.Contains(value,
-                                                                             StringComparison
-                                                                                 .InvariantCultureIgnoreCase) ||
-                                                                         x.LastName.Contains(value,
-                                                                             StringComparison
-                                                                                 .InvariantCultureIgnoreCase))) ??
-               Array.Empty<UserDetailsDto>();
+        var guests = await UserService.SearchByDapperAsync(new SearchByDapperRequest()
+        {
+            Keyword = value,
+            Role = "Guest",
+            PageNumber = 1,
+            PageSize = 99999,
+            TenantId = TenantInfo.Id
+        }, token);
+
+        if (guests.Data.Count != 0) return guests.Data;
+        
+        return Array.Empty<UserDetailsDto>();
+    }
+
+    private string GetUserDetailsLabel(UserDetailsDto e)
+    {
+        return
+            $"{e.FirstName} {e.LastName}{(e.DateOfBirth.HasValue ? $" - {e.DateOfBirth?.ToShortDateString()}" : "")}{(!string.IsNullOrEmpty(e.Gender) ? $" - {e.Gender.GenderMatch()}" : "")}{(!string.IsNullOrEmpty(e.Nationality) ? $" - {e.Nationality?.TwoLetterCodeToCountry()} - " : "")}{e.Email}";
     }
 }
 
 public class TourBookingViewModel : UpdateBookingRequest
 {
-    public ICollection<UserDetailsDto>? Guests { get; set; }
+    //public ICollection<UserDetailsDto>? Guests { get; set; }
     public ICollection<TourDto>? Tours { get; set; }
     public UserDetailsDto? Guest { get; set; }
 }

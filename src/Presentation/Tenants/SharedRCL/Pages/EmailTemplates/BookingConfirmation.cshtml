@@ -3,11 +3,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title></title>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-<style type="text/css">
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <style type="text/css">
     body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
     table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
     img { -ms-interpolation-mode: bicubic; }
@@ -38,187 +38,278 @@ div[style*="margin: 16px 0;"] { margin: 0 !important; }
 <table border="0" cellpadding="0" cellspacing="0" width="100%">
     <tr>
         <td align="center" style="background-color: #eeeeee;" bgcolor="#eeeeee">
-        
-        <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:600px;">
-            <tr>
-                <td align="center" valign="top" style="font-size:0; padding: 35px;" bgcolor="@Model.PrimaryBackgroundColor">
-                    
-                <div style="display:inline-block; max-width:50%; min-width:100px; vertical-align:top; width:100%;">
-                    <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:300px;">
-                        <tr>
-                            <td align="center" valign="top" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 48px; font-weight: 400; line-height: 48px;">
-                                <table cellspacing="0" cellpadding="0" border="0" align="center">
+
+            <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:600px;">
+                <tr>
+                    <td align="center" valign="top" style="font-size:0; padding: 35px;" bgcolor="@Model.PrimaryBackgroundColor">
+
+                        <div style="display:inline-block; max-width:50%; min-width:100px; vertical-align:top; width:100%;">
+                            <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:300px;">
+                                <tr>
+                                    <td align="center" valign="top" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 48px; font-weight: 400; line-height: 48px;">
+                                        <table cellspacing="0" cellpadding="0" border="0" align="center">
+                                            <tr>
+                                                <td style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 24px;">
+                                                    <a href="#" target="_blank" style="color: #ffffff; text-decoration: none;">
+                                                        <img src="@Model.LogoImageUrl" width="100" height="100" style="display: block; border: 0px;"/>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" style="padding: 35px 35px 20px 35px; background-color: #ffffff;" bgcolor="#ffffff">
+                        <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:600px;">
+                            <tr>
+                                <td align="center" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding-top: 25px;">
+                                    <img src="https://img.icons8.com/carbon-copy/100/000000/checked-checkbox.png" width="125" height="120" style="display: block; border: 0px;"/><br>
+                                    <h2 style="font-size: 30px; font-weight: 800; line-height: 36px; color: #333333; margin: 0;">
+                                        Thank You For Your Order!
+                                    </h2>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding-top: 10px;">
+                                    <p style="font-size: 16px; font-weight: 400; line-height: 24px; color: #777777;">
+                                        Congratulations! Your booking with @Model.TenantName is confirmed and your payment has been successfully processed. Get ready for an unforgettable backpacking adventure!
+                                    </p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td align="left" style="padding-top: 20px;">
+                                    <table cellspacing="0" cellpadding="0" border="0" width="100%">
+                                        <tr>
+                                            <td width="75%" align="left" bgcolor="#eeeeee" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800; line-height: 24px; padding: 10px;">
+                                                Order Confirmation #
+                                            </td>
+                                            <td width="25%" align="left" bgcolor="#eeeeee" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800; line-height: 24px; padding: 10px;">
+                                                @(Model.InvoiceId ?? 0)
+                                            </td>
+                                        </tr>
+
+                                        @if (Model.Basket is {Items: not null} && Model.Basket.Items.Any())
+                                        {
+                                            foreach (var item in Model.Basket.Items)
+                                            {
+                                                <tr>
+                                                    <td width="75%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 15px 10px 5px 10px;">
+                                                        @{
+                                                            var label = string.Empty;
+
+                                                            if (item.Rooms != null && item.Rooms.Any())
+                                                            {
+                                                                label = $"{item.Rooms!.Count} room{(item.Rooms.Count > 1 ? "s" : "")} at {item.PropertyName} from {item.CheckInDateParsed?.ToShortDateString()} - {item.CheckOutDateParsed?.ToShortDateString()}.";
+                                                            }
+                                                            else
+                                                            {
+                                                                label = $"{item.GuestCount!} guest{(item.GuestCount > 1 ? "s" : "")} at {item.TourName} on {string.Join(", ", item.TourDates.Select(td => td.StartDate.ToLongDateString()))}";
+                                                            }
+                                                        }
+                                                        @label
+
+                                                    </td>
+                                                    <td width="25%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 15px 10px 5px 10px;">
+                                                        @($"${item.Total:n2}")
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                        else if (Model.Booking is {Items: not null} && Model.Booking.Items.Any())
+                                        {
+                                            foreach (var item in Model.Booking.Items)
+                                            {
+                                                <tr>
+                                                    <td width="75%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 15px 10px 5px 10px;">
+                                                        @{
+                                                            var label = string.Empty;
+
+                                                            if (item.Rooms != null && item.Rooms.Any())
+                                                            {
+                                                                label = $"{item.Rooms!.Count} room{(item.Rooms.Count > 1 ? "s" : "")} at {item.Property.Name} from {item.StartDate.ToShortDateString()} - {item.EndDate.ToShortDateString()}.";
+                                                            }
+                                                            else
+                                                            {
+                                                                label = $"{(item.Guests.Count == 0 ? 1 : item.Guests.Count)} guest{(item.Guests.Count > 0 ? "s" : "")} at {item.Tour.Name} on {string.Join(", ", item.StartDate.ToLongDateString())}";
+                                                            }
+                                                        }
+                                                        @label
+
+                                                    </td>
+                                                    <td width="25%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 15px 10px 5px 10px;">
+                                                        @($"${item.Amount:n2}")
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td align="left" style="padding-top: 20px;">
+                                    <table cellspacing="0" cellpadding="0" border="0" width="100%">
+                                        <tr>
+                                            <td width="75%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800; line-height: 24px; padding: 10px; border-top: 3px solid #eeeeee; border-bottom: 3px solid #eeeeee;">
+                                                TOTAL
+                                            </td>
+                                            <td width="25%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800; line-height: 24px; padding: 10px; border-top: 3px solid #eeeeee; border-bottom: 3px solid #eeeeee;">
+                                                @if (Model.Basket != null)
+                                                {
+                                                    @($"${Model.Basket.Total:n2}")
+                                                }
+                                                else if (Model.Booking != null)
+                                                {
+                                                    @($"${Model.Booking.TotalAmount:n2}")
+                                                }
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            
+                            @if (Model.Booking is {Items: not null} && Model.Booking.Items.Any(x => x.Tour != null))
+                            {
+                                <tr>
+                                    <td align="left" style="padding-top: 20px;">
+                                        <table cellspacing="0" cellpadding="0" border="0" width="100%">
+                                            <tr>
+                                                <td width="75%" align="left" bgcolor="#eeeeee" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800; line-height: 24px; padding: 10px;">
+                                                    Tour Details
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                
+                                foreach (var item in Model.Booking.Items.Where(x => x.Tour != null))
+                                {
+                                    if (string.IsNullOrEmpty(item.Tour.BookingConfirmationEmailDetails))
+                                    {
+                                        continue;
+                                    }
+
                                     <tr>
-                                        <td style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 24px;">
-                                            <a href="#" target="_blank" style="color: #ffffff; text-decoration: none;"><img src="@Model.LogoImageUrl" width="100" height="100" style="display: block; border: 0px;"/></a>
+                                        <td style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 15px 10px 5px 10px; border-top: 3px solid #eeeeee;">
+                                            @item.Tour.Name
                                         </td>
                                     </tr>
-                                </table>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-              
-                </td>
-            </tr>
-            <tr>
-                <td align="center" style="padding: 35px 35px 20px 35px; background-color: #ffffff;" bgcolor="#ffffff">
-                <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:600px;">
-                    <tr>
-                        <td align="center" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding-top: 25px;">
-                            <img src="https://img.icons8.com/carbon-copy/100/000000/checked-checkbox.png" width="125" height="120" style="display: block; border: 0px;" /><br>
-                            <h2 style="font-size: 30px; font-weight: 800; line-height: 36px; color: #333333; margin: 0;">
-                                Thank You For Your Order!
-                            </h2>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding-top: 10px;">
-                            <p style="font-size: 16px; font-weight: 400; line-height: 24px; color: #777777;">
-                               Congratulations! Your booking with @Model.TenantName is confirmed and your payment has been successfully processed. Get ready for an unforgettable backpacking adventure!
-                            </p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td align="left" style="padding-top: 20px;">
-                            <table cellspacing="0" cellpadding="0" border="0" width="100%">
+                                    <tr>
+                                        <td style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 15px 10px 5px 10px; border-bottom: 3px solid #eeeeee;">
+                                            @if (!string.IsNullOrEmpty(item.Tour.BookingConfirmationEmailDetails))
+                                            {
+                                                @Html.Raw(item.Tour.BookingConfirmationEmailDetails)
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else if (Model.Basket is {Items: not null} && Model.Basket.Items.Any(x => x.Tour != null))
+                            {
                                 <tr>
-                                    <td width="75%" align="left" bgcolor="#eeeeee" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800; line-height: 24px; padding: 10px;">
-                                        Order Confirmation #
-                                    </td>
-                                    <td width="25%" align="left" bgcolor="#eeeeee" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800; line-height: 24px; padding: 10px;">
-                                        @(Model.InvoiceId ?? 0)
+                                    <td align="left" style="padding-top: 20px;">
+                                        <table cellspacing="0" cellpadding="0" border="0" width="100%">
+                                            <tr>
+                                                <td width="75%" align="left" bgcolor="#eeeeee" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800; line-height: 24px; padding: 10px;">
+                                                    Tour Details
+                                                </td>
+                                            </tr>
+                                        </table>
                                     </td>
                                 </tr>
-
-                                @if (Model.Basket is {Items: not null} && Model.Basket.Items.Any())
+                                
+                                foreach (var item in Model.Basket.Items.Where(x => x.Tour != null))
                                 {
-                                    foreach (var item in Model.Basket.Items)
+                                    if (string.IsNullOrEmpty(item.Tour?.BookingConfirmationEmailDetails))
                                     {
-                                        <tr>
-                                            <td width="75%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 15px 10px 5px 10px;">
-                                                @{
-                                                    var label = string.Empty;
+                                        continue;
+                                    }
 
-                                                    if (item.Rooms != null && item.Rooms.Any())
-                                                    { 
-                                                        label = $"{item.Rooms!.Count} room{(item.Rooms.Count > 1 ? "s" : "")} at {item.PropertyName} from {item.CheckInDateParsed?.ToShortDateString()} - {item.CheckOutDateParsed?.ToShortDateString()}.";
-                                                    }
-                                                    else
-                                                    {
-                                                        label = $"{item.GuestCount!} guest{(item.GuestCount > 1 ? "s" : "")} at {item.TourName} on {string.Join(", ", item.TourDates.Select(td => td.StartDate.ToLongDateString()))}";
-                                                    }
-                                                } 
-                                                @label
-                                                
-                                            </td>
-                                            <td width="25%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 15px 10px 5px 10px;">
-                                                @($"${item.Total:n2}")
+                                    <tr>
+                                        <td style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 15px 10px 5px 10px; border-top: 3px solid #eeeeee;">
+                                            @item.Tour.Name
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 15px 10px 5px 10px; border-bottom: 3px solid #eeeeee;">
+                                            @if (!string.IsNullOrEmpty(item.Tour.BookingConfirmationEmailDetails))
+                                            {
+                                                @Html.Raw(item.Tour.BookingConfirmationEmailDetails)
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            
+                            <tr>
+                                <td align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding-top: 10px;">
+                                    <p style="font-size: 16px; font-weight: 400; line-height: 24px; color: #777777;">
+                                        If you have any further questions or want to chat about anything regarding tours, transport, local recommendations, or even if you want to just say hey, get in contact with the FUSE team! Our best contact details are below, or alternatively you can always reach us on our socials - IG: fusehostels, FB: FUSE Hostels & Travel.
+                                    </p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding-top: 10px;">
+                                    <p style="font-size: 16px; font-weight: 400; line-height: 24px; color: #777777;">
+                                        Safe travels,<br/>
+                                        THE FUSE CREW.
+                                    </p>
+                                </td>
+                            </tr>
+                        </table>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" style=" padding: 35px; background-color: @Model.PrimaryBackgroundColor;">
+                        <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:600px;">
+                            <tr>
+                                <td align="center" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding-top: 25px;">
+                                    <h2 style="font-size: 24px; font-weight: 800; line-height: 30px; color: #ffffff; margin: 0;">
+                                        If you have any questions, you can reach out to us below.
+                                    </h2>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td align="center" style="padding: 25px 0 15px 0;">
+                                    <table border="0" cellspacing="0" cellpadding="0">
+                                        <tr>
+                                            <td align="center" style="border-radius: 5px;">
+                                                <a href="@Model.ContactUrl" target="_blank" style="font-size: 18px; font-family: Open Sans, Helvetica, Arial, sans-serif; color: #ffffff; text-decoration: none; border-radius: 5px; background-color: @Model.HeaderBackgroundColor; padding: 15px 30px; display: block;">Contact Us</a>
                                             </td>
                                         </tr>
-                                    }
-                                }
-                                else if (Model.Booking is {Items: not null} && Model.Booking.Items.Any())
-                                {
-                                    foreach (var item in Model.Booking.Items)
-                                    {
-                                        <tr>
-                                            <td width="75%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 15px 10px 5px 10px;">
-                                                @{
-                                                    var label = string.Empty;
-
-                                                    if (item.Rooms != null && item.Rooms.Any())
-                                                    { 
-                                                        label = $"{item.Rooms!.Count} room{(item.Rooms.Count > 1 ? "s" : "")} at {item.Property.Name} from {item.StartDate.ToShortDateString()} - {item.EndDate.ToShortDateString()}.";
-                                                    }
-                                                    else
-                                                    {
-                                                        label = $"{item.Guests.Count!} guest{(item.Guests.Count > 1 ? "s" : "")} at {item.Tour.Name} on {string.Join(", ", item.StartDate.ToLongDateString())}";
-                                                    }
-                                                } 
-                                                @label
-                                                
-                                            </td>
-                                            <td width="25%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 15px 10px 5px 10px;">
-                                                @($"${item.Amount:n2}")
-                                            </td>
-                                        </tr>
-                                    }
-                                }
-                            </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td align="left" style="padding-top: 20px;">
-                            <table cellspacing="0" cellpadding="0" border="0" width="100%">
-                                <tr>
-                                    <td width="75%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800; line-height: 24px; padding: 10px; border-top: 3px solid #eeeeee; border-bottom: 3px solid #eeeeee;">
-                                        TOTAL
-                                    </td>
-                                    <td width="25%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800; line-height: 24px; padding: 10px; border-top: 3px solid #eeeeee; border-bottom: 3px solid #eeeeee;">
-                                        @if (Model.Basket != null)
-                                        {
-                                            @($"${Model.Basket.Total:n2}")
-                                        }
-                                        else if (Model.Booking != null)
-                                        {
-                                            @($"${Model.Booking.TotalAmount:n2}")
-                                        }
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                </table>
-                
-                </td>
-            </tr>
-            <tr>
-                <td align="center" style=" padding: 35px; background-color: @Model.PrimaryBackgroundColor;">
-                <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:600px;">
-                    <tr>
-                        <td align="center" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding-top: 25px;">
-                            <h2 style="font-size: 24px; font-weight: 800; line-height: 30px; color: #ffffff; margin: 0;">
-                                If you have any questions, you can reach out to us below.
-                            </h2>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td align="center" style="padding: 25px 0 15px 0;">
-                            <table border="0" cellspacing="0" cellpadding="0">
-                                <tr>
-                                    <td align="center" style="border-radius: 5px;">
-                                      <a href="@Model.ContactUrl" target="_blank" style="font-size: 18px; font-family: Open Sans, Helvetica, Arial, sans-serif; color: #ffffff; text-decoration: none; border-radius: 5px; background-color: @Model.HeaderBackgroundColor; padding: 15px 30px; display: block;">Contact Us</a>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                </table>
-                </td>
-            </tr>
-            <tr>
-                <td align="center" style="padding: 35px; background-color: #ffffff;" bgcolor="#ffffff">
-                <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:600px;">
-                    <tr>
-                        <td align="center">
-                            <img src="@Model.LogoImageUrl" width="37" height="37" style="display: block; border: 0px;" alt="footer logo"/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td align="center" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 400; line-height: 24px; padding: 5px 0 10px 0;">
-                            <p style="font-size: 14px; font-weight: 800; line-height: 18px; color: #333333;">
-                               @Model.TenantName
-                            </p>
-                        </td>
-                    </tr>
-                </table>
-                </td>
-            </tr>
-        </table>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" style="padding: 35px; background-color: #ffffff;" bgcolor="#ffffff">
+                        <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:600px;">
+                            <tr>
+                                <td align="center">
+                                    <img src="@Model.LogoImageUrl" width="37" height="37" style="display: block; border: 0px;" alt="footer logo"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td align="center" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 400; line-height: 24px; padding: 5px 0 10px 0;">
+                                    <p style="font-size: 14px; font-weight: 800; line-height: 18px; color: #333333;">
+                                        @Model.TenantName
+                                    </p>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
         </td>
     </tr>
 </table>
-    
+
 </body>
 </html>

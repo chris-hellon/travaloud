@@ -1,0 +1,48 @@
+@using Travaloud.Infrastructure.Common
+@inject IStringLocalizer<SharedResource> L
+
+<EditForm @ref="EditForm" Model="@RequestModel" OnValidSubmit="SaveAsync" Context="editContext">
+    <MudDialog>
+        <TitleContent>
+            <MudText Typo="Typo.h6">
+                <MudIcon Icon="@Icons.Material.Filled.Add" Class="mr-3 mb-n1"/>
+                @($"{L["Create"]} {L["Tour Dates"]}")
+            </MudText>
+        </TitleContent>
+
+        <DialogContent>
+            <FluentValidationValidator @ref="_fluentValidationValidator"/>
+
+            <MudGrid>
+                <MudItem xs="12" md="12">
+                    <MudDateRangePicker @bind-DateRange="@DateRange" Margin="Margin.Dense" MinDate="DateTime.Now.AddDays(-1)" Variant="Variant.Outlined" DateFormat="dd/MM/yyyy" Clearable="true" PlaceholderStart="Start Date" PlaceholderEnd="End Date"/>
+                </MudItem>
+
+                <MudItem xs="12" md="12">
+                    <MudTimePicker Label="@L["Start Time"]" AmPm="true" @bind-Time="RequestModel.StartTime" For="@(() => RequestModel.StartTime)" Variant="Variant.Outlined" Margin="Margin.Dense" Required="true"/>
+                </MudItem>
+
+                <MudItem xs="12" md="12">
+                    <MudSelect T="Guid?" Label="@L["Price"]" @bind-Value="RequestModel.TourPriceId" Variant="Variant.Outlined" Margin="Margin.Dense" HelperText="Select a Price that this date applies to." Required="true">
+                        <MudSelectItem T="Guid?" Value="null" Style="display:none;"></MudSelectItem>
+                        @if (Tour.TourPrices != null && Tour.TourPrices.Any(x => x.DayDuration.HasValue || x.NightDuration.HasValue || x.HourDuration.HasValue))
+                        {
+                            @foreach (var tourPrice in Tour.TourPrices.Where(x => x.DayDuration.HasValue || x.NightDuration.HasValue || x.HourDuration.HasValue))
+                            {
+                                <MudSelectItem T="Guid?" Value="@tourPrice.Id">@tourPrice.Price @tourPrice.Description</MudSelectItem>
+                            }
+                        }
+                    </MudSelect>
+                </MudItem>
+
+                <MudItem xs="12" md="12">
+                    <MudTextField Label="@L["Price Override"]" InputType="InputType.Number" For="@(() => RequestModel.PriceOverride)" @bind-Value="RequestModel.PriceOverride" Variant="Variant.Outlined" Margin="Margin.Dense" HelperText="Would you like this Date to have it's own price?"/>
+                </MudItem>
+            </MudGrid>
+        </DialogContent>
+        <DialogActions>
+            <MudButton DisableElevation Variant="Variant.Filled" OnClick="Cancel" StartIcon="@Icons.Material.Filled.Cancel">@L["Cancel"]</MudButton>
+            <MudButton DisableElevation Variant="Variant.Filled" ButtonType="ButtonType.Submit" Color="Color.Success" StartIcon="@Icons.Material.Filled.Save">@L["Confirm"]</MudButton>
+        </DialogActions>
+    </MudDialog>
+</EditForm>

@@ -18,12 +18,12 @@ public class TravelGuidesService : BaseService, ITravelGuidesService
         return Mediator.Send(request);
     }
     
-    public Task<TravelGuideDto> GetAsync(DefaultIdType id)
+    public Task<TravelGuideDetailsDto> GetAsync(DefaultIdType id)
     {
         return Mediator.Send(new GetTravelGuideRequest(id));
     }
     
-    public Task<TravelGuideDto> GetByFriendlyTitleAsync(string title)
+    public Task<TravelGuideDetailsDto> GetByFriendlyTitleAsync(string title)
     {
         return Mediator.Send(new GetTravelGuideByFriendlyTitleRequest(title));
     }

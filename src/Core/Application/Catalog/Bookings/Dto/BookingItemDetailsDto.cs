@@ -10,6 +10,16 @@ public class BookingItemDetailsDto
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
     public decimal Amount { get; set; }
+    public decimal TotalAmount
+    {
+        get
+        {
+            if (Guests != null) return Amount * (Guests.Count + 1);
+
+            return Amount;
+        }
+    }
+
     public int? RoomQuantity { get; set; }
     public DefaultIdType? PropertyId { get; set; }
     public DefaultIdType? TourId { get; set; }

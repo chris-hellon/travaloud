@@ -48,83 +48,64 @@ public partial class Login
     {
         BusySubmitting = true;
         
-        // This doesn't count login failures towards account lockout
-        // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-        // var result = await SignInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
-        //
-        // if (result.Succeeded)
-        // {
-        //     Logger.LogInformation("User logged in");
-        //
-        //     BusySubmitting = false;
-        //     StateHasChanged();
-        //     
-        //     RedirectManager.RedirectTo(ReturnUrl);
-        // }
-        // else if (result.RequiresTwoFactor)
-        // {
-        //     BusySubmitting = false;
-        //     StateHasChanged();
-        //     
-        //     RedirectManager.RedirectTo(
-        //         "Account/LoginWith2fa",
-        //         new Dictionary<string, object?> {["returnUrl"] = ReturnUrl, ["rememberMe"] = Input.RememberMe});
-        // }
-        // else if (result.IsLockedOut)
-        // {
-        //     Logger.LogWarning("User account locked out");
-        //     RedirectManager.RedirectTo("Account/Lockout");
-        // }
-        // else
-        // {
-        //     ErrorMessage = "Error: Invalid login attempt.";
-        // }
-        
         var user = await UserManager.FindByEmailAsync(Input.Email);
         
         if (user != null)
         {
-            var result = await SignInManager.CheckPasswordSignInAsync(user, Input.Password, false);
-        
-            if (result.Succeeded)
+            var userRoles = await UserManager.GetRolesAsync(user);
+
+            if (userRoles.Contains("Guest"))
             {
-                if (TenantInfo is {Identifier: not null})
-                {
-                    await SignInManager.SignInWithClaimsAsync(user, null, new Claim[]
-                    {
-                        new (TravaloudClaims.Tenant, TenantInfo?.Identifier!)
-                    });   
-                    
-                    Logger.LogInformation("User logged in");
+                ErrorMessage = "Error: You do not have access to Travaloud";
+            }
+            else
+            {
+                var result = await SignInManager.CheckPasswordSignInAsync(user, Input.Password, false);
         
+                if (result.Succeeded)
+                {
+                    if (TenantInfo is {Identifier: not null})
+                    {
+                        await SignInManager.SignInWithClaimsAsync(user, null, new Claim[]
+                        {
+                            new (TravaloudClaims.Tenant, TenantInfo?.Identifier!)
+                        });   
+                    
+                        Logger.LogInformation("User logged in");
+        
+                        BusySubmitting = false;
+                        StateHasChanged();
+            
+                        RedirectManager.RedirectTo(ReturnUrl);
+                    }
+                    else
+                    {
+                        ErrorMessage = "Error: Invalid login attempt.";
+                    }
+                }
+                else if (result.RequiresTwoFactor)
+                {
                     BusySubmitting = false;
                     StateHasChanged();
             
-                    RedirectManager.RedirectTo(ReturnUrl);
+                    RedirectManager.RedirectTo(
+                        "Account/LoginWith2fa",
+                        new Dictionary<string, object?> {["returnUrl"] = ReturnUrl, ["rememberMe"] = Input.RememberMe});
+                }
+                else if (result.IsLockedOut)
+                {
+                    Logger.LogWarning("User account locked out");
+                    RedirectManager.RedirectTo("Account/Lockout");
                 }
                 else
                 {
                     ErrorMessage = "Error: Invalid login attempt.";
                 }
             }
-            else if (result.RequiresTwoFactor)
-            {
-                BusySubmitting = false;
-                StateHasChanged();
-            
-                RedirectManager.RedirectTo(
-                    "Account/LoginWith2fa",
-                    new Dictionary<string, object?> {["returnUrl"] = ReturnUrl, ["rememberMe"] = Input.RememberMe});
-            }
-            else if (result.IsLockedOut)
-            {
-                Logger.LogWarning("User account locked out");
-                RedirectManager.RedirectTo("Account/Lockout");
-            }
-            else
-            {
-                ErrorMessage = "Error: Invalid login attempt.";
-            }
+        }
+        else
+        {
+            ErrorMessage = "Error: Unable to find a user with the provided Email Address.";
         }
         
         BusySubmitting = false;

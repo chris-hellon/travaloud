@@ -65,11 +65,13 @@ public partial class TourDate : ComponentBase
                         if (Tour.TourPrices == null) return Task.CompletedTask;
                         var datePrice = Tour.TourPrices.FirstOrDefault(x => x.Id == RequestModel.TourPriceId);
 
+
                         if (datePrice != null && RequestModel.StartDate.HasValue)
-                        {
+                        { 
                             var startDate = RequestModel.StartDate + RequestModel.StartTime;
                             if (startDate.HasValue)
                             {
+                                RequestModel.StartDate = startDate;
                                 RequestModel.EndDate = DateTimeUtils.CalculateEndDate(startDate.Value, datePrice.DayDuration,
                                     datePrice.NightDuration, datePrice.HourDuration);
                                 RequestModel.EndTime = RequestModel.EndDate.Value.TimeOfDay;
@@ -89,7 +91,6 @@ public partial class TourDate : ComponentBase
                             else
                             {
                                 Tour.TourDates.Add(RequestModel);
-
                                 datePrice?.Dates?.Add(RequestModel);
                             }
                         }
@@ -110,7 +111,7 @@ public partial class TourDate : ComponentBase
                     },
                     Snackbar,
                     Logger,
-                    $"Tour Date {(IsCreate ? L["Created"] : L["Updated"])}."))
+                    $"Tour Date {(IsCreate ? L["Created"] : L["Updated"])}. Please note this is not final, you must Save the Tour to confirm these Dates."))
             {
                 MudDialog.Close(RequestModel);
             }
@@ -174,7 +175,7 @@ public partial class TourDate : ComponentBase
                     };
 
                     Tour.TourDates?.Add(date);
-                    tourPrice.Dates?.Add(date);
+                    tourPrice.Dates?.Add(date);   
                 }
 
                 break;

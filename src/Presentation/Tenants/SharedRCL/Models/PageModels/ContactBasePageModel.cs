@@ -18,14 +18,14 @@ public abstract class ContactBasePageModel<T, T2> : TravaloudBasePageModel
     
     public Func<Task>? SubmitFunction { get; set; }
         
-    public virtual async Task<IActionResult> OnGetAsync(string? tourName = null, Guid? tourDate = null, int? guestQuantity = null)
+    public virtual async Task<IActionResult> OnGetAsync(string? tourName = null, Guid? tourDate = null, int? guestQuantity = null, string? userId = null)
     {
         await base.OnGetDataAsync();
 
         ModelState.Clear();
         return Page();
     }
-
+    
     public virtual async Task<IActionResult> OnPostAsync([FromServices] IReCaptchaService service, T model, T2 formModel)
     {
         if (!ModelState.IsValid)
@@ -60,6 +60,13 @@ public abstract class ContactBasePageModel<T, T2> : TravaloudBasePageModel
             ModelState.Remove("DestinationsVisited");
             ModelState.Remove("HowCanWeCollaborate");
             ModelState.Remove("DateRange");
+            ModelState.Remove("TenantName");
+            ModelState.Remove("HoneyPot");
+            ModelState.Remove("RelatedTour");
+            ModelState.Remove("RelatedProperty");
+            ModelState.Remove("ContactComponent.HoneyPot");
+            ModelState.Remove("ContactComponent.RelatedTour");
+            ModelState.Remove("ContactComponent.RelatedProperty");
         }
 
         if (!ModelState.IsValid)
@@ -91,7 +98,7 @@ public abstract class ContactBasePageModel<T, T2> : TravaloudBasePageModel
                 to: [MailSettings.ToAddress],
                 subject: Subject(),
                 body: emailHtml,
-                bcc: [MailSettings.BccAddress.ToString()]);
+                bcc: MailSettings?.BccAddress != null ? MailSettings?.BccAddress.ToList() : []);
         
             await MailService.SendAsync(mailRequest);
         }

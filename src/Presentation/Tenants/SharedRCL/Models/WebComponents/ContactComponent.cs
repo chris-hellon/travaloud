@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Travaloud.Application.Catalog.Properties.Dto;
+using Travaloud.Application.Catalog.Tours.Dto;
 
 namespace Travaloud.Tenants.SharedRCL.Models.WebComponents;
 
@@ -27,6 +29,16 @@ public class ContactComponent
 	[DataType(DataType.EmailAddress)]
 	public string HoneyPot { get; set; } = string.Empty;
 
+	[BindProperty]
+	public string RelatedProperty { get; set; } = string.Empty;
+	
+	[BindProperty]
+	public string RelatedTour { get; set; } = string.Empty;
+	
+	public IEnumerable<PropertyDto>? Properties { get; set; }
+	
+	public IEnumerable<TourDto>? Tours { get; set; }
+	
 	public ContactComponent()
 	{
 

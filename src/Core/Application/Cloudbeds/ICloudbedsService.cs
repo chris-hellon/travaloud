@@ -1,4 +1,6 @@
+using Travaloud.Application.BackgroundJobs.Commands;
 using Travaloud.Application.Cloudbeds.Commands;
+using Travaloud.Application.Cloudbeds.Dto;
 using Travaloud.Application.Cloudbeds.Queries;
 using Travaloud.Application.Cloudbeds.Responses;
 
@@ -11,4 +13,8 @@ public interface ICloudbedsService : ITransientService
     Task<CreateReservationResponse> CreateReservation(CreateReservationRequest request);
 
     Task<CreateReservationAdditionalGuestResponse> CreateReservationAdditionalGuest(CreateReservationAdditionalGuestRequest request);
+    
+    Task<GetGuestsResponse> GetGuests(GetGuestsRequest request);
+
+    Task<IEnumerable<GuestDto>> SearchGuests(SearchCloudbedsGuests request);
 }

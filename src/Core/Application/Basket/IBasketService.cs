@@ -24,6 +24,8 @@ public interface IBasketService : ITransientService
     /// <param name="promoCode"></param>
     /// <returns></returns>
     Task<BasketModel> SetPromoCode(string promoCode);
+
+    Task<BasketModel> SetCreateId(string createId);
     
     /// <summary>
     /// Removes a Basket Item.

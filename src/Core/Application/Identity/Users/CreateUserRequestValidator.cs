@@ -9,7 +9,8 @@ public class CreateUserRequestValidator : CustomValidator<CreateUserRequest>
             .EmailAddress()
                 .WithMessage(localizer["Invalid Email Address."])
             .MustAsync(async (email, _) => !await userService.ExistsWithEmailAsync(email))
-                .WithMessage((_, email) => string.Format(localizer["Email {0} is already registered."], email));
+                .WithMessage((_, email) => string.Format(localizer["Email {0} is already registered."], email))
+            .When(x => x.EmailRequired);
 
         RuleFor(u => u.PhoneNumber).Cascade(CascadeMode.Stop)
             .MustAsync(async (phone, _) => !await userService.ExistsWithPhoneNumberAsync(phone!))
@@ -31,12 +32,6 @@ public class CreateUserRequestValidator : CustomValidator<CreateUserRequest>
             RuleFor(p => p.ConfirmPassword).Cascade(CascadeMode.Stop)
                 .NotEmpty()
                 .Equal(p => p.Password);
-        });
-        
-        When(x => x.IsGuest, () =>
-        {
-            RuleFor(p => p.DateOfBirth).Cascade(CascadeMode.Stop)
-                .NotEmpty();
         });
     }
 }

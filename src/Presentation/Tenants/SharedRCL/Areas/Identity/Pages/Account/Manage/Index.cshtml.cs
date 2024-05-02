@@ -78,6 +78,7 @@ public class IndexModel : TravaloudBasePageModel
         user.DateOfBirth = model.DateOfBirth;
         user.FirstName = model.FirstName;
         user.LastName = model.Surname;
+        user.FullName = $"{model.FirstName} {model.Surname}";
         user.Gender = model.Gender;
         user.Nationality = model.Nationality;
         user.PassportExpiryDate = model.PassportExpiryDate;

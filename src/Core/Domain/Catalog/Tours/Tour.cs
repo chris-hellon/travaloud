@@ -29,7 +29,10 @@ public class Tour : AuditableEntity, IAggregateRoot
     public string? VideoPath { get; private set; }
     public string? MobileVideoPath { get; private set; }
     public string? BookingConfirmationEmailDetails { get; private set; }
-
+    public string? TermsAndConditions { get; private set; }
+    public string? CancellationPolicy { get; private set; }
+    public bool? AdditionalGuestDetailsRequired { get; private set; }
+    
     public virtual IList<TourCategoryLookup>? TourCategoryLookups { get; set; }
     public virtual IList<TourPropertyLookup>? TourPropertyLookups { get; private set; }
     public virtual IList<TourDestinationLookup>? TourDestinationLookups { get; set; }
@@ -68,7 +71,10 @@ public class Tour : AuditableEntity, IAggregateRoot
         string? h2,
         string? videoPath,
         string? mobileVideoPath, 
-        string? bookingConfirmationEmailDetails)
+        string? bookingConfirmationEmailDetails,
+        string? termsAndConditions,
+        string? cancellationPolicy,
+        bool? additionalGuestDetailsRequired)
     {
         Name = name;
         Description = description;
@@ -97,6 +103,9 @@ public class Tour : AuditableEntity, IAggregateRoot
         VideoPath = videoPath;
         MobileVideoPath = mobileVideoPath;
         BookingConfirmationEmailDetails = bookingConfirmationEmailDetails;
+        TermsAndConditions = termsAndConditions;
+        CancellationPolicy = cancellationPolicy;
+        AdditionalGuestDetailsRequired = additionalGuestDetailsRequired;
     }
 
     public Tour Update(string? name,
@@ -125,7 +134,10 @@ public class Tour : AuditableEntity, IAggregateRoot
         string? h2,
         string? videoPath,
         string? mobileVideoPath, 
-        string? bookingConfirmationEmailDetails)
+        string? bookingConfirmationEmailDetails,
+        string? termsAndConditions,
+        string? cancellationPolicy,
+        bool? additionalGuestDetailsRequired)
     {
         if (name is not null && Name?.Equals(name) is not true) Name = name;
         if (description is not null && Description?.Equals(description) is not true) Description = description;
@@ -153,8 +165,11 @@ public class Tour : AuditableEntity, IAggregateRoot
         if (videoPath is not null && VideoPath?.Equals(videoPath) is not true) VideoPath = videoPath;
         if (mobileVideoPath is not null && MobileVideoPath?.Equals(mobileVideoPath) is not true) MobileVideoPath = mobileVideoPath;
         if (bookingConfirmationEmailDetails is not null && BookingConfirmationEmailDetails?.Equals(bookingConfirmationEmailDetails) is not true) BookingConfirmationEmailDetails = bookingConfirmationEmailDetails;
+        if (termsAndConditions is not null && TermsAndConditions?.Equals(termsAndConditions) is not true) TermsAndConditions = termsAndConditions;
+        if (cancellationPolicy is not null && CancellationPolicy?.Equals(cancellationPolicy) is not true) CancellationPolicy = cancellationPolicy;
 
         PublishToSite = publishToSite;
+        AdditionalGuestDetailsRequired = additionalGuestDetailsRequired;
 
         return this;
     }

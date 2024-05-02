@@ -19,6 +19,7 @@ public class ExportBookingsSpec : EntitiesByBaseFilterSpec<BookingItem, BookingE
                 x => x.TourId.HasValue &&
                      (request.TourId.HasValue ? x.TourId.Value == request.TourId : !request.TourId.HasValue),
                 condition: request.IsTourBookings)
+            .Where(x => x.TourDateId == request.TourDateId, condition: request.TourDateId.HasValue)
             .Where(
                 x => x.PropertyId.HasValue && (request.PropertyId.HasValue
                     ? x.PropertyId.Value == request.PropertyId.Value

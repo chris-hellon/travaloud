@@ -1,4 +1,6 @@
-﻿using Travaloud.Application.Catalog.Bookings.Dto;
+﻿using System.Text.Json;
+using Newtonsoft.Json;
+using Travaloud.Application.Catalog.Bookings.Dto;
 using Travaloud.Application.Catalog.Bookings.Queries;
 using Travaloud.Application.Catalog.Interfaces;
 using Travaloud.Application.Catalog.Properties.Dto;
@@ -25,7 +27,7 @@ public class BookingsModel : TravaloudBasePageModel
     [BindProperty] public FeaturesTableComponent? FacilitiesTable { get; private set; }
 
     [BindProperty] public CarouselCardsComponent? ToursCards { get; private set; }
-
+    
     public async Task OnGetAsync(string? bookingId = null)
     {
         await base.OnGetDataAsync();

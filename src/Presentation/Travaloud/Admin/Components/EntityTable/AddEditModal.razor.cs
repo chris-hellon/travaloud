@@ -12,6 +12,8 @@ public partial class AddEditModal<TRequest> : IAddEditModal<TRequest>
 {
     [Parameter] [EditorRequired] public RenderFragment<TRequest> EditFormContent { get; set; } = default!;
 
+    [Parameter] public WizardStep<TRequest>? WizardStep1 { get; set; }
+    
     [Parameter] public RenderFragment<TRequest>? WizardStep1Content { get; set; }
 
     [Parameter] public RenderFragment<TRequest>? WizardStep2Content { get; set; }
@@ -38,12 +40,16 @@ public partial class AddEditModal<TRequest> : IAddEditModal<TRequest>
     
     [Parameter] public object? Id { get; set; }
 
-    [Parameter] public bool IsWizard { get; set; } = false;
+    [Parameter] public bool IsWizard { get; set; } 
+    
+    [Parameter] public bool IsFullScreenModal { get; set; }
 
     [Parameter] public Dictionary<string, bool>? WizardSteps { get; set; }
 
     [CascadingParameter] private MudDialogInstance MudDialog { get; set; } = default!;
 
+    [Parameter] public bool CanSaveEntity { get; set; }
+    
     public bool IsCreate => Id is null;
 
     public bool IsView => SaveFunc is null;
@@ -183,6 +189,9 @@ public partial class AddEditModal<TRequest> : IAddEditModal<TRequest>
 
     private void StatusChanged(StepStatus status)
     {
-        Snackbar.Add($"Step {Infrastructure.Common.Extensions.EnumExtensions.ToDescriptionString(status)}.", Severity.Info);
+        if (status != StepStatus.Skipped)
+        {
+            Snackbar.Add($"Step {Infrastructure.Common.Extensions.EnumExtensions.ToDescriptionString(status)}.", Severity.Success);
+        }
     }
 }

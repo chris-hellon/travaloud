@@ -4,135 +4,167 @@
 @inject IStringLocalizer<SharedResource> L
 
 <MudOverlay Visible="LoaderVisible" DarkBackground="true" Absolute="true" Style="z-index: 1000000">
-    <MudProgressCircular Color="Color.Tertiary" Indeterminate="true" />
+    <MudProgressCircular Color="Color.Tertiary" Indeterminate="true"/>
 </MudOverlay>
 
 <EditForm Model="@RequestModel" OnValidSubmit="SaveAsync" Context="_editContext">
-    <MudDialog>
+    <MudDialog DisableSidePadding="true">
         <TitleContent>
             <MudText Typo="Typo.h6">
                 @if (IsCreate)
                 {
-                    <MudIcon Icon="@Icons.Material.Filled.Add" Class="mr-3 mb-n1" />
-                    @($"{L["Create"]} "); @L[EntityName];
+                    <MudIcon Icon="@Icons.Material.Filled.Add" Class="mr-3 mb-n1"/>
+                    @($"{L["Create"]} ")
+                    ;
+                    @L[EntityName]
+                    ;
                 }
                 else if (IsView)
                 {
-                    <MudIcon Icon="@Icons.Material.Filled.Update" Class="mr-3 mb-n1" />
-                    @($"{L["View"]} "); @L[EntityName]
+                    <MudIcon Icon="@Icons.Material.Filled.Update" Class="mr-3 mb-n1"/>
+                    @($"{L["View"]} ")
+                    ;
+                    @L[EntityName]
                 }
                 else
                 {
-                    <MudIcon Icon="@Icons.Material.Filled.Update" Class="mr-3 mb-n1" />
-                    @($"{L["Edit"]} "); @L[EntityName]
+                    <MudIcon Icon="@Icons.Material.Filled.Update" Class="mr-3 mb-n1"/>
+                    @($"{L["Edit"]} ")
+                    ;
+                    @L[EntityName]
                 }
             </MudText>
         </TitleContent>
 
         <DialogContent>
-            <FluentValidationValidator @ref="_fluentValidationValidator" />
-            <MudGrid Style="@(IsWizard ? "padding-bottom:50px": "")">
-                @if (!IsCreate)
-                {
-                    <MudInput InputType="InputType.Hidden" Value="Id"></MudInput>
-                }
+            <FluentValidationValidator @ref="_fluentValidationValidator"/>
 
-                @if (IsWizard)
-                {
-                    <MudItem xs="12" sm="12">
-                        <MudStepper @ref="_stepper" Class="fixed-stepper" ContentStyle="min-height: 400px" ContentClass="wizard-content" Color="Color.Primary" Variant="Variant.Filled" DisableAnimation="false" HeaderTextView="HeaderTextView.All" PreventStepChange="new Func<StepChangeDirection, bool>(CheckChange)">
-                            @if (WizardStep1Content != null && ShowWizardStep(0))
-                            {
-                                <MudStep Title="@WizardStepTitle(0)" StatusChanged="StatusChanged">
-                                    <MudForm @ref="_wizardSteps[0]">
-                                        @WizardStep1Content(RequestModel)
-                                    </MudForm>
-                                </MudStep>
-                            }
+            <ScrollableDialogContent>
+                <ChildContent>
+                    <MudGrid Style="@(IsWizard && !IsFullScreenModal ? "padding-bottom:50px" : "")">
+                        @if (!IsCreate)
+                        {
+                            <MudInput InputType="InputType.Hidden" Value="Id"></MudInput>
+                        }
 
-                            @if (WizardStep2Content != null && ShowWizardStep(1))
-                            {
-                                <MudStep Title="@WizardStepTitle(1)" StatusChanged="StatusChanged">
-                                    <MudForm @ref="_wizardSteps[1]">
-                                        @WizardStep2Content(RequestModel)
-                                    </MudForm>
-                                </MudStep>
-                            }
+                        @if (IsWizard)
+                        {
+                            <MudItem xs="12" sm="12">
+                                <MudStepper @ref="_stepper" Class="fixed-stepper" ContentStyle="min-height: 400px" ContentClass="wizard-content" Color="Color.Primary" Variant="Variant.Filled" DisableAnimation="false" HeaderTextView="HeaderTextView.All" PreventStepChange="new Func<StepChangeDirection, bool>(CheckChange)">
+                                    @if (WizardStep1 != null && ShowWizardStep(0))
+                                    {
+                                        <MudStep Title="@WizardStepTitle(0)" StatusChanged="StatusChanged">
+                                            @if (WizardStep1.WizardStepToolbar != null)
+                                            {
+                                                <MudToolBar>
+                                                    @WizardStep1.WizardStepToolbar(RequestModel)
+                                                </MudToolBar>
+                                            }
 
-                            @if (WizardStep3Content != null && ShowWizardStep(2))
-                            {
-                                <MudStep Title="@WizardStepTitle(2)" StatusChanged="StatusChanged">
-                                    <MudForm @ref="_wizardSteps[2]">
-                                        @WizardStep3Content(RequestModel)
-                                    </MudForm>
-                                </MudStep>
-                            }
+                                            @if (WizardStep1.WizardStepContent != null)
+                                            {
+                                                <MudForm @ref="_wizardSteps[0]">
+                                                    @WizardStep1.WizardStepContent(RequestModel)
+                                                </MudForm>
+                                            }
+                                        </MudStep>
+                                    }
 
-                            @if (WizardStep4Content != null && ShowWizardStep(3))
-                            {
-                                <MudStep Title="@WizardStepTitle(3)" StatusChanged="StatusChanged">
-                                    <MudForm @ref="_wizardSteps[3]">
-                                        @WizardStep4Content(RequestModel)
-                                    </MudForm>
-                                </MudStep>
-                            }
+                                    @if (WizardStep1Content != null && ShowWizardStep(0))
+                                    {
+                                        <MudStep Title="@WizardStepTitle(0)" StatusChanged="StatusChanged">
+                                            <MudForm @ref="_wizardSteps[0]">
+                                                @WizardStep1Content(RequestModel)
+                                            </MudForm>
+                                        </MudStep>
+                                    }
 
-                            @if (WizardStep5Content != null && ShowWizardStep(4))
-                            {
-                                <MudStep Title="@WizardStepTitle(4)" StatusChanged="StatusChanged">
-                                    <MudForm @ref="_wizardSteps[4]">
-                                        @WizardStep5Content(RequestModel)
-                                    </MudForm>
-                                </MudStep>
-                            }
+                                    @if (WizardStep2Content != null && ShowWizardStep(1))
+                                    {
+                                        <MudStep Title="@WizardStepTitle(1)" StatusChanged="StatusChanged">
+                                            <MudForm @ref="_wizardSteps[1]">
+                                                @WizardStep2Content(RequestModel)
+                                            </MudForm>
+                                        </MudStep>
+                                    }
 
-                            @if (WizardStep6Content != null && ShowWizardStep(5))
-                            {
-                                <MudStep Title="@WizardStepTitle(5)" StatusChanged="StatusChanged">
-                                    <MudForm @ref="_wizardSteps[5]">
-                                        @WizardStep6Content(RequestModel)
-                                    </MudForm>
-                                </MudStep>
-                            }
+                                    @if (WizardStep3Content != null && ShowWizardStep(2))
+                                    {
+                                        <MudStep Title="@WizardStepTitle(2)" StatusChanged="StatusChanged">
+                                            <MudForm @ref="_wizardSteps[2]">
+                                                @WizardStep3Content(RequestModel)
+                                            </MudForm>
+                                        </MudStep>
+                                    }
 
-                            @if (WizardStep7Content != null && ShowWizardStep(6))
-                            {
-                                <MudStep Title="@WizardStepTitle(6)" StatusChanged="StatusChanged">
-                                    <MudForm @ref="_wizardSteps[6]">
-                                        @WizardStep7Content(RequestModel)
-                                    </MudForm>
-                                </MudStep>
-                            }
+                                    @if (WizardStep4Content != null && ShowWizardStep(3))
+                                    {
+                                        <MudStep Title="@WizardStepTitle(3)" StatusChanged="StatusChanged">
+                                            <MudForm @ref="_wizardSteps[3]">
+                                                @WizardStep4Content(RequestModel)
+                                            </MudForm>
+                                        </MudStep>
+                                    }
 
-                            @if (WizardStep8Content != null && ShowWizardStep(7))
-                            {
-                                <MudStep Title="@WizardStepTitle(7)" StatusChanged="StatusChanged">
-                                    <MudForm @ref="_wizardSteps[7]">
-                                        @WizardStep8Content(RequestModel)
-                                    </MudForm>
-                                </MudStep>
-                            }
+                                    @if (WizardStep5Content != null && ShowWizardStep(4))
+                                    {
+                                        <MudStep Title="@WizardStepTitle(4)" StatusChanged="StatusChanged">
+                                            <MudForm @ref="_wizardSteps[4]">
+                                                @WizardStep5Content(RequestModel)
+                                            </MudForm>
+                                        </MudStep>
+                                    }
 
-                            @if (AddResultStep)
-                            {
-                                <MudStep Title="Result Step" IsResultStep="true">
-                                    <div class="d-flex flex-column align-center justify-center" style="height: 200px">
-                                        <MudText Class="mb-3">@EntityName is ready to be saved!</MudText>
-                                        <MudText Class="mb-3">Click the save button below to finish up.</MudText>
-                                        <MudButton DisableElevation Variant="Variant.Filled" ButtonType="ButtonType.Submit" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Save">
-                                            @L["Save"]
-                                        </MudButton>
-                                    </div>
-                                </MudStep>
-                            }
-                        </MudStepper>
-                    </MudItem>
-                }
-                else
-                {
-                    @EditFormContent(RequestModel);
-                }
-            </MudGrid>
+                                    @if (WizardStep6Content != null && ShowWizardStep(5))
+                                    {
+                                        <MudStep Title="@WizardStepTitle(5)" StatusChanged="StatusChanged">
+                                            <MudForm @ref="_wizardSteps[5]">
+                                                @WizardStep6Content(RequestModel)
+                                            </MudForm>
+                                        </MudStep>
+                                    }
+
+                                    @if (WizardStep7Content != null && ShowWizardStep(6))
+                                    {
+                                        <MudStep Title="@WizardStepTitle(6)" StatusChanged="StatusChanged">
+                                            <MudForm @ref="_wizardSteps[6]">
+                                                @WizardStep7Content(RequestModel)
+                                            </MudForm>
+                                        </MudStep>
+                                    }
+
+                                    @if (WizardStep8Content != null && ShowWizardStep(7))
+                                    {
+                                        <MudStep Title="@WizardStepTitle(7)" StatusChanged="StatusChanged">
+                                            <MudForm @ref="_wizardSteps[7]">
+                                                @WizardStep8Content(RequestModel)
+                                            </MudForm>
+                                        </MudStep>
+                                    }
+
+                                    @if (AddResultStep && CanSaveEntity)
+                                    {
+                                        <MudStep Title="Result Step" IsResultStep="true">
+                                            <div class="d-flex flex-column align-center justify-center" style="height: 200px">
+                                                <MudText Class="mb-3">@EntityName is ready to be saved!</MudText>
+                                                <MudText Class="mb-3">Click the save button below to finish up.</MudText>
+                                                <MudButton DisableElevation Variant="Variant.Filled" ButtonType="ButtonType.Submit" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Save">
+                                                    @L["Save"]
+                                                </MudButton>
+                                            </div>
+                                        </MudStep>
+                                    }
+                                </MudStepper>
+                            </MudItem>
+                        }
+                        else
+                        {
+                            @EditFormContent(RequestModel)
+                            ;
+                        }
+                    </MudGrid>
+                </ChildContent>
+            </ScrollableDialogContent>
         </DialogContent>
         <DialogActions>
             @if (!IsWizard)
@@ -159,5 +191,3 @@
 
     </MudDialog>
 </EditForm>
-
-

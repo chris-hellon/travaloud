@@ -11,8 +11,11 @@ public class Booking : AuditableEntity, IAggregateRoot
     public bool IsPaid { get; private set; }
     public DateTime BookingDate { get; private set; }
     public string? GuestId { get; private set; }
+    public string? GuestName { get; private set; }
+    public string? GuestEmail { get; private set; }
     public string? StripeSessionId { get; private set; }
     public bool? BookingConfirmed { get; private set; }
+    public bool? WaiverSigned { get; private set; }
     
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int InvoiceId { get; private set; }
@@ -33,7 +36,10 @@ public class Booking : AuditableEntity, IAggregateRoot
         bool isPaid,
         DateTime bookingDate,
         string? guestId, 
-        string? stripeSessionId)
+        string? stripeSessionId,
+        bool? waiverSigned,
+        string? guestName, 
+        string? guestEmail)
     {
         Description = description;
         TotalAmount = totalAmount;
@@ -43,6 +49,9 @@ public class Booking : AuditableEntity, IAggregateRoot
         BookingDate = bookingDate;
         GuestId = guestId;
         StripeSessionId = stripeSessionId;
+        WaiverSigned = waiverSigned;
+        GuestName = guestName;
+        GuestEmail = guestEmail;
     }
 
     public Booking Update(
@@ -54,6 +63,9 @@ public class Booking : AuditableEntity, IAggregateRoot
         DateTime? bookingDate = null,
         string? guestId = null,
         string? stripeSessionId = null,
+        bool? waiverSigned = null,
+        string? guestName = null,
+        string? guestEmail = null,
         IList<BookingItem>? items = null)
     {
         if (description is not null && Description != description)
@@ -83,6 +95,15 @@ public class Booking : AuditableEntity, IAggregateRoot
         if (stripeSessionId is not null && StripeSessionId != stripeSessionId)
             StripeSessionId = stripeSessionId;
 
+        if (waiverSigned is not null && WaiverSigned != waiverSigned)
+            WaiverSigned = waiverSigned.Value;
+        
+        if (guestName is not null && GuestName != guestName)
+            GuestName = guestName;
+        
+        if (guestEmail is not null && GuestEmail != guestEmail)
+            GuestEmail = guestEmail;
+        
         return this;
     }
 

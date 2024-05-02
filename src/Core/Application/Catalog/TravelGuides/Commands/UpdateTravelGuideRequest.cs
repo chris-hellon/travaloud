@@ -62,7 +62,8 @@ public class UpdateTravelGuideRequestHandler : IRequestHandler<UpdateTravelGuide
             request.ShortDescription,
             imagePath,
             request.MetaKeywords,
-            request.MetaDescription);
+            request.MetaDescription,
+            request.Title.UrlFriendly());
 
         await updatedTravelGuide.ProcessImages(request.TravelGuideGalleryImages, _currentUser.GetUserId(), _file, cancellationToken);
         

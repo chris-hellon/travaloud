@@ -12,9 +12,15 @@ public interface IBookingsService : ITransientService
     Task<BookingDetailsDto> GetAsync(DefaultIdType id);
 
     Task<IEnumerable<BookingDto>> GetGuestBookingsAsync(GetGuestBookingsRequest request);
+
+    Task<bool> GetBookingsByDateAsync(BookingsByTourStartDateRequest request);
+    
+    Task<IList<DefaultIdType?>> GetBookingsByDatesAsync(BookingsByTourStartDatesRequest request);
     
     Task<DefaultIdType?> CreateAsync(CreateBookingRequest request);
 
+    Task<string> CreateStaffTourBookingQrCodeUrl(CreateStaffTourBookingQrCodeUrlRequest request);
+    
     Task<DefaultIdType?> UpdateAsync(DefaultIdType id, UpdateBookingRequest request);
 
     Task<DefaultIdType?> FlagBookingAsPaidAsync(DefaultIdType id, FlagBookingAsPaidRequest request);
@@ -26,4 +32,8 @@ public interface IBookingsService : ITransientService
     Task<DefaultIdType> DeleteItemAsync(DefaultIdType id);
 
     Task<FileResponse> ExportAsync(ExportBookingsRequest filter);
+
+    Task<IEnumerable<StaffBookingDto>> StaffBookingsByDateRange(StaffBookingsByDateRangeRequest request);
+
+    Task<FileResponse> ExportStaffBookingsAsync(ExportStaffBookingsRequest filter);
 }
