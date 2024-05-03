@@ -15,6 +15,8 @@ public class CreateBookingItemRequest
 
     [RequiredIfNull("PropertyId", ErrorMessage = "A Tour Date is required")]
     public DefaultIdType? TourDateId { get; set; }
+    
+    public string? PickupLocation { get; set; }
 
     public string? CloudbedsReservationId { get; set; }
     public int? CloudbedsPropertyId { get; set; }

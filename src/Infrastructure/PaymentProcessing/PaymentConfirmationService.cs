@@ -6,6 +6,7 @@ using Travaloud.Application.Catalog.Interfaces;
 using Travaloud.Application.Catalog.Properties.Dto;
 using Travaloud.Application.Cloudbeds;
 using Travaloud.Application.Cloudbeds.Commands;
+using Travaloud.Application.Cloudbeds.Responses;
 using Travaloud.Application.PaymentProcessing;
 using Travaloud.Infrastructure.Identity;
 using Travaloud.Shared.Authorization;
@@ -30,7 +31,7 @@ public class PaymentConfirmationService : IPaymentConfirmationService
         var tourBookingsModels = tourBookings as BasketItemModel[] ?? tourBookings.ToArray();
 
         var bookingRequest = new CreateBookingRequest(
-            $"Web Booking: {(propertyBookingsModels.Length != 0 ? $"{propertyBookingsModels.Length} x Propert{(propertyBookingsModels.Length > 1 ? "ies" : "y")}" : "")}{(tourBookingsModels.Length != 0 ? $"{(propertyBookingsModels.Length > 0 ? " & " : "")}{tourBookingsModels.Length} x Tour{(tourBookingsModels.Length > 1 ? "s" : "")}" : "")}",
+            $"Web Booking: {(propertyBookingsModels.Length != 0 ? $"{propertyBookingsModels.Length} Propert{(propertyBookingsModels.Length > 1 ? "ies" : "y")}" : "")}{(tourBookingsModels.Length != 0 ? $"{(propertyBookingsModels.Length > 0 ? " & " : "")}{tourBookingsModels.Length} Tour{(tourBookingsModels.Length > 1 ? "s" : "")}" : "")}",
             basket.Total,
             "USD",
             basket.Items.Count,
@@ -178,6 +179,12 @@ public class PaymentConfirmationService : IPaymentConfirmationService
                         return false;
 
                     reservationId = createReservationResponse.ReservationID;
+
+                    var createReservationPaymentRequest = await cloudbedsService.CreateReservationPayment(
+                        new CreateReservationPaymentRequest(property.CloudbedsPropertyId, reservationId, basketItem.Total, property.CloudbedsApiKey));
+
+                    if (!createReservationPaymentRequest.Success)
+                        return false;
                 }
                 catch (Exception)
                 {

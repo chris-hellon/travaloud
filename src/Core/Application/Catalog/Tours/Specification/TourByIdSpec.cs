@@ -10,6 +10,7 @@ public class TourByIdSpec : Specification<Tour>, ISingleResultSpecification<Tour
             .Include(p => p.TourPrices)
             .Include(p => p.TourItineraries).ThenInclude(p => p.Sections).ThenInclude(p => p.Images)
             .Include(p => p.TourDates)
+            .Include(p => p.TourPickupLocations)
             .Include(p => p.TourCategoryLookups)
             .Include(p => p.Images);
 #pragma warning restore CS8620 // Argument cannot be used for parameter due to differences in the nullability of reference types.

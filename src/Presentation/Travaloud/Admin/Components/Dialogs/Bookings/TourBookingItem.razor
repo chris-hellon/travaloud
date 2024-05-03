@@ -49,6 +49,17 @@
                         }
                     </MudSelect>
                 </MudItem>
+                <MudItem xs="12" md="12">
+                    <MudSelect T="string?" @bind-Value="RequestModel.PickupLocation" For="@(() => RequestModel.PickupLocation)" Label="Pickup Location" Clearable="true" Required="true" HelperText="Select a Pickup Location" Variant="Variant.Outlined">
+                        @if (TourPickupLocations != null)
+                        {
+                            foreach (var tourPickupLocation in TourPickupLocations)
+                            {
+                                <MudSelectItem T="string" Value="@(tourPickupLocation.PropertyName)"></MudSelectItem>
+                            }
+                        }
+                    </MudSelect>
+                </MudItem>
                 @if (RequestModel.Guests == null || !RequestModel.Guests.Any())
                 {
                     <MudItem xs="12" md="12">

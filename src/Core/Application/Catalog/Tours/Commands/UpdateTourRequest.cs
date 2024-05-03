@@ -72,6 +72,9 @@ public class UpdateTourRequest : IRequest<DefaultIdType>
 
     [Display(Name = "Itineraries")]
     public IList<TourItineraryRequest>? TourItineraries { get; set; }
+    
+    [Display(Name = "Pick Up Locations")]
+    public IEnumerable<TourPickupLocationRequest>? TourPickupLocations { get; set; }
 
     public IList<TourCategoryLookupRequest>? TourCategoryLookups { get; set; }
     public IList<TourCategoryRequest>? TourCategories { get; set; }
@@ -202,6 +205,7 @@ public class UpdateTourRequestHandler : IRequestHandler<UpdateTourRequest, Defau
         
         updatedTour.ProcessTourCategories(request.TourCategoryId, request.SelectedParentTourCategories, request.TourCategoryLookups, userId);
         updatedTour.ProcessTourDestinations(request.TourDestinationLookups, userId);
+        updatedTour.ProcessTourPickupLocations(request.TourPickupLocations, userId);
         
         // Add Domain Events to be raised after the commit
         tour.DomainEvents.Add(EntityUpdatedEvent.WithEntity(tour));

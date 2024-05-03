@@ -8,6 +8,7 @@ using Travaloud.Admin.Components.EntityTable;
 using Travaloud.Application.Catalog.Bookings.Queries;
 using Travaloud.Application.Catalog.Destinations.Queries;
 using Travaloud.Application.Catalog.Interfaces;
+using Travaloud.Application.Catalog.Properties.Queries;
 using Travaloud.Application.Catalog.Tours.Commands;
 using Travaloud.Application.Catalog.Tours.Dto;
 using Travaloud.Application.Catalog.Tours.Queries;
@@ -25,6 +26,8 @@ public partial class Tours
     [Inject] protected IDestinationsService DestinationsService { get; set; } = default!;
     
     [Inject] protected IBookingsService BookingsService { get; set; } = default!;
+    
+    [Inject] protected IPropertiesService PropertiesService { get; set; } = default!;
 
     private EntityServerTableContext<TourDto, Guid, TourViewModel> Context { get; set; } = default!;
     
@@ -128,6 +131,7 @@ public partial class Tours
                 }
                 
                 tour.TourDestinationLookups = tour.SelectedDestinations;
+                tour.TourPickupLocations = tour.SelectedPickupLocations;
 
                 await ToursService.CreateAsync(parsedRequest);
                 tour.ImageInBytes = string.Empty;
@@ -172,7 +176,7 @@ public partial class Tours
                     PageSize = 99999
                 });
             
-                if (destinations?.Data == null) return parsedModel;
+                if (destinations?.Data != null)
                 {
                     foreach (var destination in destinations.Data)
                     {
@@ -194,6 +198,36 @@ public partial class Tours
                         parsedModel.SelectedDestinations = selectedDestinations;
                     }
                 }
+                
+                var properties = await PropertiesService.SearchAsync(new SearchPropertiesRequest()
+                {
+                    PageNumber = 1,
+                    PageSize = int.MaxValue
+                });
+                
+                if (properties?.Data != null)
+                {
+                    foreach (var property in properties.Data)
+                    {
+                        parsedModel.PickupLocations?.Add(
+                            new TourPickupLocationRequest(tour.Id, property.Id, property.Name));
+                    }
+            
+                    if (parsedModel.TourPickupLocations == null) return parsedModel;
+                    {
+                        var selectedDestinations = parsedModel.TourPickupLocations.Select(pickupLocation =>
+                                parsedModel.PickupLocations.FirstOrDefault(x =>
+                                    x.PropertyId == pickupLocation.PropertyId))
+                            .Select(pickupLocation => new TourPickupLocationRequest(
+                                pickupLocation.Id,
+                                tour.Id,
+                                pickupLocation.PropertyId,
+                                properties.Data.First(x => x.Id == pickupLocation.PropertyId).Name))
+                            .ToList();
+            
+                        parsedModel.SelectedPickupLocations = selectedDestinations;
+                    }
+                }
             
                 return parsedModel;
             },
@@ -206,10 +240,16 @@ public partial class Tours
                 var getDestinations = Task.Run(() => DestinationsService.SearchAsync(new SearchDestinationsRequest()
                 {
                     PageNumber = 1,
-                    PageSize = 99999
+                    PageSize = int.MaxValue
                 }));
 
-                await Task.WhenAll(getTourCategories, getParentTourCategories, getDestinations);
+                var getProperties = Task.Run(() => PropertiesService.SearchAsync(new SearchPropertiesRequest()
+                {
+                    PageNumber = 1,
+                    PageSize = int.MaxValue
+                }));
+                
+                await Task.WhenAll(getTourCategories, getParentTourCategories, getDestinations, getProperties);
                 
                 tour.TourCategories = getTourCategories.Result.Adapt<IList<TourCategoryRequest>>();
                 tour.ParentTourCategories = getParentTourCategories.Result.Adapt<IList<TourCategoryRequest>>();
@@ -219,6 +259,13 @@ public partial class Tours
                 foreach (var destination in destinations)
                 {
                     tour.Destinations.Add(new TourDestinationLookupRequest(tour.Id, destination.Id, destination.Name));
+                }
+                
+                var properties = getProperties.Result.Data;
+
+                foreach (var property in properties)
+                {
+                    tour.PickupLocations.Add(new TourPickupLocationRequest(tour.Id, property.Id, property.Name));
                 }
 
                 return tour;
@@ -268,6 +315,7 @@ public partial class Tours
                 }
 
                 tour.TourDestinationLookups = tour.SelectedDestinations;
+                tour.TourPickupLocations = tour.SelectedPickupLocations;
 
                 await ToursService.UpdateAsync(id, tour.Adapt<UpdateTourRequest>());
 
@@ -300,5 +348,7 @@ public class TourViewModel : UpdateTourRequest
     public bool UseTourGroup { get; set; }
     public IEnumerable<string>? TourCategoriesOptions { get; set; }
     public IList<TourDestinationLookupRequest>? Destinations { get; set; } = new List<TourDestinationLookupRequest>();
+    public IList<TourPickupLocationRequest>? PickupLocations { get; set; } = new List<TourPickupLocationRequest>();
     public IEnumerable<TourDestinationLookupRequest>? SelectedDestinations = [];
+    public IEnumerable<TourPickupLocationRequest>? SelectedPickupLocations = [];
 }

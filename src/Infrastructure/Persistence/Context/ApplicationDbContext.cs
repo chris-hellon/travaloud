@@ -72,7 +72,8 @@ public class ApplicationDbContext : BaseDbContext
     public DbSet<GalleryImage> GalleryImages => Set<GalleryImage>();
     public DbSet<TravelGuide> TravelGuides => Set<TravelGuide>();
     public DbSet<TravelGuideGalleryImage> TravelGuideGalleryImages => Set<TravelGuideGalleryImage>();
-    public DbSet<BookingItemGuest> BookingItemGuestS => Set<BookingItemGuest>();
+    public DbSet<BookingItemGuest> BookingItemGuests => Set<BookingItemGuest>();
+    public DbSet<TourPickupLocation> TourPickupLocations => Set<TourPickupLocation>();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

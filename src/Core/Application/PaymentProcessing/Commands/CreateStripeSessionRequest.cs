@@ -79,7 +79,7 @@ internal class CreateStripeSessionRequestHandler : IRequestHandler<CreateStripeS
         var toursLineItems = toursLineItemsParsed?.Item2;
         
         var propertiesLabel = propertiesLineItemsParsed?.Item1;
-        var toursLabel = propertiesLineItemsParsed?.Item1;
+        var toursLabel = toursLineItemsParsed?.Item1;
         
         var lineItems = propertiesLineItems!.Union(toursLineItems!).ToList();
 

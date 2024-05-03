@@ -40,7 +40,8 @@ public class Tour : AuditableEntity, IAggregateRoot
     public virtual IList<TourDate>? TourDates { get; set; }
     public virtual IList<TourItinerary>? TourItineraries { get; set; }
     public virtual IList<TourImage>? Images { get; set; }
-
+    public virtual IList<TourPickupLocation>? TourPickupLocations { get; set; }
+    
     public Tour()
     {
     }

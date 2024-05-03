@@ -106,6 +106,35 @@
                                         }
                                     </ChildRowContent>
                                 </MudTable>
+                                @if (context.Items.Any(x => x.TourId.HasValue))
+                                {
+                                    <MudTable Items="@context.Items.Where(x => x.TourId.HasValue)" Context="ItemContext" Hover="true" Breakpoint="Breakpoint.Sm" Elevation="0">
+                                        <ColGroup>
+                                            <col/>
+                                            <col/>
+                                            <col/>
+                                            <col/>
+                                            <col/>
+                                            <col/>
+                                        </ColGroup>
+                                        <HeaderContent>
+                                            <MudTh>Tour</MudTh>
+                                            <MudTh>Additional Guests</MudTh>
+                                            <MudTh>Start Date</MudTh>
+                                            <MudTh>End Date</MudTh>
+                                            <MudTh>Price</MudTh>
+                                            <MudTh>Total Price</MudTh>
+                                        </HeaderContent>
+                                        <RowTemplate>
+                                            <MudTd DataLabel="Tour">@ItemContext.Tour?.Name</MudTd>
+                                            <MudTd DataLabel="Additional Guests">@ItemContext.Guests.Count</MudTd>
+                                            <MudTd DataLabel="Start Date">@ItemContext.StartDate</MudTd>
+                                            <MudTd DataLabel="End Date">@ItemContext.EndDate</MudTd>
+                                            <MudTd DataLabel="Price">@($"$ {string.Format("{0:n2}", ItemContext.Amount)}")</MudTd>
+                                            <MudTd DataLabel="Total Price">@($"$ {string.Format("{0:n2}", ItemContext.TotalAmount)}")</MudTd>
+                                        </RowTemplate>
+                                    </MudTable>   
+                                }
                             </MudCardContent>
                         </MudCard>
                     </td>

@@ -12,6 +12,7 @@ public class TourByIdWithDetailsSpec : Specification<Tour, TourWithoutDatesDto>,
         Query
             .Include(p => p.Images)
             .Include(p => p.TourPrices)
+            .Include(p => p.TourPickupLocations)
             .Include(p => p.TourDestinationLookups).ThenInclude(x => x.Destination)
             .Include(p => p.TourItineraries)
             .ThenInclude(p => p.Sections)

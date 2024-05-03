@@ -86,7 +86,8 @@ internal class GetBookingItemsByDateRequestHandler : IRequestHandler<GetBookingI
                                 GuestGender = additionalGuestMatch.Gender,
                                 GuestDateOfBirth = additionalGuestMatch.DateOfBirth?.Date,
                                 GuestNationality = additionalGuestMatch.Nationality,
-                                GuestPassportNumber = additionalGuestMatch.PassportNumber
+                                GuestPassportNumber = additionalGuestMatch.PassportNumber,
+                                PickupLocation = item.PickupLocation
                             });
                         }
                     }

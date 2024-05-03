@@ -20,8 +20,6 @@ namespace Travaloud.Infrastructure.BackgroundJobs;
 
 public class SendDailyTourManifestHandler : IRequestHandler<SendDailyTourManifest>
 {
-    private readonly IDestinationsService _destinationsService;
-    private readonly IToursService _toursService;
     private readonly IDashboardService _dashboardService;
     private readonly IUserService _userService;
     private readonly IMultiTenantContextAccessor<TravaloudTenantInfo> _multiTenantContextAccessor;
@@ -29,14 +27,13 @@ public class SendDailyTourManifestHandler : IRequestHandler<SendDailyTourManifes
     private readonly IPropertiesService _propertiesService;
     private readonly IMailService _mailService;
     private readonly MailSettings _mailSettings;
-
-
+    private readonly IEmailTemplateService _emailTemplateService;
+    
     private readonly IRepositoryFactory<Tour> _tourRepository;
     private readonly IRepositoryFactory<TourDate> _tourDateRepository;
     private readonly IRepositoryFactory<Destination> _destinationRepository;
     
-    public SendDailyTourManifestHandler(IDestinationsService destinationsService,
-        IToursService toursService,
+    public SendDailyTourManifestHandler(
         IDashboardService dashboardService,
         IUserService userService,
         IMultiTenantContextAccessor<TravaloudTenantInfo> multiTenantContextAccessor,
@@ -44,10 +41,10 @@ public class SendDailyTourManifestHandler : IRequestHandler<SendDailyTourManifes
         IPropertiesService propertiesService,
         IOptions<MailSettings> mailSettings, IMailService mailService, 
         IRepositoryFactory<TourDate> tourDateRepository, 
-        IRepositoryFactory<Destination> destinationRepository, IRepositoryFactory<Tour> tourRepository)
+        IRepositoryFactory<Destination> destinationRepository, 
+        IRepositoryFactory<Tour> tourRepository, 
+        IEmailTemplateService emailTemplateService)
     {
-        _destinationsService = destinationsService;
-        _toursService = toursService;
         _dashboardService = dashboardService;
         _userService = userService;
         _multiTenantContextAccessor = multiTenantContextAccessor;
@@ -57,6 +54,7 @@ public class SendDailyTourManifestHandler : IRequestHandler<SendDailyTourManifes
         _tourDateRepository = tourDateRepository;
         _destinationRepository = destinationRepository;
         _tourRepository = tourRepository;
+        _emailTemplateService = emailTemplateService;
         _mailSettings = mailSettings.Value;
     }
 
@@ -116,11 +114,27 @@ public class SendDailyTourManifestHandler : IRequestHandler<SendDailyTourManifes
             {
                 if (string.IsNullOrEmpty(property.EmailAddress)) continue;
                 
+                var tenantInfo = _multiTenantContextAccessor.MultiTenantContext.TenantInfo;
+                
+                var html = _emailTemplateService.GenerateEmailTemplate("tour-manifest", new
+                {
+                    TenantName = tenantInfo.Name,
+                    PrimaryBackgroundColor = tenantInfo.PrimaryHoverColor,
+                    SecondaryBackgroundColor = tenantInfo.SecondaryColor,
+                    HeaderBackgroundColor = tenantInfo.SecondaryHoverColor,
+                    TextColor = tenantInfo.PrimaryColor,
+                    LogoImageUrl = tenantInfo.LogoImageUrl,
+                    TourName = tour.Name,
+                    StartDate = tourDate.StartDate,
+                    GuestCount = todaysTours.Data.Count,
+                    PaidGuestCount = todaysTours.Data.Count(x => x.BookingIsPaid),
+                    UnPaidGuestCount = todaysTours.Data.Count(x => !x.BookingIsPaid)
+                });
+                
                 var mailRequest = new MailRequest(
                     to: [property.EmailAddress],
-                   
-                    subject: $"Today's Tour Manifests for {property.Name}",
-                    body: $"Please find attached Today's Tour Manifests for {property.Name}.",
+                    subject: $"Today's Tour Manifests for {tour.Name} - {tourDate.StartDate.TimeOfDay}",
+                    body: html,
                     bcc: (_mailSettings.BccAddress != null ? _mailSettings.BccAddress.ToList() : ["admin@travaloud.com"])!,
                     attachmentData: destinationManifests);
                         

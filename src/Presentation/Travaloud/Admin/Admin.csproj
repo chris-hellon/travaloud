@@ -23,8 +23,9 @@
         <PackageReference Include="Microsoft.Azure.SignalR" Version="1.24.0" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.0"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0"/>
-        <PackageReference Include="MudBlazor" Version="6.15.0" />
-        <PackageReference Include="MudBlazor.Extensions" Version="1.7.83" />
+        <PackageReference Include="MudBlazor" Version="6.19.1" />
+        <PackageReference Include="MudBlazor.Extensions" Version="1.7.87" />
+        <PackageReference Include="MudExRichTextEditor" Version="1.0.7" />
         <PackageReference Include="QRCoderNetCore" Version="1.0.0" />
         <PackageReference Include="TinyMCE.Blazor" Version="1.0.4" />
     </ItemGroup>

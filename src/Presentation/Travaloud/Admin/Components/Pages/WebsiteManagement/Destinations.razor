@@ -15,13 +15,13 @@
         </MudItem>
         <MudItem xs="12" md="12">
             <MudInputLabel Class="mb-3">@L["Short Description"]</MudInputLabel>
-            <Editor @bind-Value="context.ShortDescription" Field="@(() => context.ShortDescription)" Conf="@TinyMceConfig.Styles()" ApiKey="@TinyMceConfig.ApiKey"></Editor>
+            <MudExRichTextEdit @bind-Value="context.ShortDescription" For="@(() => context.ShortDescription)" BackgroundColor="MudExColor.Transparent" />
         </MudItem>
     </WizardStep1Content>
     <WizardStep2Content>
         <MudItem xs="12" md="12">
             <MudInputLabel Class="mb-3">@L["Description"]</MudInputLabel>
-            <Editor @bind-Value="context.Description" Field="@(() => context.Description)"  Conf="@TinyMceConfig.Styles()" ApiKey="@TinyMceConfig.ApiKey"></Editor>
+            <MudExRichTextEdit @bind-Value="context.Description" For="@(() => context.Description)" BackgroundColor="MudExColor.Transparent" />
         </MudItem>
     </WizardStep2Content>
     <WizardStep3Content>
@@ -30,7 +30,7 @@
         </MudItem>
         <MudItem xs="12" md="12">
             <MudInputLabel Class="mb-3">@L["Directions"]</MudInputLabel>
-            <Editor @bind-Value="context.Directions"  Field="@(() => context.Directions)"  Conf="@TinyMceConfig.Styles()" ApiKey="@TinyMceConfig.ApiKey"></Editor>
+            <MudExRichTextEdit @bind-Value="context.Directions" For="@(() => context.Directions)" BackgroundColor="MudExColor.Transparent" />
         </MudItem>
     </WizardStep3Content>
     <WizardStep4Content>

@@ -30,6 +30,11 @@ public class CloudbedsService : BaseService, ICloudbedsService
         return Mediator.Send(request);
     }
 
+    public Task<CreateReservationPaymentResponse> CreateReservationPayment(CreateReservationPaymentRequest request)
+    {
+        return Mediator.Send(request);
+    }
+    
     public Task<IEnumerable<GuestDto>> SearchGuests(SearchCloudbedsGuests request)
     {
         return Mediator.Send(request);

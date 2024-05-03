@@ -13,6 +13,8 @@ public interface ICloudbedsService : ITransientService
     Task<CreateReservationResponse> CreateReservation(CreateReservationRequest request);
 
     Task<CreateReservationAdditionalGuestResponse> CreateReservationAdditionalGuest(CreateReservationAdditionalGuestRequest request);
+
+    Task<CreateReservationPaymentResponse> CreateReservationPayment(CreateReservationPaymentRequest request);
     
     Task<GetGuestsResponse> GetGuests(GetGuestsRequest request);
 

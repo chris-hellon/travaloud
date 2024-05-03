@@ -13,4 +13,5 @@ public class BookingItemDto
     public string CloudbedsReservationId { get; set; } = default!;
     public int? CloudbedsPropertyId { get; set; }
     public int ConcurrencyVersion { get; set; } = default!;
+    public string? PickupLocation { get; set; }
 }

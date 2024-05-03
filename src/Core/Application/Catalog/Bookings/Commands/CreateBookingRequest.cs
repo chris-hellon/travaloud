@@ -113,7 +113,8 @@ public class CreateBookingRequestHandler : IRequestHandler<CreateBookingRequest,
                     itemRequest.TourId,
                     itemRequest.TourDateId,
                     itemRequest.CloudbedsReservationId,
-                    itemRequest.CloudbedsPropertyId);
+                    itemRequest.CloudbedsPropertyId,
+                    itemRequest.PickupLocation);
                 
                 if (!string.IsNullOrEmpty(request.CreatedBy))
                 {

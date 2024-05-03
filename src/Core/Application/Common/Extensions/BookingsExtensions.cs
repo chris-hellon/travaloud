@@ -73,7 +73,8 @@ public static class BookingsExtensions
                     updateItemRequest.TourId,
                     updateItemRequest.TourDateId,
                     updateItemRequest.CloudbedsReservationId,
-                    updateItemRequest.CloudbedsPropertyId);
+                    updateItemRequest.CloudbedsPropertyId,
+                    updateItemRequest.PickupLocation);
                     
                 newBookingItem.ProcessBookingItemGuests(updateItemRequest.Guests, userId);
 
@@ -133,7 +134,9 @@ public static class BookingsExtensions
                     updateItemRequest.TourId,
                     updateItemRequest.TourDateId,
                     updateItemRequest.CloudbedsReservationId,
-                    updateItemRequest.CloudbedsPropertyId);
+                    updateItemRequest.CloudbedsPropertyId,
+                    null,
+                    updateItemRequest.PickupLocation);
                 
                 var currentGuestCount = currentBookingItem.Guests != null && currentBookingItem.Guests.Any()
                     ? currentBookingItem.Guests.Count + 1

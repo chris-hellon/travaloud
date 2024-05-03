@@ -22,5 +22,7 @@ public class CreateBookingItemRequestValidator : CustomValidator<CreateBookingIt
             .NotEmpty();
 
         RuleFor(b => b.TourDateId).NotEmpty();
+        
+        RuleFor(b => b.PickupLocation).NotEmpty();
     }
 }

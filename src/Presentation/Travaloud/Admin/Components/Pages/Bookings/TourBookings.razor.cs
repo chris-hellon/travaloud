@@ -75,6 +75,9 @@ public partial class TourBookings
                 new EntityField<BookingDto>(booking => booking.IsPaid, L["Is Paid"], "IsPaid")
             ],
             enableAdvancedSearch: false,
+            canViewEntityFunc: booking => booking.IsPaid,
+            canDeleteEntityFunc: booking => !booking.IsPaid,
+            canUpdateEntityFunc: booking => !booking.IsPaid,
             idFunc: booking => booking.Id,
             searchFunc: async (filter) =>
             {
@@ -376,10 +379,10 @@ public partial class TourBookings
     
     public async Task RemoveItemRow(TourBookingViewModel tourBooking, Guid id)
     {
-        string deleteContent = L["You're sure you want to delete this {0}? Please note, this is final."];
+        string deleteContent = L["You're sure you want to delete this {0}? Please note, this is not final. To confirm deltion, save the booking."];
         var parameters = new DialogParameters
         {
-            {nameof(DeleteConfirmation.ContentText), string.Format(deleteContent, "Price", id)}
+            {nameof(DeleteConfirmation.ContentText), string.Format(deleteContent, "Item", id)}
         };
 
         var options = new DialogOptions {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, DisableBackdropClick = true};
@@ -430,6 +433,16 @@ public partial class TourBookings
     {
         return
             $"{e.FirstName} {e.LastName}{(e.DateOfBirth.HasValue ? $" - {e.DateOfBirth?.ToShortDateString()}" : "")}{(!string.IsNullOrEmpty(e.Gender) ? $" - {e.Gender.GenderMatch()}" : "")}{(!string.IsNullOrEmpty(e.Nationality) ? $" - {e.Nationality?.TwoLetterCodeToCountry()} - " : "")}{e.Email}";
+    }
+    
+    private static void ShowBookingItemRooms(BookingItemDetailsDto request, BookingDto bookingItem)
+    {
+        request.ShowDetails = !request.ShowDetails;
+        if (bookingItem.Items == null) return;
+        foreach (var otherTrail in bookingItem.Items.Where(x => x.Id != request.Id))
+        {
+            otherTrail.ShowDetails = false;
+        }
     }
 }
 

@@ -89,7 +89,7 @@ public partial class EntityTable<TEntity, TId, TRequest>
         _canView = await CanDoActionAsync(Context.ViewAction, state);
         _editNavigateTo = Context.EditNavigateTo != null;
         _createNavigateTo = Context.CreateNavigateTo != null;
-
+        
         await LocalLoadDataAsync();
     }
 
@@ -289,7 +289,8 @@ public partial class EntityTable<TEntity, TId, TRequest>
         await LoadingService.ToggleLoaderVisibility(true);
         
         var isCreate = entity is null;
-
+        var canSaveEntity = entity != null && CanUpdateEntity(entity) || (isCreate && (_canCreate || _canUpdate));
+        
         var parameters = new DialogParameters()
         {
             {nameof(AddEditModal<TRequest>.EditFormContent), EditFormContent},
@@ -307,7 +308,7 @@ public partial class EntityTable<TEntity, TId, TRequest>
             {nameof(AddEditModal<TRequest>.IsWizard), IsWizard},
             {nameof(AddEditModal<TRequest>.IsFullScreenModal), FullScreenModal},
             {nameof(AddEditModal<TRequest>.WizardSteps), WizardSteps},
-            {nameof(AddEditModal<TRequest>.CanSaveEntity), _canCreate || _canUpdate},
+            {nameof(AddEditModal<TRequest>.CanSaveEntity), canSaveEntity},
         };
 
         TRequest requestModel;

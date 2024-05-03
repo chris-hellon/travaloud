@@ -40,7 +40,7 @@
                 </MudItem>
                 <MudItem xs="12" md="12">
                     <MudInputLabel Class="mb-3">@L["Description"]</MudInputLabel>
-                    <Editor @bind-Value="RequestModel.Description" Field="@(() => RequestModel.Description)" Conf="@TinyMceConfig.Styles()" ApiKey="@TinyMceConfig.ApiKey"></Editor>
+                    <MudExRichTextEdit @bind-Value="RequestModel.Description" For="@(() => RequestModel.Description)" BackgroundColor="MudExColor.Transparent" />
                 </MudItem>
             </MudGrid>
         </DialogContent>

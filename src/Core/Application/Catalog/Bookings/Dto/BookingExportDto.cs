@@ -16,6 +16,9 @@ public class BookingExportDto
     [ExportColumn("Tour")]
     public string? TourName { get; set; }
     
+    [ExportColumn("Pickup Location")]
+    public string? PickupLocation { get; set; }
+    
     [ExportColumn("Tour Start Date")]
     public DateTime StartDate { get; set; }
 
@@ -23,9 +26,12 @@ public class BookingExportDto
     public DateTime EndDate { get; set; }
 
     [ExportColumn("Amount")]
+    public string AmountFormatted => $"${string.Format("{0:n2}", Amount)}";
+    
+    [ExportColumn(true)]
     public decimal Amount { get; set; }
     
-    [ExportColumn("Currency")]
+    [ExportColumn(true)]
     public string BookingCurrencyCode { get; set; }
     
     [ExportColumn("Is Paid")]

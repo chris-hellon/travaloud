@@ -81,11 +81,11 @@
                     <MudTabs Elevation="0" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6" Outlined="true">
                         <MudTabPanel Text="@L["Short Description"]">
                             <MudInputLabel Class="mb-3">@L["Short Description"]</MudInputLabel>
-                            <Editor @bind-Value="RequestModel.ShortDescription" Field="@(() => RequestModel.ShortDescription)" Conf="@TinyMceConfig.Styles()" ApiKey="@TinyMceConfig.ApiKey"></Editor>
+                            <MudExRichTextEdit @bind-Value="RequestModel.ShortDescription" For="@(() => RequestModel.ShortDescription)" BackgroundColor="MudExColor.Transparent" />
                         </MudTabPanel>
                         <MudTabPanel Text="@L["Full Description"]">
                             <MudInputLabel Class="mb-3">@L["Full Description"]</MudInputLabel>
-                            <Editor @bind-Value="RequestModel.Description" Field="@(() => RequestModel.Description)" Conf="@TinyMceConfig.Styles()" ApiKey="@TinyMceConfig.ApiKey"></Editor>
+                            <MudExRichTextEdit @bind-Value="RequestModel.Description" For="@(() =>RequestModel.Description)" BackgroundColor="MudExColor.Transparent" />
                         </MudTabPanel>
                     </MudTabs>
                 </MudItem>

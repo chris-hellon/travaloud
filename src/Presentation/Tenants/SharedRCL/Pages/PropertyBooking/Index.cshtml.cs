@@ -95,41 +95,86 @@ public class IndexModel : TravaloudBasePageModel
         if (!string.IsNullOrEmpty(Property.CloudbedsPropertyId))
             CloudbedsPropertyId = int.Parse(Property.CloudbedsPropertyId);
         
-        if (!string.IsNullOrEmpty(Property.CloudbedsApiKey) && !string.IsNullOrEmpty(Property.CloudbedsPropertyId))
+        IframeUrl = $"https://hotels.cloudbeds.com/reservation/{Property.CloudbedsKey}";
+
+        if (ApplicationUser != null)
+        {
+            IframeUrl += "?";
+
+            if (!string.IsNullOrEmpty(ApplicationUser.FirstName))
+                IframeUrl += $"firstName={ApplicationUser.FirstName}";
+
+            if (!string.IsNullOrEmpty(ApplicationUser.LastName))
+                IframeUrl += $"&lastName={ApplicationUser.LastName}";
+
+            if (!string.IsNullOrEmpty(ApplicationUser.Email))
+                IframeUrl += $"&email={ApplicationUser.Email}";
+
+            if (!string.IsNullOrEmpty(ApplicationUser.Nationality))
+                IframeUrl += $"&country={ApplicationUser.Nationality}";
+
+            if (!string.IsNullOrEmpty(ApplicationUser.PhoneNumber))
+                IframeUrl += $"&phone={ApplicationUser.PhoneNumber}";
+        }
+
+        if (string.IsNullOrEmpty(checkInDate) && string.IsNullOrEmpty(checkOutDate)) return Page();
+        
+        IframeUrl += "#";
+
+        if (!string.IsNullOrEmpty(checkInDate))
+        {
+            CheckInDate = DateTime.Parse(checkInDate);
+            IframeUrl += $"&checkin={checkInDate}";
+        }
+        
+        if (!string.IsNullOrEmpty(checkOutDate))
+        {
+            CheckOutDate = DateTime.Parse(checkOutDate);
+            IframeUrl += $"&checkout={checkOutDate}";   
+        }
+ 
+        BookNowBanner = new BookNowComponent(Properties, PropertyId)
+        {
+            CheckInDate = CheckInDate,
+            CheckOutDate = CheckOutDate,
+            DateRange = $"{CheckInDate.ToShortDateString()} - {CheckOutDate.ToShortDateString()}"
+        };
+        
+        if (!string.IsNullOrEmpty(Property.CloudbedsApiKey) && !string.IsNullOrEmpty(Property.CloudbedsPropertyId) && !string.IsNullOrEmpty(checkInDate) && !string.IsNullOrEmpty(checkOutDate))
         {
             await GetCloudbedsProperties(checkInDate, checkOutDate);
         }
         else
         {
             IframeUrl = $"https://hotels.cloudbeds.com/reservation/{Property.CloudbedsKey}";
-
+        
             if (ApplicationUser != null)
             {
                 IframeUrl += "?";
-
+        
                 if (!string.IsNullOrEmpty(ApplicationUser.FirstName))
                     IframeUrl += $"firstName={ApplicationUser.FirstName}";
-
+        
                 if (!string.IsNullOrEmpty(ApplicationUser.LastName))
                     IframeUrl += $"&lastName={ApplicationUser.LastName}";
-
+        
                 if (!string.IsNullOrEmpty(ApplicationUser.Email))
                     IframeUrl += $"&email={ApplicationUser.Email}";
-
+        
                 if (!string.IsNullOrEmpty(ApplicationUser.Nationality))
                     IframeUrl += $"&country={ApplicationUser.Nationality}";
-
+        
                 if (!string.IsNullOrEmpty(ApplicationUser.PhoneNumber))
                     IframeUrl += $"&phone={ApplicationUser.PhoneNumber}";
             }
-
+        
             if (string.IsNullOrEmpty(checkInDate) && string.IsNullOrEmpty(checkOutDate)) return Page();
         
             IframeUrl += "#";
-
+        
             if (!string.IsNullOrEmpty(checkInDate))
                 IframeUrl += $"&checkin={checkInDate}";
-
+        
             if (!string.IsNullOrEmpty(checkOutDate))
                 IframeUrl += $"&checkout={checkOutDate}";   
         }
@@ -147,17 +192,7 @@ public class IndexModel : TravaloudBasePageModel
             StartDate = checkInDate,
             EndDate = checkOutDate
         });
-
-        CheckInDate = DateTime.Parse(checkInDate);
-        CheckOutDate = DateTime.Parse(checkOutDate);
-            
-        BookNowBanner = new BookNowComponent(Properties, PropertyId)
-        {
-            CheckInDate = CheckInDate,
-            CheckOutDate = CheckOutDate,
-            DateRange = $"{CheckInDate.ToShortDateString()} - {CheckOutDate.ToShortDateString()}"
-        };
-
+        
         var basket = await BasketService.GetBasket();
 
         if (CloudbedsPropertyResponse.Success && CloudbedsPropertyResponse.Data != null && CloudbedsPropertyResponse.Data.Any())

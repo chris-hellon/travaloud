@@ -203,7 +203,12 @@
         </MudTable>
 
     </ChildContent>
-    <ErrorContent>
-        <TravaloudCustomError/>
+    <ErrorContent Context="Exception">
+        <TravaloudCustomError ExceptionMessage="@Exception.Message"/>
+        
+        <div>
+            @Exception.Message
+            @Exception.StackTrace
+        </div>
     </ErrorContent>
 </ErrorBoundary>

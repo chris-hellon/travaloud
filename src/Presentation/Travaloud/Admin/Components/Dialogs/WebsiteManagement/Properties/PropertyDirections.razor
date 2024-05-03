@@ -38,7 +38,7 @@
                             <ItemTemplate>
                                 <MudCard Outlined="false" Elevation="0" Style="@($"{(RequestModel.Content.Count() > 1 ? "margin-left: 50px; margin-right: 50px;" : "")}")">
                                     <MudItem xs="12" md="12">
-                                        <Editor @bind-Value="_contentsContext.Body" Field="@(() => _contentsContext.Body)" Conf="@TinyMceConfig.Styles()" ApiKey="@TinyMceConfig.ApiKey"></Editor>
+                                        <MudExRichTextEdit @bind-Value="_contentsContext.Body" For="@(() => _contentsContext.Body)" BackgroundColor="MudExColor.Transparent" />
                                     </MudItem>
                                 </MudCard>
                             </ItemTemplate>

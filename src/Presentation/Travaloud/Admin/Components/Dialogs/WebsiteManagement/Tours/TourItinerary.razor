@@ -39,7 +39,7 @@
                     <MudTextField Class="mb-2" Label="@L["Title"]" For="@(() => RequestModel.Title)" @bind-Value="RequestModel.Title" Placeholder="Enter a Title" Variant="Variant.Outlined"/>
                     <MudItem xs="12" md="12">
                         <MudInputLabel Class="mb-2">@L["Description"]</MudInputLabel>
-                        <Editor @bind-Value="RequestModel.Description" Field="@(() => RequestModel.Description)" Conf="@TinyMceConfig.Styles()" ApiKey="@TinyMceConfig.ApiKey"></Editor>
+                        <MudExRichTextEdit @bind-Value="RequestModel.Description" For="@(() => RequestModel.Description)" BackgroundColor="MudExColor.Transparent" />
                     </MudItem>
                 </MudItem>
                 <MudItem xs="12" md="8">
@@ -66,7 +66,7 @@
                                         </MudItem>
                                         <MudItem xs="12" md="12">
                                             <MudInputLabel Class="mb-2">@L["Description"]</MudInputLabel>
-                                            <Editor @bind-Value="_itinerarySectionContext.Description" Field="@(() => _itinerarySectionContext.Description)" Conf="@TinyMceConfig.Styles()" ApiKey="@TinyMceConfig.ApiKey"></Editor>
+                                            <MudExRichTextEdit @bind-Value="_itinerarySectionContext.Description" For="@(() => _itinerarySectionContext.Description)" BackgroundColor="MudExColor.Transparent" />
                                         </MudItem>
                                     </MudGrid>
                                 </MudCardContent>

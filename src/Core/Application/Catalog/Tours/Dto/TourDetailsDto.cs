@@ -40,4 +40,5 @@ public class TourDetailsDto
     public IList<TourCategoryDto>? ParentTourCategories { get; set; }
     public IList<TourImageDto>? Images { get; set; }
     public IList<TourDestinationLookupDto>? TourDestinationLookups { get; set; }
+    public IList<TourPickupLocationDto>? TourPickupLocations { get; set; }
 }

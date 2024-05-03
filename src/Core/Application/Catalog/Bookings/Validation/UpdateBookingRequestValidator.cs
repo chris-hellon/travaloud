@@ -25,5 +25,6 @@ public class UpdateBookingRequestValidator : CustomValidator<UpdateBookingReques
         RuleFor(b => b.Items)
             .NotEmpty()
             .ForEach(itemRule => itemRule.SetValidator(new UpdateBookingItemRequestValidator()));
+
     }
 }

@@ -56,6 +56,9 @@ public class CreateTourRequest : IRequest<DefaultIdType>
 
     [Display(Name = "Itineraries")] public IList<TourItineraryRequest>? TourItineraries { get; set; }
 
+    [Display(Name = "Pick Up Locations")]
+    public IEnumerable<TourPickupLocationRequest>? TourPickupLocations { get; set; }
+    
     public IList<TourCategoryLookupRequest>? TourCategoryLookups { get; set; }
     public IList<TourCategoryRequest>? TourCategories { get; set; }
     public IList<TourCategoryRequest>? ParentTourCategories { get; set; }
@@ -130,6 +133,7 @@ public class CreateTourRequestHandler : IRequestHandler<CreateTourRequest, Defau
         tour.ProcessTourCategories(request.TourCategoryId, request.SelectedParentTourCategories,
             request.TourCategoryLookups, userId);
         tour.ProcessTourDestinations(request.TourDestinationLookups, userId);
+        tour.ProcessTourPickupLocations(request.TourPickupLocations, userId);
 
         await tour.ProcessTourItineraries(request.TourItineraries, userId, _file, cancellationToken);
         await tour.ProcessImages(request.Images, userId, _file, cancellationToken);

@@ -16,6 +16,7 @@ public class BookingItem : AuditableEntity, IAggregateRoot
     public string? CloudbedsReservationId { get; set; }
     public int? CloudbedsPropertyId { get; set; }
     public int ConcurrencyVersion { get; set; }
+    public string? PickupLocation { get; set; }
 
     public virtual IList<BookingItemRoom>? Rooms { get; set; }
     public virtual Tour? Tour { get; set; }
@@ -33,7 +34,8 @@ public class BookingItem : AuditableEntity, IAggregateRoot
         DefaultIdType? tourId,
         DefaultIdType? tourDateId,
         string? cloudbedsReservationId,
-        int? cloudbedsPropertyId)
+        int? cloudbedsPropertyId,
+        string? pickupLocation)
     {
         StartDate = startDate;
         EndDate = endDate;
@@ -44,6 +46,7 @@ public class BookingItem : AuditableEntity, IAggregateRoot
         TourDateId = tourDateId;
         CloudbedsReservationId = cloudbedsReservationId;
         CloudbedsPropertyId = cloudbedsPropertyId;
+        PickupLocation = pickupLocation;
     }
 
     public BookingItem Update(
@@ -56,7 +59,8 @@ public class BookingItem : AuditableEntity, IAggregateRoot
         DefaultIdType? tourDateId = null,
         string? cloudbedsReservationId = null,
         int? cloudbedsPropertyId = null,
-        IList<BookingItemRoom>? rooms = null)
+        IList<BookingItemRoom>? rooms = null,
+        string? pickupLocation = null)
     {
         if (startDate is not null && StartDate != startDate)
             StartDate = startDate.Value;
@@ -88,6 +92,8 @@ public class BookingItem : AuditableEntity, IAggregateRoot
         if (rooms is not null && Rooms != rooms)
             Rooms = rooms;
 
+        PickupLocation = pickupLocation;
+        
         return this;
     }
 

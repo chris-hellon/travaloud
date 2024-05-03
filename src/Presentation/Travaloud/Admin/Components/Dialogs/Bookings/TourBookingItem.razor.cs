@@ -33,6 +33,8 @@ public partial class TourBookingItem : ComponentBase
     [Parameter] public ICollection<TourDto> Tours { get; set; } = default!;
 
     public ICollection<TourDateDto> TourDates { get; set; } = default!;
+    
+    public IEnumerable<TourPickupLocationDto> TourPickupLocations { get; set; } = default!;
 
     public EditForm EditForm { get; set; } = default!;
 
@@ -71,10 +73,16 @@ public partial class TourBookingItem : ComponentBase
                     guest.EmailAddress = matchedGuest.Email;
                 }
             }
+            
+            var tourDatesRequest = Task.Run(() => ToursService.GetTourDatesAsync(RequestModel.TourId.Value, 1));
+            var tourPickupLocationsRequest = Task.Run(() => ToursService.GetTourPickupLocations(RequestModel.TourId.Value));
 
-            var tourDates = await ToursService.GetTourDatesAsync(RequestModel.TourId.Value, 1);
+            await Task.WhenAll(tourDatesRequest, tourPickupLocationsRequest);
 
+            var tourDates = tourDatesRequest.Result;
+            
             TourDates = tourDates.Data;
+            TourPickupLocations = tourPickupLocationsRequest.Result;
         }
 
         await base.OnInitializedAsync();
@@ -162,10 +170,19 @@ public partial class TourBookingItem : ComponentBase
     {
         if (tourId.HasValue)
         {
-            var tourDates = await ToursService.GetTourDatesAsync(tourId.Value, 1);
+            var tourDatesRequest = Task.Run(() => ToursService.GetTourDatesAsync(tourId.Value, 1));
+            var tourPickupLocationsRequest = Task.Run(() => ToursService.GetTourPickupLocations(tourId.Value));
 
+            await Task.WhenAll(tourDatesRequest, tourPickupLocationsRequest);
+
+            var tourDates = tourDatesRequest.Result;
+
+            TourPickupLocations = tourPickupLocationsRequest.Result;
             TourDates = tourDates.Data.Where(x => x.StartDate > DateTime.Now).ToList();
 
+            RequestModel.TourDateId = null;
+            RequestModel.PickupLocation = null;
+            
             if (tourDates.Data.Count == 0)
             {
                 RequestModel.TourDateId = null;

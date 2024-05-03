@@ -106,10 +106,10 @@ public static class ToursExtensions
                                         availableSpaces - previousAvailableDateSpacesDifference;
                                 }
                             }
-                            else
-                            {
-                                tourDateRequest.AvailableSpaces = availableSpaces;
-                            }
+                            // else
+                            // {
+                            //     tourDateRequest.AvailableSpaces = availableSpaces;
+                            // }
 
                             date = date.Update(tourDateRequest.StartDate, tourDateRequest.EndDate,
                                 tourDateRequest.AvailableSpaces, tourDateRequest.PriceOverride, tour.Id,
@@ -396,5 +396,43 @@ public static class ToursExtensions
         }
         else
             property.Images = Array.Empty<TourImage>();
+    }
+    
+    public static void ProcessTourPickupLocations(this Tour tour, IEnumerable<TourPickupLocationRequest>? request, DefaultIdType userId)
+    {
+        var tourPickupLocations = new List<TourPickupLocation>();
+
+        if (request != null)
+        {
+            var tourPickupLocationsRequests = request as TourPickupLocationRequest[] ?? request.ToArray();
+
+            foreach (var tourPickupLocationsRequest in tourPickupLocationsRequests)
+            {
+                if (tour.TourPickupLocations != null)
+                {
+                    var existingLocation =
+                        tour.TourPickupLocations.FirstOrDefault(x => x.TourId == tourPickupLocationsRequest.TourId && x.PropertyId == tourPickupLocationsRequest.PropertyId);
+
+                    tourPickupLocations.Add(existingLocation ?? new TourPickupLocation(tourPickupLocationsRequest.TourId, tourPickupLocationsRequest.PropertyId));
+                }
+                else tourPickupLocations.Add(new TourPickupLocation(tourPickupLocationsRequest.TourId, tourPickupLocationsRequest.PropertyId));
+            }
+        }
+
+        var pickUpLocationsToRemove = tour.TourPickupLocations?
+            .Where(existingLocation => tourPickupLocations.All(newLocation => newLocation.Id != existingLocation.Id))
+            .ToList();
+
+        if (pickUpLocationsToRemove != null && pickUpLocationsToRemove.Count != 0)
+        {
+            foreach (var existingLocation in pickUpLocationsToRemove)
+            {
+                existingLocation.DomainEvents.Add(EntityDeletedEvent.WithEntity(existingLocation));
+                existingLocation.FlagAsDeleted(userId);
+                tourPickupLocations.Add(existingLocation);
+            }
+        }
+
+        tour.TourPickupLocations = tourPickupLocations;
     }
 }

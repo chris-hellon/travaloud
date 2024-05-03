@@ -28,7 +28,8 @@ public class BookingItemDetailsDto
     public int? CloudbedsPropertyId { get; set; }
     public bool ShowDetails { get; set; } = default!;
     public int ConcurrencyVersion { get; set; } = default!;
-
+    public string? PickupLocation { get; set; }
+    
     public TourDto? Tour { get; set; }
     public TourDateDto? TourDate { get; set; }
     public PropertyDto? Property { get; set; }
