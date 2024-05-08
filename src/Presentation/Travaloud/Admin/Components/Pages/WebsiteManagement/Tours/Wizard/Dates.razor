@@ -12,7 +12,7 @@
 <StickyToolbar>
     <ToolbarContent>
         <MudButton DisableElevation Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small" OnClick="@(() => InvokeDatesDialog(new TourDateRequest(), Tour, true))" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Surface" Class="me-1">@L["Add New Date Range"]</MudButton>
-        <MudButton DisableElevation Variant="Variant.Filled" Color="Color.Secondary" Size="Size.Small" OnClick="@(() => InvokeDateDialog(new TourDateRequest(), Tour, true))" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Surface" Class="me-2">@L["Add New Date"]</MudButton>
+        <MudButton DisableElevation Variant="Variant.Filled" Color="Color.Info" Size="Size.Small" OnClick="@(() => InvokeDateDialog(new TourDateRequest(), Tour, true))" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Surface" Class="me-1">@L["Add New Date"]</MudButton>
         @if (ShowCalendar)
         {
             <MudButton DisableElevation Variant="Variant.Filled" Color="Color.Tertiary" Size="Size.Small" OnClick="@(() => ToggleCalendar(false))" StartIcon="@Icons.Material.Filled.TableView" IconColor="Color.Surface">@L["Table View"]</MudButton>
@@ -28,11 +28,11 @@
 
 @if (ShowCalendar)
 {
-    <MudCalendar Style="padding-top:50px;" Items="CalendarTourDates" MonthCellMinHeight="60">
+    <MudCalendar Style="padding-top:50px;" Items="CalendarTourDates" MonthCellMinHeight="60" Color="Color.Dark">
         <CellTemplate>
             <MudTooltip Inline="false" RootStyle="width:100%; height:100%;">
                 <ChildContent>
-                    <MudChip Color="Color.Primary" Label="true" Class="mud-cal-cell-template-chip" Style="margin-bottom:1px;">@context.Text.Split('|')[0]</MudChip>
+                    <MudChip Color="Color.Dark" Label="true" Class="mud-cal-cell-template-chip" Style="margin-bottom:1px;">@context.Text.Split('|')[0]</MudChip>
                 </ChildContent>
                 <TooltipContent>
                     <MudText Typo="Typo.h6">@string.Format("{0:f}", context.Start) - @string.Format("{0:f}", context.End)</MudText>
@@ -91,7 +91,7 @@ else
 
                     <MudTd DataLabel="Start Date">@startDate @startTime</MudTd>
                     <MudTd DataLabel="End Date">@endDate @endTime</MudTd>
-                    <MudTd DataLabel="Price">@(dateContext.PriceOverride.HasValue ? dateContext.PriceOverride.Value : Tour.TourPrices?.FirstOrDefault(x => x.Id == dateContext.TourPriceId) != null ? Tour.TourPrices.First(x => x.Id == dateContext.TourPriceId).Price : "-")</MudTd>
+                    <MudTd DataLabel="Price">@(dateContext.PriceOverride.HasValue ? dateContext.PriceOverride.Value : Tour.TourPrices?.FirstOrDefault(x => x.Id == dateContext.TourPriceId) != null ? $"${string.Format("{0:n2}", Tour.TourPrices.First(x => x.Id == dateContext.TourPriceId).Price)}" : "-")</MudTd>
                     <MudTd DataLabel="Available Spaces">@dateContext.AvailableSpaces</MudTd>
                     <MudTd DataLabel="Edit" Style="min-width: 0; width: 270px; text-align: right;">
                         <MudButton Variant="Variant.Filled" Size="Size.Small" StartIcon="@Icons.Material.Filled.Edit" Color="Color.Tertiary" OnClick="@(() => InvokeDateDialog(dateContext, Tour))">Edit</MudButton>

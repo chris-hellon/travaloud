@@ -13,74 +13,104 @@ public class GetStatsRequest : IRequest<StatsDto>
 
 public class GetStatsRequestHandler : IRequestHandler<GetStatsRequest, StatsDto>
 {
-    private readonly IUserService _userService;
     private readonly IRepositoryFactory<Property> _propertiesRepo;
     private readonly IRepositoryFactory<Booking> _bookingsRepo;
-    private readonly IRepositoryFactory<BookingItem> _bookingItemsRepo;
     private readonly IRepositoryFactory<Tour> _toursRepo;
-    private readonly IStringLocalizer<GetStatsRequestHandler> _localizer;
-    public GetStatsRequestHandler(IUserService userService, IRepositoryFactory<Property> propertiesRepo,
-        IRepositoryFactory<Booking> bookingsRepo, IRepositoryFactory<Tour> toursRepo,
-        IStringLocalizer<GetStatsRequestHandler> localizer, IRepositoryFactory<BookingItem> bookingItemsRepo)
+
+    public GetStatsRequestHandler(
+        IRepositoryFactory<Property> propertiesRepo,
+        IRepositoryFactory<Booking> bookingsRepo, 
+        IRepositoryFactory<Tour> toursRepo)
     {
-        _userService = userService;
         _propertiesRepo = propertiesRepo;
         _bookingsRepo = bookingsRepo;
         _toursRepo = toursRepo;
-        _localizer = localizer;
-        _bookingItemsRepo = bookingItemsRepo;
     }
 
     public async Task<StatsDto> Handle(GetStatsRequest request, CancellationToken cancellationToken)
     {
-        var tourBookings = await _bookingsRepo.ListAsync(new TourBookingsCountSpec(), cancellationToken);
-        var tourItemBookings = tourBookings.GroupBy(x => new
-        {
-            Booking = x,
-            PaidItems = x.Items.Where(i => i.TourId.HasValue && x.IsPaid),
-            AllItems = x.Items.Where(i => i.TourId.HasValue)
-        })
-        .Select(group => new
-        {
-            GroupKey = group.Key,
-            PaidItemCount = group.Key.PaidItems.Count(),
-            AllItemsCount = group.Key.AllItems.Count(),
-            Revenue = group.Key.PaidItems.Sum(x => x.TotalAmount)
-        });
+        var tourBookingsRequest = Task.Run(() => _bookingsRepo.ListAsync(new TourBookingsCountSpec(), cancellationToken), cancellationToken);
+        var toursRequest = Task.Run(() => _toursRepo.ListAsync(cancellationToken), cancellationToken);
+        var propertiesCountRequest = Task.Run(() => _propertiesRepo.CountAsync(cancellationToken), cancellationToken);
+        var bookingsCountRequest = Task.Run(() => _bookingsRepo.CountAsync(cancellationToken), cancellationToken);
+        var propertyBookingsCountRequest = Task.Run(() => _bookingsRepo.CountAsync(new PropertyBookingsCountSpec(), cancellationToken), cancellationToken);
 
+        await Task.WhenAll(
+            tourBookingsRequest, 
+            toursRequest, 
+            propertiesCountRequest, 
+            bookingsCountRequest,
+            propertyBookingsCountRequest);
+        
+        var tourBookings = tourBookingsRequest.Result;
+        var tourItemBookings = tourBookings.GroupBy(x => new
+            {
+                Booking = x,
+                PaidItems = x.Items.Where(i => i.TourId.HasValue && x.IsPaid),
+                AllItems = x.Items.Where(i => i.TourId.HasValue)
+            })
+            .Select(group => new
+            {
+                GroupKey = group.Key,
+                PaidItemCount = group.Key.PaidItems.Count(),
+                AllItemsCount = group.Key.AllItems.Count(),
+                Revenue = group.Key.PaidItems.Sum(x => x.TotalAmount),
+                PaidItems = group.Key.PaidItems,
+                AllItems = group.Key.AllItems
+            });
+
+        var tours = toursRequest.Result;
+        
         var stats = new StatsDto()
         {
-            PropertiesCount = await _propertiesRepo.CountAsync(cancellationToken),
-            BookingsCount = await _bookingsRepo.CountAsync(cancellationToken),
+            PropertiesCount = propertiesCountRequest.Result,
+            BookingsCount = bookingsCountRequest.Result,
             TourBookingsCount = tourItemBookings.Sum(x => x.AllItemsCount),
             TourBookingsRevenue = tourItemBookings.Sum(x => x.Revenue),
-            PropertyBookingsCount = await _bookingsRepo.CountAsync(new PropertyBookingsCountSpec(), cancellationToken),
+            PropertyBookingsCount = bookingsCountRequest.Result,
             GuestsCount = request.Guests.Count,
-            ToursCount = await _toursRepo.CountAsync(cancellationToken),
+            ToursCount = tours.Count,
+            PaidTourBookings = tourItemBookings.SelectMany(x => x.PaidItems),
+            AllTourBookings = tourItemBookings.SelectMany(x => x.AllItems)
         };
 
-        var selectedYear = DateTime.Now.Year;
-        var propertiesFigure = new double[13];
-        var bookingsFigure = new double[13];
-        var toursFigure = new double[13];
-        for (var i = 1; i <= 12; i++)
+        foreach (var tour in tours)
         {
-            var month = i;
-            var filterStartDate = new DateTime(selectedYear, month, 01);
-            var filterEndDate =
-                new DateTime(selectedYear, month, DateTime.DaysInMonth(selectedYear, month), 23, 59,
-                    59); // Monthly Based
+            var summary = new TourBookingsBarChartSummary()
+            {
+                TourName = tour.Name,
+                MonthlyAmounts = new List<TourBookingsBarChartSummary.MonthAmount>()
+            };
+            
+            var selectedYear = DateTime.Now.Year;
+            for (var i = 1; i <= 12; i++)
+            {
+                var month = i;
+                var filterStartDate = new DateTime(selectedYear, month, 01);
+                var filterEndDate = new DateTime(selectedYear, month, DateTime.DaysInMonth(selectedYear, month), 23, 59, 59); // Monthly Based
 
-            var propertiesSpec = new AuditableEntitiesByCreatedOnBetweenSpec<Property>(filterStartDate, filterEndDate);
-            var bookingsSpec = new AuditableEntitiesByCreatedOnBetweenSpec<Booking>(filterStartDate, filterEndDate);
-            var toursSpec = new AuditableEntitiesByCreatedOnBetweenSpec<Tour>(filterStartDate, filterEndDate);
-
-            propertiesFigure[i - 1] = await _propertiesRepo.CountAsync(propertiesSpec, cancellationToken);
-            bookingsFigure[i - 1] = await _bookingsRepo.CountAsync(bookingsSpec, cancellationToken);
-            toursFigure[i - 1] = await _toursRepo.CountAsync(toursSpec, cancellationToken);
+                var bookedTours = stats.AllTourBookings.Where(x => x.TourId == tour.Id &&  x.CreatedOn.Date >= filterStartDate.Date && x.CreatedOn <= filterEndDate.Date);
+                
+                if (bookedTours.Any())
+                    summary.MonthlyAmounts.Add(new TourBookingsBarChartSummary.MonthAmount()
+                    {
+                        Amount = bookedTours.Sum(x => x.TotalAmount),
+                        Count = bookedTours.Count(),
+                        MonthYear = filterStartDate
+                    });
+                else
+                {
+                    summary.MonthlyAmounts.Add(new TourBookingsBarChartSummary.MonthAmount()
+                    {
+                        Amount = 0,
+                        Count = 0,
+                        MonthYear = filterStartDate
+                    });
+                }
+            }
+            
+            stats.TourBookingsBarChartSummaries.Add(summary);
         }
-
-        stats.DataEnterBarChart.Add(new ChartSeries {Name = _localizer["Bookings"], Data = bookingsFigure});
 
         return stats;
     }

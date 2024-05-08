@@ -54,7 +54,7 @@
                     {
                         if (LoadCreatePage())
                         {
-                            <MudButton DisableElevation Variant="Variant.Filled" Color="Color.Primary"
+                            <MudButton DisableElevation Variant="Variant.Filled" Color="Color.Secondary"
                                        OnClick="(() => InvokeCreatePage())" StartIcon="@Icons.Material.Filled.Add"
                                        IconColor="Color.Surface">
                                 @L["Create"]
@@ -62,7 +62,7 @@
                         }
                         else
                         {
-                            <MudButton DisableElevation Variant="Variant.Filled" Color="Color.Primary"
+                            <MudButton DisableElevation Variant="Variant.Filled" Color="Color.Secondary"
                                        OnClick="(() => InvokeModal())" StartIcon="@Icons.Material.Filled.Add"
                                        IconColor="Color.Surface">
                                 @L["Create"]
@@ -71,14 +71,14 @@
                     }
                     @if (_canExport)
                     {
-                        <MudButton DisableElevation Variant="Variant.Filled" Color="Color.Secondary"
+                        <MudButton DisableElevation Variant="Variant.Filled" Color="Color.Tertiary"
                                    OnClick="(() => ExportAsync())" StartIcon="@Icons.Material.Filled.ImportExport"
                                    Style="margin-left: 5px;" IconColor="Color.Surface">
                             @L["Export"]
                         </MudButton>
                     }
                     <MudButton DisableElevation Variant="Variant.Filled" OnClick="ReloadDataAsync"
-                               StartIcon="@Icons.Material.Filled.Refresh" IconColor="Color.Surface" Color="Color.Tertiary"
+                               StartIcon="@Icons.Material.Filled.Refresh" IconColor="Color.Surface" Color="Color.Info"
                                Style="margin-left: 5px;">
                         @L["Reload"]
                     </MudButton>
@@ -129,11 +129,35 @@
                         }
                         else
                         {
-                            <MudHighlighter Text="@field.ValueFunc(context)?.ToString()" HighlightedText="@SearchString"/>
+                            if (field.Color is not null)
+                            {
+                                var color = field.Color(context);
+
+                                if (color != null)
+                                {
+                                    var colorValue = color.Value;
+                                    var style = $"color:{colorValue};";
+                                    
+                                    <MudText Style="@style">
+                                         <MudHighlighter Text="@field.ValueFunc(context)?.ToString()" Style="@style" HighlightedText="@SearchString"/>
+                                    </MudText>
+                                }
+                                else
+                                {
+                                    <MudHighlighter Text="@field.ValueFunc(context)?.ToString()" HighlightedText="@SearchString"/>
+                                }
+                            }
+                            else {
+                                <MudHighlighter Text="@field.ValueFunc(context)?.ToString()" HighlightedText="@SearchString"/>
+                            }
                         }
                     </MudTd>
                 }
-                <MudTd DataLabel="Actions" Style="text-align: right">
+                
+                @{
+                    var tdWith = ExtraActions != null ? "text-align: right; width: 310px;" : "text-align: right; ";
+                }
+                <MudTd DataLabel="Actions" Style="@tdWith">
                     @if (ActionsContent is not null && !HasActions)
                     {
                         @ActionsContent(context)
@@ -154,7 +178,7 @@
                         if (canEditEntity || canDeleteEntity || canViewEntity || hasExtraActions)
                         {
                             <MudMenu Label="@L["Actions"]" Variant="Variant.Filled" DisableElevation="true"
-                                     EndIcon="@Icons.Material.Filled.KeyboardArrowDown" IconColor="Color.Secondary" Direction="Direction.Left"
+                                     EndIcon="@Icons.Material.Filled.KeyboardArrowDown" IconColor="Color.Info" Direction="Direction.Left"
                                      OffsetX="true">
                                 @if (canEditEntity)
                                 {
@@ -185,7 +209,7 @@
                     else if (HasExtraActions)
                     {
                         <MudMenu Label="@L["Actions"]" Variant="Variant.Filled" DisableElevation="true"
-                                 EndIcon="@Icons.Material.Filled.KeyboardArrowDown" IconColor="Color.Secondary" Direction="Direction.Left"
+                                 EndIcon="@Icons.Material.Filled.KeyboardArrowDown" IconColor="Color.Info" Direction="Direction.Left"
                                  OffsetX="true">
                             @if (ExtraActions is not null)
                             {
@@ -205,10 +229,5 @@
     </ChildContent>
     <ErrorContent Context="Exception">
         <TravaloudCustomError ExceptionMessage="@Exception.Message"/>
-        
-        <div>
-            @Exception.Message
-            @Exception.StackTrace
-        </div>
     </ErrorContent>
 </ErrorBoundary>

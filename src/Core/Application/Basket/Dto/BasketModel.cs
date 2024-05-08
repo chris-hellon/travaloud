@@ -18,6 +18,7 @@ public class BasketModel
 	public string? ConfirmPassword { get; set; }
 	public TimeSpan? EstimatedArrivalTime { get; set; }
 	public string? CreateId { get; set; }
+	public string? AdditionalNotes { get; set; }
 
 	public void SetPromoCode(string promoCode)
 	{

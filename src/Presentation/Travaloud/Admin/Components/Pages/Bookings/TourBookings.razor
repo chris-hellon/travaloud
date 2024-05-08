@@ -1,17 +1,17 @@
 @page "/bookings/tour-bookings"
 @using Travaloud.Application.Catalog.Bookings.Dto
-@using Travaloud.Application.Catalog.Bookings.Commands
-@using Travaloud.Application.Common.Extensions
-@using Travaloud.Application.Identity.Users
-@using Travaloud.Admin.Components.Pages.Bookings.Wizard
+@using Travaloud.Admin.Components.Pages.Bookings.Common
 
 @attribute [MustHavePermission(TravaloudAction.View, TravaloudResource.Bookings)]
 
 @inject IStringLocalizer<TourBookings> L
 
+<TravaloudPageTitle Title="@L["Tour Bookings"]" Description="@L["Manage Tour Bookings."]"/>
+
+
 <EntityTable @ref="_table" TEntity="BookingDto" TId="Guid" TRequest="TourBookingViewModel" Context="@Context" ModalWidth="MaxWidth.Large">
 <AdvancedSearchContent>
-    <MudDateRangePicker @ref="_bookingDateRangePicker" PickerVariant="PickerVariant.Dialog" Label="@L["Booking Date Range"]" @bind-DateRange="SearchBookingDateRange" Clearable="true">
+    <MudDateRangePicker AutoClose="true" @ref="_bookingDateRangePicker" PickerVariant="PickerVariant.Dialog" Label="@L["Filter by Booking Date Range"]" @bind-DateRange="SearchBookingDateRange" Clearable="true">
         <PickerActions>
             <MudButton Class="mr-auto align-self-start" OnClick="@(() => _bookingDateRangePicker.Clear())">@L["Clear"]</MudButton>
             <MudButton OnClick="@(() => _bookingDateRangePicker.Close(false))">@L["Cancel"]</MudButton>
@@ -19,7 +19,7 @@
         </PickerActions>
     </MudDateRangePicker>
 
-    <MudDateRangePicker @ref="_tourDateRangePicker" PickerVariant="PickerVariant.Dialog" Label="@L["Tour Date Range"]" @bind-DateRange="SearchTourStartDateRange" Clearable="true">
+    <MudDateRangePicker AutoClose="true" @ref="_tourDateRangePicker" PickerVariant="PickerVariant.Dialog" Label="@L["Filter by Tour Departure Date Range"]" @bind-DateRange="SearchTourStartDateRange" Clearable="true">
         <PickerActions>
             <MudButton Class="mr-auto align-self-start" OnClick="@(() => _tourDateRangePicker.Clear())">@L["Clear"]</MudButton>
             <MudButton OnClick="@(() => _tourDateRangePicker.Close(false))">@L["Cancel"]</MudButton>
@@ -29,7 +29,7 @@
 
     @if (Tours is {Count: > 0})
     {
-        <MudSelect T="Guid?" @bind-Value="SearchTourId" Label="Tour" Clearable="true">
+        <MudSelect T="Guid?" @bind-Value="SearchTourId" Label="Filter by Tour" Clearable="true">
             @foreach (var tour in Tours)
             {
                 <MudSelectItem T="Guid?" Value="tour.Id">@tour.Name</MudSelectItem>
@@ -39,238 +39,29 @@
 </AdvancedSearchContent>
 
 <EditFormContent>
-    @if (context.IsPaid)
-    {
-        <MudItem xs="12" md="12">
-            <MudAutocomplete @ref="@_guestsList" T="UserDetailsDto" ReadOnly="true" Label="@L["Search Primary Guest"]" For="@(() => context.Guest)"
-                             @bind-Value="context.Guest" CoerceText="true" SearchFuncWithCancel="@SearchGuests" AnchorOrigin="Origin.BottomCenter" Variant="Variant.Outlined" Required="false"
-                             ShowProgressIndicator="true"
-                             MinCharacters="3"
-                             DebounceInterval="300"
-                             KeyDownPreventDefault="true"
-                             ToStringFunc="@(e => e == null ? null : GetUserDetailsLabel(e))"/>
-        </MudItem>
-    }
-    else
-    {
-        <MudItem xs="12" md="10">
-            <MudAutocomplete @ref="@_guestsList" T="UserDetailsDto" Label="@L["Search Primary Guest"]" For="@(() => context.Guest)"
-                             @bind-Value="context.Guest" CoerceText="true" SearchFuncWithCancel="@SearchGuests" AnchorOrigin="Origin.BottomCenter" Variant="Variant.Outlined" Required="false"
-                             ShowProgressIndicator="true"
-                             MinCharacters="3"
-                             DebounceInterval="300"
-                             KeyDownPreventDefault="true"
-                             ToStringFunc="@(e => e == null ? null : GetUserDetailsLabel(e))"/>
-        </MudItem>
-        <MudItem xs="12" md="2" Class="d-flex align-content-center" Style="height:93px">
-            <MudButton OnClick="@(() => InvokeCreateGuestDialog(context))" Color="Color.Primary" Variant="Variant.Filled" Style="height: 40px; flex: auto; margin: auto;">Create Guest</MudButton>
-        </MudItem>
-    }
-
-    <MudItem xs="12" md="12">
-        <MudTextField Label="@L["Description"]" For="@(() => context.Description)" ReadOnly="@context.IsPaid" HelperText="Enter a description for the booking" @bind-Value="context.Description" Variant="Variant.Outlined"/>
-    </MudItem>
-    <MudItem xs="12" md="12">
-        @if (context.Items == null || !context.Items.Any())
-        {
-            if (!context.IsPaid)
-            {
-                <MudButton DisableElevation Size="Size.Small" Variant="Variant.Filled" Color="Color.Primary" OnClick="(() => InvokeBookingItemDialog(new UpdateBookingItemRequest(), context, true))" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Surface" Class="mb-2">@L["Add a Tour"]</MudButton>
-            }
-        }
-        else
-        {
-            <MudTable T="UpdateBookingItemRequest" @ref="_itemsTable" Style="table-layout:auto; padding:0px !important;" Items="@context.Items" Context="itemContext" Hover="false" HorizontalScrollbar="true" Elevation="0" Breakpoint="Breakpoint.Sm" LoadingProgressColor="Color.Info" CanCancelEdit="true" ReadOnly="false">
-                <ToolBarContent>
-                    @if (!context.IsPaid)
-                    {
-                        <MudButton DisableElevation Size="Size.Small" Variant="Variant.Filled" Color="Color.Primary" OnClick="(() => InvokeBookingItemDialog(new UpdateBookingItemRequest(), context, true))" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Surface" Class="mb-2">@L["Add a Tour"]</MudButton>
-                    }
-                </ToolBarContent>
-                <ColGroup>
-                    <col/>
-                    <col/>
-                    <col/>
-                    <col/>
-                    <col/>
-                    <col/>
-                    @if (!context.IsPaid)
-                    {
-                        <col/>
-                    }
-                </ColGroup>
-                <HeaderContent>
-                    <MudTh>Tour</MudTh>
-                    <MudTh>Start Date</MudTh>
-                    <MudTh>End Date</MudTh>
-                    <MudTh>Price</MudTh>
-                    <MudTh>Additional Guests</MudTh>
-                    <MudTh>Pick Up Location</MudTh>
-                    
-                    @if (!context.IsPaid)
-                    {
-                        <MudTh Style="min-width: 0; width: 100px; text-align: right;"></MudTh>
-                    }
-                </HeaderContent>
-                <RowTemplate>
-                    <MudTd DataLabel="Tour">@(context?.Tours?.First(x => x.Id == itemContext.TourId).Name)</MudTd>
-                    <MudTd DataLabel="Price">@itemContext.StartDate</MudTd>
-                    <MudTd DataLabel="Title">@itemContext.EndDate</MudTd>
-                    <MudTd DataLabel="Description">$@itemContext.Amount</MudTd>
-                    <MudTd DataLabel="Additional Guests">@itemContext.Guests?.Count</MudTd>
-                    <MudTd DataLabel="Pick Up Location">@itemContext.PickupLocation</MudTd>
-
-                    @if (!context.IsPaid)
-                    {
-                        <MudTd DataLabel="Edit" Style="min-width: 0; width: 270px; text-align: right;">
-                            <MudButton Variant="Variant.Filled" Size="Size.Small" StartIcon="@Icons.Material.Filled.Edit" Color="Color.Tertiary" OnClick="(() => InvokeBookingItemDialog(itemContext, context))">Edit</MudButton>
-                            <MudButton Variant="Variant.Filled" Size="Size.Small" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="(() => RemoveItemRow(context, itemContext.Id))">Delete</MudButton>
-                        </MudTd>
-                    }
-                </RowTemplate>
-            </MudTable>
-        }
-    </MudItem>
+    <TourBookingEditForm RequestModel="@context" Context="@Context"></TourBookingEditForm>
 </EditFormContent>
 
 <ExtraActions>
     @if (context.IsPaid == false)
     {
-        <MudMenuItem OnClick="@(() => GenerateBookingQRCode(context.Id, context.GuestEmail))">@L["Generate Payment QR"]</MudMenuItem>
+        <MudMenuItem OnClick="@(() => GenerateBookingQrCode(context.Id, context.GuestEmail))">@L["Generate Payment QR"]</MudMenuItem>
+        <MudMenuItem OnClick="@(() => GeneratePaymentEmail(context.Id, context.GuestEmail))">@L["Send Payment Email"]</MudMenuItem>
+    }
+    else
+    {
+        <MudMenuItem Style="color:red!important" OnClick="@(() => DeleteAndRefund(context.Id))">@L["Delete and Refund"]</MudMenuItem>
     }
 </ExtraActions>
 
 <ActionsContent>
-    <MudButton Variant="Variant.Filled" DisableElevation="true" Style="margin-right:10px; margin-top:-1px;" EndIcon="@Icons.Material.Filled.KeyboardArrowDown" IconColor="Color.Secondary"
-               OnClick="@(() => ShowBtnPress(context))">
-        @((context.ShowDetails == true) ? L["Hide"] : L["Show"]) @L["Items"]
+    <MudButton Variant="Variant.Filled" DisableElevation="true" Style="margin-right:10px; margin-top:-4px;" EndIcon="@Icons.Material.Filled.KeyboardArrowDown" IconColor="Color.Info"
+               OnClick="@(() => ShowBookingItems(context))">
+        @((context.ShowDetails == true) ? L["Hide"] : L["Show"]) @L["Details"]
     </MudButton>
 </ActionsContent>
 
 <ChildRowContent>
-    @if (context.ShowDetails)
-    {
-        if (context.Items?.Any() == true)
-        {
-            <MudTr>
-                <td colspan="8">
-                    <MudCard Elevation="25" style="margin: 10px !important;">
-                        <MudCardHeader>
-                            <CardHeaderContent>
-                                <MudAlert Severity="Severity.Info">@L["Items for Booking"] : <strong>@context.Description</strong></MudAlert>
-                            </CardHeaderContent>
-                        </MudCardHeader>
-                        <MudCardContent>
-                            <MudTable Items="@context.Items.Where(x => x.TourId.HasValue)" Context="ItemContext" Hover="true" Breakpoint="Breakpoint.Sm" Elevation="0">
-                                <ColGroup>
-                                    <col/>
-                                    <col/>
-                                    <col/>
-                                    <col/>
-                                    <col/>
-                                    <col/>
-                                    <col/>
-                                </ColGroup>
-                                <HeaderContent>
-                                    <MudTh>Tour</MudTh>
-                                    <MudTh>Additional Guests</MudTh>
-                                    <MudTh>Start Date</MudTh>
-                                    <MudTh>End Date</MudTh>
-                                    <MudTh>Pick Up Location</MudTh>
-                                    <MudTh>Price</MudTh>
-                                    <MudTh>Total Price</MudTh>
-                                </HeaderContent>
-                                <RowTemplate>
-                                    <MudTd DataLabel="Tour">@ItemContext.Tour?.Name</MudTd>
-                                    <MudTd DataLabel="Additional Guests">@ItemContext.Guests.Count</MudTd>
-                                    <MudTd DataLabel="Start Date">@ItemContext.StartDate</MudTd>
-                                    <MudTd DataLabel="End Date">@ItemContext.EndDate</MudTd>
-                                    <MudTd DataLabel="End Date">@ItemContext.PickupLocation</MudTd>
-                                    <MudTd DataLabel="Price">@($"$ {string.Format("{0:n2}", ItemContext.Amount)}")</MudTd>
-                                    <MudTd DataLabel="Total Price">@($"$ {string.Format("{0:n2}", ItemContext.TotalAmount)}")</MudTd>
-                                </RowTemplate>
-                            </MudTable>
-
-                            @if (context.Items.Any(x => x.PropertyId.HasValue))
-                            {
-                                <MudTable Items="@context.Items.Where(x => x.PropertyId.HasValue)" Context="ItemContext" Hover="true" Breakpoint="Breakpoint.Sm" Elevation="0">
-                                    <ColGroup>
-                                        <col/>
-                                        <col/>
-                                        <col/>
-                                        <col/>
-                                    </ColGroup>
-                                    <HeaderContent>
-                                        <MudTh>Property</MudTh>
-                                        <MudTh>Check In Date</MudTh>
-                                        <MudTh>Check Out Date</MudTh>
-                                        <MudTh>Rooms Booked</MudTh>
-                                        <MudTh>Cloudbeds Reservation Id</MudTh>
-                                        <MudTh>Actions</MudTh>
-                                    </HeaderContent>
-                                    <RowTemplate>
-                                        <MudTd DataLabel="Property">@ItemContext.Property?.Name</MudTd>
-                                        <MudTd DataLabel="Check In Date">@ItemContext.StartDate.ToShortDateString()</MudTd>
-                                        <MudTd DataLabel="Check Out Date">@ItemContext.EndDate.ToShortDateString()</MudTd>
-                                        <MudTd DataLabel="Rooms Booked">@ItemContext.RoomQuantity</MudTd>
-                                        <MudTd DataLabel="Cloudbeds Reservation Id">@ItemContext.CloudbedsReservationId</MudTd>
-                                        <MudTd>
-                                            <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="@(() => ShowBookingItemRooms(ItemContext, context))">@((ItemContext.ShowDetails == true) ? "Hide" : "Show") Rooms</MudButton>
-                                        </MudTd>
-                                    </RowTemplate>
-                                    <ChildRowContent>
-                                        @if (ItemContext.ShowDetails)
-                                        {
-                                            <MudTr>
-                                                <td colspan="4">
-                                                    <MudTable Items="@ItemContext.Rooms" Context="RoomContext" Hover="true" Breakpoint="Breakpoint.Sm" Elevation="0">
-                                                        <ColGroup>
-                                                            <col/>
-                                                            <col/>
-                                                            <col/>
-                                                            <col/>
-                                                            <col/>
-                                                        </ColGroup>
-                                                        <HeaderContent>
-                                                            <MudTh>Room Name</MudTh>
-                                                            <MudTh>Check In Date</MudTh>
-                                                            <MudTh>Check Out Date</MudTh>
-                                                            <MudTh>Guest</MudTh>
-                                                            <MudTh>Total Nights</MudTh>
-                                                        </HeaderContent>
-                                                        <RowTemplate>
-                                                            <MudTd DataLabel="Room Name">@RoomContext.RoomName</MudTd>
-                                                            <MudTd DataLabel="Start Date">@RoomContext.CheckInDate.ToShortDateString()</MudTd>
-                                                            <MudTd DataLabel="End Date">@RoomContext.CheckOutDate.ToShortDateString()</MudTd>
-                                                            <MudTd DataLabel="Guest">@RoomContext.GuestFirstName @RoomContext.GuestLastName</MudTd>
-                                                            <MudTd DataLabel="Total Nights">@RoomContext.Nights</MudTd>
-                                                        </RowTemplate>
-                                                    </MudTable>
-                                                </td>
-                                            </MudTr>
-                                        }
-                                    </ChildRowContent>
-                                </MudTable>
-                            }
-                        </MudCardContent>
-                    </MudCard>
-                </td>
-            </MudTr>
-        }
-        else
-        {
-            <MudTr>
-                <td colspan="5">
-                    <MudCard Elevation="25" style="margin: 10px !important;">
-                        <MudCardHeader>
-                            <CardHeaderContent>
-                                <MudAlert Severity="Severity.Info" Typo="Typo.body1">@L["No Items available for Booking"] : <strong>@context.Description</strong></MudAlert>
-                            </CardHeaderContent>
-                        </MudCardHeader>
-                    </MudCard>
-                </td>
-            </MudTr>
-        }
-    }
+    <TourBookingItemsTable RequestModel="@context" Context="@Context"></TourBookingItemsTable>
 </ChildRowContent>
 </EntityTable>

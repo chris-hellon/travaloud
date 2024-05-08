@@ -6,6 +6,7 @@ public class BookingItemGuestRequestValidator : CustomValidator<BookingItemGuest
 {
     public BookingItemGuestRequestValidator()
     {
-
+        RuleFor(b => b.Guest)
+            .NotEmpty().WithMessage("Please select a Guest.");
     }
 }

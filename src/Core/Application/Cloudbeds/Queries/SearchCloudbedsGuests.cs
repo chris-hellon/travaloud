@@ -26,6 +26,7 @@ internal class SearchCloudbedsGuestsHandler : IRequestHandler<SearchCloudbedsGue
     public async Task<IEnumerable<GuestDto>> Handle(SearchCloudbedsGuests request, CancellationToken cancellationToken)
     {
         var dt = new DataTable();
+        dt.Columns.Add("GuestId");
         dt.Columns.Add("FirstName");
         dt.Columns.Add("LastName");
         dt.Columns.Add("Gender");
@@ -37,6 +38,7 @@ internal class SearchCloudbedsGuestsHandler : IRequestHandler<SearchCloudbedsGue
         foreach (var guest in request.Guests)
         {
             var dataRow = dt.NewRow();
+            dataRow["GuestId"] = guest.GuestId;
             dataRow["FirstName"] = guest.FirstName;
             dataRow["LastName"] = guest.LastName;
             dataRow["Gender"] = guest.Gender;
@@ -47,7 +49,7 @@ internal class SearchCloudbedsGuestsHandler : IRequestHandler<SearchCloudbedsGue
             dt.Rows.Add(dataRow);
         }
         
-        return await _repository.QueryAsync<GuestDto>(
+        var guests = await _repository.QueryAsync<GuestDto>(
             sql: "SearchCloudbedsGuests",
             param: new
             {
@@ -55,5 +57,20 @@ internal class SearchCloudbedsGuestsHandler : IRequestHandler<SearchCloudbedsGue
             },
             commandType: CommandType.StoredProcedure,
             cancellationToken: cancellationToken);
+
+        return guests.Select(x =>
+        {
+            var matchedGuest = request.Guests.FirstOrDefault(g => g.GuestId == x.GuestId);
+            if (matchedGuest == null) return x;
+            
+            x.CustomFields = matchedGuest.CustomFields;
+            x.GuestDocumentType = matchedGuest.GuestDocumentType;
+            x.GuestDocumentNumber = matchedGuest.GuestDocumentNumber;
+            x.GuestDocumentIssueDate = matchedGuest.GuestDocumentIssueDate;
+            x.GuestDocumentIssuingCountry = matchedGuest.GuestDocumentIssuingCountry;
+            x.GuestDocumentExpirationDate = matchedGuest.GuestDocumentExpirationDate;
+
+            return x;
+        });
     }
 }

@@ -135,7 +135,12 @@ div[style*="margin: 16px 0;"] { margin: 0 !important; }
                                                             }
                                                             else
                                                             {
-                                                                label = $"{(item.Guests.Count == 0 ? 1 : item.Guests.Count)} guest{(item.Guests.Count > 0 ? "s" : "")} at {item.Tour.Name} on {string.Join(", ", item.StartDate.ToLongDateString())}";
+                                                                var guestCount = 1;
+
+                                                                if (item.Guests is {Count: > 0})
+                                                                    guestCount += item.Guests.Count;
+                                                                
+                                                                label = $"{guestCount} guest{(guestCount > 1 ? "s" : "")} at {item.Tour.Name} on {string.Join(", ", item.StartDate.ToLongDateString())}";
                                                             }
                                                         }
                                                         @label

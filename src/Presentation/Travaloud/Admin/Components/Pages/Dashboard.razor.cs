@@ -1,3 +1,4 @@
+using ApexCharts;
 using Mapster;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
@@ -27,7 +28,10 @@ public partial class Dashboard
     [Parameter] public int? PropertyBookingsCount { get; set; }
     [Parameter] public int? ToursCount { get; set; }
     [Parameter] public int? GuestsCount { get; set; }
-
+    [Parameter] public IEnumerable<BookingItemDetailsDto>? PaidTourBookings { get; set; }
+    [Parameter] public IEnumerable<BookingItemDetailsDto>? AllTourBookings { get; set; }
+    [Parameter] public List<TourBookingsBarChartSummary>? TourBookingsBarChartSummaries { get; set; }
+    
     [Inject] private IDashboardService DashboardService { get; set; } = default!;
     [Inject] private IUserService UserService { get; set; } = default!;
     [Inject] private IBookingsService BookingsService { get; set; } = default!;
@@ -39,10 +43,13 @@ public partial class Dashboard
     private EntityServerTableContext<BookingExportDto, Guid, BookingExportDto>? TourDayBookingsContext { get; set; }
     private EntityServerTableContext<StaffBookingDto, string, StaffBookingDto>? StaffBookingsContext { get; set; }
 
+    private readonly System.Timers.Timer _timer = new();
+    
     private bool UserIsAdmin { get; set; }
 
     [CascadingParameter] private TravaloudTenantInfo? TenantInfo { get; set; }
-
+    [CascadingParameter] private MudTheme? CurrentTheme { get; set; }
+    
     private readonly string[] _dataEnterBarChartXAxisLabels =
         {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
@@ -55,10 +62,41 @@ public partial class Dashboard
 
     private List<UserDetailsDto>? Guests { get; set; }
 
+    private ApexChart<TourBookingsBarChartSummary.MonthAmount>? _tourBookingsBarChart;
+    private ApexChart<BookingItemDetailsDto>? _toursRevenuePieChart;
+    private ApexChartOptions<BookingItemDetailsDto>? _toursRevenuePieChartOptions;
+    private ApexChartOptions<TourBookingsBarChartSummary.MonthAmount>? _tourBookingsBarChartOptions;
+    
     protected override void OnInitialized()
-    {
-        _searchStaffBookingsDateRange = new DateRange(DateTime.Now.AddMonths(-1), DateTime.Now);
+    {        
+        // _timer.Interval = 10000; 
+        // _timer.Elapsed += OnTimerTick;
+        // _timer.Start();
 
+        _searchStaffBookingsDateRange = new DateRange(DateTime.Now.AddMonths(-1), DateTime.Now);
+        _toursRevenuePieChartOptions = new ApexChartOptions<BookingItemDetailsDto>
+        {
+            Theme = new ApexCharts.Theme { Palette = PaletteType.Palette7},
+            Yaxis =
+            [
+                new YAxis
+                {
+                    Labels = new YAxisLabels
+                    {
+                        Formatter = @"function (value) {
+                    return '$' + Number(value).toLocaleString();}"
+                    }
+                }
+            ]
+        };
+        _tourBookingsBarChartOptions = new ApexChartOptions<TourBookingsBarChartSummary.MonthAmount>
+        {
+            Theme = new ApexCharts.Theme
+            {
+                Palette = PaletteType.Palette7
+            }
+        };
+        
         var guests = Task.Run(() => UserService.SearchByDapperAsync(new SearchByDapperRequest()
         {
             PageNumber = 1,
@@ -77,9 +115,8 @@ public partial class Dashboard
         if (!firstRender)
             return base.OnAfterRenderAsync(firstRender);
 
-        var dashboard = await DashboardService.GetAsync(Guests);
-        
-        LoadData(dashboard);
+
+        await LoadData();
         StateHasChanged();
 
         Logger.Information("Set Background Jobs if not set already");
@@ -98,8 +135,10 @@ public partial class Dashboard
         UserIsAdmin = authState.User.IsInRole("Admin");
     }
 
-    private void LoadData(StatsDto statsDto)
+    private async Task LoadData()
     {
+        var statsDto = await DashboardService.GetAsync(Guests);
+        
         PropertiesCount = statsDto.PropertiesCount;
         ToursCount = statsDto.ToursCount;
         GuestsCount = statsDto.GuestsCount;
@@ -107,6 +146,9 @@ public partial class Dashboard
         TourBookingsCount = statsDto.TourBookingsCount;
         TourBookingsRevenue = statsDto.TourBookingsRevenue;
         PropertyBookingsCount = statsDto.PropertyBookingsCount;
+        AllTourBookings = statsDto.AllTourBookings;
+        PaidTourBookings = statsDto.PaidTourBookings;
+        TourBookingsBarChartSummaries = statsDto.TourBookingsBarChartSummaries;
 
         foreach (var item in statsDto.DataEnterBarChart)
         {
@@ -115,7 +157,7 @@ public partial class Dashboard
         }
     }
 
-    private Task LoadTables()
+    private void LoadTables()
     {
         TourDayBookingsContext = new EntityServerTableContext<BookingExportDto, Guid, BookingExportDto>(
             entityName: L["Booking"],
@@ -129,7 +171,8 @@ public partial class Dashboard
                 new EntityField<BookingExportDto>(booking => booking.GuestName, L["Guest"], "GuestName"),
                 new EntityField<BookingExportDto>(booking => booking.StartDate.TimeOfDay, L["Start Time"], "StartDate"),
                 new EntityField<BookingExportDto>(booking => booking.EndDate.TimeOfDay, L["End Time"], "EndDate"),
-                new EntityField<BookingExportDto>(booking => booking.BookingIsPaid, L["Is Paid"], "BookingIsPaid"),
+                new EntityField<BookingExportDto>(booking => booking.BookingIsPaid, L["Is Paid"], "BookingIsPaid", Color: booking => !booking.BookingIsPaid ? CurrentTheme.Palette.Error : null),
+                new EntityField<BookingExportDto>(booking => booking.BookingWaiverSigned, L["Waiver Signed"], "BookingWaiverSigned"),
             ],
             enableAdvancedSearch: false,
             createAction: string.Empty,
@@ -174,11 +217,12 @@ public partial class Dashboard
             entityResource: TravaloudResource.Bookings,
             fields:
             [
-                new EntityField<StaffBookingDto>(user => user.FullName, L["Staff Name"]),
-                new EntityField<StaffBookingDto>(user => user.BookingsMade, L["Total Bookings Made"]),
+                new EntityField<StaffBookingDto>(user => user.FullName, L["Staff Name"], "FullName"),
+                new EntityField<StaffBookingDto>(user => user.BookingsMade, L["Total Bookings Made"], "BookingsMade"),
+                new EntityField<StaffBookingDto>(user => user.ItemsCount, L["Total Items Booked"], "ItemsCount"),
                 new EntityField<StaffBookingDto>(user => $"$ {user.TotalBookingsAmount:n2}",
-                    L["Total Bookings Revenue"]),
-                new EntityField<StaffBookingDto>(user => $"$ {user.TotalComission:n2}", L["Total Commission Amount"])
+                    L["Total Bookings Revenue"], "TotalBookingsAmount"),
+                new EntityField<StaffBookingDto>(user => $"$ {user.TotalComission:n2}", L["Total Commission Amount"], "TotalComission")
             ],
             searchFunc: async (filter) =>
             {
@@ -189,14 +233,7 @@ public partial class Dashboard
                 adaptedFilter.ToDate = SearchStaffBookingsDateRange.End.Value.Date + new TimeSpan(0, 23, 59, 59, 999);
 
                 var staffBookings = await BookingsService.StaffBookingsByDateRange(adaptedFilter);
-                ;
-                return new PaginationResponse<StaffBookingDto>()
-                {
-                    Data = staffBookings.ToList(),
-                    PageSize = filter.PageSize,
-                    CurrentPage = filter.PageNumber,
-                    TotalCount = staffBookings.Count()
-                };
+                return staffBookings.Adapt<PaginationResponse<StaffBookingDto>>();
             },
             exportFunc: async filter =>
             {
@@ -211,8 +248,6 @@ public partial class Dashboard
             updateAction: string.Empty,
             deleteAction: string.Empty,
             viewAction: string.Empty);
-
-        return Task.CompletedTask;
     }
 
     private string? _searchDescription;
@@ -250,4 +285,22 @@ public partial class Dashboard
             _ = _staffBookingsTable.ReloadDataAsync();
         }
     }
+    
+    private async Task UpdateDashboard()
+    {
+        await Task.WhenAll(LoadData(), _staffBookingsTable.ReloadDataAsync(), _todaysToursTable.ReloadDataAsync(), _tourBookingsBarChart.RenderAsync(), _toursRevenuePieChart.RenderAsync());
+
+        await InvokeAsync(StateHasChanged);
+    }
+    //
+    // private void OnTimerTick(object sender, System.Timers.ElapsedEventArgs e)
+    // {
+    //     InvokeAsync(UpdateDashboard);
+    // }
+    //
+    // public void Dispose()
+    // {
+    //     _timer.Stop();
+    //     _timer.Dispose();
+    // }
 }

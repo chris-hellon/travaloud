@@ -115,27 +115,23 @@ public class SendDailyTourManifestHandler : IRequestHandler<SendDailyTourManifes
                 if (string.IsNullOrEmpty(property.EmailAddress)) continue;
                 
                 var tenantInfo = _multiTenantContextAccessor.MultiTenantContext.TenantInfo;
-                
-                var html = _emailTemplateService.GenerateEmailTemplate("tour-manifest", new
-                {
-                    TenantName = tenantInfo.Name,
-                    PrimaryBackgroundColor = tenantInfo.PrimaryHoverColor,
-                    SecondaryBackgroundColor = tenantInfo.SecondaryColor,
-                    HeaderBackgroundColor = tenantInfo.SecondaryHoverColor,
-                    TextColor = tenantInfo.PrimaryColor,
-                    LogoImageUrl = tenantInfo.LogoImageUrl,
-                    TourName = tour.Name,
-                    StartDate = tourDate.StartDate,
-                    GuestCount = todaysTours.Data.Count,
-                    PaidGuestCount = todaysTours.Data.Count(x => x.BookingIsPaid),
-                    UnPaidGuestCount = todaysTours.Data.Count(x => !x.BookingIsPaid)
-                });
+
+                var emailHtml = _emailTemplateService.GenerateTourManifestEmail(
+                    tour.Name,
+                    tenantInfo.PrimaryHoverColor,
+                    tenantInfo.LogoImageUrl,
+                    tourDate.StartDate,
+                    todaysTours.Data.Count,
+                    todaysTours.Data.Count(x => x.BookingIsPaid),
+                    todaysTours.Data.Count(x => !x.BookingIsPaid),
+                    tenantInfo.Name
+                    );
                 
                 var mailRequest = new MailRequest(
                     to: [property.EmailAddress],
                     subject: $"Today's Tour Manifests for {tour.Name} - {tourDate.StartDate.TimeOfDay}",
-                    body: html,
-                    bcc: (_mailSettings.BccAddress != null ? _mailSettings.BccAddress.ToList() : ["admin@travaloud.com"])!,
+                    body: emailHtml,
+                    bcc: ["admin@travaloud.com"]!,
                     attachmentData: destinationManifests);
                         
                 await _mailService.SendAsync(mailRequest);

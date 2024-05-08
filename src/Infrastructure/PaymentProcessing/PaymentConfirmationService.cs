@@ -1,3 +1,4 @@
+using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Travaloud.Application.Basket.Dto;
 using Travaloud.Application.Catalog.Bookings.Commands;
@@ -8,6 +9,7 @@ using Travaloud.Application.Cloudbeds;
 using Travaloud.Application.Cloudbeds.Commands;
 using Travaloud.Application.Cloudbeds.Responses;
 using Travaloud.Application.PaymentProcessing;
+using Travaloud.Application.PaymentProcessing.Commands;
 using Travaloud.Infrastructure.Identity;
 using Travaloud.Shared.Authorization;
 
@@ -16,10 +18,12 @@ namespace Travaloud.Infrastructure.PaymentProcessing;
 public class PaymentConfirmationService : IPaymentConfirmationService
 {
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly ISender _mediator;
 
-    public PaymentConfirmationService(UserManager<ApplicationUser> userManager)
+    public PaymentConfirmationService(UserManager<ApplicationUser> userManager, ISender mediator)
     {
         _userManager = userManager;
+        _mediator = mediator;
     }
 
     public async Task<CreateBookingRequest> CreateBookingRequest(DefaultIdType guestId, BasketModel basket)
@@ -39,7 +43,9 @@ public class PaymentConfirmationService : IPaymentConfirmationService
             DateTime.Now,
             guestId.ToString(),
             $"{basket.FirstName} {basket.Surname}",
-            basket.Email)
+            basket.Email,
+            basket.AdditionalNotes,
+            "Website")
         {
             CreatedBy = basket.CreateId,
             Items = new List<CreateBookingItemRequest>(),
@@ -266,5 +272,10 @@ public class PaymentConfirmationService : IPaymentConfirmationService
         }
 
         return guestId;
+    }
+
+    public Task UpdatePaymentIntentDescription(UpdatePaymentIntentDescriptionRequest request)
+    {
+        return _mediator.Send(request);
     }
 }

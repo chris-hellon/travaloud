@@ -19,10 +19,15 @@ public class CreateBookingItemRequestValidator : CustomValidator<CreateBookingIt
             .GreaterThan(0);
 
         RuleFor(i => i.TourId)
-            .NotEmpty();
+            .NotEmpty()
+            .WithMessage("Please select a Tour.");
 
-        RuleFor(b => b.TourDateId).NotEmpty();
+        RuleFor(b => b.TourDateId)
+            .NotEmpty()
+            .WithMessage("Please select a Tour Date.");
         
-        RuleFor(b => b.PickupLocation).NotEmpty();
+        RuleFor(b => b.PickupLocation)
+            .NotEmpty()
+            .WithMessage("Please select a Pick Up Location.");
     }
 }

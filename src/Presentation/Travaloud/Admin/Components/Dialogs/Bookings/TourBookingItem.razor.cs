@@ -81,7 +81,7 @@ public partial class TourBookingItem : ComponentBase
 
             var tourDates = tourDatesRequest.Result;
             
-            TourDates = tourDates.Data;
+            TourDates = tourDates.Data.Where(x => x.StartDate > DateTime.Now).ToList();
             TourPickupLocations = tourPickupLocationsRequest.Result;
         }
 
@@ -153,7 +153,7 @@ public partial class TourBookingItem : ComponentBase
                     },
                     Snackbar,
                     Logger,
-                    $"Booking Tour {(IsCreate ? L["Created"] : L["Updated"])}."))
+                    $"Booking Tour {(IsCreate ? L["added"] : L["Updated"])}."))
             {
                 MudDialog.Close(RequestModel);
             }
@@ -217,7 +217,7 @@ public partial class TourBookingItem : ComponentBase
         StateHasChanged();
     }
 
-    public async Task InvokeBookingItemGuestDialog(UpdateBookingItemRequest bookingItem)
+    public async Task InvokeBookingItemGuestDialog(UpdateBookingItemRequest bookingItem, BookingItemGuestRequest? selectedGuest = null)
     {
         var initialModel =
             JsonSerializer.Deserialize<IList<BookingItemGuestRequest>>(JsonSerializer.Serialize(bookingItem.Guests)) ??
@@ -227,7 +227,8 @@ public partial class TourBookingItem : ComponentBase
         DialogParameters parameters = new()
         {
             {nameof(TourBookingItemGuest.RequestModel), new BookingItemGuestRequest() {BookingItemId = bookingItem.Id}},
-            {nameof(TourBookingItemGuest.TourBookingItem), bookingItem}
+            {nameof(TourBookingItemGuest.TourBookingItem), bookingItem},
+            {nameof(TourBookingItemGuest.GuestToUpdate), selectedGuest?.GuestId},
         };
 
         var dialog = await DialogService.ShowAsync<TourBookingItemGuest>(string.Empty, parameters, options);

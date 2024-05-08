@@ -19,6 +19,7 @@ public partial class TourBookingItemGuest
     [CascadingParameter] private MudDialogInstance MudDialog { get; set; } = default!;
     [CascadingParameter] private TravaloudTenantInfo? TenantInfo { get; set; }
     private MudAutocomplete<UserDetailsDto> _additionalGuestsList = default!;
+    [Parameter] public string GuestToUpdate { get; set; }
     
     public EditForm EditForm { get; set; } = default!;
     private FluentValidationValidator? _fluentValidationValidator;
@@ -37,25 +38,36 @@ public partial class TourBookingItemGuest
                     {
                         TourBookingItem.Guests ??= new List<BookingItemGuestRequest>();
 
-                        var guest = await UserService.GetAsync(RequestModel.Guest.Id.ToString(), CancellationToken.None);
-
-                        var guestModel = new BookingItemGuestRequest()
+                        if (!string.IsNullOrEmpty(GuestToUpdate))
                         {
-                            GuestId = guest.Id.ToString(),
-                            FirstName = guest.FirstName,
-                            LastName = guest.LastName,
-                            EmailAddress = guest.Email
-                        };
-
-                        if (TourBookingItem.Guests.Count > 0)
-                        {
-                            var lastItem = TourBookingItem.Guests.Last();
-                            if (lastItem?.BookingItemId != null)
-                                TourBookingItem.Guests.Add(guestModel);
+                            var guestToRemove = TourBookingItem.Guests.FirstOrDefault(x => x.GuestId == GuestToUpdate);
+                            
+                            if (guestToRemove != null)
+                                TourBookingItem.Guests.Remove(guestToRemove);
                         }
-                        else
+
+                        if (RequestModel.Guest != null)
                         {
-                            TourBookingItem.Guests.Add(guestModel);
+                            var guest = await UserService.GetAsync(RequestModel.Guest.Id, CancellationToken.None);
+
+                            var guestModel = new BookingItemGuestRequest()
+                            {
+                                GuestId = guest.Id.ToString(),
+                                FirstName = guest.FirstName,
+                                LastName = guest.LastName,
+                                EmailAddress = guest.Email
+                            };
+
+                            if (TourBookingItem.Guests.Count > 0)
+                            {
+                                var lastItem = TourBookingItem.Guests.Last();
+                                if (lastItem?.BookingItemId != null)
+                                    TourBookingItem.Guests.Add(guestModel);
+                            }
+                            else
+                            {
+                                TourBookingItem.Guests.Add(guestModel);
+                            }
                         }
                     },
                     Snackbar,

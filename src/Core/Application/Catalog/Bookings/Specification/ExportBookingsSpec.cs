@@ -1,5 +1,6 @@
 using Travaloud.Application.Catalog.Bookings.Commands;
 using Travaloud.Application.Catalog.Bookings.Dto;
+using Travaloud.Application.Dashboard;
 using Travaloud.Domain.Catalog.Bookings;
 
 namespace Travaloud.Application.Catalog.Bookings.Specification;

@@ -2,12 +2,12 @@
 
 @inject IStringLocalizer<MainLayout> L
 
-<MudThemeProvider Theme="_currentTheme"/>
+<MudThemeProvider Theme="CurrentTheme"/>
 <MudDialogProvider/>
 <MudSnackbarProvider/>
 
 <CascadingValue Value="@TenantInfo">
-    <CascadingValue Value="@this">
+    <CascadingValue Value="@CurrentTheme">
         <AuthorizeView>
             <NotAuthorized>
                 <MudContainer MaxWidth="MaxWidth.Small" Class="d-flex align-center justify-center" Style="height: 100vh;">
@@ -40,7 +40,7 @@
                         </MudButton>
                         <MudSpacer/>
                         <MudHidden Breakpoint="Breakpoint.MdAndUp" Invert="true">
-                            <MudText Style="font-size:0.75rem; margin-top:5px; margin-right:13px">@DateTime.Now.ToString("dddd d\\t\\h MMMM yyyy, h:mm tt")</MudText>
+                           <TravaloudClock></TravaloudClock>
                         </MudHidden>
                         <MudTooltip Text="Toggle Dark Mode">
                             <MudToggleIconButton Toggled="@_isDarkMode" ToggledChanged="ToggleDarkMode"

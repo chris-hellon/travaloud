@@ -1,3 +1,4 @@
+using ApexCharts;
 using Travaloud.Application.Catalog.Bookings.Dto;
 
 namespace Travaloud.Application.Dashboard;
@@ -15,10 +16,28 @@ public class StatsDto
     
     public List<ChartSeries> DataEnterBarChart { get; set; } = new();
     public Dictionary<string, double>? ProductByBrandTypePieChart { get; set; }
+    
+    public IEnumerable<BookingItemDetailsDto>? PaidTourBookings { get; set; }
+    public IEnumerable<BookingItemDetailsDto>? AllTourBookings { get; set; }
+
+    public List<TourBookingsBarChartSummary> TourBookingsBarChartSummaries { get; set; } = [];
 }
 
 public class ChartSeries
 {
     public string? Name { get; set; }
     public double[]? Data { get; set; }
+}
+
+public class TourBookingsBarChartSummary
+{
+    public string? TourName { get; set; }
+    public List<MonthAmount> MonthlyAmounts { get; set; } = [];
+
+    public class MonthAmount
+    {
+        public DateTime MonthYear { get; set; }
+        public decimal Amount { get; set; }
+        public int Count { get; set; }
+    }
 }

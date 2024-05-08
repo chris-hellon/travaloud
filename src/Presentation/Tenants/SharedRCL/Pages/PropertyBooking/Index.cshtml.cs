@@ -1,8 +1,10 @@
 ﻿using System.Web;
 using Newtonsoft.Json;
-using Travaloud.Application.Basket;
 using Travaloud.Application.Basket.Dto;
+using Travaloud.Application.Catalog.Interfaces;
 using Travaloud.Application.Catalog.Properties.Dto;
+using Travaloud.Application.Catalog.Tours.Dto;
+using Travaloud.Application.Catalog.Tours.Queries;
 using Travaloud.Application.Cloudbeds;
 using Travaloud.Application.Cloudbeds.Queries;
 using Travaloud.Application.Cloudbeds.Responses;
@@ -14,10 +16,17 @@ namespace Travaloud.Tenants.SharedRCL.Pages.PropertyBooking;
 public class IndexModel : TravaloudBasePageModel
 {
     private readonly ICloudbedsService _cloudbedsService;
+    private readonly IPropertiesService _propertiesService;
+    private readonly IToursService _toursService;
 
-    public IndexModel(ICloudbedsService cloudbedsService)
+    public IndexModel(
+        ICloudbedsService cloudbedsService, 
+        IToursService toursService, 
+        IPropertiesService propertiesService)
     {
         _cloudbedsService = cloudbedsService;
+        _toursService = toursService;
+        _propertiesService = propertiesService;
     }
 
     public override string MetaKeywords()
@@ -32,7 +41,7 @@ public class IndexModel : TravaloudBasePageModel
 
     private ApplicationUser? ApplicationUser { get; set; }
     
-    public PropertyDto? Property { get; set; }
+    public PropertyDetailsDto? Property { get; set; }
     
     public string PropertyName { get; set; } = string.Empty;
 
@@ -65,6 +74,12 @@ public class IndexModel : TravaloudBasePageModel
     [BindProperty]
     public BasketItemModel? BasketItem { get; private set; }
     
+    [BindProperty]
+    public IEnumerable<TourDetailsDto> PropertyTours { get; private set; }
+    
+    [BindProperty]
+    public string? PromoCode { get; set; }
+    
     public async Task<IActionResult> OnGetAsync(string propertyName, string? checkInDate = null, string? checkOutDate = null, string? userId = null)
     {
         await OnGetDataAsync();
@@ -80,10 +95,14 @@ public class IndexModel : TravaloudBasePageModel
 
         if (Properties == null) return LocalRedirect("/error");
 
-        Property = Properties.FirstOrDefault(h => h.Name.UrlFriendly() == propertyName.UrlFriendly());
+        var property = Properties.FirstOrDefault(h => h.Name.UrlFriendly() == propertyName.UrlFriendly());
 
+        if (property == null) return LocalRedirect("/error");
+        
+        Property = await _propertiesService.GetAsync(property.Id);
+        
         if (Property == null) return LocalRedirect("/error");
-
+        
         var pageTitle = Property.PageTitle ?? Property.Name;
         var pageSubTitle = Property.PageSubTitle ?? "";
 
@@ -94,43 +113,17 @@ public class IndexModel : TravaloudBasePageModel
         
         if (!string.IsNullOrEmpty(Property.CloudbedsPropertyId))
             CloudbedsPropertyId = int.Parse(Property.CloudbedsPropertyId);
-        
-        IframeUrl = $"https://hotels.cloudbeds.com/reservation/{Property.CloudbedsKey}";
-
-        if (ApplicationUser != null)
-        {
-            IframeUrl += "?";
-
-            if (!string.IsNullOrEmpty(ApplicationUser.FirstName))
-                IframeUrl += $"firstName={ApplicationUser.FirstName}";
-
-            if (!string.IsNullOrEmpty(ApplicationUser.LastName))
-                IframeUrl += $"&lastName={ApplicationUser.LastName}";
-
-            if (!string.IsNullOrEmpty(ApplicationUser.Email))
-                IframeUrl += $"&email={ApplicationUser.Email}";
-
-            if (!string.IsNullOrEmpty(ApplicationUser.Nationality))
-                IframeUrl += $"&country={ApplicationUser.Nationality}";
-
-            if (!string.IsNullOrEmpty(ApplicationUser.PhoneNumber))
-                IframeUrl += $"&phone={ApplicationUser.PhoneNumber}";
-        }
 
         if (string.IsNullOrEmpty(checkInDate) && string.IsNullOrEmpty(checkOutDate)) return Page();
-        
-        IframeUrl += "#";
 
         if (!string.IsNullOrEmpty(checkInDate))
         {
             CheckInDate = DateTime.Parse(checkInDate);
-            IframeUrl += $"&checkin={checkInDate}";
         }
         
         if (!string.IsNullOrEmpty(checkOutDate))
         {
             CheckOutDate = DateTime.Parse(checkOutDate);
-            IframeUrl += $"&checkout={checkOutDate}";   
         }
  
         BookNowBanner = new BookNowComponent(Properties, PropertyId)
@@ -139,48 +132,24 @@ public class IndexModel : TravaloudBasePageModel
             CheckOutDate = CheckOutDate,
             DateRange = $"{CheckInDate.ToShortDateString()} - {CheckOutDate.ToShortDateString()}"
         };
+
+        if (string.IsNullOrEmpty(Property.CloudbedsApiKey) || string.IsNullOrEmpty(Property.CloudbedsPropertyId) ||
+            string.IsNullOrEmpty(checkInDate) || string.IsNullOrEmpty(checkOutDate)) return Page();
         
-        if (!string.IsNullOrEmpty(Property.CloudbedsApiKey) && !string.IsNullOrEmpty(Property.CloudbedsPropertyId) && !string.IsNullOrEmpty(checkInDate) && !string.IsNullOrEmpty(checkOutDate))
-        {
-            await GetCloudbedsProperties(checkInDate, checkOutDate);
-        }
-        else
-        {
-            IframeUrl = $"https://hotels.cloudbeds.com/reservation/{Property.CloudbedsKey}";
-        
-            if (ApplicationUser != null)
-            {
-                IframeUrl += "?";
-        
-                if (!string.IsNullOrEmpty(ApplicationUser.FirstName))
-                    IframeUrl += $"firstName={ApplicationUser.FirstName}";
-        
-                if (!string.IsNullOrEmpty(ApplicationUser.LastName))
-                    IframeUrl += $"&lastName={ApplicationUser.LastName}";
-        
-                if (!string.IsNullOrEmpty(ApplicationUser.Email))
-                    IframeUrl += $"&email={ApplicationUser.Email}";
-        
-                if (!string.IsNullOrEmpty(ApplicationUser.Nationality))
-                    IframeUrl += $"&country={ApplicationUser.Nationality}";
-        
-                if (!string.IsNullOrEmpty(ApplicationUser.PhoneNumber))
-                    IframeUrl += $"&phone={ApplicationUser.PhoneNumber}";
-            }
-        
-            if (string.IsNullOrEmpty(checkInDate) && string.IsNullOrEmpty(checkOutDate)) return Page();
-        
-            IframeUrl += "#";
-        
-            if (!string.IsNullOrEmpty(checkInDate))
-                IframeUrl += $"&checkin={checkInDate}";
-        
-            if (!string.IsNullOrEmpty(checkOutDate))
-                IframeUrl += $"&checkout={checkOutDate}";   
-        }
+        var getCloudbedsPropertiesRequest = Task.Run(() => GetCloudbedsProperties(checkInDate, checkOutDate));
+
+        var destinationIds = (Property.PropertyDestinationLookups ?? new List<PropertyDestinationLookupDto>()).Select(
+            x => x.DestinationId).ToList();
+
+        var getToursByDateRangeRequest = Task.Run(() =>
+            _toursService.SearchToursByDateRangeAndDestinations(
+                new SearchToursByDateRangeAndDestinationsRequest(destinationIds, CheckInDate, CheckOutDate)));
+            
+        await Task.WhenAll(getCloudbedsPropertiesRequest, getToursByDateRangeRequest);
+            
+        PropertyTours = getToursByDateRangeRequest.Result;
 
         return Page();
-
     }
 
     private async Task GetCloudbedsProperties(string checkInDate, string checkOutDate)
@@ -190,7 +159,8 @@ public class IndexModel : TravaloudBasePageModel
             PropertyId = Property.CloudbedsPropertyId,
             PropertyApiKey = Property.CloudbedsApiKey,
             StartDate = checkInDate,
-            EndDate = checkOutDate
+            EndDate = checkOutDate,
+            PromoCode = PromoCode
         });
         
         var basket = await BasketService.GetBasket();

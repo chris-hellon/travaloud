@@ -6,7 +6,7 @@ public class CreateEventRequestValidator : CustomValidator<CreateEventRequest>
 {
     public CreateEventRequestValidator()
     {
-            RuleFor(p => p.Image)
-                .SetNonNullableValidator(new FileUploadRequestValidator());
-        }
+        RuleFor(p => p.Image)
+            .SetNonNullableValidator(new FileUploadRequestValidator());
+    }
 }

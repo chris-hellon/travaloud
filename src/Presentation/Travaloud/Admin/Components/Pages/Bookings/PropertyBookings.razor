@@ -6,9 +6,12 @@
 
 @inject IStringLocalizer<PropertyBookings> L
 
+<TravaloudPageTitle Title="@L["Property Bookings"]" Description="@L["Manage Property Bookings."]"/>
+
+
 <EntityTable @ref="_table" TEntity="BookingDto" TId="Guid" TRequest="PropertyBookingViewModel" Context="@Context">
     <AdvancedSearchContent>
-        <MudDateRangePicker @ref="_dateRangePicker" PickerVariant="PickerVariant.Dialog" Label="@L["Date Range"]" @bind-DateRange="SearchDateRange" Clearable="true">
+        <MudDateRangePicker AutoClose="true" @ref="_dateRangePicker" PickerVariant="PickerVariant.Dialog" Label="@L["Date Range"]" @bind-DateRange="SearchDateRange" Clearable="true">
             <PickerActions>
                 <MudButton Class="mr-auto align-self-start" OnClick="@(() => _dateRangePicker.Clear())">@L["Clear"]</MudButton>
                 <MudButton OnClick="@(() => _dateRangePicker.Close(false))">@L["Cancel"]</MudButton>
@@ -28,7 +31,7 @@
     </AdvancedSearchContent>
 
     <ActionsContent>
-        <MudButton Variant="Variant.Filled" DisableElevation="true" Style="margin-right:10px; margin-top:-1px;" EndIcon="@Icons.Material.Filled.KeyboardArrowDown" IconColor="Color.Secondary"
+        <MudButton Variant="Variant.Filled" DisableElevation="true" Style="margin-right:10px; margin-top:-4px;" EndIcon="@Icons.Material.Filled.KeyboardArrowDown" IconColor="Color.Info"
                    OnClick="@(() => ShowBookingItems(context))">
             @((context.ShowDetails == true) ? L["Hide"] : L["Show"]) @L["Items"]
         </MudButton>

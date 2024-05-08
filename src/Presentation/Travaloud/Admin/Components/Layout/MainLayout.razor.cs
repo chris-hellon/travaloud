@@ -1,11 +1,8 @@
-using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
 using MudBlazor;
 using Travaloud.Admin.Theme;
 using Travaloud.Application.Identity.Users;
 using Travaloud.Infrastructure.Multitenancy;
-using Travaloud.Shared.Authorization;
 using Color = MudBlazor.Color;
 
 namespace Travaloud.Admin.Components.Layout;
@@ -16,7 +13,7 @@ public partial class MainLayout
     
     private string? _currentUrl;
     private bool _isDarkMode;
-    private MudTheme _currentTheme = new LightTheme();
+    private MudTheme CurrentTheme = new LightTheme();
     private bool _drawerOpen = true;
     private TravaloudTenantInfo? TenantInfo;
     private List<UserDetailsDto>? Guests;
@@ -26,8 +23,6 @@ public partial class MainLayout
         if (HttpContextAccessor.HttpContext == null) return;
 
         TenantInfo = MultiTenantContextAccessor.MultiTenantContext?.TenantInfo;
-        // LoadingService.OnLoaderVisibilityChanged += SetModalLoading;
-        // InteractiveSubmittingService.OnBusySubmittingChanged += SetBusySubmitting;
     }
 
     protected override Task OnAfterRenderAsync(bool firstRender)
@@ -62,7 +57,7 @@ public partial class MainLayout
     public void ToggleDarkMode(bool toggled)
     {
         _isDarkMode = toggled;
-        _currentTheme = _isDarkMode ? new DarkTheme() : new LightTheme();
+        CurrentTheme = _isDarkMode ? new DarkTheme() : new LightTheme();
     }
 
     private void DrawerToggle()

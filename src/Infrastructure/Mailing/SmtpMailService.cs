@@ -23,7 +23,7 @@ public class SmtpMailService : IMailService
             var email = new MimeMessage();
 
             // From
-            email.From.Add(new MailboxAddress(_settings.DisplayName, request.From ?? _settings.From));
+            email.From.Add(new MailboxAddress(request.DisplayName ?? _settings.DisplayName, request.From ?? _settings.From));
 
             // To
             foreach (var address in request.To)

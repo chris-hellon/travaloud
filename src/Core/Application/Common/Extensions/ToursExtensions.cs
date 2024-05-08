@@ -220,9 +220,19 @@ public static class ToursExtensions
             var tourDestinationLookupRequests = request as TourDestinationLookupRequest[] ?? request.ToArray();
             if (tourDestinationLookupRequests.Length != 0)
             {
-                tourDestinationLookups.AddRange(tourDestinationLookupRequests.Select(tourDestinationLookupRequest =>
-                    new TourDestinationLookup(tourDestinationLookupRequest.TourId,
-                        tourDestinationLookupRequest.DestinationId)));
+                foreach (var tourDestinationRequest in tourDestinationLookupRequests)
+                {
+                    if (tour.TourDestinationLookups != null)
+                    {
+                        var existingDestination =
+                            tour.TourDestinationLookups.FirstOrDefault(x => x.TourId == tourDestinationRequest.TourId && x.DestinationId == tourDestinationRequest.DestinationId);
+
+                        tourDestinationLookups.Add(existingDestination ?? new TourDestinationLookup(tourDestinationRequest.TourId,
+                            tourDestinationRequest.DestinationId));
+                    }
+                    else tourDestinationLookups.Add(new TourDestinationLookup(tourDestinationRequest.TourId,
+                        tourDestinationRequest.DestinationId));
+                }
             }
         }
 

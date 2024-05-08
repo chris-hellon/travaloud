@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
+using MudBlazor;
 using Travaloud.Application.Identity.Users;
+using Travaloud.Application.Identity.Users.Password;
 using Travaloud.Infrastructure.Auth;
 using Travaloud.Infrastructure.Common.Services;
 using Travaloud.Shared.Authorization;
@@ -15,6 +17,7 @@ public partial class StaffProfile
     [Parameter] public string? Id { get; set; }
     [Parameter] public string? Title { get; set; }
     [Parameter] public string? Description { get; set; }
+    [Parameter] public ChangePasswordRequest ChangePasswordRequest { get; set; } = new();
 
     private bool _active;
     private bool _emailConfirmed;
@@ -27,10 +30,20 @@ public partial class StaffProfile
     private bool _loaded;
     private bool _canToggleUserStatus;
 
+    private bool _passwordVisibility;
+    private InputType _passwordInput = InputType.Password;
+    private string _passwordInputIcon = Icons.Material.Filled.VisibilityOff;
+    
     private async Task ToggleUserStatus()
     {
         var request = new ToggleUserStatusRequest {ActivateUser = _active, UserId = Id};
         await ServiceHelper.ExecuteCallGuardedAsync(() => UsersService.ToggleStatusAsync(request), Snackbar, Logger);
+
+        if (ChangePasswordRequest is {NewPassword: not null, ConfirmNewPassword: not null})
+        {
+            await ServiceHelper.ExecuteCallGuardedAsync(() => UsersService.ChangePasswordAsync(ChangePasswordRequest, Id), Snackbar, Logger, "Password Updated Successfully.");
+        }
+        
         NavigationManager.NavigateTo("/staff");
     }
 
@@ -60,5 +73,23 @@ public partial class StaffProfile
         var state = await AuthState.GetAuthenticationStateAsync();
         _canToggleUserStatus = await AuthService.HasPermissionAsync(state.User, TravaloudAction.Update, TravaloudResource.Users);
         _loaded = true;
+    }
+    
+    private void TogglePasswordVisibility()
+    {
+        if (_passwordVisibility)
+        {
+            _passwordVisibility = false;
+            _passwordInputIcon = Icons.Material.Filled.VisibilityOff;
+            _passwordInput = InputType.Password;
+        }
+        else
+        {
+            _passwordVisibility = true;
+            _passwordInputIcon = Icons.Material.Filled.Visibility;
+            _passwordInput = InputType.Text;
+        }
+
+        StateHasChanged();
     }
 }

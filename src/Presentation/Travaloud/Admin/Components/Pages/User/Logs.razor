@@ -9,7 +9,7 @@
     <AdvancedSearchContent>
         <MudSwitch @bind-Checked="@_searchInOldValues" Color="Color.Primary" Style="margin-left: 5px;">@L["Search in Old Values"]</MudSwitch>
         <MudSwitch @bind-Checked="@_searchInNewValues" Color="Color.Primary" Style="margin-left: 5px;">@L["Search in New Values"]</MudSwitch>
-        <MudDateRangePicker @ref="_dateRangePicker" PickerVariant="PickerVariant.Dialog" Label="@L["Date Range For Searching"]" @bind-DateRange="_dateRange">
+        <MudDateRangePicker AutoClose="true" @ref="_dateRangePicker" PickerVariant="PickerVariant.Dialog" Label="@L["Date Range For Searching"]" @bind-DateRange="_dateRange">
             <PickerActions>
                 <MudButton Class="mr-auto align-self-start" OnClick="@(() => _dateRangePicker.Clear())">@L["Clear"]</MudButton>
                 <MudButton OnClick="@(() => _dateRangePicker.Close(false))">@L["Cancel"]</MudButton>

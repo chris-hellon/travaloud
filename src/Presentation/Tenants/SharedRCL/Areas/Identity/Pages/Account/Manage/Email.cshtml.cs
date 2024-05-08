@@ -79,8 +79,7 @@ public class EmailModel : TravaloudBasePageModel
             var mailRequest = new MailRequest(
                 to: [Input.NewEmail],
                 subject:"Confirm your email",
-                body: $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.",
-                bcc: [MailSettings.BccAddress.ToString()]);
+                body: $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
         
             await MailService.SendAsync(mailRequest);
             
@@ -119,8 +118,7 @@ public class EmailModel : TravaloudBasePageModel
         var mailRequest = new MailRequest(
             to: [Input.NewEmail],
             subject:"Confirm your email",
-            body: $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.",
-            bcc: [MailSettings.BccAddress.ToString()]);
+            body: $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
         
         await MailService.SendAsync(mailRequest);
         

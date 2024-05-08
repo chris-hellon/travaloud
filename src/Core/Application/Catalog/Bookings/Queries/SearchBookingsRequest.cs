@@ -30,23 +30,6 @@ public class SearchBookingsRequestHandler : IRequestHandler<SearchBookingsReques
     public async Task<PaginationResponse<BookingDto>> Handle(SearchBookingsRequest request, CancellationToken cancellationToken)
     {
         var spec = new BookingsBySearchRequest(request);
-        var bookings = await _repository.PaginatedListAsync(spec, request.PageNumber, request.PageSize, cancellationToken: cancellationToken);
-
-        // if (bookings.Data.Count != 0)
-        // {
-        //     var guests = await _userService.SearchAsync(bookings.Data.Select(x => x.GuestId).ToList()!, cancellationToken);
-        //     bookings.Data = bookings.Data.Select(x =>
-        //     {
-        //         var matchedGuest = guests.FirstOrDefault(u => u.Id == DefaultIdType.Parse(x.GuestId));
-        //
-        //         if (matchedGuest != null)
-        //         {
-        //             x.GuestName = $"{matchedGuest.FirstName} {matchedGuest.LastName}";
-        //         }
-        //         return x;
-        //     }).ToList();
-        // }
-
-        return bookings;
+        return await _repository.PaginatedListAsync(spec, request.PageNumber, request.PageSize, cancellationToken: cancellationToken);
     }
 }

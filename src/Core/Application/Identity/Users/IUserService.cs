@@ -37,4 +37,5 @@ public interface IUserService : ITransientService
     Task UpdateAsync(UpdateUserRequest request, string userId);
 
     Task<string> BatchCreateAsync(List<CreateUserRequest> request, string roleName);
+    Task<string> BatchUpdateAsync(List<UpdateUserRequest> request);
 }

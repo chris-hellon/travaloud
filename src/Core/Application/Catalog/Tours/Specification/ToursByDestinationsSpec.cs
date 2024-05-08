@@ -4,6 +4,17 @@ using Travaloud.Domain.Catalog.Tours;
 
 namespace Travaloud.Application.Catalog.Tours.Specification;
 
+public class ToursByDestinationIdSpec : Specification<Tour, TourWithoutDatesDto>
+{
+    public ToursByDestinationIdSpec(DefaultIdType id)
+    {
+        Query.Include(p => p.TourDestinationLookups)
+            .ThenInclude(x => x.Destination)
+            .Where(p => p.TourDestinationLookups != null &&
+                        p.TourDestinationLookups.Any(x => x.DestinationId == id));
+    }
+}
+
 public class ToursByDestinationsSpec : Specification<Tour, TourWithoutDatesDto>
 {
     public ToursByDestinationsSpec(GetToursByDestinationsRequest request) =>

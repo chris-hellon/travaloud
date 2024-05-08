@@ -23,7 +23,7 @@ internal class ImportCloudbedsGuestsRequestHandler : IRequestHandler<ImportCloud
     {
         var jobId = $"Cloudbeds Guest Import";
         
-        _jobService.AddOrUpdate(jobId, new ImportCloudbedsGuests(), "0 * * * *", TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
+        _jobService.AddOrUpdate(jobId, new ImportCloudbedsGuests(), "0 */30 * * * *", TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
 
         return Task.FromResult(jobId);
     }

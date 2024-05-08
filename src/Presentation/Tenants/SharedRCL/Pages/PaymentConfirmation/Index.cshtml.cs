@@ -74,11 +74,14 @@ public class IndexModel : TravaloudBasePageModel
                     return await RefundAndFail(bookingId, paymentAuthorizationCode,
                         stripeStatus.PaymentIntentId, Basket.Total);
                 }
-                    
+
                 Logger.Information("Booking {BookingId} created for StripeSessionId {StripeSessionId} ", bookingId, stripeSessionId);
                 
                 var booking = await BookingService.GetAsync(bookingId.Value);
 
+                await _paymentConfirmationService.UpdatePaymentIntentDescription(
+                    new UpdatePaymentIntentDescriptionRequest(stripeStatus.PaymentIntent, booking.InvoiceId));
+                
                 var propertyBookingsProcessed = await _paymentConfirmationService.ProcessPropertyBookings(
                     Basket,
                     booking,
@@ -128,8 +131,7 @@ public class IndexModel : TravaloudBasePageModel
                 var mailRequest = new MailRequest(
                     to: [Basket.Email!],
                     subject: $"{TenantName} Order Confirmation",
-                    body: emailHtml,
-                    bcc: (MailSettings.BccAddress != null ? MailSettings.BccAddress.ToList() : [])!);
+                    body: emailHtml);
 
                 await MailService.SendAsync(mailRequest);
 

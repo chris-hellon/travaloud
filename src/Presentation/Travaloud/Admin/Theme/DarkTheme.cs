@@ -11,6 +11,8 @@ public class DarkTheme : MudTheme
             Primary = CustomColors.Dark.Primary,
             Secondary = CustomColors.Dark.Secondary,
             Success = CustomColors.Dark.Primary,
+            Tertiary = CustomColors.Dark.Tertiary,
+            Info = CustomColors.Dark.Info,
             Black = "#27272f",
             Background = CustomColors.Dark.Background,
             BackgroundGrey = "#27272f",

@@ -14,6 +14,7 @@
         {
             <MudMenuItem OnClick="(() => ManageRoles(context.Id))">@L["Manage Roles"]</MudMenuItem>
         }
+        <MudMenuItem OnClick="(() => SendPasswordResetLink(context.Email))">@L["Send Password Reset Link"]</MudMenuItem>
     </ExtraActions>
 
     <EditFormContent>

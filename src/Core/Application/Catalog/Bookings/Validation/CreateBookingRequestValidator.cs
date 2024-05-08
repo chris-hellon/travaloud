@@ -20,8 +20,9 @@ public class CreateBookingRequestValidator : CustomValidator<CreateBookingReques
         RuleFor(b => b.ItemQuantity)
             .GreaterThan(0);
 
-        // RuleFor(b => b.GuestId)
-        //     .NotEmpty();
+        RuleFor(b => b.Guest)
+            .NotEmpty()
+            .WithMessage("Please select a Primary Guest.");
 
         RuleFor(b => b)
             .MustAsync(async (request, cancellationToken) =>

@@ -56,6 +56,21 @@ public class BookingExportDto
     [ExportColumn("Passport Number")]
     public string? GuestPassportNumber { get; set; }
     
+    [ExportColumn("Additional Notes")]
+    public string? BookingAdditionalNotes { get; set; }
+    
+    [ExportColumn("Waiver Signed")]
+    public bool BookingWaiverSigned { get; set; }
+    
+    [ExportColumn("Booking Source")]
+    public string? BookingBookingSource { get; set; }
+    
+    [ExportColumn("Booked By")]
+    public string? BookingStaffName { get; set; }
+    
     [ExportColumn(true)]
     public IList<BookingItemGuestDto>? Guests { get; set; }
+    
+    [ExportColumn(true)]
+    public DefaultIdType CreatedBy { get; set; }
 }

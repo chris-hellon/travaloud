@@ -11,15 +11,17 @@ public class GetGuestsRequest: IRequest<GetGuestsResponse>
     
     [JsonProperty("propertyID")] public string PropertyId { get; set; }
 
-    [JsonProperty("includeGuestInfo")] public bool IncludeGuestInfo { get; set; } = true;
+   // [JsonProperty("includeGuestInfo")] public bool IncludeGuestInfo { get; set; } = true;
+    //
+
+    [JsonProperty("resultsFrom")] public string? ResultsFrom { get; set; }
     
-    [JsonProperty("checkInFrom")] public string? ResultsFrom { get; set; }
+    [JsonProperty("resultsTo")] public string? ResultsTo { get; set; }
+    // [JsonProperty("excludeSecondaryGuests")]
+    // public bool ExcludeSecondaryGuests { get; set; } = true;
 
-    [JsonProperty("checkInTo")] public string? ResultsTo { get; set; }
-
-    [JsonProperty("excludeSecondaryGuests")]
-    public bool ExcludeSecondaryGuests { get; set; } = true;
-
+    [JsonProperty("status")] public string Status { get; set; }
+    
     [JsonIgnore] public string PropertyApiKey { get; set; } = default!;
 
     public GetGuestsRequest(string propertyId, string propertyApiKey)
@@ -41,7 +43,7 @@ internal class GetGuestsRequestHandler : IRequestHandler<GetGuestsRequest, GetGu
     public async Task<GetGuestsResponse> Handle(GetGuestsRequest request,
         CancellationToken cancellationToken)
     {
-        var requestUri = _cloudbedsHttpClient.BuildApiUrl("getGuestList", request);
+        var requestUri = _cloudbedsHttpClient.BuildApiUrl("getGuestsByStatus", request);
         var httpRequest = new HttpRequestMessage(HttpMethod.Get, requestUri);
         httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", request.PropertyApiKey);
 

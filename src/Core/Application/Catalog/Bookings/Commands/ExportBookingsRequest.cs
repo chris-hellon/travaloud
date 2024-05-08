@@ -26,11 +26,16 @@ public class ExportBookingsRequestHandler : IRequestHandler<ExportBookingsReques
 {
     private readonly IRepositoryFactory<BookingItem> _repository;
     private readonly IExcelWriter _excelWriter;
+    private readonly IUserService _userService;
 
-    public ExportBookingsRequestHandler(IRepositoryFactory<BookingItem> repository, IExcelWriter excelWriter)
+    public ExportBookingsRequestHandler(
+        IRepositoryFactory<BookingItem> repository, 
+        IExcelWriter excelWriter, 
+        IUserService userService)
     {
         _repository = repository;
         _excelWriter = excelWriter;
+        _userService = userService;
     }
 
     public async Task<Stream> Handle(ExportBookingsRequest request, CancellationToken cancellationToken)
@@ -40,6 +45,24 @@ public class ExportBookingsRequestHandler : IRequestHandler<ExportBookingsReques
         var list = await _repository.ListAsync(spec, cancellationToken);
         var parsedList = new List<BookingExportDto>();
 
+        var staffIds = list.Select(x => x.CreatedBy.ToString()).ToList();
+
+        var staff = await _userService.SearchAsync(staffIds, CancellationToken.None);
+
+        if (staff.Count != 0) 
+        {
+            var bookings = list.Select(x =>
+            {
+                var staffMember = staff.FirstOrDefault(s => s.Id == x.CreatedBy);
+
+                if (staffMember != null)
+                    x.BookingStaffName = $"{staffMember.FirstName} {staffMember.LastName}";
+                return x;
+            });
+
+            list = bookings.ToList();
+        }
+        
         foreach (var item in list)
         {
             if (item.BookingGuestId == null || request.Guests == null) continue;
@@ -50,7 +73,7 @@ public class ExportBookingsRequestHandler : IRequestHandler<ExportBookingsReques
             item.GuestName = $"{guest.FirstName} {guest.LastName}";
             item.GuestGender = guest.Gender;
             item.GuestDateOfBirth = guest.DateOfBirth?.Date;
-            item.GuestNationality = guest.Nationality;
+            item.GuestNationality = guest.Nationality?.Length == 2 ? guest.Nationality.TwoLetterCodeToCountry() : guest.Nationality;
             item.GuestPassportNumber = guest.PassportNumber;
 
             parsedList.Add(item);
@@ -60,6 +83,7 @@ public class ExportBookingsRequestHandler : IRequestHandler<ExportBookingsReques
                 parsedList.AddRange(item.Guests.Select(additionalGuest => request.Guests.FirstOrDefault(g => Guid.Parse(g.Id) == additionalGuest.GuestId))
                 .Select(additionalGuestMatch => new BookingExportDto()
                 {
+                    BookingAdditionalNotes = item.BookingAdditionalNotes,
                     Amount = item.Amount,
                     BookingCurrencyCode = item.BookingCurrencyCode,
                     BookingBookingDate = item.BookingBookingDate,
@@ -73,9 +97,12 @@ public class ExportBookingsRequestHandler : IRequestHandler<ExportBookingsReques
                     GuestName = $"{additionalGuestMatch.FirstName} {additionalGuestMatch.LastName}",
                     GuestGender = additionalGuestMatch.Gender,
                     GuestDateOfBirth = additionalGuestMatch.DateOfBirth?.Date,
-                    GuestNationality = additionalGuestMatch.Nationality,
+                    GuestNationality = additionalGuestMatch.Nationality?.Length == 2 ? additionalGuestMatch.Nationality.TwoLetterCodeToCountry() : additionalGuestMatch.Nationality,
                     GuestPassportNumber = additionalGuestMatch.PassportNumber,
-                    PickupLocation = item.PickupLocation
+                    PickupLocation = item.PickupLocation,
+                    BookingWaiverSigned = item.BookingWaiverSigned,
+                    BookingBookingSource = item.BookingBookingSource,
+                    BookingStaffName = item.BookingStaffName
                 }));
             }
         }

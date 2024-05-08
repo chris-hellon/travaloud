@@ -24,22 +24,18 @@ public class ImportCloudbedsGuestsHandler : IRequestHandler<ImportCloudbedsGuest
     private readonly IPropertiesService _propertiesService;
     private readonly IUserService _userService;
     private readonly ICloudbedsService _cloudbedsService;
-    private readonly IDapperRepository _repository;
-    private readonly UserManager<ApplicationUser> _userManager;
     
     public ImportCloudbedsGuestsHandler(
         ICloudbedsService cloudbedsService,
         IPropertiesService propertiesService,
         ILogger<ImportCloudbedsGuestsHandler> logger, 
         IMultiTenantContextAccessor<TravaloudTenantInfo> multiTenantContextAccessor, 
-        UserManager<ApplicationUser> userManager, IDapperRepository repository, IUserService userService)
+        IUserService userService)
     {
         _cloudbedsService = cloudbedsService;
         _propertiesService = propertiesService;
         _logger = logger;
         _multiTenantContextAccessor = multiTenantContextAccessor;
-        _userManager = userManager;
-        _repository = repository;
         _userService = userService;
     }
 
@@ -59,21 +55,27 @@ public class ImportCloudbedsGuestsHandler : IRequestHandler<ImportCloudbedsGuest
             foreach (var property in properties.Data)
             {
                 if (property is not {CloudbedsPropertyId: not null, CloudbedsApiKey: not null}) continue;
-            
-                var propertyResult = await _cloudbedsService.GetGuests(new GetGuestsRequest(property.CloudbedsPropertyId,
-                    property.CloudbedsApiKey)
+
+                var statuses = new string[] { "in_house", "not_checked_in" };
+
+                foreach (var status in statuses)
                 {
-                    ResultsFrom = DateTime.Now.AddDays(-7).ToString("yyyy-MM-dd"),
-                    ResultsTo = DateTime.Now.AddMonths(1).ToString("yyyy-MM-dd")
-                });
+                    var propertyResult = await _cloudbedsService.GetGuests(new GetGuestsRequest(property.CloudbedsPropertyId, property.CloudbedsApiKey)
+                    {
+                        // ResultsFrom = DateTime.Now.AddDays(-7).ToString("yyyy-MM-dd"),
+                        // ResultsTo = DateTime.Now.AddDays(7).ToString("yyyy-MM-dd"),
+                        Status = status
+                    });
                 
-                if (propertyResult is {Success: true, Data: not null})
-                {
-                    distinctGuests.AddRange(propertyResult.Data);
+                    if (propertyResult is {Success: true, Data: not null})
+                    {
+                        distinctGuests.AddRange(propertyResult.Data);
+                    }
                 }
             }
             
             var groupedDistinctGuests = distinctGuests
+                .Where(x => !string.IsNullOrEmpty(x.Email))
                 .GroupBy(x => x.Email) // Group by email address
                 .Select(group => new
                 {
@@ -91,76 +93,113 @@ public class ImportCloudbedsGuestsHandler : IRequestHandler<ImportCloudbedsGuest
                         Gender = guest.Gender,
                         DateOfBirth = guest.DateOfBirth,
                         Phone = guest.Phone,
-                        Email = index == 0 ? group.Email : $"+{index}{group.Email}"
+                        Email = index == 0 ? group.Email : $"+{index}{group.Email}",
+                        GuestId = guest.GuestId,
+                        CustomFields = guest.CustomFields,
+                        GuestDocumentType = guest.GuestDocumentType,
+                        GuestDocumentNumber = guest.GuestDocumentNumber,
+                        GuestDocumentIssueDate = guest.GuestDocumentIssueDate,
+                        GuestDocumentIssuingCountry = guest.GuestDocumentIssuingCountry,
+                        GuestDocumentExpirationDate = guest.GuestDocumentExpirationDate
                     }))
                 .ToList();
-            
+
+            var usersWithoutEmail = distinctGuests.Where(x => string.IsNullOrEmpty(x.Email));
+            flattenedList = flattenedList.Union(usersWithoutEmail).ToList();
+
             var guestsToInsert = await _cloudbedsService.SearchGuests(new SearchCloudbedsGuests(flattenedList));
             
             var guestDtos = guestsToInsert as GuestDto[] ?? guestsToInsert.ToArray();
             if (guestDtos.Any())
             {
-                guestDtos = guestDtos.DistinctBy(x => x.Email).ToArray();
+                var createUserRequests = new List<CreateUserRequest>();
+                var updateUserRequests = new List<UpdateUserRequest>();
                 
-                // var dt = new DataTable();
-                // dt.Columns.Add("FirstName");
-                // dt.Columns.Add("LastName");
-                // dt.Columns.Add("TenantId");
-                // dt.Columns.Add("UserName");
-                // dt.Columns.Add("NormalizedUserName");
-                // dt.Columns.Add("Email");
-                // dt.Columns.Add("NormalizedEmail");
-                // dt.Columns.Add("PasswordHash");
-                // dt.Columns.Add("PhoneNumber");
-                // dt.Columns.Add("DateOfBirth", Nullable.GetUnderlyingType(typeof(DateTime?)) ?? typeof(DateTime?));
-                // dt.Columns.Add("Gender");
-                // dt.Columns.Add("Nationality");
-
-                var userRequests = new List<CreateUserRequest>();
+                var fieldsToGet = new string[] {"Passport Number", "pp", "Passport number", "passport number"};
                 
                 foreach (var toRegister in guestDtos)
                 {
-                    // var dataRow = dt.NewRow();
-                    //
-                    // dataRow["FirstName"] = toRegister.FirstName.TrimStart().ReplaceFunkyFirstnames();
-                    // dataRow["LastName"] = toRegister.LastName.ReplaceFunkyFirstnames();
-                    // dataRow["TenantId"] = tenantId;
-                    // dataRow["UserName"] = toRegister.Email;
-                    // dataRow["NormalizedUserName"] = toRegister.Email.Normalize().ToUpper();
-                    // dataRow["Email"] = toRegister.Email;
-                    // dataRow["NormalizedEmail"] = toRegister.Email.Normalize().ToUpper();
-                    // dataRow["PhoneNumber"] = toRegister.Phone;
-                    // dataRow["DateOfBirth"] = toRegister.DateOfBirth.HasValue ? toRegister.DateOfBirth.Value : DBNull.Value;
-                    // dataRow["Gender"] = toRegister.Gender;
-                    // dataRow["Nationality"] = toRegister.Nationality;
-                    // dataRow["PasswordHash"] = DBNull.Value;
-                    //
-                    // dt.Rows.Add(dataRow);
-
-                    userRequests.Add(new CreateUserRequest()
+                    var hasPassportDocumentType = false;
+                    if (!string.IsNullOrEmpty(toRegister.GuestDocumentType) && toRegister.GuestDocumentType == "Passport" && !string.IsNullOrEmpty(toRegister.GuestDocumentNumber))
                     {
-                        FirstName = toRegister.FirstName.TrimStart().ReplaceFunkyFirstnames(),
-                        LastName = toRegister.LastName.ReplaceFunkyFirstnames(),
-                        Email = toRegister.Email,
-                        PhoneNumber = toRegister.Phone,
-                        DateOfBirth = toRegister.DateOfBirth,
-                        Gender = toRegister.Gender,
-                        Nationality = toRegister.Nationality
-                    });
+                        toRegister.PassportNumber = toRegister.GuestDocumentNumber;
+                        hasPassportDocumentType = true;
+                    }
+                    else
+                    {
+                        var passportCustomField = toRegister.CustomFields?.FirstOrDefault(x => fieldsToGet.Contains(x.CustomFieldName));
+                    
+                        if (passportCustomField != null)
+                            toRegister.PassportNumber = passportCustomField.CustomFieldValue;
+                    }
+
+                    DateTime? guestDocumentExpirationDate = null;
+                    
+                    if (DateTime.TryParse(toRegister.GuestDocumentExpirationDate, out var guestDocumentExpirationDateResult))
+                    {
+                        guestDocumentExpirationDate = guestDocumentExpirationDateResult;
+                    }
+                    
+                    DateTime? guestDocumentIssueDate = null;
+                    
+                    if (DateTime.TryParse(toRegister.GuestDocumentIssueDate, out var guestDocumentIssueDateResult))
+                    {
+                        guestDocumentIssueDate = guestDocumentIssueDateResult;
+                    }
+                    
+                    if (string.IsNullOrEmpty(toRegister.Id))
+                    {
+                        createUserRequests.Add(new CreateUserRequest()
+                        {
+                            FirstName = toRegister.FirstName.TrimStart().ReplaceFunkyFirstnames(),
+                            LastName = toRegister.LastName.ReplaceFunkyFirstnames(),
+                            Email = toRegister.Email,
+                            PhoneNumber = toRegister.Phone,
+                            DateOfBirth = toRegister.DateOfBirth,
+                            Gender = toRegister.Gender.GenderMatch(),
+                            Nationality = toRegister.Nationality.Length == 2 ? toRegister.Nationality.TwoLetterCodeToCountry() : toRegister.Nationality,
+                            CloudbedsGuestId = toRegister.GuestId,
+                            PassportNumber = toRegister.PassportNumber,
+                            PassportExpiryDate = hasPassportDocumentType ? guestDocumentExpirationDate : null,
+                            PassportIssuingCountry = hasPassportDocumentType && toRegister.GuestDocumentIssuingCountry?.Length == 2 ? toRegister.GuestDocumentIssuingCountry.TwoLetterCodeToCountry() : toRegister.GuestDocumentIssuingCountry,
+                            PassportIssueDate = hasPassportDocumentType ? guestDocumentIssueDate : null
+                        });
+                    }
+                    else
+                    {
+                        updateUserRequests.Add(new UpdateUserRequest()
+                        {
+                            Id = toRegister.Id,
+                            FirstName = toRegister.FirstName.TrimStart().ReplaceFunkyFirstnames(),
+                            LastName = toRegister.LastName.ReplaceFunkyFirstnames(),
+                            Email = toRegister.Email,
+                            PhoneNumber = toRegister.Phone,
+                            DateOfBirth = toRegister.DateOfBirth,
+                            Gender = toRegister.Gender.GenderMatch(),
+                            Nationality = toRegister.Nationality.Length == 2 ? toRegister.Nationality.TwoLetterCodeToCountry() : toRegister.Nationality,
+                            CloudbedsGuestId = toRegister.GuestId,
+                            PassportNumber = toRegister.PassportNumber,
+                            PassportExpiryDate = hasPassportDocumentType ? guestDocumentExpirationDate : null,
+                            PassportIssuingCountry = hasPassportDocumentType && toRegister.GuestDocumentIssuingCountry?.Length == 2 ? toRegister.GuestDocumentIssuingCountry.TwoLetterCodeToCountry() : toRegister.GuestDocumentIssuingCountry,
+                            PassportIssueDate = hasPassportDocumentType ? guestDocumentIssueDate : null
+                        });
+                    }
                 }
 
-                var message = await _userService.BatchCreateAsync(userRequests, TravaloudRoles.Guest);
+                if (createUserRequests.Count != 0)
+                {
+                    var insertMessage = await _userService.BatchCreateAsync(createUserRequests, TravaloudRoles.Guest);
                 
-                // await _repository.ExecuteAsync(
-                //     sql: "BatchInsertUsers",
-                //     param: new
-                //     {
-                //         Users = dt.AsTableValuedParameter()
-                //     },
-                //     commandType: CommandType.StoredProcedure,
-                //     cancellationToken: cancellationToken);
-                
-                _logger.LogInformation(message);
+                    _logger.LogInformation(insertMessage);
+                }
+   
+                if (updateUserRequests.Count != 0)
+                {
+                    updateUserRequests = updateUserRequests.DistinctBy(x => x.Id).ToList(); 
+                    
+                    var updateMessage = await _userService.BatchUpdateAsync(updateUserRequests);
+                    _logger.LogInformation(updateMessage);
+                }
             }
         }
     }

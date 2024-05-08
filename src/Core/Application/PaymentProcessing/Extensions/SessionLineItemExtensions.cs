@@ -93,7 +93,7 @@ public static class SessionLineItemExtensions
                     Name = x.Tour.Name,
                     Images = [x.Tour.ImagePath],
                     Description =
-                        $"{x.Guests?.Count} guest{(x.Guests?.Count > 1 ? "s" : "")} at {x.Tour.Name} on {string.Join(", ", x.StartDate.ToLongDateString())}"
+                        $"{x.Guests?.Count + 1} guest{(x.Guests?.Count + 1 > 1 ? "s" : "")} at {x.Tour.Name} on {string.Join(", ", x.StartDate.ToLongDateString())}"
                 }
             }
         }) ?? Array.Empty<SessionLineItemOptions>());

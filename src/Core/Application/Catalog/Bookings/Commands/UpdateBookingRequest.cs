@@ -2,6 +2,7 @@
 using Travaloud.Application.Catalog.Bookings.Specification;
 using Travaloud.Application.Catalog.Tours.Specification;
 using Travaloud.Application.Common.Utils;
+using Travaloud.Application.Identity.Users;
 using Travaloud.Domain.Catalog.Bookings;
 using Travaloud.Domain.Catalog.Tours;
 
@@ -22,8 +23,12 @@ public class UpdateBookingRequest : IRequest<DefaultIdType>
     public int ConcurrencyVersion { get; set; }
     public string? StripeSessionId { get; set; }
     public bool? SendPaymentLink { get; set; }
-
+    public string? AdditionalNotes { get; set; }
+    public bool WaiverSigned { get; set; }
+    public string? BookingSource { get; set; }
+    
     public IList<UpdateBookingItemRequest> Items { get; set; } = [];
+    public UserDetailsDto? Guest { get; set; }
 }
 
 public class UpdateBookingRequestHandler : IRequestHandler<UpdateBookingRequest, DefaultIdType>
@@ -68,9 +73,11 @@ public class UpdateBookingRequestHandler : IRequestHandler<UpdateBookingRequest,
             request.BookingDate,
             request.GuestId,
             request.StripeSessionId,
-            null,
+            request.WaiverSigned,
             request.GuestName,
-            request.GuestEmail);
+            request.GuestEmail,
+            request.AdditionalNotes,
+            request.BookingSource);
         
         var userId = _currentUser.GetUserId();
         

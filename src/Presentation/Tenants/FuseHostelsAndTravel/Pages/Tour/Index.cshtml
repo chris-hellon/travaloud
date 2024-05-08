@@ -43,7 +43,24 @@
                                 <div class="text-center">
                                     <h4 class="tilted mt-n7 mb-4 display-6">BOOK YOUR TOUR</h4>
                                 </div>
-                                <p><i class="fa-solid fa-clock me-2"></i> @Model.Tour.HourDuration hours</p>
+                                @{
+                                    var duration = "";
+                                    var dayDurationExists = !string.IsNullOrEmpty(Model.Tour.DayDuration);
+                                    var nightDurationExists = !string.IsNullOrEmpty(Model.Tour.NightDuration);
+                                    var hourDurationExists = !string.IsNullOrEmpty(Model.Tour.HourDuration);
+                                    
+                                    if (dayDurationExists)
+                                        duration += $"{Model.Tour.DayDuration} Day{(Model.Tour.DayDuration != "1" ? "s" : "")}";
+
+                                    if (nightDurationExists)
+                                        duration += $"{(dayDurationExists ? " " : "")}{Model.Tour.NightDuration} Night{(Model.Tour.NightDuration != "1" ? "s" : "")}";
+
+                                    if (hourDurationExists)
+                                        duration += $"{(dayDurationExists ? " " : "")}{Model.Tour.HourDuration} Hour{(Model.Tour.HourDuration != "1" ? "s" : "")}";
+
+                                    <p><i class="fa-solid fa-clock me-2"></i> @duration</p>
+                                }
+                               
                                 @if (Model.Tour.TourPrices != null && Model.Tour.TourPrices.Any())
                                 {
                                     foreach (var price in Model.Tour.TourPrices)

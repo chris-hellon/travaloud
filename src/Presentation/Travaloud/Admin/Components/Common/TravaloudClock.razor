@@ -1,0 +1,39 @@
+@implements IDisposable
+@attribute [StreamRendering]
+
+<MudText Style="font-size:0.75rem; margin-top:5px; margin-right:13px">@_currentDateTime</MudText>
+
+@code {
+    private readonly System.Timers.Timer _timer = new();
+    private string _currentDateTime = "";
+    
+    protected override void OnInitialized()
+    {
+        _timer.Interval = 1000; 
+        _timer.Elapsed += OnTimerTick;
+        _timer.Start();
+    }
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await UpdateClock();
+    }
+
+    
+    private async Task UpdateClock()
+    {
+        _currentDateTime = DateTime.Now.ToString("dddd d\\t\\h MMMM yyyy, h:mm tt");
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void OnTimerTick(object sender, System.Timers.ElapsedEventArgs e)
+    {
+        InvokeAsync(UpdateClock);
+    }
+
+    public void Dispose()
+    {
+        _timer.Stop();
+        _timer.Dispose();
+    }
+}

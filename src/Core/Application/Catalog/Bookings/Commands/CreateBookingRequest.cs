@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using Travaloud.Application.Catalog.Tours.Specification;
 using Travaloud.Application.Common.Utils;
+using Travaloud.Application.Identity.Users;
 using Travaloud.Domain.Catalog.Bookings;
 using Travaloud.Domain.Catalog.Tours;
 
@@ -18,16 +19,31 @@ public class CreateBookingRequest : IRequest<DefaultIdType?>
     public string? GuestName { get; set; }
     public string? GuestEmail { get; set; }
     public int ConcurrencyVersion { get; set; }
-    public bool? WaiverSigned { get; set; }
+    public bool WaiverSigned { get; set; }
     public IList<CreateBookingItemRequest> Items { get; set; } = default!;
     public string? CreatedBy { get; set; }
-
+    public UserDetailsDto? Guest { get; set; }
+    public string? AdditionalNotes { get; set; }
+    public string? BookingSource { get; set; }
+    
     public CreateBookingRequest()
     {
         
     }
     
-    public CreateBookingRequest(string description, decimal totalAmount, string currencyCode, int itemQuantity, bool isPaid, DateTime bookingDate, string? guestId, string? guestName, string? guestEmail, int concurrencyVersion, IList<CreateBookingItemRequest> items)
+    public CreateBookingRequest(string description,
+        decimal totalAmount,
+        string currencyCode,
+        int itemQuantity,
+        bool isPaid,
+        DateTime bookingDate,
+        string? guestId,
+        string? guestName,
+        string? guestEmail,
+        int concurrencyVersion,
+        string? additionalNotes,
+        string? bookingSource,
+        IList<CreateBookingItemRequest> items)
     {
         Description = description;
         TotalAmount = totalAmount;
@@ -40,9 +56,21 @@ public class CreateBookingRequest : IRequest<DefaultIdType?>
         ConcurrencyVersion = concurrencyVersion;
         Items = items;
         GuestEmail = guestEmail;
+        AdditionalNotes = additionalNotes;
+        BookingSource = bookingSource;
     }
     
-    public CreateBookingRequest(string description, decimal totalAmount, string currencyCode, int itemQuantity, bool isPaid, DateTime bookingDate, string? guestId, string? guestName, string? guestEmail)
+    public CreateBookingRequest(string description,
+        decimal totalAmount,
+        string currencyCode,
+        int itemQuantity,
+        bool isPaid,
+        DateTime bookingDate,
+        string? guestId,
+        string? guestName,
+        string? guestEmail,
+        string? additionalNotes,
+        string? bookingSource)
     {
         Description = description;
         TotalAmount = totalAmount;
@@ -53,6 +81,8 @@ public class CreateBookingRequest : IRequest<DefaultIdType?>
         GuestId = guestId;
         GuestName = guestName;
         GuestEmail = guestEmail;
+        AdditionalNotes = additionalNotes;
+        BookingSource = bookingSource;
     }
 }
 
@@ -90,7 +120,9 @@ public class CreateBookingRequestHandler : IRequestHandler<CreateBookingRequest,
             null,
             request.WaiverSigned,
             request.GuestName,
-            request.GuestEmail);
+            request.GuestEmail,
+            request.AdditionalNotes,
+            request.BookingSource);
 
         if (!string.IsNullOrEmpty(request.CreatedBy))
         {

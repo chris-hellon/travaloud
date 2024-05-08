@@ -29,6 +29,17 @@ else
                                 <MudSwitch @bind-Checked="@_active" Color="Color.Primary" Label="@_localizer["Active?"]"></MudSwitch>
                                 @* <MudCheckBox ReadOnly @bind-Checked="@_emailConfirmed" Disabled Label="@_localizer["Email Confirmed?"]" Color="Color.Secondary"> *@
                                 @* </MudCheckBox> *@
+
+                                <MudItem xs="12" md="12">
+                                    <MudTextField For="@(() => ChangePasswordRequest.NewPassword)" @bind-Value="ChangePasswordRequest.NewPassword" Label="@_localizer["Change Password"]"
+                                                  InputType="@_passwordInput" Adornment="Adornment.End" AdornmentIcon="@_passwordInputIcon"
+                                                  OnAdornmentClick="TogglePasswordVisibility"/>
+                                </MudItem>
+                                <MudItem xs="12" md="12">
+                                    <MudTextField For="@(() => ChangePasswordRequest.ConfirmNewPassword)" @bind-Value="ChangePasswordRequest.ConfirmNewPassword"
+                                                  Label="@_localizer["Confirm Change Password"]" InputType="InputType.Password"/>
+                                </MudItem>
+
                                 <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto"
                                            OnClick="ToggleUserStatus" ButtonType="ButtonType.Submit">
                                     @_localizer["Save Changes"]

@@ -1,0 +1,236 @@
+@using Travaloud.Application.Identity.Users
+@using Travaloud.Application.Catalog.Bookings.Commands
+@using Travaloud.Application.Catalog.Bookings.Dto
+@using Travaloud.Application.Common.Extensions
+@using Travaloud.Admin.Components.Dialogs.Bookings
+@using System.Text.Json
+@using Travaloud.Admin.Components.Dialogs
+@inject IStringLocalizer<TourBookingEditForm> L
+
+@if (RequestModel.IsPaid)
+{
+    <MudItem xs="12" md="12">
+        <MudAutocomplete @ref="@_guestsList" T="UserDetailsDto" Disabled="true" Label="@L["Primary Guest"]" For="@(() => RequestModel.Guest)"
+                         @bind-Value="RequestModel.Guest" CoerceText="true" SearchFuncWithCancel="@SearchGuests" AnchorOrigin="Origin.BottomCenter" Variant="Variant.Outlined" Required="false"
+                         ShowProgressIndicator="true"
+                         MinCharacters="3"
+                         DebounceInterval="300"
+                         KeyDownPreventDefault="true"
+                         ToStringFunc="@(e => e == null ? null : GetUserDetailsLabel(e))"/>
+    </MudItem>
+}
+else
+{
+    <MudItem xs="12" md="10">
+        <MudAutocomplete @ref="@_guestsList" T="UserDetailsDto" Label="@L["Search Primary Guest"]" HelperText="Search for a Primary Guest" For="@(() => RequestModel.Guest)"
+                         @bind-Value="RequestModel.Guest" CoerceText="true" SearchFuncWithCancel="@SearchGuests" AnchorOrigin="Origin.BottomCenter" Variant="Variant.Outlined" Required="false"
+                         ShowProgressIndicator="true"
+                         MinCharacters="3"
+                         DebounceInterval="300"
+                         KeyDownPreventDefault="true"
+                         ToStringFunc="@(e => e == null ? null : GetUserDetailsLabel(e))"/>
+    </MudItem>
+    <MudItem xs="12" md="2" Class="d-flex align-content-center" Style="height:93px">
+        <MudButton OnClick="@(() => InvokeCreateGuestDialog(RequestModel))" Color="Color.Primary" Variant="Variant.Filled" Style="height: 40px; flex: auto; margin: auto;">Create Guest</MudButton>
+    </MudItem>
+}
+
+<MudItem xs="12" md="12">
+    <MudTextField Label="@L["Description"]" For="@(() => RequestModel.Description)" HelperText="Enter a description for the Booking" @bind-Value="RequestModel.Description" Variant="Variant.Outlined"/>
+</MudItem>
+<MudItem xs="12" md="12">
+    <MudSelect T="string?" For="@(() => RequestModel.BookingSource)" @bind-Value="RequestModel.BookingSource" Label="Booking Source" HelperText="Select a Booking Source" Clearable="true" Variant="Variant.Outlined">
+         <MudSelectItem T="string?" Value="@("Website")">Website</MudSelectItem>
+        <MudSelectItem T="string?" Value="@("Online")">Online</MudSelectItem>
+        @if (RequestModel.Properties != null)
+        {
+            foreach (var property in RequestModel.Properties)
+            {
+                <MudSelectItem T="string?" Value="property.Name">@property.Name</MudSelectItem>
+            }
+        }
+    </MudSelect>
+</MudItem>
+<MudItem xs="12" md="12">
+    <MudTextField Label="@L["Additional Notes"]" For="@(() => RequestModel.AdditionalNotes)" Lines="3" HelperText="Enter any Additional Notes eg. dietaries" @bind-Value="RequestModel.AdditionalNotes" Variant="Variant.Outlined"/>
+</MudItem>
+<MudItem xs="12" md="12">
+    <MudCheckBox For="@(() => RequestModel.WaiverSigned)" @bind-Value="@RequestModel.WaiverSigned" Label="@L["Has a Waiver been signed?"]"></MudCheckBox>
+</MudItem>
+<MudItem xs="12" md="12">
+    @if (RequestModel.Items == null || !RequestModel.Items.Any())
+    {
+        if (!RequestModel.IsPaid)
+        {
+            <MudButton DisableElevation Size="Size.Small" Variant="Variant.Filled" Color="Color.Primary" OnClick="(() => InvokeBookingItemDialog(new UpdateBookingItemRequest(), RequestModel, true))" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Surface" Class="mb-2">@L["Add a Tour"]</MudButton>
+        }
+    }
+    else
+    {
+        <MudTable T="UpdateBookingItemRequest" @ref="_itemsTable" Style="table-layout:auto; padding:0px !important;" Items="@RequestModel.Items" Context="itemContext" Hover="false" HorizontalScrollbar="true" Elevation="0" Breakpoint="Breakpoint.Sm" LoadingProgressColor="Color.Info" CanCancelEdit="true" ReadOnly="false">
+            <ToolBarContent>
+                @if (!RequestModel.IsPaid)
+                {
+                    <MudButton DisableElevation Size="Size.Small" Variant="Variant.Filled" Color="Color.Primary" OnClick="(() => InvokeBookingItemDialog(new UpdateBookingItemRequest(), RequestModel, true))" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Surface" Class="mb-2">@L["Add a Tour"]</MudButton>
+                }
+            </ToolBarContent>
+            <ColGroup>
+                <col/>
+                <col/>
+                <col/>
+                <col/>
+                <col/>
+                <col/>
+                <col/>
+            </ColGroup>
+            <HeaderContent>
+                <MudTh>Tour</MudTh>
+                <MudTh>Start Date</MudTh>
+                <MudTh>End Date</MudTh>
+                <MudTh>Price</MudTh>
+                <MudTh>Additional Guests</MudTh>
+                <MudTh>Pick Up Location</MudTh>
+                <MudTh Style="min-width: 0; width: 100px; text-align: right;"></MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Tour">@(RequestModel?.Tours?.First(x => x.Id == itemContext.TourId).Name)</MudTd>
+                <MudTd DataLabel="Price">@itemContext.StartDate</MudTd>
+                <MudTd DataLabel="Title">@itemContext.EndDate</MudTd>
+                <MudTd DataLabel="Description">$@itemContext.Amount</MudTd>
+                <MudTd DataLabel="Additional Guests">@itemContext.Guests?.Count</MudTd>
+                <MudTd DataLabel="Pick Up Location">@itemContext.PickupLocation</MudTd>
+                <MudTd DataLabel="Edit" Style="min-width: 0; width: 270px; text-align: right;">
+                    <MudButton Variant="Variant.Filled" Size="Size.Small" StartIcon="@Icons.Material.Filled.Edit" Color="Color.Tertiary" OnClick="(() => InvokeBookingItemDialog(itemContext, RequestModel))">Edit</MudButton>
+                    @if (!RequestModel.IsPaid)
+                    {
+                        <MudButton Variant="Variant.Filled" Size="Size.Small" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="(() => RemoveItemRow(RequestModel, itemContext.Id))">Delete</MudButton>
+                    }
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+    }
+</MudItem>
+
+@code {
+    [Inject] protected IUserService UserService { get; set; } = default!;
+
+    [Inject] protected IMultiTenantContextAccessor<TravaloudTenantInfo> TenantContextAccessor { get; set; } = default!;
+
+    [Parameter] public required TourBookingViewModel RequestModel { get; set; }
+
+    [Parameter] public EntityServerTableContext<BookingDto, Guid, TourBookingViewModel> Context { get; set; }
+
+    [CascadingParameter] private TravaloudTenantInfo? TenantInfo { get; set; }
+
+    private MudAutocomplete<UserDetailsDto> _guestsList = default!;
+
+    private MudTable<UpdateBookingItemRequest> _itemsTable = default!;
+
+    private async Task<IEnumerable<UserDetailsDto>> SearchGuests(string value, CancellationToken token)
+    {
+        if (string.IsNullOrEmpty(value))
+            return Array.Empty<UserDetailsDto>();
+
+        var guests = await UserService.SearchByDapperAsync(new SearchByDapperRequest()
+        {
+            Keyword = value,
+            Role = "Guest",
+            PageNumber = 1,
+            PageSize = 99999,
+            TenantId = TenantContextAccessor.MultiTenantContext.TenantInfo.Id
+        }, token);
+
+        if (guests.Data.Count != 0) return guests.Data.Where(x => !string.IsNullOrEmpty(x.Email));
+
+        return Array.Empty<UserDetailsDto>();
+    }
+
+    private string GetUserDetailsLabel(UserDetailsDto e)
+    {
+        return
+            $"{e.FirstName} {e.LastName}{(e.DateOfBirth.HasValue ? $" - {e.DateOfBirth?.ToShortDateString()}" : "")}{(!string.IsNullOrEmpty(e.Gender) ? $" - {e.Gender.GenderMatch()}" : "")}{(!string.IsNullOrEmpty(e.Nationality) ? $" - {e.Nationality?.TwoLetterCodeToCountry()} - " : "")}{e.Email}";
+    }
+
+    public async Task InvokeBookingItemDialog(UpdateBookingItemRequest requestModel, TourBookingViewModel tourBooking, bool isCreate = false)
+    {
+        var initialModel = JsonSerializer.Deserialize<IList<UpdateBookingItemRequest>>(JsonSerializer.Serialize(tourBooking.Items)) ?? new List<UpdateBookingItemRequest>();
+        DialogOptions options = new() {CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, DisableBackdropClick = true};
+        DialogParameters parameters = new()
+        {
+            {nameof(TourBookingItem.RequestModel), requestModel},
+            {nameof(TourBookingItem.TourBooking), tourBooking},
+            {nameof(TourBookingItem.Context), Context},
+            {nameof(TourBookingItem.Id), isCreate ? null : requestModel.Id},
+            {nameof(TourBookingItem.Tours), tourBooking.Tours},
+        };
+
+        var dialog = await DialogService.ShowAsync<TourBookingItem>(string.Empty, parameters, options);
+
+        var result = await dialog.Result;
+
+        if (result.Canceled)
+        {
+            tourBooking.Items = initialModel;
+        }
+
+        Context.AddEditModal?.ForceRender();
+    }
+
+    private async Task InvokeCreateGuestDialog(TourBookingViewModel tourBooking)
+    {
+        DialogOptions options = new() {CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, DisableBackdropClick = true};
+        DialogParameters parameters = new()
+        {
+            {nameof(CreateGuest.TitleLabel), "Primary"},
+            {nameof(CreateGuest.EmailRequired), true}
+        };
+
+        var dialog = await DialogService.ShowAsync<CreateGuest>(string.Empty, parameters, options);
+
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            var guests = await UserService.GetListAsync(TravaloudRoles.Guest);
+            //tourBooking.Guests = guests;
+
+            var guestId = result.Data.ToString();
+            tourBooking.GuestId = guestId;
+            tourBooking.Guest = guests.FirstOrDefault(x => x.Id == guestId);
+        }
+
+        Context.AddEditModal?.ForceRender();
+    }
+
+    public async Task RemoveItemRow(TourBookingViewModel tourBooking, Guid id)
+    {
+        string deleteContent = L["You're sure you want to delete this {0}? Please note, this is not final. To confirm deltion, save the booking."];
+        var parameters = new DialogParameters
+        {
+            {nameof(DeleteConfirmation.ContentText), string.Format(deleteContent, "Item", id)}
+        };
+
+        var options = new DialogOptions {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, DisableBackdropClick = true};
+        var dialog = await DialogService.ShowAsync<DeleteConfirmation>(L["Delete"], parameters, options);
+
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            var item = tourBooking.Items.FirstOrDefault(x => x.Id == id);
+            if (item != null)
+            {
+                tourBooking.Items.Remove(item);
+                tourBooking.ItemQuantity++;
+
+                if (item.Amount.HasValue)
+                {
+                    tourBooking.TotalAmount -= item.Amount.Value *
+                                               (item.Guests != null && item.Guests.Any() ? item.Guests.Count : 1);
+                }
+            }
+
+            Context.AddEditModal?.ForceRender();
+        }
+    }
+
+}

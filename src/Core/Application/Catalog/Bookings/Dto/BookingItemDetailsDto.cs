@@ -9,6 +9,7 @@ public class BookingItemDetailsDto
     public DefaultIdType BookingId { get; set; }
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
+    public DateTime CreatedOn { get; set; }
     public decimal Amount { get; set; }
     public decimal TotalAmount
     {
@@ -27,6 +28,7 @@ public class BookingItemDetailsDto
     public string? CloudbedsReservationId { get; set; }
     public int? CloudbedsPropertyId { get; set; }
     public bool ShowDetails { get; set; } = default!;
+    public bool ShowGuestDetails { get; set; } = default!;
     public int ConcurrencyVersion { get; set; } = default!;
     public string? PickupLocation { get; set; }
     

@@ -1,9 +1,12 @@
 ﻿using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.AspNetCore.Components;
+using MudBlazor;
+using MudBlazor.Utilities;
+using Color = MudBlazor.Color;
 
 namespace Travaloud.Admin.Components.EntityTable;
 
-public record EntityField<TEntity>(Func<TEntity, object?> ValueFunc, string DisplayName, string SortLabel = "", Type? Type = null, RenderFragment<TEntity>? Template = null)
+public record EntityField<TEntity>(Func<TEntity, object?> ValueFunc, string DisplayName, string SortLabel = "", Type? Type = null, RenderFragment<TEntity>? Template = null, Func<TEntity, MudColor?>? Color = null)
 {
     /// <summary>
     /// A function that returns the actual value of this field from the supplied entity.

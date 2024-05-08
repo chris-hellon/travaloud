@@ -49,7 +49,7 @@
                         {
                             @foreach (var tourPrice in Tour.TourPrices.Where(x => x.DayDuration.HasValue || x.NightDuration.HasValue || x.HourDuration.HasValue))
                             {
-                                <MudSelectItem T="Guid?" Value="@tourPrice.Id">@tourPrice.Price @tourPrice.Description</MudSelectItem>
+                                <MudSelectItem T="Guid?" Value="@tourPrice.Id">@tourPrice.Price @tourPrice.Title</MudSelectItem>
                             }
                         }
                     </MudSelect>

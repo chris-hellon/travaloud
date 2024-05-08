@@ -36,6 +36,9 @@ public class UpdateEventRequestHandler : IRequestHandler<UpdateEventRequest, Def
         {
             throw new NotFoundException($"Event with ID {request.Id} not found.");
         }
+        
+        if (request.Image == null)
+            throw new CustomException("Please Select a Background Image");
 
         // Remove old image if flag is set
         if (request.DeleteCurrentImage)

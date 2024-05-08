@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Travaloud.Application.Common.Specification;
@@ -64,9 +65,10 @@ public static class SpecificationBuilderExtensions
             {
                 // search all fields (only first level)
                 foreach (var property in typeof(T).GetProperties()
-                    .Where(prop => (Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType) is { } propertyType
-                        && !propertyType.IsEnum
-                        && Type.GetTypeCode(propertyType) != TypeCode.Object))
+                             .Where(prop => (Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType) is { } propertyType
+                                            && !prop.GetCustomAttributes(typeof(NotMappedAttribute), true).Any()
+                                            && !propertyType.IsEnum
+                                            && Type.GetTypeCode(propertyType) != TypeCode.Object))
                 {
                     var paramExpr = Expression.Parameter(typeof(T));
                     var propertyExpr = Expression.Property(paramExpr, property);

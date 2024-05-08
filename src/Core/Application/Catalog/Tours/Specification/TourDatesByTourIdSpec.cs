@@ -11,8 +11,7 @@ public class TourDatesByTourIdSpec : EntitiesByBaseFilterSpec<TourDate, TourDate
         Query
             .Include(x => x.TourPrice)
             .OrderBy(c => c.StartDate)
-            .Where(p => p.TourId == request.TourId)
-            .Where(p => p.StartDate > DateTime.Now);
+            .Where(p => p.TourId == request.TourId && p.StartDate > DateTime.Now);
     // .Where(x => x.AvailableSpaces > 0 && x.AvailableSpaces >= request.RequestedSpaces);
 }
 
@@ -24,4 +23,13 @@ public class TourDatesByTourIdNoLimitSpec : Specification<TourDate, TourDateDto>
             .OrderBy(c => c.StartDate)
             .Where(p => p.TourId == tourId);
     // .Where(x => x.AvailableSpaces > 0 && x.AvailableSpaces >= request.RequestedSpaces);
+}
+
+public class TourDatesByTourIdsWithinRangeSpec : Specification<TourDate, TourDateDto>
+{
+    public TourDatesByTourIdsWithinRangeSpec(List<DefaultIdType> tourIds, DateTime fromDate, DateTime toDate) =>
+        Query
+            .Include(x => x.TourPrice)
+            .OrderBy(c => c.StartDate)
+            .Where(p => tourIds.Contains(p.TourId) && p.StartDate >= fromDate && p.EndDate <= toDate);
 }

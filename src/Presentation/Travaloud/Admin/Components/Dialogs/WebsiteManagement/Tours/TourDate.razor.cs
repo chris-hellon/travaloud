@@ -37,11 +37,23 @@ public partial class TourDate : ComponentBase
 
     private MudChip[] SelectedRecurringDates { get; set; } = default!;
 
+    protected Func<Guid?, string> TourPriceToStringConverter;
+    
     protected override async Task OnInitializedAsync()
     {
+        TourPriceToStringConverter = GeneratePriceDisplayString;
         EditContext = new EditContext(RequestModel);
 
         await base.OnInitializedAsync();
+    }
+    
+    private string GeneratePriceDisplayString(Guid? tourId)
+    {
+        var tourPrice = Tour.TourPrices?.FirstOrDefault(u => u.Id == tourId);
+
+        return tourPrice != null
+            ? $"{tourPrice.Price} {tourPrice.Title}"
+            : string.Empty;
     }
 
     private void Cancel() =>

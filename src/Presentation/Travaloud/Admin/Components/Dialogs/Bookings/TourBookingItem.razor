@@ -31,7 +31,7 @@
 
             <MudGrid>
                 <MudItem xs="12" md="12">
-                    <MudSelect T="Guid?" Value="RequestModel.TourId" For="@(() => RequestModel.TourId)" Label="Tour" Clearable="true" Required="true" HelperText="Select a Tour" Variant="Variant.Outlined" ValueChanged="@(async (Guid? s) => await OnTourValueChanged(s))" ToStringFunc="TourToStringConverter">
+                    <MudSelect T="Guid?" Value="RequestModel.TourId" For="@(() => RequestModel.TourId)" Disabled="TourBooking.IsPaid" Label="Tour" Clearable="true" Required="true" HelperText="Select a Tour" Variant="Variant.Outlined" ValueChanged="@(async (Guid? s) => await OnTourValueChanged(s))" ToStringFunc="TourToStringConverter">
                         @foreach (var tour in Tours)
                         {
                             <MudSelectItem T="Guid?" Value="@tour.Id">@tour.Name</MudSelectItem>
@@ -39,7 +39,7 @@
                     </MudSelect>
                 </MudItem>
                 <MudItem xs="12" md="12">
-                    <MudSelect T="Guid?" Value="RequestModel.TourDateId" For="@(() => RequestModel.TourDateId)" Label="Tour Date" Clearable="true" Required="true" HelperText="Select a Tour Date" Variant="Variant.Outlined" ValueChanged="@((Guid? s) => OnTourDateValueChanged(s))" ToStringFunc="TourDateToStringConverter">
+                    <MudSelect T="Guid?" Value="RequestModel.TourDateId" For="@(() => RequestModel.TourDateId)" Disabled="TourBooking.IsPaid" Label="Tour Date" Clearable="true" Required="true" HelperText="Select a Tour Date" Variant="Variant.Outlined" ValueChanged="@((Guid? s) => OnTourDateValueChanged(s))" ToStringFunc="TourDateToStringConverter">
                         @if (TourDates != null)
                         {
                             foreach (var tourDate in TourDates)
@@ -62,16 +62,22 @@
                 </MudItem>
                 @if (RequestModel.Guests == null || !RequestModel.Guests.Any())
                 {
-                    <MudItem xs="12" md="12">
-                        <MudButton DisableElevation Size="Size.Small" Variant="Variant.Filled" Color="Color.Primary" OnClick="(() => InvokeBookingItemGuestDialog(RequestModel))" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Surface" Class="mb-2">@L["Add additional Guest"]</MudButton>
-                    </MudItem>
+                    if (!TourBooking.IsPaid)
+                    {
+                        <MudItem xs="12" md="12">
+                            <MudButton DisableElevation Size="Size.Small" Variant="Variant.Filled" Color="Color.Primary" OnClick="(() => InvokeBookingItemGuestDialog(RequestModel))" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Surface" Class="mb-2">@L["Add additional Guest"]</MudButton>
+                        </MudItem>   
+                    }
                 }
                 else
                 {
                     <MudItem xs="12" md="12">
                         <MudTable T="BookingItemGuestRequest"Style="table-layout:auto; padding:0px !important;" Items="@RequestModel.Guests" Context="itemContext" Hover="false" HorizontalScrollbar="true" Elevation="0" Breakpoint="Breakpoint.Sm" LoadingProgressColor="Color.Info" CanCancelEdit="true" ReadOnly="false">
                             <ToolBarContent>
-                                <MudButton DisableElevation Size="Size.Small" Variant="Variant.Filled" Color="Color.Primary" OnClick="(() => InvokeBookingItemGuestDialog(RequestModel))" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Surface" Class="mb-2">@L["Add additional Guest"]</MudButton>
+                                @if (!TourBooking.IsPaid)
+                                {
+                                    <MudButton DisableElevation Size="Size.Small" Variant="Variant.Filled" Color="Color.Primary" OnClick="(() => InvokeBookingItemGuestDialog(RequestModel))" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Surface" Class="mb-2">@L["Add additional Guest"]</MudButton>
+                                }
                             </ToolBarContent>
                             <ColGroup>
                                 <col/>
@@ -87,7 +93,11 @@
                                 <MudTd DataLabel="Name">@itemContext.FirstName @itemContext.LastName</MudTd>
                                 <MudTd DataLabel="Email Address">@itemContext.EmailAddress</MudTd>
                                 <MudTd DataLabel="Edit" Style="min-width: 0; width: 270px; text-align: right;">
-                                    <MudButton Variant="Variant.Filled" Size="Size.Small" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="(() => RemoveGuestRow(RequestModel, itemContext.GuestId))">Delete</MudButton>
+                                     <MudButton Variant="Variant.Filled" Size="Size.Small" StartIcon="@Icons.Material.Filled.Edit" Color="Color.Tertiary" OnClick="(() => InvokeBookingItemGuestDialog(RequestModel, itemContext))">Edit</MudButton>
+                                    @if (!TourBooking.IsPaid)
+                                    {
+                                        <MudButton Variant="Variant.Filled" Size="Size.Small" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="(() => RemoveGuestRow(RequestModel, itemContext.GuestId))">Delete</MudButton>
+                                    }
                                 </MudTd>
                             </RowTemplate>
                         </MudTable>
@@ -98,7 +108,7 @@
         </DialogContent>
         <DialogActions>
             <MudButton DisableElevation Variant="Variant.Filled" OnClick="Cancel" StartIcon="@Icons.Material.Filled.Cancel">@L["Cancel"]</MudButton>
-            <MudButton DisableElevation Variant="Variant.Filled" ButtonType="ButtonType.Submit" Color="Color.Success" StartIcon="@Icons.Material.Filled.Save">@L["Confirm"]</MudButton>
+            <MudButton DisableElevation Variant="Variant.Filled" ButtonType="ButtonType.Submit" Color="Color.Secondary" StartIcon="@Icons.Material.Filled.Save">@L["Confirm"]</MudButton>
         </DialogActions>
     </MudDialog>
 </EditForm>

@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Options;
 using Stripe;
 using Stripe.Checkout;
+using Travaloud.Application.Catalog.Bookings.Commands;
 using Travaloud.Application.Catalog.Bookings.Specification;
+using Travaloud.Application.Catalog.Interfaces;
 using Travaloud.Application.PaymentProcessing.Extensions;
 using Travaloud.Application.PaymentProcessing.Queries;
 using Travaloud.Domain.Catalog.Bookings;
@@ -22,6 +24,7 @@ internal class CreateStripeQrCodeRequestHandler : IRequestHandler<CreateStripeQr
     private readonly IRepositoryFactory<Booking> _repository;
     private readonly IStringLocalizer<CreateStripeQrCodeRequestHandler> _localizer;
     private readonly IStripeService _stripeService;
+    private readonly IBookingsService _bookingsService;
     private readonly StripeSettings _stripeSettings;
 
     public CreateStripeQrCodeRequestHandler(
@@ -30,11 +33,13 @@ internal class CreateStripeQrCodeRequestHandler : IRequestHandler<CreateStripeQr
         IStripeService stripeService,
         IHostingEnvironment hostingEnvironment, 
         IMultiTenantContextAccessor multiTenantContextAccessor,
-        IOptions<MultiTenantStripeSettings> multiTenantStripeOptions)
+        IOptions<MultiTenantStripeSettings> multiTenantStripeOptions, 
+        IBookingsService bookingsService)
     {
         _repository = repository;
         _localizer = localizer;
         _stripeService = stripeService;
+        _bookingsService = bookingsService;
 
         var multiTenantStripeSettings = multiTenantStripeOptions.Value;
         var tenantIdentifier = multiTenantContextAccessor?.MultiTenantContext?.TenantInfo?.Identifier;
@@ -76,12 +81,14 @@ internal class CreateStripeQrCodeRequestHandler : IRequestHandler<CreateStripeQr
         var toursLineItems = toursLineItemsParsed?.Item2;
         
         var propertiesLabel = propertiesLineItemsParsed?.Item1;
-        var toursLabel = propertiesLineItemsParsed?.Item1;
+        var toursLabel = toursLineItemsParsed?.Item1;
         
         var lineItems = propertiesLineItems!.Union(toursLineItems!).ToList();
 
         var description = string.Join(", ", propertiesLabel, toursLabel);
-        description = description.Trim().TrimEnd(',');
+        char[] charsToTrim = [',', ' '];
+        
+        description = $"{description.Trim().TrimStart(charsToTrim).TrimEnd(',')} - Booking: {booking?.InvoiceId}";
         
         var options = new SessionCreateOptions
         {
@@ -123,6 +130,11 @@ internal class CreateStripeQrCodeRequestHandler : IRequestHandler<CreateStripeQr
         var service = new SessionService(_stripeClient);
         var session = await service.CreateAsync(options, cancellationToken: cancellationToken);
 
+        if (session == null)
+            throw new CustomException("Unable to create a Stripe Session");
+
+        await _bookingsService.FlagBookingStripeStatus(new FlagBookingStripeStatusRequest(booking.Id, session.Id));
+        
         return session.Url;
     }
 }

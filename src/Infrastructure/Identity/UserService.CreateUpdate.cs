@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Travaloud.Application.Common.Extensions;
 using Travaloud.Application.Identity.Users;
 using Travaloud.Application.Identity.Users.Password;
 using Travaloud.Domain.Common;
@@ -18,7 +19,7 @@ internal partial class UserService
 
         var hashedPassword = _passwordHasher.HashPassword(user, model.NewPassword);
         user.PasswordHash = hashedPassword;
-        
+
         dbContext.Users.Update(user);
 
         await dbContext.SaveChangesAsync();
@@ -73,13 +74,13 @@ internal partial class UserService
                 {
                     UserId = user.Id,
                     RoleId = role!.Id
-                });   
+                });
             }
 
             await dbContext.SaveChangesAsync();
 
             var messages = new List<string> {string.Format(_localizer["User {0} Registered."], user.UserName)};
-            
+
             await _events.PublishAsync(new ApplicationUserCreatedEvent(user.Id));
 
             return string.Join(Environment.NewLine, messages);
@@ -90,7 +91,7 @@ internal partial class UserService
         }
     }
 
-     public async Task<string> CreateAsync(CreateUserRequest request, string roleName)
+    public async Task<string> CreateAsync(CreateUserRequest request, string roleName)
     {
         await using var dbContext = CreateDbContext();
 
@@ -129,7 +130,7 @@ internal partial class UserService
                 var hashedPassword = _passwordHasher.HashPassword(user, request.Password);
                 user.PasswordHash = hashedPassword;
             }
-            
+
             await dbContext.Users.AddAsync(user);
 
             await dbContext.SaveChangesAsync();
@@ -141,11 +142,11 @@ internal partial class UserService
                 {
                     UserId = user.Id,
                     RoleId = role!.Id
-                });   
+                });
             }
 
             await dbContext.SaveChangesAsync();
-            
+
             await _events.PublishAsync(new ApplicationUserCreatedEvent(user.Id));
 
             return user.Id;
@@ -155,48 +156,54 @@ internal partial class UserService
             return _localizer["Validation Errors Occurred."];
         }
     }
-    
-      public async Task<string> BatchCreateAsync(List<CreateUserRequest> request, string roleName)
+
+    public async Task<string> BatchCreateAsync(List<CreateUserRequest> request, string roleName)
     {
         await using var dbContext = CreateDbContext();
 
         await using var transaction = await dbContext.Database.BeginTransactionAsync();
-        
+
         try
         {
-            var users = request.Select(x => new ApplicationUser
+            var usersToInsert = new List<ApplicationUser>();
+            foreach (var user in request)
             {
-                Email = x.Email,
-                FirstName = x.FirstName,
-                LastName = x.LastName,
-                FullName = $"{x.FirstName} {x.LastName}",
-                UserName = x.Email,
-                PhoneNumber = x.PhoneNumber,
-                Address = x.Address,
-                City = x.City,
-                Nationality = x.Nationality,
-                Gender = x.Gender,
-                DateOfBirth = x.DateOfBirth,
-                PassportExpiryDate = x.PassportExpiryDate,
-                PassportIssueDate = x.PassportIssueDate,
-                PassportNumber = x.PassportNumber,
-                PassportIssuingCountry = x.PassportIssuingCountry,
-                VisaExpiryDate = x.VisaExpiryDate,
-                VisaIssueDate = x.VisaIssueDate,
-                ZipPostalCode = x.ZipPostalCode,
-                SignUpDate = DateTime.Now,
-                IsActive = true,
-                EmailConfirmed = true,
-                NormalizedEmail = x.Email.Normalize().ToUpper(),
-                NormalizedUserName = x.Email.Normalize().ToUpper(),
-                LockoutEnabled = true
-            }).DistinctBy(x => x.NormalizedUserName);
+                var username = string.IsNullOrEmpty(user.Email) ? DefaultIdType.NewGuid().ToString() : user.Email;
+                var newUser = new ApplicationUser
+                {
+                    Email = user.Email,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    FullName = $"{user.FirstName} {user.LastName}",
+                    UserName = username,
+                    PhoneNumber = user.PhoneNumber,
+                    Address = user.Address,
+                    City = user.City,
+                    Nationality = user.Nationality,
+                    Gender = user.Gender,
+                    DateOfBirth = user.DateOfBirth,
+                    PassportExpiryDate = user.PassportExpiryDate,
+                    PassportIssueDate = user.PassportIssueDate,
+                    PassportNumber = user.PassportNumber,
+                    PassportIssuingCountry = user.PassportIssuingCountry,
+                    VisaExpiryDate = user.VisaExpiryDate,
+                    VisaIssueDate = user.VisaIssueDate,
+                    ZipPostalCode = user.ZipPostalCode,
+                    SignUpDate = DateTime.Now,
+                    IsActive = true,
+                    EmailConfirmed = true,
+                    NormalizedEmail = user.Email?.Normalize().ToUpper(),
+                    NormalizedUserName = username.Normalize().ToUpper(),
+                    LockoutEnabled = true,
+                    CloudbedsGuestId = user.CloudbedsGuestId
+                };
 
-            var applicationUsers = users as ApplicationUser[] ?? users.ToArray();
-            
-            await dbContext.Users.AddRangeAsync(applicationUsers);
+                usersToInsert.Add(newUser);
+            }
+
+            await dbContext.Users.AddRangeAsync(usersToInsert);
             await dbContext.SaveChangesAsync();
-            
+
             var role = await dbContext.Roles.FirstOrDefaultAsync(x => x.Name == roleName);
 
             if (role == null)
@@ -204,14 +211,14 @@ internal partial class UserService
                 await transaction.RollbackAsync();
                 return "No role round.";
             }
-            
-            foreach (var user in applicationUsers)
+
+            foreach (var user in usersToInsert)
             {
                 // Ensure the user exists in the database
                 var existingUser = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == user.Id);
                 if (existingUser != null)
                 {
-                    var userRole = new IdentityUserRole<string> { UserId = user.Id, RoleId = role.Id };
+                    var userRole = new IdentityUserRole<string> {UserId = user.Id, RoleId = role.Id};
                     dbContext.UserRoles.Add(userRole);
                 }
                 else
@@ -224,14 +231,14 @@ internal partial class UserService
 
             await dbContext.SaveChangesAsync();
 
-            foreach (var user in applicationUsers)
-            {
-                await _events.PublishAsync(new ApplicationUserCreatedEvent(user.Id));
-            }
+            // foreach (var user in usersToInsert)
+            // {
+            //     await _events.PublishAsync(new ApplicationUserCreatedEvent(user.Id));
+            // }
 
             await transaction.CommitAsync();
-            
-            return $"Guests Added: {applicationUsers.Count()}";
+
+            return $"Guests Added: {usersToInsert.Count()}";
         }
         catch (Exception ex)
         {
@@ -239,7 +246,54 @@ internal partial class UserService
             return _localizer[ex.Message];
         }
     }
-     
+
+    public async Task<string> BatchUpdateAsync(List<UpdateUserRequest> request)
+    {
+        await using var dbContext = CreateDbContext();
+
+        await using var transaction = await dbContext.Database.BeginTransactionAsync();
+
+        try
+        {
+            var usersToUpdate = new List<ApplicationUser>();
+            foreach (var user in request)
+            {
+                var existingUser = dbContext.Users.FirstOrDefault(x => x.Id == user.Id);
+                
+                if (existingUser == null) continue;
+                
+                existingUser.CloudbedsGuestId = user.CloudbedsGuestId;
+                existingUser.FirstName = user.FirstName;
+                existingUser.LastName = user.LastName;
+                existingUser.PassportNumber = user.PassportNumber;
+                existingUser.PhoneNumber = user.PhoneNumber;
+                existingUser.DateOfBirth = user.DateOfBirth;
+                existingUser.FullName = $"{user.FirstName} {user.LastName}";
+                existingUser.Gender = user.Gender.GenderMatch();
+                existingUser.Nationality = user.Nationality;
+
+                usersToUpdate.Add(existingUser);
+            }
+
+            dbContext.Users.UpdateRange(usersToUpdate);
+            await dbContext.SaveChangesAsync();
+
+            // foreach (var user in usersToUpdate)
+            // {
+            //     await _events.PublishAsync(new ApplicationUserUpdatedEvent(user.Id));
+            // }
+
+            await transaction.CommitAsync();
+
+            return $"Guests Updated: {usersToUpdate.Count()}";
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            return _localizer[ex.Message];
+        }
+    }
+
     public async Task UpdateAsync(UpdateUserRequest request, string userId)
     {
         await using var dbContext = CreateDbContext();

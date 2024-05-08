@@ -1,0 +1,127 @@
+@using HtmlHelpers.BeginCollectionItemCore
+@using System.Text.Json
+@model Travaloud.Application.Catalog.Tours.Dto.TourDetailsDto
+
+@using (Html.BeginCollectionItem("PropertyTours"))
+{
+    <div class="row border-bottom mb-4 pb-4 d-flex align-items-center">
+        <div class="col-md-4 mb-4 mb-md-0">
+            <div class="bg-image rounded-5 overflow-hidden d-block">
+                <img src="@Model.ImagePath" class="w-100" alt=""/>
+
+                <a href="#!">
+                    <div class="hover-overlay">
+                        <div
+                            class="mask"
+                            style="background-color: hsla(0, 0%, 98.4%, 0.2)">
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            <div class="row">
+                <div class="col-md-8 mb-4 mb-md-0">
+                    <p class="fw-bold">@Model.Name</p>
+                </div>
+                <div class="col-md-4 mb-4 mb-md-0 d-none d-lg-block">
+                    <div class="d-block w-100 text-end">
+                        @* <span class="badge badge-@(Model.RoomsAvailable < 5 ? "danger" : "primary")">@Model.Availability</span> *@
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-lg-3">
+                <div class="col-8 mb-4 mb-md-0">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <span class="small">Availability</span><br/>
+                            <span class="text-muted small">
+                                <i class="fa-solid fa-calendar"></i>
+                                @Model.TourDates.Count dates available
+                            </span>
+                        </div>
+                        <div class="col-lg-6">
+                            <span class="small">Duration</span><br/>
+                            <span class="text-muted small">
+                                <i class="fa-solid fa-clock"></i>
+
+                                @{
+                                    var duration = "";
+                                    var dayDurationExists = !string.IsNullOrEmpty(Model.DayDuration);
+                                    var nightDurationExists = !string.IsNullOrEmpty(Model.NightDuration);
+                                    var hourDurationExists = !string.IsNullOrEmpty(Model.HourDuration);
+
+                                    if (dayDurationExists)
+                                        duration += $"{Model.DayDuration} Day{(Model.DayDuration != "1" ? "s" : "")}";
+
+                                    if (nightDurationExists)
+                                        duration += $"{(dayDurationExists ? " " : "")}{Model.NightDuration} Night{(Model.NightDuration != "1" ? "s" : "")}";
+
+                                    if (hourDurationExists)
+                                        duration += $"{(dayDurationExists ? " " : "")}{Model.HourDuration} Hour{(Model.HourDuration != "1" ? "s" : "")}";
+
+                                    @duration
+                                }
+
+
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-4 mb-4 mb-md-0">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="d-block w-100 text-end">
+                                <span class="text-muted small"> Price From</span><br/>
+                                @if (Model.TourPrices != null)
+                                {
+                                    var cheapestRate = Model.TourPrices.OrderBy(x => x.Price).First().Price.ToString("F2");
+                                    <span class="fw-bold">@($"${cheapestRate}")</span>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-lg-6 d-lg-none d-block">
+                            <div class="d-block w-100 text-end">
+                                @* <small *@
+                                @*     class="text-primary fw-bold roomToggleButton" *@
+                                @*     type="button" *@
+                                @*     data-mdb-collapse-init *@
+                                @*     data-mdb-target="#@($"roomDetails{Model.RoomTypeId}")" *@
+                                @*     aria-expanded="false" *@
+                                @*     aria-controls="@($"roomDetails{Model.RoomTypeId}")"> *@
+                                @*     <i class="fa-solid fa-circle-arrow-down"></i> Show Details *@
+                                @* </small> *@
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-lg-4">
+                <div class="col-lg-4">
+                    <select data-mdb-select-init class="h-100 bg-primary js-tour-date-select" data-tour-dates="@JsonSerializer.Serialize(Model.TourDates)" data-tour-id="@Model.Id">
+                        <option value="" hidden selected=""></option>
+                        @foreach (var date in Model.TourDates.DistinctBy(x => x.StartDate.Date))
+                        {
+                            <option value="@date.StartDate">@date.StartDate.ToShortDateString()</option>
+                        }
+                    </select>
+                    <label class="form-label select-label">Select Date</label>
+                </div>
+                <div class="col-lg-4">
+                    <select data-mdb-select-init class="h-100 bg-primary js-tour-time-select" disabled data-tour-id="@Model.Id">
+                        <option value="" hidden selected=""></option>
+                    </select>
+                    <label class="form-label select-label">Select Time</label>
+                </div>
+                <div class="col-lg-4">
+                    <div class="form-outline" data-mdb-input-init>
+                        <input type="number" class="form-control js-tour-guest-quantity-select" disabled="" data-tour-id="@Model.Id" data-tour-name="@Model.Name" data-tour-image-url="@Model.ImagePath?.FormatImageUrl(600, "fuse")"/>
+                        <label class="form-label select-label">No. of Guests</label>
+                    </div>
+
+                    @* <span asp-validation-for="GuestQuantity" class="travaloud-validation"></span> *@
+                </div>
+            </div>
+        </div>
+    </div>
+}

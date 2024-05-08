@@ -1,9 +1,20 @@
+using System.Text;
+using System.Text.Encodings.Web;
+using BlazorTemplater;
+using Finbuckle.MultiTenant;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
 using MudBlazor;
+using Travaloud.Admin.Components.Account.Pages;
 using Travaloud.Admin.Components.EntityTable;
+using Travaloud.Application.Common.Mailing;
 using Travaloud.Application.Identity.Users;
 using Travaloud.Infrastructure.Auth;
+using Travaloud.Infrastructure.Common.Services;
+using Travaloud.Infrastructure.Identity;
+using Travaloud.Infrastructure.Multitenancy;
 using Travaloud.Shared.Authorization;
 
 namespace Travaloud.Admin.Components.Pages.Staff;
@@ -14,6 +25,12 @@ public partial class Staff
 
     [Inject] protected IUserService UserService { get; set; } = default!;
 
+    [Inject] protected UserManager<ApplicationUser> UserManager { get; set; } = default!;
+
+    [Inject] protected IMailService MailService { get; set; } = default!;
+
+    [CascadingParameter] private TravaloudTenantInfo? TenantInfo { get; set; }
+    
     private EntityClientTableContext<UserDetailsDto, string, CreateUserRequest> Context { get; set; } = default!;
 
     private bool _canExportUsers;
@@ -38,8 +55,7 @@ public partial class Staff
             searchAction: TravaloudAction.View,
             fields:
             [
-                new EntityField<UserDetailsDto>(user => user.FirstName, L["First Name"]),
-                new EntityField<UserDetailsDto>(user => user.LastName, L["Last Name"]),
+                new EntityField<UserDetailsDto>(user => user.FullName, L["Name"]),
                 new EntityField<UserDetailsDto>(user => user.UserName, L["UserName"]),
                 new EntityField<UserDetailsDto>(user => user.Email, L["Email"]),
                 new EntityField<UserDetailsDto>(user => user.PhoneNumber, L["PhoneNumber"]),
@@ -50,6 +66,7 @@ public partial class Staff
             loadDataFunc: async () => (await UserService.GetListAsync()).ToList(),
             searchFunc: (searchString, user) =>
                 string.IsNullOrWhiteSpace(searchString)
+                    || user.FullName?.Contains(searchString, StringComparison.OrdinalIgnoreCase) == true
                     || user.FirstName?.Contains(searchString, StringComparison.OrdinalIgnoreCase) == true
                     || user.LastName?.Contains(searchString, StringComparison.OrdinalIgnoreCase) == true
                     || user.Email?.Contains(searchString, StringComparison.OrdinalIgnoreCase) == true
@@ -69,6 +86,39 @@ public partial class Staff
     private void ManageRoles(in string userId) =>
         NavigationManager.NavigateTo($"/staff/{userId}/roles");
 
+    private async Task SendPasswordResetLink(string email)
+    {
+        await LoadingService.ToggleLoaderVisibility(true);
+        
+        var user = await UserManager.FindByEmailAsync(email);
+
+        if (user is null)
+            return;
+
+        await ServiceHelper.ExecuteCallGuardedAsync(async () =>
+        {
+            var code = await UserManager.GeneratePasswordResetTokenAsync(user);
+            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+            var callbackUrl = NavigationManager.GetUriWithQueryParameters(
+                NavigationManager.ToAbsoluteUri("account/reset-password").AbsoluteUri,
+                new Dictionary<string, object?> {["code"] = code});
+        
+            var mailHtml = new ComponentRenderer<EmailTemplates.ForgotPasswordConfirmation>()
+                .Set(c => c.Model, new ForgotPassword.PasswordResetModel(user, email, HtmlEncoder.Default.Encode(callbackUrl), TenantInfo!))
+                .Render();
+            
+            var mailRequest = new MailRequest(
+                [email],
+                L["Reset Password"],
+                mailHtml);
+
+            await MailService.SendAsync(mailRequest);
+        }, Snackbar, Logger, "Password Reset Sent Successfully.");
+        
+        await LoadingService.ToggleLoaderVisibility(false);
+        StateHasChanged();
+    }
+    
     private void TogglePasswordVisibility()
     {
         if (_passwordVisibility)

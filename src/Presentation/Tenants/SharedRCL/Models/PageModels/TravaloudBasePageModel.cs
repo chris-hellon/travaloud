@@ -1457,7 +1457,8 @@ public class TravaloudBasePageModel : PageModel
                 booking.BookingDate,
                 UserId != null ? UserId.Value.ToString() : string.Empty,
                 booking.GuestName,
-                booking.GuestEmail));
+                booking.GuestEmail,
+                booking.AdditionalNotes, "Website"));
 
             return JsonSuccessResult(booking);
         }

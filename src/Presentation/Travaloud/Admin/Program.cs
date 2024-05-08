@@ -8,6 +8,7 @@ using Travaloud.Admin.Configurations;
 using Travaloud.Application;
 using Travaloud.Infrastructure;
 using Travaloud.Infrastructure.Common;
+using Travaloud.Infrastructure.PaymentProcessing;
 
 StaticLogger.EnsureInitialized();
 Log.Information("Server Booting Up...");
@@ -73,13 +74,14 @@ try
         .AddInteractiveServerRenderMode();
 
     app.MapAdditionalIdentityEndpoints();
+    app.MapStripeWebhookEndpoint();
     app.UseStatusCodePagesWithRedirects("/error/{0}");
     
     if (!app.Environment.IsDevelopment())
     {
         app.UseResponseCompression();
     }
-
+    
     Log.Information("Application running successfully");
 
     app.Run();

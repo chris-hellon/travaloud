@@ -4,7 +4,7 @@ public class CreateUserRequest
 {
     public string FirstName { get; set; } = default!;
     public string LastName { get; set; } = default!;
-    public string Email { get; set; } = default!;
+    public string? Email { get; set; }
     public string? PhoneNumber { get; set; }
     public DateTime? DateOfBirth { get; set; }
     public string? Gender { get; set; }
@@ -24,4 +24,5 @@ public class CreateUserRequest
     public string ConfirmPassword { get; set; } = default!;
     public bool IsGuest { get; set; }
     public bool EmailRequired { get; set; } = true;
+    public string? CloudbedsGuestId { get; set; }
 }

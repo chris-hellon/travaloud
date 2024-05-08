@@ -33,7 +33,13 @@ public interface IBookingsService : ITransientService
 
     Task<FileResponse> ExportAsync(ExportBookingsRequest filter);
 
-    Task<IEnumerable<StaffBookingDto>> StaffBookingsByDateRange(StaffBookingsByDateRangeRequest request);
+    Task<PaginationResponse<StaffBookingDto>> StaffBookingsByDateRange(StaffBookingsByDateRangeRequest request);
 
     Task<FileResponse> ExportStaffBookingsAsync(ExportStaffBookingsRequest filter);
+
+    Task FlagBookingStripeStatus(FlagBookingStripeStatusRequest request);
+
+    Task<bool> RefundBooking(RefundBookingRequest request);
+
+    Task<DefaultIdType?> FlagBookingConfirmationEmailAsync(DefaultIdType id, FlagBookingConfirmationEmailRequest request);
 }

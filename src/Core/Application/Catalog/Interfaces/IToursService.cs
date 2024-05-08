@@ -34,4 +34,6 @@ public interface IToursService : ITransientService
     Task<IEnumerable<TourDetailsDto>> GetToursByDestinations(GetToursByDestinationsWithDatesRequest request);
 
     Task<IEnumerable<TourPickupLocationDto>> GetTourPickupLocations(DefaultIdType id);
+
+    Task<IEnumerable<TourDetailsDto>> SearchToursByDateRangeAndDestinations(SearchToursByDateRangeAndDestinationsRequest request);
 }

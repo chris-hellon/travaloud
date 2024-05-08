@@ -69,6 +69,19 @@ public class BookingsService : BaseService, IBookingsService
         return await Mediator.Send(request);
     }
 
+    public async Task<DefaultIdType?> FlagBookingConfirmationEmailAsync(DefaultIdType id, FlagBookingConfirmationEmailRequest request)
+    {
+        if (id != request.Id)
+            throw new ConflictException("Id and request.Id do not match");
+        
+        return await Mediator.Send(request);
+    }
+    
+    public Task FlagBookingStripeStatus(FlagBookingStripeStatusRequest request)
+    {
+        return Mediator.Send(request);
+    }
+
     public async Task<DefaultIdType> UpdateBookingItemReservation(DefaultIdType id, UpdateBookingItemReservationIdRequest request)
     { 
         if (id != request.Id)
@@ -86,6 +99,11 @@ public class BookingsService : BaseService, IBookingsService
     {
         return Mediator.Send(new DeleteBookingItemRequest(id));
     }
+
+    public Task<bool> RefundBooking(RefundBookingRequest request)
+    {
+        return Mediator.Send(request);
+    }
     
     public async Task<FileResponse> ExportAsync(ExportBookingsRequest filter)
     {
@@ -96,7 +114,7 @@ public class BookingsService : BaseService, IBookingsService
         return new FileResponse(response);
     }
 
-    public Task<IEnumerable<StaffBookingDto>> StaffBookingsByDateRange(StaffBookingsByDateRangeRequest request)
+    public Task<PaginationResponse<StaffBookingDto>> StaffBookingsByDateRange(StaffBookingsByDateRangeRequest request)
     {
         return Mediator.Send(request);
     }

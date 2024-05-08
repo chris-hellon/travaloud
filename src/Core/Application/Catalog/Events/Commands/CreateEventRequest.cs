@@ -28,6 +28,9 @@ public class CreateEventRequestHandler : IRequestHandler<CreateEventRequest, Def
 
     public async Task<DefaultIdType> Handle(CreateEventRequest request, CancellationToken cancellationToken)
     {
+        if (request.Image == null)
+            throw new CustomException("Please Select a Background Image");
+        
         var eventImagePath = await _file.UploadAsync<Event>(request.Image, FileType.Image, cancellationToken);
 
         var @event = new Event(request.Name!, request.Description, request.ShortDescription, eventImagePath,

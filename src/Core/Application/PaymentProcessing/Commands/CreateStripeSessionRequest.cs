@@ -84,7 +84,9 @@ internal class CreateStripeSessionRequestHandler : IRequestHandler<CreateStripeS
         var lineItems = propertiesLineItems!.Union(toursLineItems!).ToList();
 
         var description = string.Join(", ", propertiesLabel, toursLabel);
-        description = description.Trim().TrimEnd(',');
+        char[] charsToTrim = [',', ' '];
+        
+        description = description.Trim().TrimStart(charsToTrim).TrimEnd(',');
 
         var options = new SessionCreateOptions
         {

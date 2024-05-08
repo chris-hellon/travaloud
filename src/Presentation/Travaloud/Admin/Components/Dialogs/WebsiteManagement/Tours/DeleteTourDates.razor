@@ -18,7 +18,7 @@
                 <MudText Typo="Typo.body1">Delete a range of Dates by selecting a Range and/or Start Time below. If no range is selected, all dates without a booking will be deleted.</MudText>
                 </MudItem>
                 <MudItem xs="12" md="12">
-                    <MudDateRangePicker @bind-DateRange="@DeleteDateRange" Margin="Margin.Dense" MinDate="DateTime.Now.AddDays(-1)" Variant="Variant.Outlined" DateFormat="dd/MM/yyyy" Clearable="true" PlaceholderStart="Start Date" PlaceholderEnd="End Date"/>
+                    <MudDateRangePicker AutoClose="true" @bind-DateRange="@DeleteDateRange" Margin="Margin.Dense" MinDate="DateTime.Now.AddDays(-1)" Variant="Variant.Outlined" DateFormat="dd/MM/yyyy" Clearable="true" PlaceholderStart="Start Date" PlaceholderEnd="End Date"/>
                 </MudItem>
 
                 <MudItem xs="12" md="12">

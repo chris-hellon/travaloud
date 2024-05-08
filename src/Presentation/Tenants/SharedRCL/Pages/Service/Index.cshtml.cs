@@ -64,8 +64,7 @@ public class IndexModel : TravaloudBasePageModel
             var mailRequest = new MailRequest(
                 to: [MailSettings.ToAddress],
                 subject:$"New {ServiceTitle} Request",
-                body: emailHtml,
-                bcc: [MailSettings.BccAddress.ToString()]);
+                body: emailHtml);
         
             await MailService.SendAsync(mailRequest);
         }

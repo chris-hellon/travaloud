@@ -87,4 +87,9 @@ public class ToursService : BaseService, IToursService
     {
         return Mediator.Send(new GetTourPickupLocationsRequest(id));
     }
+
+    public Task<IEnumerable<TourDetailsDto>> SearchToursByDateRangeAndDestinations(SearchToursByDateRangeAndDestinationsRequest request)
+    {
+        return Mediator.Send(request);
+    }
 }

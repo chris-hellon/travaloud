@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Travaloud.Domain.Catalog.Bookings;
 
@@ -16,7 +17,10 @@ public class Booking : AuditableEntity, IAggregateRoot
     public string? StripeSessionId { get; private set; }
     public bool? BookingConfirmed { get; private set; }
     public bool? WaiverSigned { get; private set; }
-    
+    public string? AdditionalNotes { get; private set; }
+    [MaxLength(128)] public string? BookingSource { get; private set; }
+    public bool? ConfirmationEmailSent { get; private set; }
+
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int InvoiceId { get; private set; }
 
@@ -25,7 +29,6 @@ public class Booking : AuditableEntity, IAggregateRoot
 
     public Booking()
     {
-
     }
 
     public Booking(
@@ -35,11 +38,13 @@ public class Booking : AuditableEntity, IAggregateRoot
         int itemQuantity,
         bool isPaid,
         DateTime bookingDate,
-        string? guestId, 
+        string? guestId,
         string? stripeSessionId,
         bool? waiverSigned,
-        string? guestName, 
-        string? guestEmail)
+        string? guestName,
+        string? guestEmail,
+        string? additionalNotes,
+        string? bookingSource)
     {
         Description = description;
         TotalAmount = totalAmount;
@@ -52,6 +57,8 @@ public class Booking : AuditableEntity, IAggregateRoot
         WaiverSigned = waiverSigned;
         GuestName = guestName;
         GuestEmail = guestEmail;
+        AdditionalNotes = additionalNotes;
+        BookingSource = bookingSource;
     }
 
     public Booking Update(
@@ -66,6 +73,8 @@ public class Booking : AuditableEntity, IAggregateRoot
         bool? waiverSigned = null,
         string? guestName = null,
         string? guestEmail = null,
+        string? additionalNotes = null,
+        string? bookingSource = null,
         IList<BookingItem>? items = null)
     {
         if (description is not null && Description != description)
@@ -88,22 +97,25 @@ public class Booking : AuditableEntity, IAggregateRoot
 
         if (guestId is not null && GuestId != guestId)
             GuestId = guestId;
-        
+
         if (items is not null && Items != items)
             Items = items;
-        
+
         if (stripeSessionId is not null && StripeSessionId != stripeSessionId)
             StripeSessionId = stripeSessionId;
 
         if (waiverSigned is not null && WaiverSigned != waiverSigned)
             WaiverSigned = waiverSigned.Value;
-        
+
         if (guestName is not null && GuestName != guestName)
             GuestName = guestName;
-        
+
         if (guestEmail is not null && GuestEmail != guestEmail)
             GuestEmail = guestEmail;
-        
+
+        AdditionalNotes = additionalNotes;
+        BookingSource = bookingSource;
+
         return this;
     }
 
@@ -111,6 +123,13 @@ public class Booking : AuditableEntity, IAggregateRoot
     {
         IsPaid = true;
         BookingConfirmed = true;
+
+        return this;
+    }
+
+    public Booking FlagConfirmationEmailSent()
+    {
+        ConfirmationEmailSent = true;
 
         return this;
     }

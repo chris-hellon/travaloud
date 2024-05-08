@@ -39,8 +39,15 @@ public partial class Login
 
         if (TenantInfo?.Id == "root")
         {
-            Input.Email = MultitenancyConstants.Root.EmailAddress;
-            Input.Password = MultitenancyConstants.DefaultPassword;
+            var currentUrl = NavigationManager.BaseUri;
+
+            currentUrl = currentUrl.TrimEnd('/');
+
+            if (currentUrl.Contains("localhost"))
+            {
+                Input.Email = MultitenancyConstants.Root.EmailAddress;
+                Input.Password = MultitenancyConstants.DefaultPassword;
+            }
         }
     }
 

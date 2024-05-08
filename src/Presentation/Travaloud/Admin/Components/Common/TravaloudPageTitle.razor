@@ -1,13 +1,33 @@
-@if (TenantInfo != null)
+@if (AdditionalContent != null)
 {
-    <MudText Typo="Typo.h1" Color="Color.Primary" Class="mb-2">@Title</MudText>
-    <MudText Color="Color.Surface" Class="mb-4">@Description</MudText>
+    <MudToolBar DisableGutters="true">
+        @if (TenantInfo != null)
+        {
+            <MudText Typo="Typo.h1" Color="Color.Primary" Class="mb-2">@Title</MudText>
+            <MudText Color="Color.Surface" Class="mb-4">@Description</MudText>
+        }
+        else
+        {
+            <PageTitle>@Title</PageTitle>
+
+            <MudText Typo="Typo.h1" Color="Color.Primary" Class="mb-2">@Title</MudText>
+            <MudText Color="Color.Surface" Class="mb-4">@Description</MudText>
+        }
+        @AdditionalContent
+    </MudToolBar>
 }
 else
 {
-    <PageTitle>@Title</PageTitle>
-    
-    <MudText Typo="Typo.h1" Color="Color.Primary" Class="mb-2">@Title</MudText>
-    <MudText Color="Color.Surface" Class="mb-4">@Description</MudText>
-}
+    if (TenantInfo != null)
+    {
+        <MudText Typo="Typo.h1" Color="Color.Primary" Class="mb-2">@Title</MudText>
+        <MudText Color="Color.Surface" Class="mb-4">@Description</MudText>
+    }
+    else
+    {
+        <PageTitle>@Title</PageTitle>
 
+        <MudText Typo="Typo.h1" Color="Color.Primary" Class="mb-2">@Title</MudText>
+        <MudText Color="Color.Surface" Class="mb-4">@Description</MudText>
+    }
+}

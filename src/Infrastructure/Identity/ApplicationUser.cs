@@ -28,4 +28,5 @@ public class ApplicationUser : IdentityUser
     public string? PassportIssuingCountry { get; set; }
     public DateTime? VisaIssueDate { get; set; }
     public DateTime? VisaExpiryDate { get; set; }
+    public string? CloudbedsGuestId { get; set; }
 }

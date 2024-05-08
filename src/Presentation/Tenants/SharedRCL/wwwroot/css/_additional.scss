@@ -114,8 +114,9 @@ footer {
       display: inline-block;
     }
 
-    .nav-link, .accordion-button {
+    .nav-link, .accordion-button, .nav-item {
       --mdb-nav-link-font-size: 17px;
+      line-height:17px;
     }
 
     .navbar-nav {
@@ -285,13 +286,13 @@ footer {
 
   @media(max-width: 415px) {
     .carousel-item .d-flex.pt-8 {
-      padding-top: 2rem !important;
+      padding-top: 6rem !important;
     }
   }
 
   @media(max-width: 376px) {
     .carousel-item .d-flex.pt-8 {
-      padding-top: 3rem !important;
+      padding-top: 6rem !important;
     }
 
     .carousel-item h1 {

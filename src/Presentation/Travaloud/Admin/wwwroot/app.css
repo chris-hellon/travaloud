@@ -1,3 +1,5 @@
+
+
 .travaloud-appbar-filter {
     backdrop-filter: blur(12px);
     z-index: calc(var(--mud-zindex-appbar) + 1);
@@ -28,13 +30,19 @@
 
 .mud-nav-link {
     white-space: normal !important;
-    font-family: 'Bebas Neue';
-    letter-spacing: 0.02rem;
+    font-family: 'DIN 2014 Demi';
+    letter-spacing:.063rem !important;
+    font-weight: 500;
+    text-transform: uppercase;
     padding-top:12px;
     padding-bottom:12px;
 }
 
-.mud-avatar.mud-avatar-small { font-family: 'Bebas Neue';}
+.mud-nav-link.active:not(.mud-nav-link-disabled), .mud-nav-group>.mud-nav-link>.mud-nav-link-text, th {
+    font-weight: 500 !important;
+}
+
+.mud-avatar.mud-avatar-small { font-family: 'DIN 2014 Demi';}
 
 .mud-nav-link.active:not(.mud-nav-link-disabled) {
     border-right: 3px solid var(--mud-palette-primary);
@@ -45,7 +53,7 @@
 
 .mud-table {
     padding: 20px !important;
-    margin-bottom: 20px !important;
+    /*margin-bottom: 20px !important;*/
 }
 
 .mud-card {
@@ -149,12 +157,15 @@
     background-color: var(--mud-palette-background-grey);
 }
 
-.fixed-stepper .mud-stepper-header p, th {
+.fixed-stepper .mud-stepper-header p {
     font-family: var(--mud-typography-h6-family);
     letter-spacing: 0.05rem;
+    text-transform: uppercase;
 }
 th {
-    font-size:1rem;
+    font-size:1rem !important;
+    font-family: 'DIN 2014 Narrow Bold';
+    letter-spacing: 0.05rem;
 }
 
 .fixed-stepper .mud-stepper-header .mud-stepper-header-title {
@@ -205,4 +216,12 @@ th {
 
 .mud-input-root.invalid + div + div  {
     border-color: var(--mud-palette-error) !important; 
+}
+
+.h-100 {
+    height:100%;
+}
+
+.dashboard-pie-chart > div:first-child {
+    position: relative; top: 50%; transform: translateY(-50%)
 }

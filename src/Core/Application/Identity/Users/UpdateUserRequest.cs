@@ -25,4 +25,5 @@ public class UpdateUserRequest
     public bool IsGuest { get; set; }
     public IEnumerable<string>? Genders { get; set; }
     public bool EmailRequired { get; set; } = true;
+    public string? CloudbedsGuestId { get; set; }
 }

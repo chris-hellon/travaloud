@@ -25,6 +25,11 @@ public class CloudbedsService : BaseService, ICloudbedsService
         return Mediator.Send(request);
     }
 
+    public Task<CancelReservationResponse> CancelReservation(CancelReservationRequest request)
+    {
+        return Mediator.Send(request);
+    }
+    
     public Task<CreateReservationAdditionalGuestResponse> CreateReservationAdditionalGuest(CreateReservationAdditionalGuestRequest request)
     {
         return Mediator.Send(request);

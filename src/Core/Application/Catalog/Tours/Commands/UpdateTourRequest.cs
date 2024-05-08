@@ -90,6 +90,7 @@ public class UpdateTourRequestHandler : IRequestHandler<UpdateTourRequest, Defau
 {
     private readonly IRepositoryFactory<Tour> _repository;
     private readonly IRepositoryFactory<Page> _pageRepository;
+    private readonly IRepositoryFactory<TourDestinationLookup> _tourDestinationLookupsRepository;
     private readonly IStringLocalizer<UpdateTourRequestHandler> _localizer;
     private readonly IFileStorageService _file;
     private readonly ICurrentUser _currentUser;
@@ -97,13 +98,16 @@ public class UpdateTourRequestHandler : IRequestHandler<UpdateTourRequest, Defau
     public UpdateTourRequestHandler(IRepositoryFactory<Tour> repository,
         IStringLocalizer<UpdateTourRequestHandler> localizer,
         IFileStorageService file,
-        IRepositoryFactory<Page> pageRepository, ICurrentUser currentUser)
+        IRepositoryFactory<Page> pageRepository, 
+        ICurrentUser currentUser, 
+        IRepositoryFactory<TourDestinationLookup> tourDestinationLookupsRepository)
     {
         _repository = repository;
         _localizer = localizer;
         _file = file;
         _pageRepository = pageRepository;
         _currentUser = currentUser;
+        _tourDestinationLookupsRepository = tourDestinationLookupsRepository;
     }
 
     public async Task<DefaultIdType> Handle(UpdateTourRequest request, CancellationToken cancellationToken)
@@ -112,6 +116,10 @@ public class UpdateTourRequestHandler : IRequestHandler<UpdateTourRequest, Defau
 
         _ = tour ?? throw new NotFoundException(string.Format(_localizer["tour.notfound"], request.Id));
 
+        var tourDestinationLookups = await _tourDestinationLookupsRepository.ListAsync(new TourDestinationLookupsByTourIdSpec(request.Id), cancellationToken);
+
+        tour.TourDestinationLookups = tourDestinationLookups;
+        
         var page = await _pageRepository.SingleOrDefaultAsync(new PageByTitleSpec($"Tours - {tour.Name}"), cancellationToken);
         
         // Remove old image if flag is set

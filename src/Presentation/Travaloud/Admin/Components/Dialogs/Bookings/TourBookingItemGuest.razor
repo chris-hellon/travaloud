@@ -16,10 +16,9 @@
 
             <MudGrid>
                 <MudItem xs="12" md="10">
-                    <MudAutocomplete @ref="@_additionalGuestsList" T="UserDetailsDto" Label="@L["Search Primary Guest"]" For="@(() => RequestModel.Guest)"
+                    <MudAutocomplete @ref="@_additionalGuestsList" T="UserDetailsDto" Label="@L["Search Additional Guest"]" For="@(() => RequestModel.Guest)"
                                                  @bind-Value="RequestModel.Guest" CoerceText="true" SearchFuncWithCancel="@SearchAdditionalGuests" AnchorOrigin="Origin.BottomCenter" Variant="Variant.Outlined" Required="false" ShowProgressIndicator="true"
                                                  MinCharacters="3"
-                                                 KeyDownPreventDefault="true"
                                                  ToStringFunc="@(e=> e==null?null : GetUserDetailsLabel(e))"/>
                 </MudItem>
                         <MudItem xs="12" md="2" Class="d-flex align-content-center" Style="height:93px">
@@ -29,7 +28,7 @@
         </DialogContent>
         <DialogActions>
             <MudButton DisableElevation Variant="Variant.Filled" OnClick="Cancel" StartIcon="@Icons.Material.Filled.Cancel">@L["Cancel"]</MudButton>
-            <MudButton DisableElevation Variant="Variant.Filled" ButtonType="ButtonType.Submit" Color="Color.Success" StartIcon="@Icons.Material.Filled.Save">@L["Confirm"]</MudButton>
+            <MudButton DisableElevation Variant="Variant.Filled" ButtonType="ButtonType.Submit" Color="Color.Secondary" StartIcon="@Icons.Material.Filled.Save">@L["Confirm"]</MudButton>
         </DialogActions>
     </MudDialog>
 </EditForm>

@@ -63,7 +63,7 @@ public class IndexModel : TravaloudBasePageModel
                     
                     Logger.Information("Booking {BookingId} flagged as paid for StripeSessionId {StripeSessionId} ", bookingId, stripeSessionId);
 
-                    if (!Booking.IsPaid)
+                    if (!Booking.ConfirmationEmailSent.HasValue || !Booking.ConfirmationEmailSent.Value)
                     {
                         // Send confirmation email
                         var emailModel = new BookingConfirmationTemplateModel(
@@ -79,19 +79,27 @@ public class IndexModel : TravaloudBasePageModel
                             stripeStatus.CustomerDetails.Email
                         );
 
-                        var emailHtml =
-                            await RazorPartialToStringRenderer.RenderPartialToStringAsync(
-                                $"/Pages/EmailTemplates/BookingConfirmation.cshtml", emailModel);
+                        if (!string.IsNullOrEmpty(stripeStatus.CustomerDetails.Email))
+                        {
+                            var emailHtml =
+                                await RazorPartialToStringRenderer.RenderPartialToStringAsync(
+                                    $"/Pages/EmailTemplates/BookingConfirmation.cshtml", emailModel);
 
-                        var mailRequest = new MailRequest(
-                            to: [stripeStatus.CustomerDetails.Email!],
-                            subject: $"{TenantName} Order Confirmation",
-                            body: emailHtml,
-                            bcc: MailSettings?.BccAddress != null ? MailSettings?.BccAddress.ToList() : []);
+                            var mailRequest = new MailRequest(
+                                to: [stripeStatus.CustomerDetails.Email!],
+                                subject: $"{TenantName} Order Confirmation",
+                                body: emailHtml);
 
-                        await MailService.SendAsync(mailRequest);
-                    
+                            await MailService.SendAsync(mailRequest);
+                        }
+
                         Logger.Information("Confirmation email sent for BookingId {BookingId}", bookingId);
+
+                        await BookingService.FlagBookingConfirmationEmailAsync(bookingId,
+                            new FlagBookingConfirmationEmailRequest
+                            {
+                                Id = bookingId
+                            });
                     }
                     
                     return Page();
