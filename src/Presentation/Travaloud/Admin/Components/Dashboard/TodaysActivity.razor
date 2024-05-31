@@ -1,0 +1,188 @@
+@using Mapster
+@using Microsoft.IdentityModel.Tokens
+@using Travaloud.Application.Catalog.Bookings.Dto
+@using Travaloud.Application.Catalog.Bookings.Queries
+@using Travaloud.Application.Catalog.Interfaces
+@using Travaloud.Application.Catalog.Tours.Dto
+@using Travaloud.Application.Catalog.Tours.Queries
+@using Travaloud.Application.Common.Models
+@using Travaloud.Application.Identity.Users
+
+@inject IStringLocalizer<TodaysActivity> L
+
+@attribute [StreamRendering]
+
+<MudItem xs="12" sm="12">
+    <MudCard Elevation="25" Class="h-100">
+        <MudCardHeader>
+            <CardHeaderContent>
+                <MudText Typo="Typo.h4">Today's Activity</MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+        <MudCardContent>
+            @if (TodaysActivityContext != null)
+            {
+                <EntityTable @ref="@TodaysActivityTable" TEntity="BookingDto" TId="DefaultIdType" TRequest="BookingDto" Context="@TodaysActivityContext" Dense="true" ModalWidth="MaxWidth.Large" Elevation="0" HideActionsColumn="true">
+                    <AdvancedSearchContent>
+                        @if (Tours is {Count: > 0})
+                        {
+                            <MudSelect T="DefaultIdType?" @bind-Value="SearchTourId" Label="Filter by Tour" Clearable="true">
+                                @foreach (var tour in Tours)
+                                {
+                                    <MudSelectItem T="DefaultIdType?" Value="tour.Id">@tour.Name</MudSelectItem>
+                                }
+                            </MudSelect>
+                        }
+                    </AdvancedSearchContent>
+                </EntityTable>
+            }
+            else
+            {
+                <MudSkeleton Height="500px" SkeletonType="SkeletonType.Rectangle"/>
+            }
+        </MudCardContent>
+    </MudCard>
+</MudItem>
+
+@code {
+    [Parameter] public required EntityTable<BookingDto, DefaultIdType, BookingDto> TodaysActivityTable { get; set; }
+
+    [CascadingParameter] private MudTheme? CurrentTheme { get; set; }
+
+    [Inject] private IUserService UserService { get; set; } = default!;
+    [Inject] private IBookingsService BookingsService { get; set; } = default!;
+    [Inject] private IToursService ToursService { get; set; } = default!;
+    
+    private EntityServerTableContext<BookingDto, DefaultIdType, BookingDto>? TodaysActivityContext { get; set; }
+    private ICollection<TourDto> Tours { get; set; } = new List<TourDto>();
+
+    protected override void OnParametersSet()
+    {
+        var toursTask = Task.Run(() => ToursService.SearchAsync(new SearchToursRequest {PageNumber = 1, PageSize = 99999}));
+        Tours = toursTask.Result.Data;
+    }
+    
+    protected override void OnInitialized()
+    {
+        TodaysActivityContext = new EntityServerTableContext<BookingDto, DefaultIdType, BookingDto>(
+            entityName: L["Booking"],
+            entityNamePlural: L["Bookings"],
+            entityResource: TravaloudResource.Bookings,
+            fields:
+            [
+                new EntityField<BookingDto>(booking => booking.InvoiceId, L["Reference"], "InvoiceId"),
+                new EntityField<BookingDto>(booking => booking.Description, L["Description"], "Description"),
+                new EntityField<BookingDto>(booking => booking.GuestName, L["Guest"], "GuestName"),
+                new EntityField<BookingDto>(booking => booking.BookingDate, L["Booking Date"], "BookingDate"),
+                new EntityField<BookingDto>(booking => $"$ {booking.TotalAmount:n2}", L["Total Amount"], "TotalAmount"),
+                new EntityField<BookingDto>(booking => booking.IsPaid ? "Paid" : booking.Refunded.HasValue && booking.Refunded.Value ? "Refunded" : "Unpaid", L["Status"], "IsPaid",
+                    Color: booking => !booking.IsPaid && (!booking.Refunded.HasValue || !booking.Refunded.Value) ? CurrentTheme.Palette.Error : null)
+            ],
+            enableAdvancedSearch: false,
+            searchFunc: async filter => await SearchTourBookings(filter),
+            createAction: string.Empty,
+            deleteAction: string.Empty,
+            updateAction: string.Empty,
+            viewAction: string.Empty,
+            exportAction: string.Empty
+        );
+    }
+
+    private async Task<EntityTable.PaginationResponse<BookingDto>> SearchTourBookings(PaginationFilter filter)
+    {
+        var adaptedFilter = filter.Adapt<SearchBookingsRequest>();
+        adaptedFilter.IsTours = true;
+        adaptedFilter.TourId = SearchTourId;
+        adaptedFilter.BookingStartDate = DateTime.Now;
+        adaptedFilter.BookingEndDate = DateTime.Now;
+
+        if (adaptedFilter.BookingEndDate.HasValue)
+        {
+            adaptedFilter.BookingEndDate =
+                adaptedFilter.BookingEndDate.Value.Date + new TimeSpan(0, 23, 59, 59, 999);
+        }
+
+        if (adaptedFilter.BookingStartDate.HasValue)
+        {
+            adaptedFilter.BookingStartDate =
+                adaptedFilter.BookingStartDate.Value.Date + new TimeSpan(0, 00, 00, 00, 00);
+        }
+
+        if (adaptedFilter is {TourEndDate: not null, TourStartDate: not null})
+        {
+            adaptedFilter.TourEndDate = adaptedFilter.TourEndDate.Value.Date + new TimeSpan(0, 23, 59, 59, 999);
+            adaptedFilter.TourStartDate = adaptedFilter.TourStartDate.Value.Date + new TimeSpan(0, 00, 00, 00, 00);
+        }
+
+        var request = await BookingsService.SearchAsync(adaptedFilter);
+
+        var staffIds = request.Data.Select(x => x.CreatedBy.ToString()).ToList();
+        var primaryGuestIds = request.Data.Where(x => !x.GuestId.IsNullOrEmpty()).Select(x => x.GuestId).ToList();
+        var additionalGuestIds = request.Data
+            .Where(x => x.Items != null && x.Items.Any(i => i.Guests is {Count: > 0}))
+            .SelectMany(x => x.Items.Where(i => i.Guests.Count > 0)
+                .SelectMany(i => i.Guests.Select(g => g.GuestId.ToString()))).ToList();
+
+        var allUserIds = staffIds.Concat(primaryGuestIds).Concat(additionalGuestIds).ToList();
+
+        var users = await UserService.SearchAsync(allUserIds, CancellationToken.None);
+
+        if (users.Count == 0) return request.Adapt<EntityTable.PaginationResponse<BookingDto>>();
+        {
+            var bookings = request.Data.Select(x =>
+            {
+                var staffMember = users.FirstOrDefault(s => s.Id == x.CreatedBy);
+
+                if (staffMember != null)
+                    x.StaffName = $"{staffMember.FirstName} {staffMember.LastName}";
+
+                var primaryGuest = users.FirstOrDefault(u => u.Id == DefaultIdType.Parse(x.GuestId));
+                if (primaryGuest != null)
+                {
+                    x.PrimaryGuest = primaryGuest;
+                }
+
+                if (x.Items != null)
+                    x.Items = x.Items.Select(i =>
+                    {
+                        if (i.Guests != null)
+                            i.Guests = i.Guests.Select(g =>
+                            {
+                                var guest = users.FirstOrDefault(u => u.Id == g.GuestId);
+
+                                if (guest == null) return g;
+
+                                g.FullName = guest.FullName ?? $"{guest.FirstName} {guest.LastName}";
+                                g.DateOfBirth = guest.DateOfBirth;
+                                g.Nationality = guest.Nationality;
+                                g.Email = guest.Email;
+                                g.Gender = guest.Gender;
+
+                                return g;
+                            }).ToList();
+
+                        return i;
+                    }).ToList();
+
+                return x;
+            });
+
+            request.Data = bookings.ToList();
+        }
+
+        return request.Adapt<EntityTable.PaginationResponse<BookingDto>>();
+    }
+
+        
+    private DefaultIdType? _searchTourId;
+
+    private DefaultIdType? SearchTourId
+    {
+        get => _searchTourId;
+        set
+        {
+            _searchTourId = value;
+            _ = TodaysActivityTable.ReloadDataAsync();
+        }
+    }
+}

@@ -1,4 +1,6 @@
-﻿using Travaloud.Application.Catalog.Tours.Dto;
+﻿using Travaloud.Application.Catalog.TourDates.Queries;
+using Travaloud.Application.Catalog.TourDates.Specification;
+using Travaloud.Application.Catalog.Tours.Dto;
 using Travaloud.Application.Catalog.Tours.Specification;
 using Travaloud.Domain.Catalog.Tours;
 
@@ -41,7 +43,10 @@ public class GetTourRequestHandler : IRequestHandler<GetTourRequest, TourDetails
                    ?? throw new NotFoundException(string.Format(_localizer["tour.notfound"], request.Id));
 
         var tourDates =
-            await _tourDatesRepository.ListAsync(new TourDatesByTourIdSpec(new GetTourDatesRequest(request.Id)), cancellationToken);
+            await _tourDatesRepository.ListAsync(new SearchTourDatesSpec(new SearchTourDatesRequest()
+            {
+                TourId = request.Id
+            }), cancellationToken);
 
         var tour = tourWithoutDates.Adapt<TourDetailsDto>();
         
@@ -74,36 +79,36 @@ public class GetTourRequestHandler : IRequestHandler<GetTourRequest, TourDetails
             var tourCategoryDtos = parsedTourCategories as TourCategoryDto[] ?? parsedTourCategories.ToArray();
             tour.ParentTourCategories = tourCategoryDtos.Where(x => x.TopLevelCategory == true).OrderBy(x => x.Name).ToList();
             tour.TourCategories = tourCategoryDtos.Where(x => !x.TopLevelCategory.HasValue || !x.TopLevelCategory.Value).OrderBy(x => x.Name).ToList();
-            var lookups = await _tourCategoryLookupsRepository.ListAsync(new TourCategoryLookupsByTourCategoryIdsSpec(tourCategoryDtos.Select(x => x.Id), tour.Id), cancellationToken);
-
-            if (lookups.Count != 0 != true) return tour;
-            {
-                foreach (var lookup in lookups.Where(lookup => tour.TourCategories.Any(x => x.Id == lookup.TourCategoryId)))
-                {
-                    tour.TourCategoryId = lookup.TourCategoryId;
-                    break;
-                }
-
-                foreach (var lookup in lookups)
-                {
-                    tour.SelectedParentTourCategories ??= [];
-
-                    if (tour.ParentTourCategories.All(x => x.Id != lookup.TourCategoryId)) continue;
-                    {
-                        tour.TourCategoryLookups?.Add(lookup);
-
-                        var parentTourCategory = tour.ParentTourCategories.First(x => x.Id == lookup.TourCategoryId);
-
-                        tour.SelectedParentTourCategories?.Add(parentTourCategory.Id);
-                        tour.SelectedParentTourCategoriesString += $"{parentTourCategory.Name}, ";
-                    }
-                }
-
-                if (tour.SelectedParentTourCategoriesString?.Length > 0)
-                {
-                    tour.SelectedParentTourCategoriesString = tour.SelectedParentTourCategoriesString.Trim().TrimEnd(',');
-                }
-            }
+            // var lookups = await _tourCategoryLookupsRepository.ListAsync(new TourCategoryLookupsByTourCategoryIdsSpec(tourCategoryDtos.Select(x => x.Id), tour.Id), cancellationToken);
+            //
+            // if (lookups.Count != 0 != true) return tour;
+            // {
+            //     foreach (var lookup in lookups.Where(lookup => tour.TourCategories.Any(x => x.Id == lookup.TourCategoryId)))
+            //     {
+            //         tour.TourCategoryId = lookup.TourCategoryId;
+            //         break;
+            //     }
+            //
+            //     foreach (var lookup in lookups)
+            //     {
+            //         tour.SelectedParentTourCategories ??= [];
+            //
+            //         if (tour.ParentTourCategories.All(x => x.Id != lookup.TourCategoryId)) continue;
+            //         {
+            //             tour.TourCategoryLookups?.Add(lookup);
+            //
+            //             var parentTourCategory = tour.ParentTourCategories.First(x => x.Id == lookup.TourCategoryId);
+            //
+            //             tour.SelectedParentTourCategories?.Add(parentTourCategory.Id);
+            //             tour.SelectedParentTourCategoriesString += $"{parentTourCategory.Name}, ";
+            //         }
+            //     }
+            //
+            //     if (tour.SelectedParentTourCategoriesString?.Length > 0)
+            //     {
+            //         tour.SelectedParentTourCategoriesString = tour.SelectedParentTourCategoriesString.Trim().TrimEnd(',');
+            //     }
+            // }
         }
 
         return tour;

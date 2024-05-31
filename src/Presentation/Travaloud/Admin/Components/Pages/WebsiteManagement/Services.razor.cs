@@ -17,11 +17,11 @@ public partial class Services
 {
     [Inject] protected IServicesService ServicesService { get; set; } = default!;
 
-    private EntityServerTableContext<ServiceDto, Guid, UpdateServiceRequest> Context { get; set; } = default!;
+    private EntityServerTableContext<ServiceDto, DefaultIdType, UpdateServiceRequest> Context { get; set; } = default!;
 
     private EditContext? EditContext { get; set; }
 
-    private EntityTable<ServiceDto, Guid, UpdateServiceRequest> _table = default!;
+    private EntityTable<ServiceDto, DefaultIdType, UpdateServiceRequest> _table = default!;
 
     private static Dictionary<string, bool> _wizardSteps => new()
     {
@@ -31,7 +31,7 @@ public partial class Services
 
     protected override void OnInitialized()
     {
-        Context = new EntityServerTableContext<ServiceDto, Guid, UpdateServiceRequest>(
+        Context = new EntityServerTableContext<ServiceDto, DefaultIdType, UpdateServiceRequest>(
             entityName: L["Service"],
             entityNamePlural: L["Services"],
             entityResource: TravaloudResource.Services,
@@ -94,7 +94,7 @@ public partial class Services
         Context.AddEditModal?.ForceRender();
     }
 
-    public async Task RemoveField(UpdateServiceRequest service, Guid id)
+    public async Task RemoveField(UpdateServiceRequest service, DefaultIdType id)
     {
         string deleteContent =
             L[

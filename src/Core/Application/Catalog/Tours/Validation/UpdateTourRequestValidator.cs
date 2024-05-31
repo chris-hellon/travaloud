@@ -17,11 +17,16 @@ public class UpdateTourRequestValidator : CustomValidator<UpdateTourRequest>
             .WithMessage((_, name) => string.Format(localizer["tour.alreadyexists"], name));
 
         RuleFor(p => p.Description)
-            .NotEmpty();
+            .NotEmpty()
+            .WithMessage("A Description is required.");
 
         RuleFor(p => p.MinCapacity).
-            NotEmpty();
+            NotEmpty()
+            .WithMessage("A Minimum Capacity is required.");
 
+        RuleFor(t => t.SelectedPickupLocations).NotEmpty().WithMessage("Please select a Pick Up Location.");
+        RuleFor(t => t.SelectedDestinations).NotEmpty().WithMessage("Please select a Location.");
+        
         RuleFor(p => p.Image)
             .SetNonNullableValidator(new FileUploadRequestValidator());
     }

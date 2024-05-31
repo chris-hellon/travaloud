@@ -1,4 +1,5 @@
 using Travaloud.Application.Catalog.Bookings.Dto;
+using Travaloud.Application.Catalog.Bookings.Specification;
 using Travaloud.Application.Cloudbeds;
 using Travaloud.Application.Cloudbeds.Commands;
 using Travaloud.Application.PaymentProcessing;
@@ -11,11 +12,17 @@ namespace Travaloud.Application.Catalog.Bookings.Commands;
 
 public class RefundBookingRequest : IRequest<bool>
 {
-    public BookingDetailsDto Booking { get; set; }
+    public DefaultIdType BookingId { get; set; }
+    public decimal Amount { get; set; }
+    public bool Delete { get; set; }
+    public bool IsPartialRefund { get; set; }
 
-    public RefundBookingRequest(BookingDetailsDto booking)
+    public RefundBookingRequest(DefaultIdType bookingId, decimal amount, bool delete, bool isPartialRefund = false)
     {
-        Booking = booking;
+        BookingId = bookingId;
+        Delete = delete;
+        IsPartialRefund = isPartialRefund;
+        Amount = amount;
     }
 }
 
@@ -39,39 +46,73 @@ internal class RefundBookingRequestHandler : IRequestHandler<RefundBookingReques
 
     public async Task<bool> Handle(RefundBookingRequest request, CancellationToken cancellationToken)
     {
-        var booking = await _repository.GetByIdAsync(request.Booking.Id, cancellationToken) ?? throw new NotFoundException("Booking not found.");
+        var booking = await _repository.FirstOrDefaultAsync(new BookingByIdWithDetailsSpec(request.BookingId), cancellationToken) ?? throw new NotFoundException("Booking not found.");
         
-        var stripeSession = !string.IsNullOrEmpty(request.Booking.StripeSessionId) ?
+        var stripeSession = !string.IsNullOrEmpty(booking.StripeSessionId) ?
             await _stripeService.GetStripePaymentStatus(
-                new GetStripePaymentStatusRequest(request.Booking.StripeSessionId)) :
+                new GetStripePaymentStatusRequest(booking.StripeSessionId)) :
+            null;
+        
+        var updateStripeSession = !string.IsNullOrEmpty(booking.UpdateStripeSessionId) ?
+            await _stripeService.GetStripePaymentStatus(
+                new GetStripePaymentStatusRequest(booking.UpdateStripeSessionId)) :
             null;
 
         if (stripeSession == null)
+        {
+            if (booking.StripeSessionId != null && booking.StripeSessionId.Contains("cs_test") && request.Delete)
+                await _repository.DeleteAsync(booking, cancellationToken);
+            
             throw new NotFoundException("There is no Stripe Session for this booking.");
+        }
         
         var stripeChargeId = stripeSession.PaymentIntent.LatestChargeId;
         var paymentIntentId = stripeSession.PaymentIntentId;
 
-        if (booking.Items.Any(x => x.PropertyId.HasValue))
+        if (!request.IsPartialRefund)
         {
-            foreach (var bookingItem in booking.Items.Where(x => x.PropertyId.HasValue))
+            if (booking.Items.Any(x => x.PropertyId.HasValue))
             {
-                if (string.IsNullOrEmpty(bookingItem.CloudbedsReservationId)) continue;
+                foreach (var bookingItem in booking.Items.Where(x => x.PropertyId.HasValue))
+                {
+                    if (string.IsNullOrEmpty(bookingItem.CloudbedsReservationId)) continue;
                 
-                var property = await _propertyRepository.GetByIdAsync(bookingItem.PropertyId.Value, cancellationToken) ?? throw new Exception("Property not found.");
+                    var property = await _propertyRepository.GetByIdAsync(bookingItem.PropertyId.Value, cancellationToken) ?? throw new Exception("Property not found.");
 
-                await _cloudbedsService.CancelReservation(new CancelReservationRequest(
-                    bookingItem.CloudbedsReservationId, property.CloudbedsApiKey, property.CloudbedsPropertyId));
+                    await _cloudbedsService.CancelReservation(new CancelReservationRequest(
+                        bookingItem.CloudbedsReservationId, property.CloudbedsApiKey, property.CloudbedsPropertyId));
+                }
             }
         }
         
-        await _repository.DeleteAsync(booking, cancellationToken);
-        
+        if (request.Delete)
+        {
+            await _repository.DeleteAsync(booking, cancellationToken);
+        }
+        else
+        {
+            if (!request.IsPartialRefund)
+            {
+                var refundedBooking = booking.FlagBookingAsRefunded();
+                await _repository.UpdateAsync(refundedBooking, cancellationToken);
+            }
+        }
+
         await _stripeService.RefundSession(new RefundSessionRequest(
             stripeChargeId, 
             paymentIntentId,
-            request.Booking.TotalAmount));
+            stripeSession.AmountTotal.ConvertToDollars()));
         
+        if (updateStripeSession == null) return true;
+        
+        stripeChargeId = updateStripeSession.PaymentIntent.LatestChargeId; 
+        paymentIntentId = updateStripeSession.PaymentIntentId;
+            
+        await _stripeService.RefundSession(new RefundSessionRequest(
+            stripeChargeId, 
+            paymentIntentId,
+            updateStripeSession.AmountTotal.ConvertToDollars()));
+
         return true;
     }
 }

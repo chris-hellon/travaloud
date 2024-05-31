@@ -17,7 +17,7 @@ public partial class TourDates : ComponentBase
 
     [Parameter] public TourViewModel Tour { get; set; } = default!;
 
-    [Parameter] public EntityServerTableContext<TourDto, Guid, TourViewModel> Context { get; set; } = default!;
+    [Parameter] public EntityServerTableContext<TourDto, DefaultIdType, TourViewModel> Context { get; set; } = default!;
 
     [Parameter] public object? Id { get; set; }
 
@@ -78,7 +78,7 @@ public partial class TourDates : ComponentBase
                                 var dateRequest = new TourDateRequest()
                                 {
                                     AvailableSpaces = Tour.MaxCapacity,
-                                    Id = Guid.NewGuid(),
+                                    Id = DefaultIdType.NewGuid(),
                                     PriceOverride = RequestModel.PriceOverride,
                                     EndDate = endDate,
                                     EndTime = endTime,

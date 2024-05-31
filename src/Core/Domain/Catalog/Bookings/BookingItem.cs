@@ -12,14 +12,17 @@ public class BookingItem : AuditableEntity, IAggregateRoot
     public int? RoomQuantity { get; set; }
     public DefaultIdType? PropertyId { get; private set; }
     public DefaultIdType? TourId { get; private set; }
+    public DefaultIdType? TourCategoryId { get; private set; }
     public DefaultIdType? TourDateId { get; private set; }
     public string? CloudbedsReservationId { get; set; }
     public int? CloudbedsPropertyId { get; set; }
     public int ConcurrencyVersion { get; set; }
     public string? PickupLocation { get; set; }
-
+    public bool? WaiverSigned { get; private set; }
+    
     public virtual IList<BookingItemRoom>? Rooms { get; set; }
     public virtual Tour? Tour { get; set; }
+    public virtual TourCategory? TourCategory { get; set; }
     public virtual TourDate? TourDate { get; set; }
     public virtual Property? Property { get; set; }
     public virtual Booking Booking { get; private set; } = default!;
@@ -35,7 +38,10 @@ public class BookingItem : AuditableEntity, IAggregateRoot
         DefaultIdType? tourDateId,
         string? cloudbedsReservationId,
         int? cloudbedsPropertyId,
-        string? pickupLocation)
+        string? pickupLocation,
+        bool? waiverSigned,
+        DefaultIdType? tourCategoryId,
+        DefaultIdType createdBy)
     {
         StartDate = startDate;
         EndDate = endDate;
@@ -47,20 +53,26 @@ public class BookingItem : AuditableEntity, IAggregateRoot
         CloudbedsReservationId = cloudbedsReservationId;
         CloudbedsPropertyId = cloudbedsPropertyId;
         PickupLocation = pickupLocation;
+        WaiverSigned = waiverSigned;
+        TourCategoryId = tourCategoryId;
+        CreatedBy = createdBy;
     }
 
     public BookingItem Update(
-        DateTime? startDate = null,
-        DateTime? endDate = null,
-        decimal? amount = null,
-        int? roomQuantity = null,
-        DefaultIdType? propertyId = null,
-        DefaultIdType? tourId = null,
-        DefaultIdType? tourDateId = null,
-        string? cloudbedsReservationId = null,
-        int? cloudbedsPropertyId = null,
-        IList<BookingItemRoom>? rooms = null,
-        string? pickupLocation = null)
+        DateTime? startDate,
+        DateTime? endDate,
+        decimal? amount,
+        int? roomQuantity,
+        DefaultIdType? propertyId,
+        DefaultIdType? tourId,
+        DefaultIdType? tourDateId,
+        string? cloudbedsReservationId,
+        int? cloudbedsPropertyId,
+        IList<BookingItemRoom>? rooms,
+        string? pickupLocation,
+        bool? waiverSigned,
+        DefaultIdType? tourCategoryId,
+        DefaultIdType createdBy)
     {
         if (startDate is not null && StartDate != startDate)
             StartDate = startDate.Value;
@@ -91,8 +103,11 @@ public class BookingItem : AuditableEntity, IAggregateRoot
 
         if (rooms is not null && Rooms != rooms)
             Rooms = rooms;
-
+        
         PickupLocation = pickupLocation;
+        WaiverSigned = waiverSigned;
+        TourCategoryId = tourCategoryId;
+        CreatedBy = createdBy;
         
         return this;
     }

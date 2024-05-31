@@ -11,7 +11,7 @@ public interface IPaymentConfirmationService : ITransientService
 {
     Task UpdatePaymentIntentDescription(UpdatePaymentIntentDescriptionRequest request);
     
-    Task<CreateBookingRequest> CreateBookingRequest(DefaultIdType guestId, BasketModel basket);
+    Task<CreateBookingRequest> CreateBookingRequest(DefaultIdType guestId, BasketModel basket, string stripeSessionId);
 
     Task<bool> ProcessPropertyBookings(
         BasketModel basket,

@@ -14,4 +14,6 @@ public class BookingItemDto
     public int? CloudbedsPropertyId { get; set; }
     public int ConcurrencyVersion { get; set; } = default!;
     public string? PickupLocation { get; set; }
+    public bool? WaiverSigned { get;  set; }
+    public DefaultIdType? TourCategoryId { get; set; }
 }

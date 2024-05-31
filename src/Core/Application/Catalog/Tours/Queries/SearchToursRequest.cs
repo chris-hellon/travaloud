@@ -7,6 +7,7 @@ namespace Travaloud.Application.Catalog.Tours.Queries;
 public class SearchToursRequest : PaginationFilter, IRequest<PaginationResponse<TourDto>>
 {
     public string? Name { get; set; }
+    public DefaultIdType? TourCategoryId { get; set; }
 }
 
 public class SearchToursRequestHandler : IRequestHandler<SearchToursRequest, PaginationResponse<TourDto>>

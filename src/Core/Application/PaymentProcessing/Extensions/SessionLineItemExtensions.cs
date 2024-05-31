@@ -25,7 +25,7 @@ public static class SessionLineItemExtensions
                     ProductData = new SessionLineItemPriceDataProductDataOptions
                     {
                         Name = x.PropertyName,
-                        Images = [x.PropertyImageUrl],
+                        Images = x.PropertyImageUrl.Contains("http") ? [x.PropertyImageUrl] : [],
                         Description =
                             $"{x.Rooms!.Count} room{(x.Rooms.Count > 1 ? "s" : "")} at {x.PropertyName} from {x.CheckInDateParsed?.ToShortDateString()} - {x.CheckOutDateParsed?.ToShortDateString()}."
                     }
@@ -33,24 +33,52 @@ public static class SessionLineItemExtensions
             }) ?? Array.Empty<SessionLineItemOptions>());
         }
 
+         var tourItems = new List<SessionLineItemOptions>();
+
+        foreach (var item in basketLineItemsModels)
+        {
+            if (item.TourImageUrl != null && item.TourImageUrl.Contains("http"))
+            {
+                tourItems.Add(new SessionLineItemOptions()
+                {
+                    Quantity = 1,
+                    PriceData = new SessionLineItemPriceDataOptions
+                    {
+                        Currency = "usd",
+                        UnitAmount = item.Total.ConvertToCents(),
+                        ProductData = new SessionLineItemPriceDataProductDataOptions
+                        {
+                            Name = item.TourName,
+                            Images = [item.TourImageUrl],
+                            Description =
+                                $"{item.GuestCount} guest{(item.GuestCount > 1 ? "s" : "")} at {item.TourName} on {string.Join(", ", item.TourDates.Select(td => td.StartDate.ToLongDateString()))}"
+                        }
+                    }
+                });
+            }
+            else
+            {
+                tourItems.Add(new SessionLineItemOptions()
+                {
+                    Quantity = 1,
+                    PriceData = new SessionLineItemPriceDataOptions
+                    {
+                        Currency = "usd",
+                        UnitAmount = item.Total.ConvertToCents(),
+                        ProductData = new SessionLineItemPriceDataProductDataOptions
+                        {
+                            Name = item.TourName,
+                            Description =
+                                $"{item.GuestCount} guest{(item.GuestCount > 1 ? "s" : "")} at {item.TourName} on {string.Join(", ", item.TourDates.Select(td => td.StartDate.ToLongDateString()))}"
+                        }
+                    }
+                });
+            }
+        }
+        
         return new Tuple<string, IEnumerable<SessionLineItemOptions>>(basketLineItemsModels != null
             ? string.Join(", ", basketLineItemsModels.Select(x => x.TourName))
-            : "", basketLineItemsModels?.Select(x => new SessionLineItemOptions
-        {
-            Quantity = 1,
-            PriceData = new SessionLineItemPriceDataOptions
-            {
-                Currency = "usd",
-                UnitAmount = x.Total.ConvertToCents(),
-                ProductData = new SessionLineItemPriceDataProductDataOptions
-                {
-                    Name = x.TourName,
-                    Images = [x.TourImageUrl],
-                    Description =
-                        $"{x.GuestCount} guest{(x.GuestCount > 1 ? "s" : "")} at {x.TourName} on {string.Join(", ", x.TourDates.Select(td => td.StartDate.ToLongDateString()))}"
-                }
-            }
-        }) ?? Array.Empty<SessionLineItemOptions>());
+            : "", tourItems);
     }
     
     public static Tuple<string, IEnumerable<SessionLineItemOptions>> GetSessionLineItemOptions(this IEnumerable<BookingItemDetailsDto> bookingItems, bool isProperty)
@@ -71,7 +99,7 @@ public static class SessionLineItemExtensions
                     ProductData = new SessionLineItemPriceDataProductDataOptions
                     {
                         Name = x.Property.Name,
-                        Images = [x.Property.ImagePath],
+                        Images = x.Property.ImagePath.Contains("http") ? [x.Property.ImagePath] : [],
                         Description =
                             $"{x.Rooms!.Count} room{(x.Rooms.Count > 1 ? "s" : "")} at {x.Property.Name} from {x.StartDate.ToShortDateString()} - {x.EndDate.ToShortDateString()}."
                     }
@@ -79,23 +107,51 @@ public static class SessionLineItemExtensions
             }) ?? Array.Empty<SessionLineItemOptions>());
         }
 
+        var tourItems = new List<SessionLineItemOptions>();
+
+        foreach (var item in basketLineItemsModels)
+        {
+            if (item.Tour.ImagePath.Contains("http"))
+            {
+                tourItems.Add(new SessionLineItemOptions()
+                {
+                    Quantity = 1,
+                    PriceData = new SessionLineItemPriceDataOptions
+                    {
+                        Currency = "usd",
+                        UnitAmount = item.TotalAmount.ConvertToCents(),
+                        ProductData = new SessionLineItemPriceDataProductDataOptions
+                        {
+                            Name = item.Tour.Name,
+                            Images = [item.Tour.ImagePath],
+                            Description =
+                                $"{item.Guests?.Count + 1} guest{(item.Guests?.Count + 1 > 1 ? "s" : "")} at {item.Tour.Name} on {string.Join(", ", item.StartDate.ToLongDateString())}"
+                        }
+                    }
+                });
+            }
+            else
+            {
+                tourItems.Add(new SessionLineItemOptions()
+                {
+                    Quantity = 1,
+                    PriceData = new SessionLineItemPriceDataOptions
+                    {
+                        Currency = "usd",
+                        UnitAmount = item.TotalAmount.ConvertToCents(),
+                        ProductData = new SessionLineItemPriceDataProductDataOptions
+                        {
+                            Name = item.Tour.Name,
+                            Description =
+                                $"{item.Guests?.Count + 1} guest{(item.Guests?.Count + 1 > 1 ? "s" : "")} at {item.Tour.Name} on {string.Join(", ", item.StartDate.ToLongDateString())}"
+                        }
+                    }
+                });
+            }
+        }
+        
         return new Tuple<string, IEnumerable<SessionLineItemOptions>>(basketLineItemsModels != null
             ? string.Join(", ", basketLineItemsModels.Select(x => x.Tour.Name))
-            : "", basketLineItemsModels?.Select(x => new SessionLineItemOptions
-        {
-            Quantity = 1,
-            PriceData = new SessionLineItemPriceDataOptions
-            {
-                Currency = "usd",
-                UnitAmount = x.TotalAmount.ConvertToCents(),
-                ProductData = new SessionLineItemPriceDataProductDataOptions
-                {
-                    Name = x.Tour.Name,
-                    Images = [x.Tour.ImagePath],
-                    Description =
-                        $"{x.Guests?.Count + 1} guest{(x.Guests?.Count + 1 > 1 ? "s" : "")} at {x.Tour.Name} on {string.Join(", ", x.StartDate.ToLongDateString())}"
-                }
-            }
-        }) ?? Array.Empty<SessionLineItemOptions>());
+            : "", tourItems);
     }
 }

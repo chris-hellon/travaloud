@@ -87,9 +87,9 @@ public class IndexModel : TravaloudBasePageModel
                 //ImagePath = "https://travaloudcdn.azureedge.net/fuse/assets/images/home-page-banner-1.webp?w=2000",
                 //ThumbnailImagePath = "https://travaloudcdn.azureedge.net/fuse/assets/images/home-page-banner-1.webp?w=2000",
                 ImagePath =
-                    "https://travaloudcdn.azureedge.net/fuse/assets/images/POOLPARTY_23-03-22-12.jpg?w=2000",
+                    "https://travaloudcdn.azureedge.net/fuse/assets/images/POOLPARTY_23-03-22-12-min.jpg?w=2000",
                 ThumbnailImagePath =
-                    "https://travaloudcdn.azureedge.net/fuse/assets/images/POOLPARTY_23-03-22-08.jpg?w=2000",
+                    "https://travaloudcdn.azureedge.net/fuse/assets/images/POOLPARTY_23-03-22-08-min.jpg?w=2000",
                 Title = "FUSE",
                 SubTitle1 = "COME TOGETHER AT",
                 SubTitle2 = "HOSTELS AND TRAVEL"

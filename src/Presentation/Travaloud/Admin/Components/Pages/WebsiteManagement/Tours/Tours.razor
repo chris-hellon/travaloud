@@ -9,23 +9,18 @@
 
 <TravaloudPageTitle Title="@L["Tours"]" Description="@L["Manage Tours."]"/>
 
-<EntityTable @ref="_table" TEntity="TourDto" TId="Guid" TRequest="TourViewModel" Context="@Context" IsWizard="true" WizardSteps="@WizardSteps">
-    @* <WizardStep1> *@
-    @*     <WizardStepContent> *@
-    @*          <BasicInformation Tour="@context" CanViewDestinations="_canViewDestinations" CanViewTourCategories="_canViewTourCategories" CanViewTourGroups="_canViewTourGroups" Context="@Context"></BasicInformation> *@
-    @*     </WizardStepContent> *@
-    @* </WizardStep1> *@
+<EntityTable @ref="_table" TEntity="TourDto" TId="DefaultIdType" TRequest="TourViewModel" Context="@Context" IsWizard="true" WizardSteps="@WizardSteps">
     <WizardStep1Content>
-        <BasicInformation Tour="@context" CanViewDestinations="_canViewDestinations" CanViewTourCategories="_canViewTourCategories" CanViewTourGroups="_canViewTourGroups" Context="@Context"></BasicInformation>
+        <BasicInformation Tour="@context" CanViewTourCategories="_canViewTourCategories" CanViewTourGroups="_canViewTourGroups" Context="@Context"></BasicInformation>
     </WizardStep1Content>
     <WizardStep2Content>
-        <Description Tour="@context"></Description>
+         <Pricing Tour="@context" Context="@Context"></Pricing>
     </WizardStep2Content>
     <WizardStep3Content>
-        <Pricing Tour="@context" Context="@Context"></Pricing>
+         <Dates Tour="@context" Context="@Context"></Dates>
     </WizardStep3Content>
     <WizardStep4Content>
-        <Dates Tour="@context" Context="@Context"></Dates>
+        <Booking Tour="@context" Context="@Context"></Booking>
     </WizardStep4Content>
     <WizardStep5Content>
         <Itineraries Tour="@context" Context="@Context"></Itineraries>

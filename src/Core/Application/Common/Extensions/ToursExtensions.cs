@@ -32,6 +32,7 @@ public static class ToursExtensions
                             tourPriceRequest.HourDuration,
                             tourPriceRequest.ComissionAmount,
                             tourPriceRequest.PublishToWebsite,
+                            tourPriceRequest.InHouseOnly,
                             tourPriceRequest.Id);
                     }
                     else
@@ -47,7 +48,8 @@ public static class ToursExtensions
                             tourPriceRequest.HourDuration,
                             tour.Id,
                             tourPriceRequest.ComissionAmount,
-                            tourPriceRequest.PublishToWebsite);
+                            tourPriceRequest.PublishToWebsite,
+                            tourPriceRequest.InHouseOnly);
                     }
                     
                     tourPrices.Add(price);
@@ -71,10 +73,6 @@ public static class ToursExtensions
                             price.NightDuration, price.HourDuration);
                         tourDateRequest.EndTime = tourDateRequest.EndDate.Value.TimeOfDay;
                         
-                        // if (tourDateRequest.EndTime != null)
-                        //     tourDateRequest.EndDate =
-                        //         tourDateRequest.EndDate.Value.Date + tourDateRequest.EndTime.Value;
-
                         if (date is null)
                         {
                             tourDateRequest.AvailableSpaces = availableSpaces;
@@ -106,10 +104,6 @@ public static class ToursExtensions
                                         availableSpaces - previousAvailableDateSpacesDifference;
                                 }
                             }
-                            // else
-                            // {
-                            //     tourDateRequest.AvailableSpaces = availableSpaces;
-                            // }
 
                             date = date.Update(tourDateRequest.StartDate, tourDateRequest.EndDate,
                                 tourDateRequest.AvailableSpaces, tourDateRequest.PriceOverride, tour.Id,

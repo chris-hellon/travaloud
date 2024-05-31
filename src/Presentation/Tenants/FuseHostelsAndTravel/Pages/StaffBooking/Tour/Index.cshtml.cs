@@ -11,7 +11,7 @@ public class Index : TourPageModel
     
     public override async Task<IActionResult> OnGetAsync(string? tourName = null, Guid? tourDate = null, int? guestQuantity = null, string? userId = null)
     {
-        await OnGetTourAsync(tourName);
+        await OnGetTourAsync(tourName, null, null, true, true);
 
         var thumbnailImageSrc = Tour?.ImagePath?.FormatImageUrl(2000, TenantId);
 

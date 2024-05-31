@@ -8,6 +8,7 @@ public class TourByIdSpec : Specification<Tour>, ISingleResultSpecification<Tour
     public TourByIdSpec(DefaultIdType tourId) =>
         Query.Where(p => p.Id == tourId)
             .Include(p => p.TourPrices)
+            .Include(p => p.TourCategory)
             .Include(p => p.TourItineraries).ThenInclude(p => p.Sections).ThenInclude(p => p.Images)
             .Include(p => p.TourDates)
             .Include(p => p.TourPickupLocations)

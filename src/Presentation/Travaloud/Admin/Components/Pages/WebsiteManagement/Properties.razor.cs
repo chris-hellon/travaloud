@@ -24,11 +24,11 @@ public partial class Properties
 
     [Inject] private IDestinationsService DestinationsService { get; set; } = default!;
 
-    private EntityServerTableContext<PropertyDto, Guid, PropertyViewModel> Context { get; set; } = default!;
+    private EntityServerTableContext<PropertyDto, DefaultIdType, PropertyViewModel> Context { get; set; } = default!;
 
     private EditContext? EditContext { get; set; }
 
-    private EntityTable<PropertyDto, Guid, PropertyViewModel> _table = default!;
+    private EntityTable<PropertyDto, DefaultIdType, PropertyViewModel> _table = default!;
 
     private ICollection<DestinationDto>? Destinations { get; set; }
 
@@ -48,7 +48,7 @@ public partial class Properties
 
     protected override void OnInitialized()
     {
-        Context = new EntityServerTableContext<PropertyDto, Guid, PropertyViewModel>(
+        Context = new EntityServerTableContext<PropertyDto, DefaultIdType, PropertyViewModel>(
             entityName: L["Property"],
             entityNamePlural: L["Properties"],
             entityResource: TravaloudResource.Properties,
@@ -95,7 +95,7 @@ public partial class Properties
                     property.Image = new FileUploadRequest()
                     {
                         Data = property.ImageInBytes, Extension = property.ImageExtension ?? string.Empty,
-                        Name = $"{property.Name}_{Guid.NewGuid():N}"
+                        Name = $"{property.Name}_{DefaultIdType.NewGuid():N}"
                     };
                 }
 
@@ -104,7 +104,7 @@ public partial class Properties
                     property.Video = new FileUploadRequest()
                     {
                         Data = property.VideoInBytes, Extension = property.VideoExtension ?? string.Empty,
-                        Name = $"{property.Name}_{Guid.NewGuid():N}"
+                        Name = $"{property.Name}_{DefaultIdType.NewGuid():N}"
                     };
                 }
 
@@ -113,7 +113,7 @@ public partial class Properties
                     property.MobileVideo = new FileUploadRequest()
                     {
                         Data = property.MobileVideoInBytes, Extension = property.MobileVideoExtension ?? string.Empty,
-                        Name = $"{property.Name}_{Guid.NewGuid():N}"
+                        Name = $"{property.Name}_{DefaultIdType.NewGuid():N}"
                     };
                 }
 
@@ -126,7 +126,7 @@ public partial class Properties
                             parsedRoom.Image = new FileUploadRequest()
                             {
                                 Data = parsedRoom.ImageInBytes, Extension = parsedRoom.ImageExtension ?? string.Empty,
-                                Name = $"{property.Name}_{Guid.NewGuid():N}"
+                                Name = $"{property.Name}_{DefaultIdType.NewGuid():N}"
                             };
                         }
                     }
@@ -149,7 +149,7 @@ public partial class Properties
                             image.Image = new FileUploadRequest()
                             {
                                 Data = image.ImageInBytes, Extension = image.ImageExtension ?? string.Empty,
-                                Name = $"{property.Name}_{Guid.NewGuid():N}"
+                                Name = $"{property.Name}_{DefaultIdType.NewGuid():N}"
                             };
                         }
                     }
@@ -166,7 +166,7 @@ public partial class Properties
                     property.Image = new FileUploadRequest()
                     {
                         Data = property.ImageInBytes, Extension = property.ImageExtension ?? string.Empty,
-                        Name = $"{property.Name}_{Guid.NewGuid():N}"
+                        Name = $"{property.Name}_{DefaultIdType.NewGuid():N}"
                     };
                 }
 
@@ -176,7 +176,7 @@ public partial class Properties
                     property.Video = new FileUploadRequest()
                     {
                         Data = property.VideoInBytes, Extension = property.VideoExtension ?? string.Empty,
-                        Name = $"{property.Name}_{Guid.NewGuid():N}"
+                        Name = $"{property.Name}_{DefaultIdType.NewGuid():N}"
                     };
                 }
 
@@ -186,7 +186,7 @@ public partial class Properties
                     property.MobileVideo = new FileUploadRequest()
                     {
                         Data = property.MobileVideoInBytes, Extension = property.MobileVideoExtension ?? string.Empty,
-                        Name = $"{property.Name}_{Guid.NewGuid():N}"
+                        Name = $"{property.Name}_{DefaultIdType.NewGuid():N}"
                     };
                 }
 
@@ -199,7 +199,7 @@ public partial class Properties
                             parsedRoom.Image = new FileUploadRequest()
                             {
                                 Data = parsedRoom.ImageInBytes, Extension = parsedRoom.ImageExtension ?? string.Empty,
-                                Name = $"{property.Name}_{Guid.NewGuid():N}"
+                                Name = $"{property.Name}_{DefaultIdType.NewGuid():N}"
                             };
                         }
                     }
@@ -222,7 +222,7 @@ public partial class Properties
                             image.Image = new FileUploadRequest()
                             {
                                 Data = image.ImageInBytes, Extension = image.ImageExtension ?? string.Empty,
-                                Name = $"{property.Name}_{Guid.NewGuid():N}"
+                                Name = $"{property.Name}_{DefaultIdType.NewGuid():N}"
                             };
                         }
                     }
@@ -370,7 +370,7 @@ public partial class Properties
         Context.AddEditModal?.ForceRender();
     }
 
-    public async Task RemoveDirectionRow(PropertyViewModel property, Guid id)
+    public async Task RemoveDirectionRow(PropertyViewModel property, DefaultIdType id)
     {
         string deleteContent =
             L[
@@ -421,7 +421,7 @@ public partial class Properties
         Context.AddEditModal?.ForceRender();
     }
 
-    public async Task RemoveRoomRow(PropertyViewModel property, Guid id)
+    public async Task RemoveRoomRow(PropertyViewModel property, DefaultIdType id)
     {
         string deleteContent =
             L[
@@ -507,5 +507,5 @@ public class PropertyViewModel : UpdatePropertyRequest
     public string? VideoExtension { get; set; }
     public string? MobileVideoInBytes { get; set; }
     public string? MobileVideoExtension { get; set; }
-    public Guid? DestinationId { get; set; }
+    public DefaultIdType? DestinationId { get; set; }
 }

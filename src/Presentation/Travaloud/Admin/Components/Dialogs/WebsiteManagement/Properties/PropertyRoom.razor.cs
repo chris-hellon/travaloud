@@ -16,7 +16,7 @@ public partial class PropertyRoom : ComponentBase
 
     [Parameter] public PropertyViewModel Property { get; set; } = default!;
 
-    [Parameter] public EntityServerTableContext<PropertyDto, Guid, PropertyViewModel> Context { get; set; } = default!;
+    [Parameter] public EntityServerTableContext<PropertyDto, DefaultIdType, PropertyViewModel> Context { get; set; } = default!;
 
     [Parameter] public object? Id { get; set; }
 

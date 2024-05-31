@@ -17,11 +17,11 @@ public partial class PageModals
     [Inject] protected IPageModalsService PageModalsService { get; set; } = default!;
     [Inject] protected IPagesService PagesService { get; set; } = default!;
 
-    private EntityServerTableContext<PageModalDto, Guid, UpdatePageModalRequest> Context { get; set; } = default!;
+    private EntityServerTableContext<PageModalDto, DefaultIdType, UpdatePageModalRequest> Context { get; set; } = default!;
 
     private EditContext? EditContext { get; set; }
 
-    private EntityTable<PageModalDto, Guid, UpdatePageModalRequest> _table = default!;
+    private EntityTable<PageModalDto, DefaultIdType, UpdatePageModalRequest> _table = default!;
     
     private ICollection<PageModalPageRequest>? Pages { get; set; }
 
@@ -29,7 +29,7 @@ public partial class PageModals
 
     protected override void OnInitialized()
     {
-        Context = new EntityServerTableContext<PageModalDto, Guid, UpdatePageModalRequest>(
+        Context = new EntityServerTableContext<PageModalDto, DefaultIdType, UpdatePageModalRequest>(
             entityName: L["Page Modal"],
             entityNamePlural: L["Page Modals"],
             entityResource: TravaloudResource.Pages,

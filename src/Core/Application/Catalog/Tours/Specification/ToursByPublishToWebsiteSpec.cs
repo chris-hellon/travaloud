@@ -8,6 +8,6 @@ public class ToursByPublishToWebsiteSpec : Specification<Tour, TourDto>
 {
     public ToursByPublishToWebsiteSpec(GetToursByPublishToWebsiteRequest request) =>
         Query
-            .OrderBy(c => c.Name, !request.HasOrderBy())
-            .Where(p => p.PublishToSite.HasValue && p.PublishToSite.Value);
+            .OrderBy(c => c.Name, !request.HasOrderBy());
+    //.Where(p => p.PublishToSite.HasValue && p.PublishToSite.Value);
 }

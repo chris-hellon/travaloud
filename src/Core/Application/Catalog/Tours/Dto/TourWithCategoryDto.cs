@@ -8,7 +8,7 @@ public class TourWithCategoryDto
     public string? ShortDescription { get; set; }
     public string? ImagePath { get; set; } = default!;
     public string? ThumbnailImagePath { get; set; } = default!;
-    public DefaultIdType? CategoryId { get; set; }
+    public DefaultIdType? TourCategoryId { get; set; }
     public string FriendlyUrl => Name.UrlFriendly();
     public bool IsCategory { get; set; } = default!;
     public bool IsDestination { get; set; } = default!;
@@ -22,4 +22,5 @@ public class TourWithCategoryDto
     public string? MetaDescription { get; set; }
     public DefaultIdType? GroupParentCategoryId { get; set; }
     public int? SortOrder { get; set; }
+    public bool? WaiverRequired { get; set; }
 }

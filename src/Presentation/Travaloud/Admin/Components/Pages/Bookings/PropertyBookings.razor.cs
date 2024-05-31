@@ -24,11 +24,11 @@ public partial class PropertyBookings
 
     [Parameter] public string Category { get; set; } = default!;
 
-    private EntityServerTableContext<BookingDto, Guid, PropertyBookingViewModel> Context { get; set; } = default!;
+    private EntityServerTableContext<BookingDto, DefaultIdType, PropertyBookingViewModel> Context { get; set; } = default!;
 
     private EditContext? EditContext { get; set; }
 
-    private EntityTable<BookingDto, Guid, PropertyBookingViewModel> _table = default!;
+    private EntityTable<BookingDto, DefaultIdType, PropertyBookingViewModel> _table = default!;
 
     private MudDateRangePicker _dateRangePicker = default!;
 
@@ -36,7 +36,7 @@ public partial class PropertyBookings
     
     protected override void OnInitialized()
     {
-        Context = new EntityServerTableContext<BookingDto, Guid, PropertyBookingViewModel>(
+        Context = new EntityServerTableContext<BookingDto, DefaultIdType, PropertyBookingViewModel>(
             entityName: L["Booking"],
             entityNamePlural: L["Bookings"],
             entityResource: TravaloudResource.Bookings,
@@ -102,9 +102,9 @@ public partial class PropertyBookings
         }
     }
 
-    private Guid? _searchPropertyId;
+    private DefaultIdType? _searchPropertyId;
 
-    private Guid? SearchPropertyId
+    private DefaultIdType? SearchPropertyId
     {
         get => _searchPropertyId;
         set

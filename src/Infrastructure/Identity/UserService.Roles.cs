@@ -31,6 +31,17 @@ internal partial class UserService
         return userRoles;
     }
 
+    public async Task<bool> UserIsInRole(string userId, string roleName)
+    {
+        await using var dbContext = CreateDbContext();
+
+        var role = dbContext.Roles.FirstOrDefault(x => x.Name == roleName);
+
+        if (role == null) return false;
+
+        return dbContext.UserRoles.FirstOrDefault(x => x.UserId == userId && x.RoleId == role.Id) != null;
+    }
+
     public async Task<string> AssignRolesAsync(string userId, UserRolesRequest request)
     {
         ArgumentNullException.ThrowIfNull(request, nameof(request));

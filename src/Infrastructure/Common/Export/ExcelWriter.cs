@@ -59,6 +59,22 @@ public class ExcelWriter : IExcelWriter
         
         var wsDep =  wb.Worksheets.Add(table);
         wsDep.Columns().AdjustToContents();
+
+        var dateFormatColumns = new[] {"Booking Date", "Date of Birth", "Tour Start Date", "Tour End Date"};
+
+        foreach (var dateFormatColumn in dateFormatColumns)
+        {
+            var column = table.Columns[dateFormatColumn];
+
+            if (column == null) continue;
+            
+            var index = table.Columns.IndexOf(column);
+
+            if (index < 0) continue;
+            
+            var format = dateFormatColumn == "Date of Birth" ? "dd/MM/yyyy" : "dd/MM/yyyy HH:mm";
+            wsDep.Column(index + 1).Style.DateFormat.Format = format;
+        }
         
         Stream stream = new MemoryStream();
         wb.SaveAs(stream);

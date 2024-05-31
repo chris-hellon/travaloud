@@ -3,10 +3,12 @@
 @using System.Text.Json
 @using Travaloud.Admin.Components.Dialogs
 @using Travaloud.Application.Catalog.Interfaces
+@using Travaloud.Application.Catalog.TourDates.Queries
 @using Travaloud.Application.Catalog.Tours.Queries
 
 @inject IStringLocalizer<Tours> L    
 @inject IToursService ToursService
+@inject ITourDatesService TourDatesService
 
 <StickyToolbar>
     <ToolbarContent>
@@ -32,6 +34,7 @@
             <col/>
             <col/>
             <col/>
+            <col/>
         </ColGroup>
         <HeaderContent>
             <MudTh>Price</MudTh>
@@ -44,6 +47,7 @@
             <MudTh>Month To</MudTh>
             <MudTh>Commission Amount</MudTh>
             <MudTh>Published to Website?</MudTh>
+            <MudTh>In House Only?</MudTh>
             <MudTh Style="min-width: 0; width: 100px; text-align: right;"></MudTh>
         </HeaderContent>
         <RowTemplate>
@@ -57,6 +61,7 @@
             <MudTd DataLabel="Month To">@priceContext.MonthTo</MudTd>
             <MudTd DataLabel="Commission Amount">$@priceContext.ComissionAmount</MudTd>
             <MudTd DataLabel="Published to Website?">@(priceContext.PublishToWebsite.HasValue && priceContext.PublishToWebsite.Value ? "Yes" : "No")</MudTd>
+            <MudTd DataLabel="In House Only?">@(priceContext.InHouseOnly.HasValue && priceContext.InHouseOnly.Value ? "Yes" : "No")</MudTd>
             <MudTd DataLabel="Edit" Style="min-width: 0; width: 270px; text-align: right;">
                 <MudButton Variant="Variant.Filled" Size="Size.Small" StartIcon="@Icons.Material.Filled.Edit" Color="Color.Tertiary" OnClick="@(() => InvokePriceDialog(priceContext, Tour))">Edit</MudButton>
                 <MudButton Variant="Variant.Filled" Size="Size.Small" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="@(() => RemovePriceRow(Tour, priceContext.Id))">Delete</MudButton>
@@ -68,7 +73,7 @@
 
 @code {
     [Parameter] public required TourViewModel Tour { get; set; }
-    [Parameter] public required EntityServerTableContext<TourDto, Guid, TourViewModel> Context { get; set; } = default!;
+    [Parameter] public required EntityServerTableContext<TourDto, DefaultIdType, TourViewModel> Context { get; set; } = default!;
 
     private async Task InvokePriceDialog(TourPriceRequest requestModel, TourViewModel tour, bool isCreate = false)
     {
@@ -93,7 +98,7 @@
         Context.AddEditModal?.ForceRender();
     }
 
-    private async Task RemovePriceRow(TourViewModel tour, Guid id)
+    private async Task RemovePriceRow(TourViewModel tour, DefaultIdType id)
     {
         string deleteContent =
             L[
@@ -113,12 +118,12 @@
             var tourPrice = tour.TourPrices?.FirstOrDefault(x => x.Id == id);
             if (tourPrice != null)
             {
-                var tourDatesExist = await ToursService.GetTourDatesByPriceAsync(new GetTourDatesByPriceRequest()
+                var tourDatesRequest = await TourDatesService.SearchAsync(new SearchTourDatesRequest()
                 {
                     PriceId = tourPrice.Id
                 });
-
-                if (!tourDatesExist)
+                
+                if (!tourDatesRequest.Data.Any())
                 {
                     tour.TourPrices?.Remove(tourPrice);
                 }

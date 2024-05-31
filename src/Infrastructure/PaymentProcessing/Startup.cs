@@ -78,15 +78,11 @@ public static class Startup
 
                     if (string.IsNullOrEmpty(bookingId) || !DefaultIdType.TryParse(bookingId, out var bookingIdParsed))
                         return Results.Ok();
-                    var booking = await bookingsService.GetAsync(bookingIdParsed);
-
-                    if (!booking.IsPaid)
+                    
+                    await bookingsService.FlagBookingAsPaidAsync(bookingIdParsed, new FlagBookingAsPaidRequest()
                     {
-                        await bookingsService.FlagBookingAsPaidAsync(bookingIdParsed, new FlagBookingAsPaidRequest()
-                        {
-                            Id = booking.Id
-                        });
-                    }
+                        Id = bookingIdParsed
+                    });
                     
                     logger.Information("Booking flagged as paid from webhook: {0}", bookingId);
                 }

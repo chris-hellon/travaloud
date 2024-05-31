@@ -2,14 +2,14 @@
 
 @using Travaloud.Application.Catalog.Bookings.Dto
 
-@attribute [MustHavePermission(TravaloudAction.View, TravaloudResource.Bookings)]
+@attribute [MustHavePermission(TravaloudAction.View, TravaloudResource.PropertyBookings)]
 
 @inject IStringLocalizer<PropertyBookings> L
 
 <TravaloudPageTitle Title="@L["Property Bookings"]" Description="@L["Manage Property Bookings."]"/>
 
 
-<EntityTable @ref="_table" TEntity="BookingDto" TId="Guid" TRequest="PropertyBookingViewModel" Context="@Context">
+<EntityTable @ref="_table" TEntity="BookingDto" TId="DefaultIdType" TRequest="PropertyBookingViewModel" Context="@Context">
     <AdvancedSearchContent>
         <MudDateRangePicker AutoClose="true" @ref="_dateRangePicker" PickerVariant="PickerVariant.Dialog" Label="@L["Date Range"]" @bind-DateRange="SearchDateRange" Clearable="true">
             <PickerActions>
@@ -21,10 +21,10 @@
 
         @if (Properties is {Count: > 0})
         {
-            <MudSelect T="Guid?" @bind-Value="SearchPropertyId" Label="Property" Clearable="true">
+            <MudSelect T="DefaultIdType?" @bind-Value="SearchPropertyId" Label="Property" Clearable="true">
                 @foreach (var property in Properties)
                 {
-                    <MudSelectItem T="Guid?" Value="property.Id">@property.Name</MudSelectItem>
+                    <MudSelectItem T="DefaultIdType?" Value="property.Id">@property.Name</MudSelectItem>
                 }
             </MudSelect>
         }

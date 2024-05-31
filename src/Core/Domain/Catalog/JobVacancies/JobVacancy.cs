@@ -6,7 +6,7 @@ public class JobVacancy : AuditableEntity, IAggregateRoot
     {
         Location = location;
         JobTitle = jobTitle;
-        Description = description;
+        Description = description.FormatTextEditorString();
         CallToAction = callToAction;
     }
 
@@ -21,7 +21,7 @@ public class JobVacancy : AuditableEntity, IAggregateRoot
     {
         if (location is not null && Location?.Equals(location) is not true) Location = location;
         if (jobTitle is not null && JobTitle?.Equals(jobTitle) is not true) JobTitle = jobTitle;
-        if (description is not null && Description?.Equals(description) is not true) Description = description;
+        if (description is not null && Description?.Equals(description) is not true) Description = description.FormatTextEditorString();;
         if (callToAction is not null && CallToAction?.Equals(callToAction) is not true) CallToAction = callToAction;
         return this;
     }

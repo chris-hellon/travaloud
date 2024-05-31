@@ -25,7 +25,9 @@ public class ToursByDestinationsSpec : Specification<Tour, TourWithoutDatesDto>
             .Include(p => p.TourItineraries)
             .ThenInclude(p => p.Sections)
             .ThenInclude(p => p.Images)
-            .Where(p => p.TourDestinationLookups != null && p.TourDestinationLookups.Any(lookup => request.DestinationIds.Contains(lookup.DestinationId)));
+            .Where(p => p.TourDestinationLookups != null && p.TourDestinationLookups.Any(lookup => request.DestinationIds.Contains(lookup.DestinationId)))
+        
+            .Where(p => p.PublishToSite.HasValue && p.PublishToSite.Value);
 }
 
 public class ToursWithDetailsByDestinationsSpec : Specification<Tour, TourDetailsDto>

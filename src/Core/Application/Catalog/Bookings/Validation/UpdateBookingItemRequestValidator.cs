@@ -18,6 +18,10 @@ public class UpdateBookingItemRequestValidator : CustomValidator<UpdateBookingIt
         RuleFor(i => i.RoomQuantity)
             .GreaterThan(0);
 
+        RuleFor(i => i.TourCategoryId)
+            .NotEmpty()
+            .WithMessage("Please select a Category.");
+        
         RuleFor(i => i.TourId)
             .NotEmpty()
             .WithMessage("Please select a Tour.");

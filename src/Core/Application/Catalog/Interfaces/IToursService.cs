@@ -1,3 +1,4 @@
+using Travaloud.Application.Catalog.TourDates.Queries;
 using Travaloud.Application.Catalog.Tours.Commands;
 using Travaloud.Application.Catalog.Tours.Dto;
 using Travaloud.Application.Catalog.Tours.Queries;
@@ -10,14 +11,6 @@ public interface IToursService : ITransientService
     Task<PaginationResponse<TourDto>?> SearchAsync(SearchToursRequest request);
 
     Task<TourDetailsDto?> GetAsync(DefaultIdType id);
-
-    Task<IEnumerable<TourCategoryDto>> GetCategoriesAsync();
-
-    Task<IEnumerable<TourCategoryDto>> GetParentCategoriesAsync();
-
-    Task<PaginationResponse<TourDateDto>> GetTourDatesAsync(DefaultIdType tourId, int requestedSpaces);
-    
-    Task<bool> GetTourDatesByPriceAsync(GetTourDatesByPriceRequest request);
     
     Task<DefaultIdType?> CreateAsync(CreateTourRequest request);
 

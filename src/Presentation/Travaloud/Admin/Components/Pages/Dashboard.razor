@@ -1,12 +1,10 @@
 @page "/"
 @using Travaloud.Application.Catalog.Bookings.Dto
-@using ChartType = MudBlazor.ChartType
 @using Color = MudBlazor.Color
 @using Size = MudBlazor.Size
 @using ApexCharts
 @using Travaloud.Application.Dashboard
-
-@* @implements IDisposable *@
+@using Travaloud.Admin.Components.Dashboard
 
 @attribute [MustHavePermission(TravaloudAction.View, TravaloudResource.Dashboard)]
 @attribute [StreamRendering]
@@ -15,14 +13,79 @@
 
 <TravaloudPageTitle Title="@L["Dashboard"]">
     <AdditionalContent>
-        <MudSpacer />
-        <MudButton DisableElevation Variant="Variant.Filled" OnClick="@(() => UpdateDashboard())" 
-                   StartIcon="@Icons.Material.Filled.Refresh" IconColor="Color.Surface" Color="Color.Secondary">Reload</MudButton>
+        <MudSpacer/>
+        <MudButton DisableElevation Variant="Variant.Filled" OnClick="@(() => UpdateDashboard())"
+                   StartIcon="@Icons.Material.Filled.Refresh" IconColor="Color.Surface" Color="Color.Secondary">
+            Reload
+        </MudButton>
     </AdditionalContent>
 </TravaloudPageTitle>
 
 <MudGrid>
-    <MudItem xs="12" sm="6" md="6">
+@if (!UserIsSupplier)
+{
+    <MudItem xs="12" sm="4" md="4">
+        <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+            <MudIcon Icon="@Icons.Material.Filled.BookOnline" Color="Color.Secondary" Class="mx-4"
+                     Style="width:54px; height:54px;">
+            </MudIcon>
+            <div>
+                <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">@L["Today's Tours Booked"]</MudText>
+
+                @if (!TodayTourBookingsCount.HasValue)
+                {
+                    <MudProgressCircular Color="Color.Secondary" Indeterminate="true" Size="Size.Small"/>
+                }
+                else
+                {
+                    <MudText Typo="Typo.h5">@TodayTourBookingsCount</MudText>
+                }
+            </div>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="4" md="4">
+        <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+            <MudIcon Icon="@Icons.Material.Filled.PunchClock" Color="Color.Secondary" Class="mx-4"
+                     Style="width:54px; height:54px;">
+            </MudIcon>
+            <div>
+                <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">@L["Today's Tour Departures"]</MudText>
+
+                @if (!TodayTourDeparturesCount.HasValue)
+                {
+                    <MudProgressCircular Color="Color.Secondary" Indeterminate="true" Size="Size.Small"/>
+                }
+                else
+                {
+                    <MudText Typo="Typo.h5">@TodayTourDeparturesCount</MudText>
+                }
+            </div>
+        </MudPaper>
+    </MudItem>
+    if (UserIsAdmin)
+    {
+        <MudItem xs="12" sm="4" md="4">
+            <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                <MudIcon Icon="@Icons.Material.Filled.MonetizationOn" Color="Color.Secondary" Class="mx-4"
+                         Style="width:54px; height:54px;">
+                </MudIcon>
+                <div>
+                    <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">@L["Today's Tour Bookings Revenue"]</MudText>
+
+                    @if (!TodayTourBookingsRevenue.HasValue)
+                    {
+                        <MudProgressCircular Color="Color.Secondary" Indeterminate="true" Size="Size.Small"/>
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.h5">@($"$ {TodayTourBookingsRevenue:n2}")</MudText>
+                    }
+                </div>
+            </MudPaper>
+        </MudItem>
+    }
+
+    <MudItem xs="12" sm="@(UserIsAdmin ? 6 : 4)" md="@(UserIsAdmin ? 6 : 4)">
         <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
             <MudIcon Icon="@Icons.Material.Filled.BookOnline" Color="Color.Primary" Class="mx-4"
                      Style="width:54px; height:54px;">
@@ -41,7 +104,8 @@
             </div>
         </MudPaper>
     </MudItem>
-    @if (UserIsAdmin)
+
+    if (UserIsAdmin)
     {
         <MudItem xs="12" sm="6" md="6">
             <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
@@ -63,106 +127,89 @@
             </MudPaper>
         </MudItem>
     }
+}
 
-    <MudItem xs="12" sm="6" md="@(UserIsAdmin ? 3 : 6)">
-        <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
-            <MudIcon Icon="@Icons.Material.Filled.Payments" Color="Color.Primary" Class="mx-4"
-                     Style="width:54px; height:54px;">
-            </MudIcon>
-            <div>
-                <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">@L["Total Properties Booked"]</MudText>
+@* <TodaysDepartures TodaysDeparturesTable="@_todaysDeparturesTable" TomorrowsDeparturesTable="@_tomorrowsDeparturesTable" OnTodayTourDeparturesCountSet="HandleOnTodayTourDeparturesCountSet"></TodaysDepartures> *@
+@* <TodaysActivity TodaysActivityTable="@_todaysActivityTable"></TodaysActivity> *@
 
-                @if (!PropertyBookingsCount.HasValue)
-                {
-                    <MudProgressCircular Color="Color.Secondary" Indeterminate="true" Size="Size.Small"/>
-                }
-                else
-                {
-                    <MudText Typo="Typo.h5">@(PropertyBookingsCount.HasValue ? PropertyBookingsCount.Value : "Loading")</MudText>
-                }
-            </div>
-        </MudPaper>
-    </MudItem>
-    <MudItem xs="12" sm="6" md="@(UserIsAdmin ? 3 : 4)">
-        <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
-            <MudIcon Icon="@Icons.Material.Filled.Groups" Color="Color.Primary" Class="mx-4"
-                     Style="width:54px; height:54px;">
-            </MudIcon>
-            <div>
-                <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">
-                    @L["Total Guests Count"]
-                </MudText>
-                @if (!GuestsCount.HasValue)
-                {
-                    <MudProgressCircular Color="Color.Secondary" Indeterminate="true" Size="Size.Small"/>
-                }
-                else
-                {
-                    <MudText Typo="Typo.h5">@GuestsCount</MudText>
-                }
-            </div>
-        </MudPaper>
-    </MudItem>
-    <MudItem xs="12" sm="6" md="@(UserIsAdmin ? 3 : 4)">
-        <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
-            <MudIcon Icon="@Icons.Material.Filled.Route" Color="Color.Primary" Class="mx-4"
-                     Style="width:54px; height:54px;">
-            </MudIcon>
-            <div>
-                <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">
-                    @L["Total Tours Count"]
-                </MudText>
+<MudItem xs="12" sm="12">
+    <MudCard Elevation="25" Class="h-100">
+        <MudCardHeader>
+            <CardHeaderContent>
+                <MudText Typo="Typo.h4">Departures</MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+        <MudCardContent>
+            <MudTabs Elevation="0" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6" SliderColor="Color.Secondary">
+                <MudTabPanel Text="Today">
+                    @if (TodaysDeparturesContext != null)
+                    {
+                        <EntityTable @ref="@_todaysDeparturesTable" TEntity="BookingExportDto" TId="DefaultIdType" TRequest="BookingExportDto" Context="@TodaysDeparturesContext" Dense="true" ModalWidth="MaxWidth.Large" Elevation="0" HideActionsColumn="true">
+                            <AdvancedSearchContent>
+                                @if (Tours is {Count: > 0})
+                                {
+                                    <MudSelect T="DefaultIdType?" @bind-Value="SearchTourId" Label="Filter by Tour" Clearable="true">
+                                        @foreach (var tour in Tours)
+                                        {
+                                            <MudSelectItem T="DefaultIdType?" Value="tour.Id">@tour.Name</MudSelectItem>
+                                        }
+                                    </MudSelect>
+                                }
+                            </AdvancedSearchContent>
+                        </EntityTable>
+                    }
+                    else
+                    {
+                        <MudSkeleton Height="500px" SkeletonType="SkeletonType.Rectangle"/>
+                    }
+                </MudTabPanel>
+                <MudTabPanel Text="Tomorrow">
+                    @if (TomorrowsDeparturesContext != null)
+                    {
+                        <EntityTable @ref="@_tomorrowsDeparturesTable" TEntity="BookingExportDto" TId="DefaultIdType" TRequest="BookingExportDto" Context="@TomorrowsDeparturesContext" Dense="true" ModalWidth="MaxWidth.Large" Elevation="0" HideActionsColumn="true">
+                            <AdvancedSearchContent>
+                                @if (Tours is {Count: > 0})
+                                {
+                                    <MudSelect T="DefaultIdType?" @bind-Value="SearchTomorrowTourId" Label="Filter by Tour" Clearable="true">
+                                        @foreach (var tour in Tours)
+                                        {
+                                            <MudSelectItem T="DefaultIdType?" Value="tour.Id">@tour.Name</MudSelectItem>
+                                        }
+                                    </MudSelect>
+                                }
+                            </AdvancedSearchContent>
+                        </EntityTable>
+                    }
+                    else
+                    {
+                        <MudSkeleton Height="500px" SkeletonType="SkeletonType.Rectangle"/>
+                    }
+                </MudTabPanel>
+            </MudTabs>
+        </MudCardContent>
+    </MudCard>
+</MudItem>
 
-                @if (!ToursCount.HasValue)
-                {
-                    <MudProgressCircular Color="Color.Secondary" Indeterminate="true" Size="Size.Small"/>
-                }
-                else
-                {
-                    <MudText Typo="Typo.h5">@ToursCount</MudText>
-                }
-            </div>
-        </MudPaper>
-    </MudItem>
-    <MudItem xs="12" sm="6" md="@(UserIsAdmin ? 3 : 4)">
-        <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
-            <MudIcon Icon="@Icons.Material.Filled.LocationCity" Color="Color.Primary" Class="mx-4"
-                     Style="width:54px; height:54px;">
-            </MudIcon>
-            <div>
-                <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">
-                    @L["Total Properties Count"]
-                </MudText>
-
-                @if (!PropertiesCount.HasValue)
-                {
-                    <MudProgressCircular Color="Color.Secondary" Indeterminate="true" Size="Size.Small"/>
-                }
-                else
-                {
-                    <MudText Typo="Typo.h5">@PropertiesCount</MudText>
-                }
-            </div>
-        </MudPaper>
-    </MudItem>
+@if (!UserIsSupplier)
+{
     <MudItem xs="12" sm="12">
         <MudCard Elevation="25" Class="h-100">
             <MudCardHeader>
                 <CardHeaderContent>
-                    <MudText Typo="Typo.h4">Today's Tour Departures</MudText>
+                    <MudText Typo="Typo.h4">Today's Activity</MudText>
                 </CardHeaderContent>
             </MudCardHeader>
             <MudCardContent>
-                @if (TourDayBookingsContext != null)
+                @if (TodaysActivityContext != null)
                 {
-                    <EntityTable @ref="@_todaysToursTable" TEntity="BookingExportDto" TId="Guid" TRequest="BookingExportDto" Context="@TourDayBookingsContext" ModalWidth="MaxWidth.Large" Elevation="0">
+                    <EntityTable @ref="@_todaysActivityTable" TEntity="BookingDto" TId="DefaultIdType" TRequest="BookingDto" Context="@TodaysActivityContext" Dense="true" ModalWidth="MaxWidth.Large" Elevation="0" HideActionsColumn="true">
                         <AdvancedSearchContent>
                             @if (Tours is {Count: > 0})
                             {
-                                <MudSelect T="Guid?" @bind-Value="SearchTourId" Label="Filter by Tour" Clearable="true">
+                                <MudSelect T="DefaultIdType?" @bind-Value="SearchTourId" Label="Filter by Tour" Clearable="true">
                                     @foreach (var tour in Tours)
                                     {
-                                        <MudSelectItem T="Guid?" Value="tour.Id">@tour.Name</MudSelectItem>
+                                        <MudSelectItem T="DefaultIdType?" Value="tour.Id">@tour.Name</MudSelectItem>
                                     }
                                 </MudSelect>
                             }
@@ -176,114 +223,167 @@
             </MudCardContent>
         </MudCard>
     </MudItem>
+}
 
-    @if (UserIsAdmin)
-    {
-        <MudItem xs="12" sm="6">
-            <MudCard Elevation="25" Class="h-100">
-                <MudCardHeader>
-                    <CardHeaderContent>
-                        <MudText Typo="Typo.h4">Total Revenue by Tour</MudText>
-                    </CardHeaderContent>
-                </MudCardHeader>
-                <MudCardContent Class="dashboard-pie-chart" Style="height:calc(100% - 74px);">
-                    @if (PaidTourBookings != null)
-                    {
-                        <ApexChart @ref="@_toursRevenuePieChart"
-                                   TItem="BookingItemDetailsDto"
-                                   Options="_toursRevenuePieChartOptions">
 
-                            <ApexPointSeries
-                                TItem="BookingItemDetailsDto"
-                                Items="PaidTourBookings"
-                                SeriesType="@SeriesType.Pie"
-                                Name="Bookings"
-                                XValue="@(e => e.Tour.Name)"
-                                YAggregate="@(e => e.Sum(x => x.TotalAmount))"
-                                OrderBy="e => e.Y"/>
-                        </ApexChart>
-                    }
-                    else
-                    {
-                        <div class="d-flex justify-center align-center" style="height:400px;">
-                            <MudProgressCircular Color="Color.Secondary" Style="height:70px;width:70px;" Indeterminate="true"/>
-                        </div>
-                    }
-                </MudCardContent>
-            </MudCard>
-        </MudItem>
-        <MudItem xs="12" sm="6">
-            <MudCard Elevation="25" Class="h-100">
-                <MudCardHeader>
-                    <CardHeaderContent>
-                        <MudText Typo="Typo.h4">Total Bookings by Tour</MudText>
-                    </CardHeaderContent>
-                </MudCardHeader>
-                <MudCardContent>
-                    @if (TourBookingsBarChartSummaries != null)
-                    {
-                        <ApexChart @ref="@_tourBookingsBarChart"
-                                   TItem="TourBookingsBarChartSummary.MonthAmount"
-                                   XAxisType="XAxisType.Datetime"
-                                   Options="@_tourBookingsBarChartOptions">
+@if (UserIsAdmin)
+{
+    <MudItem xs="12" sm="6">
+        <MudCard Elevation="25" Class="h-100">
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h4">Total Revenue by Tour</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent Class="dashboard-pie-chart" Style="height:calc(100% - 74px);">
+                @if (PaidTourBookings != null)
+                {
+                    <ApexChart @ref="@_toursRevenuePieChart"
+                               TItem="BookingItemDetailsDto"
+                               Options="_toursRevenuePieChartOptions">
 
-                            @{
-                                foreach (var packageMonthly in TourBookingsBarChartSummaries)
+                        <ApexPointSeries
+                            TItem="BookingItemDetailsDto"
+                            Items="PaidTourBookings"
+                            SeriesType="@SeriesType.Pie"
+                            Name="Bookings"
+                            XValue="@(e => e.Tour.Name)"
+                            YAggregate="@(e => e.Sum(x => x.TotalAmount))"
+                            OrderBy="e => e.Y"/>
+                    </ApexChart>
+                }
+                else
+                {
+                    <div class="d-flex justify-center align-center" style="height:400px;">
+                        <MudProgressCircular Color="Color.Secondary" Style="height:70px;width:70px;" Indeterminate="true"/>
+                    </div>
+                }
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+    <MudItem xs="12" sm="6">
+        <MudCard Elevation="25" Class="h-100">
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h4">Total Bookings by Tour</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                @if (TourBookingsBarChartSummaries != null)
+                {
+                    <ApexChart @ref="@_tourBookingsBarChart"
+                               TItem="TourBookingsBarChartSummary.MonthAmount"
+                               XAxisType="XAxisType.Datetime"
+                               Options="@_tourBookingsBarChartOptions">
+
+                        @{
+                            foreach (var packageMonthly in TourBookingsBarChartSummaries)
+                            {
+                                <ApexPointSeries
+                                    TItem="TourBookingsBarChartSummary.MonthAmount"
+                                    Items="packageMonthly.MonthlyAmounts"
+                                    SeriesType="@SeriesType.Bar"
+                                    Name="@packageMonthly.TourName"
+                                    XValue="@(e => DateTimeOffset.Parse(e.MonthYear.ToString()).FirstDayOfMonth().ToUnixTimeMilliseconds())"
+                                    YAggregate="@(e => e.Sum(x => x.Count))"
+                                    OrderBy="e => e.Y"/>
+                            }
+                        }
+                    </ApexChart>
+                }
+                else
+                {
+                    <div class="d-flex justify-center align-center" style="height:400px;">
+                        <MudProgressCircular Color="Color.Secondary" Style="height:70px;width:70px;" Indeterminate="true"/>
+                    </div>
+                }
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+}
+
+@if (UserIsAdmin)
+{
+    @* <StaffBookingsReport StaffBookingsTable="@_staffBookingsTable"></StaffBookingsReport> *@
+
+    <MudItem xs="12" sm="12">
+        <MudCard Elevation="25" Class="h-100">
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h4">Staff Bookings Report</MudText>
+                    <MudText Typo="Typo.h6">@($"{SearchStaffBookingsDateRange.Start.Value.ToShortDateString()} - {SearchStaffBookingsDateRange.End.Value.ToShortDateString()}")</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                @if (StaffBookingsContext != null)
+                {
+                    <EntityTable @ref="@_staffBookingsTable" TEntity="StaffBookingDto" TId="string" TRequest="StaffBookingDto" Context="@StaffBookingsContext" ModalWidth="MaxWidth.Large" Elevation="0" Dense="true">
+                        <AdvancedSearchContent>
+                            <MudDateRangePicker AutoClose="true" @ref="_staffBookingsDateRangePicker" PickerVariant="PickerVariant.Dialog" Label="@L["Date Range"]" @bind-DateRange="SearchStaffBookingsDateRange" Clearable="false">
+                                <PickerActions>
+                                    <MudButton Class="mr-auto align-self-start" OnClick="@(() => _staffBookingsDateRangePicker.Clear())">@L["Clear"]</MudButton>
+                                    <MudButton OnClick="@(() => _staffBookingsDateRangePicker.Close(false))">@L["Cancel"]</MudButton>
+                                    <MudButton Color="Color.Primary" OnClick="@(() => _staffBookingsDateRangePicker.Close())">@L["Ok"]</MudButton>
+                                </PickerActions>
+                            </MudDateRangePicker>
+                        </AdvancedSearchContent>
+
+                        <ActionsContent>
+                            <MudButton Variant="Variant.Filled" DisableElevation="true" EndIcon="@Icons.Material.Filled.KeyboardArrowDown" IconColor="Color.Info"
+                                       OnClick="@(() => ShowStaffReportDetails(context))">
+                                @((context.ShowDetails == true) ? L["Hide"] : L["Show"]) @L["Details"]
+                            </MudButton>
+                        </ActionsContent>
+
+                        <ChildRowContent>
+                            @if (context.ShowDetails)
+                            {
+                                if (context.TourDetails?.Any() == true)
                                 {
-                                    <ApexPointSeries
-                                        TItem="TourBookingsBarChartSummary.MonthAmount"
-                                        Items="packageMonthly.MonthlyAmounts"
-                                        SeriesType="@SeriesType.Bar"
-                                        Name="@packageMonthly.TourName"
-                                        XValue="@(e => DateTimeOffset.Parse(e.MonthYear.ToString()).FirstDayOfMonth().ToUnixTimeMilliseconds())"
-                                        YAggregate="@(e => e.Sum(x => x.Count))"
-                                        OrderBy="e => e.Y"/>
+                                    <MudTr>
+                                        <td colspan="8">
+                                            <MudCard Elevation="25" style="margin: 10px !important;">
+                                                <MudCardHeader>
+                                                    <CardHeaderContent>
+                                                        <MudAlert Severity="Severity.Normal">@L["Items for Staff Member"] : <strong>@context.FullName</strong></MudAlert>
+                                                    </CardHeaderContent>
+                                                </MudCardHeader>
+                                                <MudCardContent>
+                                                    <MudTable Items="@context.TourDetails" Context="ItemContext" Hover="true" Breakpoint="Breakpoint.Sm" Elevation="0">
+                                                        <ColGroup>
+                                                            <col/>
+                                                            <col/>
+                                                            <col/>
+                                                            <col/>
+                                                        </ColGroup>
+                                                        <HeaderContent>
+                                                            <MudTh>Tour</MudTh>
+                                                            <MudTh>Total Bookings Made</MudTh>
+                                                            <MudTh>Total Bookings Revenue</MudTh>
+                                                            <MudTh>Total Commission Amount</MudTh>
+                                                        </HeaderContent>
+                                                        <RowTemplate>
+                                                            <MudTd DataLabel="Tour">@ItemContext.TourName</MudTd>
+                                                            <MudTd DataLabel="Total Bookings Made">@ItemContext.QuantityBooked</MudTd>
+                                                            <MudTd DataLabel="Total Bookings Revenue">@($"$ {string.Format("{0:n2}", ItemContext.TotalAmount)}")</MudTd>
+                                                            <MudTd DataLabel="Total Commission Amount">@($"$ {string.Format("{0:n2}", ItemContext.TotalCommissionAmount)}")</MudTd>
+                                                        </RowTemplate>
+                                                    </MudTable>
+                                                </MudCardContent>
+                                            </MudCard>
+                                        </td>
+                                    </MudTr>
                                 }
                             }
-                        </ApexChart>
-                    }
-                    else
-                    {
-                        <div class="d-flex justify-center align-center" style="height:400px;">
-                            <MudProgressCircular Color="Color.Secondary" Style="height:70px;width:70px;" Indeterminate="true"/>
-                        </div>
-                    }
-                </MudCardContent>
-            </MudCard>
-        </MudItem>
-    }
-
-    @if (UserIsAdmin)
-    {
-        <MudItem xs="12" sm="12">
-            <MudCard Elevation="25" Class="h-100">
-                <MudCardHeader>
-                    <CardHeaderContent>
-                        <MudText Typo="Typo.h4">Staff Bookings Report</MudText>
-                        <MudText Typo="Typo.h6">@($"{SearchStaffBookingsDateRange.Start.Value.ToShortDateString()} - {SearchStaffBookingsDateRange.End.Value.ToShortDateString()}")</MudText>
-                    </CardHeaderContent>
-                </MudCardHeader>
-                <MudCardContent>
-                    @if (StaffBookingsContext != null)
-                    {
-                        <EntityTable @ref="@_staffBookingsTable" TEntity="StaffBookingDto" TId="string" TRequest="StaffBookingDto" Context="@StaffBookingsContext" ModalWidth="MaxWidth.Large" Elevation="0">
-                            <AdvancedSearchContent>
-                                <MudDateRangePicker AutoClose="true" @ref="_staffBookingsDateRangePicker" PickerVariant="PickerVariant.Dialog" Label="@L["Date Range"]" @bind-DateRange="SearchStaffBookingsDateRange" Clearable="false">
-                                    <PickerActions>
-                                        <MudButton Class="mr-auto align-self-start" OnClick="@(() => _staffBookingsDateRangePicker.Clear())">@L["Clear"]</MudButton>
-                                        <MudButton OnClick="@(() => _staffBookingsDateRangePicker.Close(false))">@L["Cancel"]</MudButton>
-                                        <MudButton Color="Color.Primary" OnClick="@(() => _staffBookingsDateRangePicker.Close())">@L["Ok"]</MudButton>
-                                    </PickerActions>
-                                </MudDateRangePicker>
-                            </AdvancedSearchContent>
-                        </EntityTable>
-                    }
-                    else
-                    {
-                        <MudSkeleton Height="500px" SkeletonType="SkeletonType.Rectangle"/>
-                    }
-                </MudCardContent>
-            </MudCard>
-        </MudItem>
-    }
+                        </ChildRowContent>
+                    </EntityTable>
+                }
+                else
+                {
+                    <MudSkeleton Height="500px" SkeletonType="SkeletonType.Rectangle"/>
+                }
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+}
 </MudGrid>

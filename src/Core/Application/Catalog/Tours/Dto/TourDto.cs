@@ -25,5 +25,11 @@ public class TourDto
     public string? BookingConfirmationEmailDetails { get; set; }
     public string? TermsAndConditions { get; set; }
     public string? CancellationPolicy { get; set; }
+    public bool? WaiverRequired { get; set; }
+    public bool? PublishToSite { get; set; }
     public string FriendlyUrl => Name.UrlFriendly();
+    public string? SupplierEmailText { get; set; }
+    public DefaultIdType? SupplierId { get; set; }
+    public DefaultIdType? TourCategoryId { get; set; }
+    public TourCategoryDto? TourCategory { get; set; }
 }

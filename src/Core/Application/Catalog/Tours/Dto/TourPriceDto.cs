@@ -14,4 +14,5 @@ public class TourPriceDto
     public decimal? HourDuration { get; set; }
     public decimal? ComissionAmount { get; set; }
     public bool? PublishToWebsite { get; set; }
+    public bool? InHouseOnly { get; set; }
 }

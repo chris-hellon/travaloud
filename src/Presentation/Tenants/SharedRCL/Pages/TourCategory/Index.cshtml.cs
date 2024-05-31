@@ -41,7 +41,7 @@ public class IndexModel : TravaloudBasePageModel
 
         if (ToursWithCategories == null) return Page();
         
-        TourCategory = tourCategoryName != null ? ToursWithCategories.FirstOrDefault(x => x.FriendlyUrl == tourCategoryName && !x.CategoryId.HasValue) : null;
+        TourCategory = tourCategoryName != null ? ToursWithCategories.FirstOrDefault(x => x.FriendlyUrl == tourCategoryName && !x.TourCategoryId.HasValue) : null;
 
         if (TourCategory == null) return Page();
         {

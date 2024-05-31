@@ -1,4 +1,4 @@
-h1, h2, h3, h4, h5, h6 {
+h1, h2, h3, h4, h5, h6, strong {
   font-family: var(--mdb-font-din-2014-narrow-bold);
   margin-top: 0;
   margin-bottom: 0.5rem;
@@ -48,5 +48,11 @@ button.nav-link, button.text-purple {
   background: transparent;
   outline: none;
   border: none;
+}
+
+@media (min-width: 1400px) {
+  .container-xl, .container-lg, .container-md, .container-sm, .container {
+    max-width: 1320px !important;
+  }
 }
 

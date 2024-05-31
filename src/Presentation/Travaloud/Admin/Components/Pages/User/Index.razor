@@ -11,7 +11,11 @@
     <MudTabPanel Text="@L["Security"]">
         <Security/>
     </MudTabPanel>
-    <MudTabPanel Text="@L["QR Codes"]">
-        <QRCodes/>
-    </MudTabPanel>
+    
+    @if (!CurrentUser.IsInRole(TravaloudRoles.Supplier))
+    {
+        <MudTabPanel Text="@L["QR Codes"]">
+            <QRCodes/>
+        </MudTabPanel>
+    }
 </MudTabs>

@@ -26,7 +26,7 @@
     }
     <div class="container pb-8">
         @{
-            var carouselId = Model.Header != null && Model.Header.Title != null ? $"{Model.Header.Title.ConvertToCamelCase("Carousel")}" : "eventsCarousel";
+            var carouselId = Model.Header is {Title: not null} ? $"{Model.Header.Title.ConvertToCamelCase("Carousel")}" : "eventsCarousel";
 
             <div class="owl-carousel owl-theme has-parallax-scroll">
                 @for (var i = 0; i < Model.Cards.Count(); i++)

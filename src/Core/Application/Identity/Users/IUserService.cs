@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using Travaloud.Application.Identity.Users.Password;
 
 namespace Travaloud.Application.Identity.Users;
@@ -38,4 +39,13 @@ public interface IUserService : ITransientService
 
     Task<string> BatchCreateAsync(List<CreateUserRequest> request, string roleName);
     Task<string> BatchUpdateAsync(List<UpdateUserRequest> request);
+
+    Task<bool> CreateClaimAsync(CreateUserClaimRequest request, string userId);
+
+    Task<bool> DeleteClaimAsync(DeleteUserClaimRequest request, string userId);
+
+    Task<IEnumerable<IdentityUserClaim<string>>> GetUserClaims(GetUserClaimsRequest request,
+        CancellationToken cancellationToken);
+
+    Task<bool> UserIsInRole(string userId, string roleName);
 }

@@ -1,0 +1,78 @@
+@page "/management/destinations"
+
+@attribute [MustHavePermission(TravaloudAction.View, TravaloudResource.Locations)]
+
+@using Travaloud.Application.Catalog.Destinations.Dto
+
+@inject IStringLocalizer<Locations> L
+
+<TravaloudPageTitle Title="@L["Location"]" Description="@L["Manage Locations."]"/>
+
+<EntityTable @ref="_table" TEntity="DestinationDto" TId="DefaultIdType" TRequest="DestinationViewModel" Context="@Context" IsWizard="true" WizardSteps="@WizardSteps">
+    <WizardStep1Content>
+        <MudItem xs="12" md="12" Class="mb-3">
+            <MudTextField Label="@L["Name"]" For="@(() => context.Name)" @bind-Value="context.Name" Required="true" Placeholder="Enter a Destination name" Variant="Variant.Outlined" />
+        </MudItem>
+        <MudItem xs="12" md="12">
+            <MudInputLabel Class="mb-3">@L["Short Description"]</MudInputLabel>
+            <MudExRichTextEdit @bind-Value="context.ShortDescription" For="@(() => context.ShortDescription)" BackgroundColor="MudExColor.Transparent" />
+        </MudItem>
+    </WizardStep1Content>
+    <WizardStep2Content>
+        <MudItem xs="12" md="12">
+            <MudInputLabel Class="mb-3">@L["Description"]</MudInputLabel>
+            <MudExRichTextEdit @bind-Value="context.Description" For="@(() => context.Description)" BackgroundColor="MudExColor.Transparent" />
+        </MudItem>
+    </WizardStep2Content>
+    <WizardStep3Content>
+        <MudItem xs="12" md="12" Class="mb-3">
+            <MudTextField Label="@L["Google Maps Key"]" For="@(() => context.GoogleMapsKey)" @bind-Value="context.GoogleMapsKey" Variant="Variant.Outlined" Placeholder="Enter an addess for the destination, to display in a Google map" />
+        </MudItem>
+        <MudItem xs="12" md="12">
+            <MudInputLabel Class="mb-3">@L["Directions"]</MudInputLabel>
+            <MudExRichTextEdit @bind-Value="context.Directions" For="@(() => context.Directions)" BackgroundColor="MudExColor.Transparent" />
+        </MudItem>
+    </WizardStep3Content>
+    <WizardStep4Content>
+        <MudStack>
+            <MudItem xs="12" md="12">
+                <div>
+                    <MudButton HtmlTag="label" DisableElevation Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
+                               StartIcon="@Icons.Material.Filled.CloudUpload" for="fileInput">
+                        @L["Select Banner Image"]
+                    </MudButton>
+                    @if (Context.AddEditModal is {IsCreate: false} && !string.IsNullOrEmpty(context.ImagePath) && string.IsNullOrEmpty(context.ImageInBytes))
+                    {
+                        <MudButton HtmlTag="label" DisableElevation Variant="Variant.Filled" Color="Color.Info" Size="Size.Small" Target="_blank"
+                                   StartIcon="@Icons.Material.Filled.RemoveRedEye" Link="@(context.ImagePath)" Style="margin-left: 5px;">
+                            @L["View"]
+                        </MudButton>
+
+                        <MudButton HtmlTag="label" DisableElevation Variant="Variant.Filled" Color="Color.Error" Size="Size.Small"
+                                   StartIcon="@Icons.Material.Filled.Delete" OnClick="SetDeleteCurrentImageFlag" Style="margin-left: 5px;">
+                            @L["Delete"]
+                        </MudButton>
+                    }
+                    @if (!string.IsNullOrEmpty(context.ImageInBytes))
+                    {
+                        <MudButton HtmlTag="label" DisableElevation OnClick="ClearImageInBytes" Variant="Variant.Filled" Color="Color.Warning" Size="Size.Small" Target="_blank"
+                                   StartIcon="@Icons.Material.Filled.Clear" Style="margin-left: 5px;">
+                            @L["Clear"]
+                        </MudButton>
+                    }
+                </div>
+                <InputFile id="fileInput" hidden OnChange="UploadFiles" />
+            </MudItem>
+            <MudItem xs="12" md="12">
+                @if (!string.IsNullOrEmpty(context.ImageInBytes))
+                {
+                    <MudAvatar Image="@context.ImageInBytes" Square="true" Style="height: auto; width: auto; max-height: 100%"> </MudAvatar>
+                }
+                else
+                {
+                    <MudAvatar Image="@(string.IsNullOrEmpty(@context.ImagePath) ? string.Empty : (@context.ImagePath))" Square="true" Style="height: auto; width: auto; max-height: 100%"> </MudAvatar>
+                }
+            </MudItem>
+        </MudStack>
+    </WizardStep4Content>
+</EntityTable>

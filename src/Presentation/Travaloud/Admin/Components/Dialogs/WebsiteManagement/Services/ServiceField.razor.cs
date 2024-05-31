@@ -21,7 +21,7 @@ public partial class ServiceField : ComponentBase
     [Parameter] public UpdateServiceRequest Service { get; set; } = default!;
 
     [Parameter]
-    public EntityServerTableContext<ServiceDto, Guid, UpdateServiceRequest> Context { get; set; } = default!;
+    public EntityServerTableContext<ServiceDto, DefaultIdType, UpdateServiceRequest> Context { get; set; } = default!;
 
     [Parameter] public object? Id { get; set; }
 

@@ -225,3 +225,7 @@ th {
 .dashboard-pie-chart > div:first-child {
     position: relative; top: 50%; transform: translateY(-50%)
 }
+
+.ql-editor p {
+    margin-bottom:10px !important;
+}

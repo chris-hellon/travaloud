@@ -21,7 +21,11 @@ public static class CacheServiceExtensions
         return value;
     }
 
-    public static async Task<T?> GetOrSetAsync<T>(this ICacheService cache, string key, Func<Task<T>> getItemCallback, TimeSpan? slidingExpiration = null, CancellationToken cancellationToken = default)
+    public static async Task<T> GetOrSetAsync<T>(this ICacheService cache,
+        string key,
+        Func<Task<T>> getItemCallback,
+        TimeSpan? slidingExpiration = null,
+        CancellationToken cancellationToken = default)
     {
         var value = await cache.GetAsync<T>(key, cancellationToken);
 

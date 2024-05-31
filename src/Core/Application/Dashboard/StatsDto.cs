@@ -1,26 +1,28 @@
-using ApexCharts;
 using Travaloud.Application.Catalog.Bookings.Dto;
+using Travaloud.Application.Cloudbeds.Responses;
 
 namespace Travaloud.Application.Dashboard;
 
 public class StatsDto
 {
-    public int BookingsCount { get; set; }
-    public int TourBookingsCount { get; set; }
-    public decimal TourBookingsRevenue { get; set; }
-    public int PropertyBookingsCount { get; set; }
-    public int GuestsCount { get; set; }
-    public int ToursCount { get; set; }
-    public int PropertiesCount { get; set; }
+    public int BookingsCount { get; init; }
+    public int TourBookingsCount { get; init; }
+    public decimal TourBookingsRevenue { get; init; }
+    public int PropertyBookingsCount { get; init; }
+    public int GuestsCount { get; init; }
+    public int ToursCount { get; init; }
+    public int PropertiesCount { get; init; }
     public List<BookingExportDto>? TodaysTours { get; set; }
     
-    public List<ChartSeries> DataEnterBarChart { get; set; } = new();
+    public List<ChartSeries> DataEnterBarChart { get; set; } = [];
     public Dictionary<string, double>? ProductByBrandTypePieChart { get; set; }
     
-    public IEnumerable<BookingItemDetailsDto>? PaidTourBookings { get; set; }
-    public IEnumerable<BookingItemDetailsDto>? AllTourBookings { get; set; }
+    public IEnumerable<BookingItemDetailsDto>? PaidTourBookings { get; init; }
+    public IEnumerable<BookingItemDetailsDto>? AllTourBookings { get; init; }
 
     public List<TourBookingsBarChartSummary> TourBookingsBarChartSummaries { get; set; } = [];
+
+    public GetDashboardResponse CloudbedsDashboard { get; set; } = new();
 }
 
 public class ChartSeries

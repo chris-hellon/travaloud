@@ -232,6 +232,9 @@ const setMultiItemCarousel = () => {
     if (owlCarousels.length > 0) {
         owlCarousels.each(function () {
             let carousel = $(this);
+            
+            let itemsCount = carousel.find('.card').length;
+
             carousel.owlCarousel({
                 loop: true,
                 margin: 20,
@@ -246,7 +249,7 @@ const setMultiItemCarousel = () => {
                         nav: true,
                     },
                     1415: {
-                        items: 3,
+                        items: itemsCount >= 3 ? 3 : itemsCount,
                         nav: true,
                         loop: false
                     }

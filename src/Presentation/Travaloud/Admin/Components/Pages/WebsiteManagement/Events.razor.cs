@@ -19,8 +19,8 @@ public partial class Events
 {
     [Inject] protected IEventsService EventsService { get; set; } = default!;
 
-    private EntityServerTableContext<EventDto, Guid, EventViewModel> Context { get; set; } = default!;
-    private EntityTable<EventDto, Guid, EventViewModel> _table = default!;
+    private EntityServerTableContext<EventDto, DefaultIdType, EventViewModel> Context { get; set; } = default!;
+    private EntityTable<EventDto, DefaultIdType, EventViewModel> _table = default!;
 
     private MudColorPicker ColorPicker { get; set; } = default!;
 
@@ -31,7 +31,7 @@ public partial class Events
 
     protected override void OnInitialized()
     {
-        Context = new EntityServerTableContext<EventDto, Guid, EventViewModel>(
+        Context = new EntityServerTableContext<EventDto, DefaultIdType, EventViewModel>(
             entityName: L["Event"],
             entityNamePlural: L["Events"],
             entityResource: TravaloudResource.Events,
@@ -48,7 +48,7 @@ public partial class Events
                     @event.Image = new FileUploadRequest()
                     {
                         Data = @event.ImageInBytes, Extension = @event.ImageExtension ?? string.Empty,
-                        Name = $"{@event.Name}_{Guid.NewGuid():N}"
+                        Name = $"{@event.Name}_{DefaultIdType.NewGuid():N}"
                     };
                 }
 
@@ -80,7 +80,7 @@ public partial class Events
                     @event.Image = new FileUploadRequest()
                     {
                         Data = @event.ImageInBytes, Extension = @event.ImageExtension ?? string.Empty,
-                        Name = $"{@event.Name}_{Guid.NewGuid():N}"
+                        Name = $"{@event.Name}_{DefaultIdType.NewGuid():N}"
                     };
                 }
 

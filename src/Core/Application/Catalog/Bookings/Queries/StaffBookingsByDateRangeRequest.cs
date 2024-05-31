@@ -35,11 +35,23 @@ internal class StaffBookingsByDateRangeRequestHandler : IRequestHandler<StaffBoo
             },
             commandType: CommandType.StoredProcedure,
             cancellationToken: cancellationToken);
+
+        if (!staffBookings.Any())
+            return new PaginationResponse<StaffBookingDto>(staffBookings.ToList(), 0, request.PageNumber,
+                request.PageSize);
         
-        if (staffBookings.Any())
-            return new PaginationResponse<StaffBookingDto>(staffBookings.ToList(), staffBookings.First().TotalCount,
-                request.PageNumber, request.PageSize);
+        var staffBookingsList = staffBookings.Select(x =>
+        {
+            if (!string.IsNullOrEmpty(x.TourDetailsJson))
+            {
+                x.TourDetails = JsonConvert.DeserializeObject<IEnumerable<StaffBookingTourDetailDto>>(x.TourDetailsJson);
+            }
+                
+            return x;
+        }).ToList();
             
-        return new PaginationResponse<StaffBookingDto>(staffBookings.ToList(), 0, request.PageNumber, request.PageSize);
+        return new PaginationResponse<StaffBookingDto>(staffBookingsList, staffBookings.First().TotalCount,
+            request.PageNumber, request.PageSize);
+
     }
 }

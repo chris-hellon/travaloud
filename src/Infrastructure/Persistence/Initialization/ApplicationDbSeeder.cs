@@ -59,6 +59,10 @@ internal class ApplicationDbSeeder
             {
                 await AssignPermissionsToRoleAsync(dbContext, TravaloudPermissions.PropertyManager, role);
             }
+            else if (roleName == TravaloudRoles.Supplier)
+            {
+                await AssignPermissionsToRoleAsync(dbContext, TravaloudPermissions.Supplier, role);
+            }
             else if (roleName == TravaloudRoles.Admin)
             {
                 await AssignPermissionsToRoleAsync(dbContext, TravaloudPermissions.Admin, role);

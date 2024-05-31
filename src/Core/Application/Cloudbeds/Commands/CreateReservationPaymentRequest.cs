@@ -13,14 +13,17 @@ public class CreateReservationPaymentRequest : IRequest<CreateReservationPayment
 
     [JsonProperty("amount")] public decimal Amount { get; set; }
     
+    [JsonProperty("description")] public string Description { get; set; }
+    
     [JsonIgnore] public string? PropertyApiKey { get; set; }
 
-    public CreateReservationPaymentRequest(string propertyId, string reservationId, decimal amount, string? propertyApiKey)
+    public CreateReservationPaymentRequest(string propertyId, string reservationId, decimal amount, string? propertyApiKey, string description)
     {
         PropertyId = propertyId;
         ReservationId = reservationId;
         Amount = amount;
         PropertyApiKey = propertyApiKey;
+        Description = description;
     }
 }
 

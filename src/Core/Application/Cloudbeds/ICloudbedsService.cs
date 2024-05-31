@@ -20,4 +20,6 @@ public interface ICloudbedsService : ITransientService
     Task<GetGuestsResponse> GetGuests(GetGuestsRequest request);
 
     Task<IEnumerable<GuestDto>> SearchGuests(SearchCloudbedsGuests request);
+
+    Task<IEnumerable<GetDashboardResponse>> GetDashboards(IEnumerable<GetDashboardRequest> requests);
 }

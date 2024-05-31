@@ -27,26 +27,26 @@
                     @if (!string.IsNullOrEmpty(Model.Property.CloudbedsApiKey))
                     {
                         <div class="col-lg-9 mb-4 mb-md-0">
-                             @if (cloudbedsApiDataAvailable)
-                                                                    {
-                                                                        foreach (var room in Model.CloudbedsPropertyResponse.Data.First().PropertyRooms)
-                                                                        {
-                                                                            room.CurrencySymbol = Model.CloudbedsPropertyResponse.Data.First().PropertyCurrency.CurrencySymbol;
-                                                                            room.PropertyId = Model.PropertyId;
-                                                                            room.PropertyName = Model.PropertyName;
-                                                                            room.CloudbedsPropertyId = Model.CloudbedsPropertyId;
-                                                                            room.PropertyImageUrl = Model.PropertyImageUrl;
+                            @if (cloudbedsApiDataAvailable)
+                            {
+                                foreach (var room in Model.CloudbedsPropertyResponse.Data.First().PropertyRooms)
+                                {
+                                    room.CurrencySymbol = Model.CloudbedsPropertyResponse.Data.First().PropertyCurrency.CurrencySymbol;
+                                    room.PropertyId = Model.PropertyId;
+                                    room.PropertyName = Model.PropertyName;
+                                    room.CloudbedsPropertyId = Model.CloudbedsPropertyId;
+                                    room.PropertyImageUrl = Model.PropertyImageUrl;
                             
-                                                                            <partial name="_PropertyRoomCardPartial" model="room"/>
-                                                                            <partial name="_PropertyRoomDetailsPartial" model="room"/>
-                                                                        }
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <div class="alert" role="alert" data-mdb-color="warning" data-mdb-alert-init>
-                                                                            <i class="fas fa-exclamation-triangle me-3"></i>There are no available rooms for the requested dates. <br/>Please try another date range, or check out our other hostels.
-                                                                        </div>
-                                                                    }
+                                    <partial name="_PropertyRoomCardPartial" model="room"/>
+                                    <partial name="_PropertyRoomDetailsPartial" model="room"/>
+                                }
+                            }
+                            else
+                            {
+                                <div class="alert" role="alert" data-mdb-color="warning" data-mdb-alert-init>
+                                    <i class="fas fa-exclamation-triangle me-3"></i>There are no available rooms for the requested dates. <br/>Please try another date range, or check out our other hostels.
+                                </div>
+                            }
                             @* <ul class="stepper" data-mdb-stepper-init> *@
                             @*     <li class="stepper-step stepper-active"> *@
                             @*         <div class="stepper-head"> *@
@@ -116,9 +116,9 @@
                                     </a>
                                 </div>
 
-                                 <a asp-page="/Checkout/Index" class="btn btn-primary btn-block btn-lg" id="btnProceedToCheckout" disabled="@(Model.Basket.ItemsCount == 0)">
-                                                                    Proceed To Checkout
-                                                                </a>
+                                <a asp-page="/Checkout/Index" class="btn btn-primary btn-block btn-lg" id="btnProceedToCheckout" disabled="@(Model.Basket.ItemsCount == 0)">
+                                    Proceed To Checkout
+                                </a>
                                 @* <button asp-page="/Checkout/Index" class="btn btn-primary btn-block btn-lg" id="btnProceedToCheckout" disabled="@(Model.Basket.ItemsCount == 0)"> *@
                                 @*     Proceed To Checkout *@
                                 @* </button> *@

@@ -2,6 +2,7 @@ using Blazored.FluentValidation;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using MudBlazor;
+using Travaloud.Admin.Components.Dialogs.Guests;
 using Travaloud.Application.Catalog.Bookings.Commands;
 using Travaloud.Application.Common.Extensions;
 using Travaloud.Application.Identity.Users;
@@ -110,10 +111,10 @@ public partial class TourBookingItemGuest
             {CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, DisableBackdropClick = true};
         DialogParameters parameters = new()
         {
-            {nameof(CreateGuest.TitleLabel), "Additional"}
+            {nameof(CreateUpdateGuest.TitleLabel), "Additional"}
         };
 
-        var dialog = await DialogService.ShowAsync<CreateGuest>(string.Empty, parameters, options);
+        var dialog = await DialogService.ShowAsync<CreateUpdateGuest>(string.Empty, parameters, options);
 
         var result = await dialog.Result;
 
@@ -129,7 +130,28 @@ public partial class TourBookingItemGuest
 
     private string GetUserDetailsLabel(UserDetailsDto e)
     {
-        return
-            $"{e.FirstName} {e.LastName}{(e.DateOfBirth.HasValue ? $" - {e.DateOfBirth?.ToShortDateString()}" : "")}{(!string.IsNullOrEmpty(e.Gender) ? $" - {e.Gender.GenderMatch()}" : "")}{(!string.IsNullOrEmpty(e.Nationality) ? $" - {e.Nationality?.TwoLetterCodeToCountry()} - " : "")}{e.Email}";
+        var details = new List<string>
+        {
+            $"{e.FirstName} {e.LastName}"
+        };
+
+        if (e.DateOfBirth.HasValue)
+        {
+            details.Add(e.DateOfBirth.Value.ToShortDateString());
+        }
+
+        if (!string.IsNullOrEmpty(e.Gender))
+        {
+            details.Add(e.Gender.GenderMatch());
+        }
+
+        if (!string.IsNullOrEmpty(e.Nationality))
+        {
+            details.Add(e.Nationality.TwoLetterCodeToCountry());
+        }
+
+        if (e.Email != null) details.Add(e.Email);
+
+        return string.Join(" - ", details);
     }
 }

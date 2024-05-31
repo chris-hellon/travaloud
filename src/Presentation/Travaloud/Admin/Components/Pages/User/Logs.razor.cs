@@ -12,7 +12,7 @@ public partial class Logs
 {
     [Inject] private IPersonalService PersonalService { get; set; } = default!;
 
-    private EntityClientTableContext<RelatedAuditTrail, Guid, object> Context { get; set; } = default!;
+    private EntityClientTableContext<RelatedAuditTrail, DefaultIdType, object> Context { get; set; } = default!;
 
     private string? _searchString;
     private MudDateRangePicker _dateRangePicker = default!;
@@ -32,7 +32,7 @@ public partial class Logs
         var authState = await AuthState.GetAuthenticationStateAsync();
         var user = authState.User.GetUserId();
         
-        Context = new EntityClientTableContext<RelatedAuditTrail, Guid, object>(
+        Context = new EntityClientTableContext<RelatedAuditTrail, DefaultIdType, object>(
             entityNamePlural: L["Logs"],
             searchAction: true.ToString(),
             fields:
@@ -45,7 +45,7 @@ public partial class Logs
             loadDataFunc: async () =>
             {
                 if (user != null)
-                    return _trails = (await PersonalService.GetLogsAsync(Guid.Parse(user)))
+                    return _trails = (await PersonalService.GetLogsAsync(DefaultIdType.Parse(user)))
                         .Adapt<List<RelatedAuditTrail>>();
 
                 return new List<RelatedAuditTrail>();
@@ -66,7 +66,7 @@ public partial class Logs
             hasExtraActionsFunc: () => true);
     }
 
-    private void ShowBtnPress(Guid id)
+    private void ShowBtnPress(DefaultIdType id)
     {
         var trail = _trails.First(f => f.Id == id);
         trail.ShowDetails = !trail.ShowDetails;

@@ -14,15 +14,15 @@ public partial class Pages
 {
     [Inject] protected IPagesService PagesService { get; set; } = default!;
 
-    private EntityServerTableContext<PageDto, Guid, UpdatePageRequest> Context { get; set; } = default!;
+    private EntityServerTableContext<PageDto, DefaultIdType, UpdatePageRequest> Context { get; set; } = default!;
 
     private EditContext? EditContext { get; set; }
 
-    private EntityTable<PageDto, Guid, UpdatePageRequest> _table = default!;
+    private EntityTable<PageDto, DefaultIdType, UpdatePageRequest> _table = default!;
     
     protected override void OnInitialized()
     {
-        Context = new EntityServerTableContext<PageDto, Guid, UpdatePageRequest>(
+        Context = new EntityServerTableContext<PageDto, DefaultIdType, UpdatePageRequest>(
             entityName: L["Page"],
             entityNamePlural: L["Pages"],
             entityResource: TravaloudResource.Pages,

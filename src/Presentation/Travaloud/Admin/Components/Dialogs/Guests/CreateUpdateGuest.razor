@@ -1,0 +1,80 @@
+@inject IStringLocalizer<CreateUpdateGuest> L
+
+<EditForm @ref="EditForm" Model="@RequestModel" OnValidSubmit="SaveAsync" Context="EditContext">
+    <MudDialog>
+        <TitleContent>
+            <MudText Typo="Typo.h6">
+                @if (!string.IsNullOrEmpty(TitleLabel))
+                {
+                    @($"Create a {TitleLabel} guest.")
+                }
+                else
+                {
+                    @("Edit Guest")
+                }
+            </MudText>
+        </TitleContent>
+        <DialogContent>
+            <FluentValidationValidator @ref="_fluentValidationValidator"/>
+            
+            <MudGrid>
+                <MudItem xs="12" md="6">
+                    <MudTextField For="@(() => RequestModel.FirstName)" @bind-Value="RequestModel.FirstName" Label="@L["First Name"]" Required="true"/>
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudTextField For="@(() => RequestModel.LastName)" @bind-Value="RequestModel.LastName" Label="@L["Last Name"]" Required="true"/>
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudDatePicker For="@(() => RequestModel.DateOfBirth)" @bind-Date="RequestModel.DateOfBirth" Culture="@_culture" TitleDateFormat="dd, MM yyyy" Label="@L["Date Of Birth"]"/>
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudTextField For="@(() => RequestModel.Email)" InputType="InputType.Email" @bind-Value="RequestModel.Email" Label="@L["Email"]" Required="@EmailRequired"/>
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudTextField For="@(() => RequestModel.PhoneNumber)" @bind-Value="RequestModel.PhoneNumber" Label="@L["Phone Number"]"/>
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudTextField For="@(() => RequestModel.Address)" @bind-Value="RequestModel.Address" Label="@L["Address"]" Required="false"></MudTextField>
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudTextField For="@(() => RequestModel.City)" @bind-Value="RequestModel.City" Label="@L["City"]" Required="false"></MudTextField>
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudTextField For="@(() => RequestModel.ZipPostalCode)" @bind-Value="RequestModel.ZipPostalCode" Label="@L["Zip/Postal Code"]" Required="false"></MudTextField>
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudAutocomplete T="string" MaxItems="null" Label="@L["Nationality"]" For="@(() => RequestModel.Nationality)" @bind-Value="RequestModel.Nationality" SearchFunc="@SearchNationalities" AnchorOrigin="Origin.BottomCenter" Required="false"/>
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudSelect T="string" For="@(() => RequestModel.Gender)" @bind-Value="RequestModel.Gender" Label="@L["Gender"]" AnchorOrigin="Origin.BottomCenter" Clearable="true" Required="false">
+                        <MudSelectItem Value="@("Male")"/>
+                        <MudSelectItem Value="@("Female")"/>
+                        <MudSelectItem Value="@("N/A")"/>
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudTextField For="@(() => RequestModel.PassportNumber)" @bind-Value="RequestModel.PassportNumber" Label="@L["Passport Number"]" Required="false"></MudTextField>
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudAutocomplete T="string" Label="@L["Passport Issuing Country"]" For="@(() => RequestModel.PassportIssuingCountry)" @bind-Value="RequestModel.PassportIssuingCountry" SearchFunc="@SearchNationalities" AnchorOrigin="Origin.BottomCenter" Required="false"/>
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudDatePicker For="@(() => RequestModel.PassportIssueDate)" @bind-Date="RequestModel.PassportIssueDate" Culture="@_culture" TitleDateFormat="dd, MM yyyy" Label="@L["Passport Issue Date"]" Required="false"/>
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudDatePicker For="@(() => RequestModel.PassportExpiryDate)" @bind-Date="RequestModel.PassportExpiryDate" Culture="@_culture" TitleDateFormat="dd, MM yyyy" Label="@L["Passport Expiry Date"]" Required="false"/>
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudDatePicker For="@(() => RequestModel.VisaIssueDate)" @bind-Date="RequestModel.VisaIssueDate" Culture="@_culture" TitleDateFormat="dd, MM yyyy" Label="@L["Visa Issue Date"]" Required="false"/>
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudDatePicker For="@(() => RequestModel.VisaExpiryDate)" @bind-Date="RequestModel.VisaExpiryDate" Culture="@_culture" TitleDateFormat="dd, MM yyyy" Label="@L["Visa Expiry Date"]" Required="false"/>
+                </MudItem>
+            </MudGrid>
+        </DialogContent>
+        <DialogActions>
+            <MudButton DisableElevation Variant="Variant.Filled" OnClick="Cancel" StartIcon="@Icons.Material.Filled.Cancel">@L["Cancel"]</MudButton>
+            <MudButton DisableElevation Variant="Variant.Filled" ButtonType="ButtonType.Submit" Color="Color.Secondary" StartIcon="@Icons.Material.Filled.Save">@L["Confirm"]</MudButton>
+        </DialogActions>
+    </MudDialog>
+</EditForm>

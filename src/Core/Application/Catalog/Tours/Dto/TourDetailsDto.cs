@@ -1,4 +1,7 @@
-﻿namespace Travaloud.Application.Catalog.Tours.Dto;
+﻿using Travaloud.Application.Catalog.Partners.Dto;
+using Travaloud.Domain.Identity;
+
+namespace Travaloud.Application.Catalog.Tours.Dto;
 
 public class TourDetailsDto
 {
@@ -30,15 +33,20 @@ public class TourDetailsDto
     public string? UrlSlug { get; set; }
     public string? H1 { get; set; }
     public string? H2 { get; set; }
+    public string? TermsAndConditions { get; set; }
     public string? BookingConfirmationEmailDetails { get; set; }
+    public bool? WaiverRequired { get; set; }
+    public string? SupplierEmailText { get; set; }
+    public DefaultIdType? SupplierId { get; set; }
     
     public IList<TourPriceDto>? TourPrices { get; set; }
     public IList<TourDateDto>? TourDates { get; set; }
     public IList<TourItineraryDto>? TourItineraries { get; set; }
-    public IList<TourCategoryLookupDto>? TourCategoryLookups { get; set; }
+    // public IList<TourCategoryLookupDto>? TourCategoryLookups { get; set; }
     public IList<TourCategoryDto>? TourCategories { get; set; }
     public IList<TourCategoryDto>? ParentTourCategories { get; set; }
     public IList<TourImageDto>? Images { get; set; }
     public IList<TourDestinationLookupDto>? TourDestinationLookups { get; set; }
     public IList<TourPickupLocationDto>? TourPickupLocations { get; set; }
+    public TourCategoryDto? TourCategory { get; set; }
 }

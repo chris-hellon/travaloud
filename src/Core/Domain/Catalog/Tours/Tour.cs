@@ -1,4 +1,7 @@
-﻿namespace Travaloud.Domain.Catalog.Tours;
+﻿using Travaloud.Domain.Catalog.Partners;
+using Travaloud.Shared.Common.Extensions;
+
+namespace Travaloud.Domain.Catalog.Tours;
 
 public class Tour : AuditableEntity, IAggregateRoot
 {
@@ -32,6 +35,10 @@ public class Tour : AuditableEntity, IAggregateRoot
     public string? TermsAndConditions { get; private set; }
     public string? CancellationPolicy { get; private set; }
     public bool? AdditionalGuestDetailsRequired { get; private set; }
+    public bool? WaiverRequired { get; private set; }
+    public string? SupplierId { get; private set; }
+    public string? SupplierEmailText { get; private set; }
+    public DefaultIdType? TourCategoryId { get; private set; }
     
     public virtual IList<TourCategoryLookup>? TourCategoryLookups { get; set; }
     public virtual IList<TourPropertyLookup>? TourPropertyLookups { get; private set; }
@@ -41,6 +48,7 @@ public class Tour : AuditableEntity, IAggregateRoot
     public virtual IList<TourItinerary>? TourItineraries { get; set; }
     public virtual IList<TourImage>? Images { get; set; }
     public virtual IList<TourPickupLocation>? TourPickupLocations { get; set; }
+    public virtual TourCategory? TourCategory { get; set; }
     
     public Tour()
     {
@@ -75,11 +83,15 @@ public class Tour : AuditableEntity, IAggregateRoot
         string? bookingConfirmationEmailDetails,
         string? termsAndConditions,
         string? cancellationPolicy,
-        bool? additionalGuestDetailsRequired)
+        bool? additionalGuestDetailsRequired,
+        bool? waiverRequired,
+        string? supplierId,
+        string? supplierEmailText,
+        DefaultIdType? tourCategoryId)
     {
         Name = name;
-        Description = description;
-        ShortDescription = shortDescription;
+        Description = description.FormatTextEditorString() ?? string.Empty;
+        ShortDescription = shortDescription.FormatTextEditorString();
         Price = price;
         PriceLabel = priceLabel;
         ImagePath = imagePath != null ? !imagePath.Contains("w-1000") ? $"{imagePath}?w=1000" : imagePath : null;
@@ -91,22 +103,26 @@ public class Tour : AuditableEntity, IAggregateRoot
         HourDuration = hourDuration;
         Address = address;
         TelephoneNumber = telephoneNumber;
-        WhatsIncluded = whatsIncluded;
-        WhatsNotIncluded = whatsNotIncluded;
-        AdditionalInformation = additionalInformation;
+        WhatsIncluded = whatsIncluded.FormatTextEditorString();
+        WhatsNotIncluded = whatsNotIncluded.FormatTextEditorString();
+        AdditionalInformation = additionalInformation.FormatTextEditorString();
         MetaKeywords = metaKeywords;
         MetaDescription = metaDescription;
-        ImportantInformation = importantInformation;
+        ImportantInformation = importantInformation.FormatTextEditorString();
         PublishToSite = publishToSite;
         UrlSlug = urlSlug;
         H1 = h1;
         H2 = h2;
         VideoPath = videoPath;
         MobileVideoPath = mobileVideoPath;
-        BookingConfirmationEmailDetails = bookingConfirmationEmailDetails;
-        TermsAndConditions = termsAndConditions;
-        CancellationPolicy = cancellationPolicy;
+        BookingConfirmationEmailDetails = bookingConfirmationEmailDetails.FormatTextEditorString();
+        TermsAndConditions = termsAndConditions.FormatTextEditorString();
+        CancellationPolicy = cancellationPolicy.FormatTextEditorString();
         AdditionalGuestDetailsRequired = additionalGuestDetailsRequired;
+        WaiverRequired = waiverRequired;
+        SupplierId = supplierId;
+        SupplierEmailText = supplierEmailText;
+        TourCategoryId = tourCategoryId;
     }
 
     public Tour Update(string? name,
@@ -138,11 +154,15 @@ public class Tour : AuditableEntity, IAggregateRoot
         string? bookingConfirmationEmailDetails,
         string? termsAndConditions,
         string? cancellationPolicy,
-        bool? additionalGuestDetailsRequired)
+        bool? additionalGuestDetailsRequired,
+        bool? waiverRequired,
+        string? supplierId,
+        string? supplierEmailText,
+        DefaultIdType? tourCategoryId)
     {
         if (name is not null && Name?.Equals(name) is not true) Name = name;
-        if (description is not null && Description?.Equals(description) is not true) Description = description;
-        if (shortDescription is not null && ShortDescription?.Equals(shortDescription) is not true) ShortDescription = shortDescription;
+        if (description is not null && Description?.Equals(description) is not true) Description = description.FormatTextEditorString() ?? string.Empty;
+        if (shortDescription is not null && ShortDescription?.Equals(shortDescription) is not true) ShortDescription = shortDescription.FormatTextEditorString();
         if (price.HasValue && Price != price) Price = price.Value;
         if (priceLabel is not null && PriceLabel?.Equals(priceLabel) is not true) PriceLabel = priceLabel;
         if (imagePath is not null && ImagePath?.Equals(imagePath) is not true) ImagePath = !imagePath.Contains("w-1000") ? $"{imagePath}?w=1000" : imagePath;
@@ -154,24 +174,28 @@ public class Tour : AuditableEntity, IAggregateRoot
         if (hourDuration is not null && HourDuration?.Equals(hourDuration) is not true) HourDuration = hourDuration;
         if (address is not null && Address?.Equals(address) is not true) Address = address;
         if (telephoneNumber is not null && TelephoneNumber?.Equals(telephoneNumber) is not true) TelephoneNumber = telephoneNumber;
-        if (whatsIncluded is not null && WhatsIncluded?.Equals(whatsIncluded) is not true) WhatsIncluded = whatsIncluded;
-        if (whatsNotIncluded is not null && WhatsNotIncluded?.Equals(whatsNotIncluded) is not true) WhatsNotIncluded = whatsNotIncluded;
-        if (additionalInformation is not null && AdditionalInformation?.Equals(additionalInformation) is not true) AdditionalInformation = additionalInformation;
+        if (whatsIncluded is not null && WhatsIncluded?.Equals(whatsIncluded) is not true) WhatsIncluded = whatsIncluded.FormatTextEditorString();
+        if (whatsNotIncluded is not null && WhatsNotIncluded?.Equals(whatsNotIncluded) is not true) WhatsNotIncluded = whatsNotIncluded.FormatTextEditorString();
+        if (additionalInformation is not null && AdditionalInformation?.Equals(additionalInformation) is not true) AdditionalInformation = additionalInformation.FormatTextEditorString();
         if (metaKeywords is not null && MetaKeywords?.Equals(metaKeywords) is not true) MetaKeywords = metaKeywords;
         if (metaDescription is not null && MetaDescription?.Equals(metaDescription) is not true) MetaDescription = metaDescription;
-        if (importantInformation is not null && ImportantInformation?.Equals(importantInformation) is not true) ImportantInformation = importantInformation;
+        if (importantInformation is not null && ImportantInformation?.Equals(importantInformation) is not true) ImportantInformation = importantInformation.FormatTextEditorString();
         if (urlSlug is not null && UrlSlug?.Equals(urlSlug) is not true) UrlSlug = urlSlug;
         if (h1 is not null && H1?.Equals(h1) is not true) H1 = h1;
         if (h2 is not null && H2?.Equals(h2) is not true) H2 = h2;
         if (videoPath is not null && VideoPath?.Equals(videoPath) is not true) VideoPath = videoPath;
         if (mobileVideoPath is not null && MobileVideoPath?.Equals(mobileVideoPath) is not true) MobileVideoPath = mobileVideoPath;
-        if (bookingConfirmationEmailDetails is not null && BookingConfirmationEmailDetails?.Equals(bookingConfirmationEmailDetails) is not true) BookingConfirmationEmailDetails = bookingConfirmationEmailDetails;
-        if (termsAndConditions is not null && TermsAndConditions?.Equals(termsAndConditions) is not true) TermsAndConditions = termsAndConditions;
-        if (cancellationPolicy is not null && CancellationPolicy?.Equals(cancellationPolicy) is not true) CancellationPolicy = cancellationPolicy;
+        if (bookingConfirmationEmailDetails is not null && BookingConfirmationEmailDetails?.Equals(bookingConfirmationEmailDetails) is not true) BookingConfirmationEmailDetails = bookingConfirmationEmailDetails.FormatTextEditorString();
+        if (termsAndConditions is not null && TermsAndConditions?.Equals(termsAndConditions) is not true) TermsAndConditions = termsAndConditions.FormatTextEditorString();
+        if (cancellationPolicy is not null && CancellationPolicy?.Equals(cancellationPolicy) is not true) CancellationPolicy = cancellationPolicy.FormatTextEditorString();
+        if (supplierEmailText is not null && SupplierEmailText?.Equals(supplierEmailText) is not true) SupplierEmailText = supplierEmailText.FormatTextEditorString();
 
         PublishToSite = publishToSite;
         AdditionalGuestDetailsRequired = additionalGuestDetailsRequired;
-
+        WaiverRequired = waiverRequired;
+        SupplierId = supplierId;
+        TourCategoryId = tourCategoryId;
+        
         return this;
     }
 

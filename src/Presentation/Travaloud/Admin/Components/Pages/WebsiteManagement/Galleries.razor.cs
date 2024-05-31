@@ -16,11 +16,11 @@ public partial class Galleries
 {
     [Inject] protected IGalleriesService GalleriesService { get; set; } = default!;
 
-    private EntityServerTableContext<GalleryDto, Guid, UpdateGalleryRequest> Context { get; set; } = default!;
+    private EntityServerTableContext<GalleryDto, DefaultIdType, UpdateGalleryRequest> Context { get; set; } = default!;
 
     private EditContext? EditContext { get; set; }
 
-    private EntityTable<GalleryDto, Guid, UpdateGalleryRequest> _table = default!;
+    private EntityTable<GalleryDto, DefaultIdType, UpdateGalleryRequest> _table = default!;
 
     private static Dictionary<string, bool> WizardSteps => new()
     {
@@ -31,7 +31,7 @@ public partial class Galleries
 
     protected override void OnInitialized()
     {
-        Context = new EntityServerTableContext<GalleryDto, Guid, UpdateGalleryRequest>(
+        Context = new EntityServerTableContext<GalleryDto, DefaultIdType, UpdateGalleryRequest>(
             entityName: L["Gallery"],
             entityNamePlural: L["Galleries"],
             entityResource: TravaloudResource.Gallery,
@@ -67,7 +67,7 @@ public partial class Galleries
                             image.Image = new FileUploadRequest()
                             {
                                 Data = image.ImageInBytes, Extension = image.ImageExtension ?? string.Empty,
-                                Name = $"{gallery.Title}_{Guid.NewGuid():N}"
+                                Name = $"{gallery.Title}_{DefaultIdType.NewGuid():N}"
                             };
                         }
                     }
@@ -86,7 +86,7 @@ public partial class Galleries
                             image.Image = new FileUploadRequest()
                             {
                                 Data = image.ImageInBytes, Extension = image.ImageExtension ?? string.Empty,
-                                Name = $"{gallery.Title}_{Guid.NewGuid():N}"
+                                Name = $"{gallery.Title}_{DefaultIdType.NewGuid():N}"
                             };
                         }
                     }

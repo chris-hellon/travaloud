@@ -108,7 +108,7 @@ else
 
 @code {
     [Parameter] public required TourViewModel Tour { get; set; }
-    [Parameter] public required EntityServerTableContext<TourDto, Guid, TourViewModel> Context { get; set; } = default!;
+    [Parameter] public required EntityServerTableContext<TourDto, DefaultIdType, TourViewModel> Context { get; set; } = default!;
 
     private List<CalendarItem>? CalendarTourDates { get; set; }
 
@@ -184,7 +184,7 @@ else
     }
 
 
-    private async Task RemoveDateRow(TourViewModel tour, Guid id)
+    private async Task RemoveDateRow(TourViewModel tour, DefaultIdType id)
     {
         string deleteContent = L["You're sure you want to delete this {0}? Please note, this is not final. Refresh the page if you've made a mistake."];
         var parameters = new DialogParameters

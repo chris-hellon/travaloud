@@ -40,7 +40,7 @@
                         {
                             foreach (var tourCategory in Model.ToursWithCategories)
                             {
-                                if (!tourCategory.CategoryId.HasValue && !tourCategory.ParentTourCategoryId.HasValue)
+                                if (!tourCategory.TourCategoryId.HasValue && !tourCategory.ParentTourCategoryId.HasValue)
                                 {
                                     <li>
                                         <a asp-page="/TourCategory/Index" asp-route-tourCategoryName="@tourCategory.FriendlyUrl" class="text-white">@tourCategory.Name</a>

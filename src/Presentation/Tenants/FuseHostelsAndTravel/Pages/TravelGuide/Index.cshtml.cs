@@ -61,6 +61,9 @@ public class IndexModel : TravaloudBasePageModel
             UserName = $"{userTask.Result.FirstName} {userTask.Result.LastName}";
 
         var travelGuides = travelGuidesTask.Result.Data;
+
+        if (travelGuides.Count == 0 || travelGuides.Count == 1) return Page();
+        
         travelGuides = travelGuides.Where(x => x.Id != TravelGuide.Id).ToList();
         travelGuides.Shuffle();
         

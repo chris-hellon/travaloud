@@ -36,8 +36,11 @@
                             <MudInput InputType="InputType.Hidden" Value="Id"></MudInput>
                         }
 
-                        <MudItem xs="12" md="12">
+                        <MudItem xs="12" md="6">
                             <MudSwitch @bind-Checked="@RequestModel.PublishToWebsite" Color="Color.Primary" Label="Publish to Website?" LabelPosition="LabelPosition.End"/>
+                        </MudItem>
+                        <MudItem xs="12" md="6">
+                            <MudSwitch @bind-Checked="@RequestModel.InHouseOnly" Color="Color.Primary" Label="In House Only?" LabelPosition="LabelPosition.End"/>
                         </MudItem>
                         <MudItem xs="12" md="12">
                             <MudNumericField T="decimal?" Label="@L["Price"]" Required="true" For="@(() => RequestModel.Price)" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.AttachMoney" @bind-Value="RequestModel.Price" Step=".1M" Variant="Variant.Outlined" Margin="Margin.Dense"/>

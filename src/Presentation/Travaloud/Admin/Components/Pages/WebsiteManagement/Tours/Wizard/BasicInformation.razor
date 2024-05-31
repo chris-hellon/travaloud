@@ -3,6 +3,7 @@
 @using Travaloud.Application.Catalog.Interfaces
 @using Travaloud.Application.Catalog.Properties.Dto
 @using Travaloud.Application.Catalog.Properties.Queries
+@using MudExRichTextEditor.Types
 
 @inject IStringLocalizer<Tours> L
 
@@ -13,35 +14,15 @@
 
     <MudItem xs="12" md="5">
         <div class="d-flex" style="align-items:baseline">
-
-            @if (CanViewTourCategories)
-            {
-                <MudSelect T="string" MultiSelection="true" Label="Tour Category" Clearable="true" Variant="Variant.Outlined" @bind-Value="Tour.SelectedParentTourCategoriesString" SelectAll="true" @bind-SelectedValues="@Tour.TourCategoriesOptions" For="@(() => Tour.SelectedParentTourCategoriesString)" HelperText="Does this Tour belong to a category?">
-                    @if (Tour.ParentTourCategories != null)
+            <MudSelect T="TourCategoryRequest?" Label="Tour Category" Clearable="true" Variant="Variant.Outlined" @bind-Value="Tour.TourCategory" For="@(() => Tour.TourCategory)" HelperText="Does this Tour belong to a category?">
+                @if (Tour.ParentTourCategories != null)
+                {
+                    foreach (var tourCategory in Tour.ParentTourCategories)
                     {
-                        foreach (var tourCategory in Tour.ParentTourCategories)
-                        {
-                            <MudSelectItem T="string" Value="@tourCategory.Name" @key="@tourCategory.Id">@tourCategory.Name</MudSelectItem>
-                        }
+                        <MudSelectItem Value="@tourCategory" />
                     }
-                </MudSelect>
-            }
-            else if (Tour.UseTourGroup)
-            {
-                <MudSelect T="Guid?" Label="Tour Group" Required="Tour.UseTourGroup" Variant="Variant.Outlined" @bind-Value="Tour.TourCategoryId" Clearable="true" For="@(() => Tour.TourCategoryId)" HelperText="Does this Tour belong to a group?">
-                    @if (Tour.TourCategories != null)
-                    {
-                        foreach (var tourCategory in Tour.TourCategories)
-                        {
-                            <MudSelectItem T="Guid?" Value="@tourCategory.Id">@tourCategory.Name</MudSelectItem>
-                        }
-                    }
-                </MudSelect>
-            }
-            @if (CanViewTourGroups)
-            {
-                <MudButton Variant="Variant.Filled" Color="Color.Tertiary" Style="height:50px; margin-left:20px;" OnClick="@(() => ToggleTourGroup(Tour))">@(Tour.UseTourGroup ? "Use Category" : "Use Group")</MudButton>
-            }
+                }
+            </MudSelect>
         </div>
     </MudItem>
 
@@ -50,46 +31,31 @@
     </MudItem>
 </MudGrid>
 <MudGrid>
-    @if (CanViewDestinations)
-    {
-        <MudItem xs="12" md="4">
-            <MudSelect T="TourDestinationLookupRequest" HelperText="Select a Destination" Label="Destination" @bind-SelectedValues="@Tour.SelectedDestinations" MultiSelection="true" AnchorOrigin="Origin.BottomCenter" Variant="Variant.Outlined" Clearable>
-                @if (Tour.Destinations != null)
+    <MudItem xs="12" md="4">
+        <MudSelect T="TourDestinationLookupRequest" HelperText="Select a Location" Required="true" Label="Location" @bind-SelectedValues="@Tour.SelectedDestinations" MultiSelection="true" AnchorOrigin="Origin.BottomCenter" Variant="Variant.Outlined" Clearable>
+            @if (Tour.Destinations != null)
+            {
+                foreach (var destination in Tour.Destinations)
                 {
-                    foreach (var destination in Tour.Destinations)
-                    {
-                        <MudSelectItem Value="@destination"/>
-                    }
+                    <MudSelectItem Value="@destination"/>
                 }
-            </MudSelect>
-        </MudItem>
-        <MudItem xs="12" md="4">
-            <MudSelect T="TourPickupLocationRequest" HelperText="Select Pick Up Location(s)" Label="Pick Up Location(s)" @bind-SelectedValues="@Tour.SelectedPickupLocations" MultiSelection="true" AnchorOrigin="Origin.BottomCenter" Variant="Variant.Outlined" Clearable>
-                @if (Tour.PickupLocations != null)
+            }
+        </MudSelect>
+    </MudItem>
+    <MudItem xs="12" md="4">
+        <MudSelect T="TourPickupLocationRequest" HelperText="Select Pick Up Location(s)" Required="true" Label="Pick Up Location(s)" @bind-SelectedValues="@Tour.SelectedPickupLocations" MultiSelection="true" AnchorOrigin="Origin.BottomCenter" Variant="Variant.Outlined" Clearable>
+            @if (Tour.PickupLocations != null)
+            {
+                foreach (var pickupLoction in Tour.PickupLocations)
                 {
-                    foreach (var pickupLoction in Tour.PickupLocations)
-                    {
-                        <MudSelectItem Value="@pickupLoction"/>
-                    }
+                    <MudSelectItem Value="@pickupLoction"/>
                 }
-            </MudSelect>
-        </MudItem>
-        <MudItem xs="12" md="4">
-            <MudTextField Label="@L["Telephone Number"]" InputType="InputType.Telephone" For="@(() => Tour.TelephoneNumber)" @bind-Value="Tour.TelephoneNumber" HelperText="Enter a Telephone Number" Variant="Variant.Outlined"/>
-        </MudItem>
-    }
-    else
-    {
-        <MudItem xs="12" md="6">
-            <MudTextField Label="@L["Address"]" For="@(() => Tour.Address)" @bind-Value="Tour.Address" HelperText="Enter an Address / Pick Up Location" Variant="Variant.Outlined"/>
-
-
-        </MudItem>
-        <MudItem xs="12" md="6">
-            <MudTextField Label="@L["Telephone Number"]" InputType="InputType.Telephone" For="@(() => Tour.TelephoneNumber)" @bind-Value="Tour.TelephoneNumber" HelperText="Enter a Telephone Number" Variant="Variant.Outlined"/>
-        </MudItem>
-    }
-
+            }
+        </MudSelect>
+    </MudItem>
+    <MudItem xs="12" md="4">
+        <MudTextField Label="@L["Telephone Number"]" InputType="InputType.Telephone" For="@(() => Tour.TelephoneNumber)" @bind-Value="Tour.TelephoneNumber" HelperText="Enter a Telephone Number" Variant="Variant.Outlined"/>
+    </MudItem>
 </MudGrid>
 <MudGrid>
     <MudItem xs="12" md="4">
@@ -116,6 +82,12 @@
 <MudGrid>
     <MudItem xs="12" md="12">
         <MudTabs Elevation="0" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6" Outlined="true">
+            <MudTabPanel Text="@L["Short Description"]">
+                <MudExRichTextEdit @bind-Value="Tour.ShortDescription" For="@(() => Tour.ShortDescription)" BackgroundColor="MudExColor.Transparent"/>
+            </MudTabPanel>
+            <MudTabPanel Text="@L["Full Description"]">
+                <MudExRichTextEdit @bind-Value="Tour.Description" For="@(() => Tour.Description)" Required="true" BackgroundColor="MudExColor.Transparent" Theme="QuillTheme.Snow"/>
+            </MudTabPanel>
             <MudTabPanel Text="@L["What's Included?"]">
                 <MudExRichTextEdit @bind-Value="Tour.WhatsIncluded" For="@(() => Tour.WhatsIncluded)" BackgroundColor="MudExColor.Transparent"/>
             </MudTabPanel>
@@ -128,28 +100,7 @@
 
 @code {
     [Parameter] public required TourViewModel Tour { get; set; }
-    [Parameter] public required bool CanViewDestinations { get; set; }
     [Parameter] public required bool CanViewTourGroups { get; set; }
     [Parameter] public required bool CanViewTourCategories { get; set; }
-    [Parameter] public required EntityServerTableContext<TourDto, Guid, TourViewModel> Context { get; set; } = default!;
-
-    private void ToggleTourGroup(TourViewModel context)
-    {
-        context.UseTourGroup = !context.UseTourGroup;
-
-        if (context.UseTourGroup)
-        {
-            context.SelectedParentTourCategoriesString = string.Empty;
-            context.SelectedParentTourCategories = new List<Guid>();
-            context.TourCategoriesOptions = null;
-        }
-        else
-        {
-            context.TourCategoryId = null;
-        }
-
-        StateHasChanged();
-        Context.AddEditModal?.ForceRender();
-    }
-
+    [Parameter] public required EntityServerTableContext<TourDto, DefaultIdType, TourViewModel> Context { get; set; } = default!;
 }

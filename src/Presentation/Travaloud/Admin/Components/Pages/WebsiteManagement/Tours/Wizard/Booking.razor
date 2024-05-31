@@ -1,0 +1,49 @@
+@using Travaloud.Application.Catalog.Tours.Dto
+@using MudExRichTextEditor.Types
+
+@inject IStringLocalizer<Tours> L
+
+<MudGrid>
+    <MudItem xs="12" md="12">
+        <MudSelect T="string?" HelperText="Select a Supplier" Label="Supplier" @bind-Value="Tour.SupplierId" AnchorOrigin="Origin.BottomCenter" Variant="Variant.Outlined" Clearable>
+            @if (Tour.Suppliers != null)
+            {
+                foreach (var supplier in Tour.Suppliers)
+                {
+                    <MudSelectItem T="string?" Value="@supplier.Id">@supplier.FullName</MudSelectItem>
+                }
+            }
+        </MudSelect>
+    </MudItem>
+    @* <MudItem xs="12" md="4"> *@
+    @*     <MudTextField Label="@L["Telephone Number"]" InputType="InputType.Telephone" For="@(() => Tour.TelephoneNumber)" @bind-Value="Tour.TelephoneNumber" HelperText="Enter a Telephone Number" Variant="Variant.Outlined"/> *@
+    @* </MudItem> *@
+    <MudItem xs="12" md="10">
+        <MudTabs Elevation="0" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6" Outlined="true">
+            <MudTabPanel Text="@L["Booking Confirmation Email"]">
+                <MudExRichTextEdit @bind-Value="Tour.BookingConfirmationEmailDetails" For="@(() => Tour.BookingConfirmationEmailDetails)" BackgroundColor="MudExColor.Transparent"/>
+            </MudTabPanel>
+            @if (Tour.WaiverRequired.HasValue && Tour.WaiverRequired.Value)
+            {
+                <MudTabPanel Text="@L["Waiver Terms & Conditions"]">
+                    <MudExRichTextEdit T="string?" @bind-Value="Tour.TermsAndConditions" For="@(() => Tour.TermsAndConditions)" BackgroundColor="MudExColor.Transparent" Theme="QuillTheme.Snow"/>
+                </MudTabPanel>
+            }
+            @* @if (!string.IsNullOrEmpty(Tour.SupplierId)) *@
+            @* { *@
+            @*     <MudTabPanel Text="@L["Supplier Booking Confirmation Email"]"> *@
+            @*         <MudExRichTextEdit T="string?" @bind-Value="Tour.SupplierEmailText" For="@(() => Tour.SupplierEmailText)" BackgroundColor="MudExColor.Transparent" Theme="QuillTheme.Snow"/> *@
+            @*     </MudTabPanel> *@
+            @* } *@
+        </MudTabs>
+    </MudItem>
+
+    <MudItem xs="12" md="2">
+        <MudSwitch @bind-Checked="@Tour.WaiverRequired" Color="Color.Primary" Label="Is a Waiver Required?" LabelPosition="LabelPosition.Start"/>
+    </MudItem>
+</MudGrid>
+
+@code {
+    [Parameter] public required TourViewModel Tour { get; set; }
+    [Parameter] public required EntityServerTableContext<TourDto, DefaultIdType, TourViewModel> Context { get; set; } = default!;
+}

@@ -8,6 +8,7 @@ public class BookingExportDto
     public int BookingInvoiceId { get; set; }
 
     [ExportColumn("Booking Date")]
+    [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd/MM/yyyy HH:mm}")]
     public DateTime BookingBookingDate { get; set; }
     
     [ExportColumn(true)]
@@ -20,9 +21,11 @@ public class BookingExportDto
     public string? PickupLocation { get; set; }
     
     [ExportColumn("Tour Start Date")]
+    [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd/MM/yyyy HH:mm}")]
     public DateTime StartDate { get; set; }
 
     [ExportColumn("Tour End Date")]
+    [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd/MM/yyyy HH:mm}")]
     public DateTime EndDate { get; set; }
 
     [ExportColumn("Amount")]
@@ -32,19 +35,36 @@ public class BookingExportDto
     public decimal Amount { get; set; }
     
     [ExportColumn(true)]
-    public string BookingCurrencyCode { get; set; }
+    public decimal? BookingAmountOutstanding { get; set; }
     
-    [ExportColumn("Is Paid")]
+    [ExportColumn(true)]
+    public string BookingCurrencyCode { get; set; }
+
+    [ExportColumn("Status")]
+    public string Status => BookingIsPaid ? "Paid" :
+        (BookingRefunded.HasValue && BookingRefunded.Value) ? "Refunded" : "Unpaid";
+    
+    [ExportColumn(true)]
+    public bool? BookingRefunded { get; set; }
+        
+    [ExportColumn(true)]
     public bool BookingIsPaid { get; set; }
 
     [ExportColumn(true)]
     public string? BookingGuestId { get; set; }
+    
+    [ExportColumn(true)]
+    public string? BookingBookedBy { get; set; }
 
+    [ExportColumn(true)]
+    public string? GuestId { get; set; }
+    
     [ExportColumn("Guest Name")]
     public string? GuestName { get; set; }
 
     [ExportColumn("Date of Birth")]
     [DataType(DataType.Date)]
+    [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd/MM/yyyy}")]
     public DateTime? GuestDateOfBirth { get; set; }
 
     [ExportColumn("Nationality")]
@@ -60,7 +80,7 @@ public class BookingExportDto
     public string? BookingAdditionalNotes { get; set; }
     
     [ExportColumn("Waiver Signed")]
-    public bool BookingWaiverSigned { get; set; }
+    public bool WaiverSigned { get; set; }
     
     [ExportColumn("Booking Source")]
     public string? BookingBookingSource { get; set; }

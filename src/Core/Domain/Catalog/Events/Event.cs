@@ -1,4 +1,5 @@
 ﻿using Travaloud.Domain.Catalog.Properties;
+using Travaloud.Shared.Common.Extensions;
 
 namespace Travaloud.Domain.Catalog.Events;
 
@@ -12,8 +13,8 @@ public class Event : AuditableEntity, IAggregateRoot
         DefaultIdType? propertyId)
     {
         Name = name;
-        Description = description;
-        ShortDescription = shortDescription;
+        Description = description.FormatTextEditorString();
+        ShortDescription = shortDescription.FormatTextEditorString();
         ImagePath = imagePath != null ? !imagePath.Contains("w-700") ? $"{imagePath}?w=700" : imagePath : null;
         BackgroundColor = backgroundColor;
         PropertyId = propertyId;
@@ -31,9 +32,9 @@ public class Event : AuditableEntity, IAggregateRoot
     public Event Update(string? name, string? description, string? shortDescription, string? imagePath, string? backgroundColor, DefaultIdType? propertyId)
     {
         if (name is not null && Name?.Equals(name) is not true) Name = name;
-        if (description is not null && Description?.Equals(description) is not true) Description = description;
+        if (description is not null && Description?.Equals(description) is not true) Description = description.FormatTextEditorString();
         if (backgroundColor is not null && BackgroundColor?.Equals(backgroundColor) is not true) BackgroundColor = backgroundColor;
-        if (shortDescription is not null && ShortDescription?.Equals(shortDescription) is not true) ShortDescription = shortDescription;
+        if (shortDescription is not null && ShortDescription?.Equals(shortDescription) is not true) ShortDescription = shortDescription.FormatTextEditorString();
         if (imagePath is not null && ImagePath?.Equals(imagePath) is not true) ImagePath = !imagePath.Contains("w-1000") ? $"{imagePath}?w=1000" : imagePath;
         if (propertyId is not null && PropertyId?.Equals(propertyId) is not true) PropertyId = propertyId;
 

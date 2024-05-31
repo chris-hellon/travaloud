@@ -21,6 +21,10 @@ public class CreateBookingItemRequestValidator : CustomValidator<CreateBookingIt
         RuleFor(i => i.TourId)
             .NotEmpty()
             .WithMessage("Please select a Tour.");
+        
+        RuleFor(i => i.TourCategoryId)
+            .NotEmpty()
+            .WithMessage("Please select a Category.");
 
         RuleFor(b => b.TourDateId)
             .NotEmpty()

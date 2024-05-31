@@ -1,9 +1,9 @@
-using System.Globalization;
 using Travaloud.Application.Catalog.Bookings.Commands;
 using Travaloud.Application.Catalog.Bookings.Dto;
 using Travaloud.Application.Catalog.Bookings.Specification;
 using Travaloud.Application.Identity.Users;
 using Travaloud.Domain.Catalog.Bookings;
+using Travaloud.Shared.Authorization;
 
 namespace Travaloud.Application.Dashboard;
 
@@ -11,40 +11,68 @@ public class GetBookingItemsByDateRequest : PaginationFilter, IRequest<Paginatio
 {
     public DateTime? TourStartDate { get; set; }
     public DateTime? TourEndDate { get; set; }
+    public DateTime? BookingStartDate { get; set; }
+    public DateTime? BookingEndDate { get; set; }
     public DefaultIdType? TourId { get; set; }
     public DefaultIdType? TourDateId { get; set; }
+    public IEnumerable<DefaultIdType>? TourIds { get; set; }
     public string? Description { get; set; }
     public IEnumerable<UserDetailsDto>? Guests { get; set; }
+    public bool HideRefunded { get; set; } = true;
 }
 
 internal class GetBookingItemsByDateRequestHandler : IRequestHandler<GetBookingItemsByDateRequest, PaginationResponse<BookingExportDto>>
 {
     private readonly IRepositoryFactory<BookingItem> _repository;
     private readonly IUserService _userService;
+    private readonly ICurrentUser _currentUser;
     
-    public GetBookingItemsByDateRequestHandler(IRepositoryFactory<BookingItem> repository, 
-        IUserService userService)
+    public GetBookingItemsByDateRequestHandler(
+        IRepositoryFactory<BookingItem> repository, 
+        IUserService userService, 
+        ICurrentUser currentUser)
     {
         _repository = repository;
         _userService = userService;
+        _currentUser = currentUser;
     }
 
     public async Task<PaginationResponse<BookingExportDto>> Handle(GetBookingItemsByDateRequest request, CancellationToken cancellationToken)
     {
+        var isSupplier = _currentUser.IsInRole(TravaloudRoles.Supplier);
+
+        if (isSupplier)
+        {
+            var userClaims = await _userService.GetUserClaims(new GetUserClaimsRequest()
+            {
+                ClaimType = "SupplierTour",
+                UserId = _currentUser.GetUserId().ToString()
+            }, CancellationToken.None);
+
+            request.TourIds = userClaims.Select(x => DefaultIdType.Parse(x.ClaimValue)).ToArray();
+        }
+        
         var exportBookingsRequest = new ExportBookingsRequest()
         {
             TourStartDate = request.TourStartDate.HasValue ? request.TourStartDate.Value.Date + new TimeSpan(00, 00, 00) : null,
             TourEndDate = request.TourEndDate.HasValue ? request.TourEndDate.Value.Date + new TimeSpan(23, 59, 59) : null,
+            BookingStartDate = request.BookingStartDate.HasValue ? request.BookingStartDate.Value.Date + new TimeSpan(00, 00, 00) : null,
+            BookingEndDate = request.BookingEndDate.HasValue ? request.BookingEndDate.Value.Date + new TimeSpan(23, 59, 59) : null,
             Description = request.Description,
             IsTourBookings = true,
             TourId = request.TourId,
-            TourDateId = request.TourDateId
+            TourDateId = request.TourDateId,
+            TourIds = request.TourIds,
+            HideRefunded = true
         };
         var spec = new ExportBookingsSpec(exportBookingsRequest);
         
         var todaysTours = await _repository.ListAsync(spec, cancellationToken);
         var parsedTodaysTours = new List<BookingExportDto>();
 
+        if (request.HideRefunded)
+            todaysTours = todaysTours.Where(x => !x.BookingRefunded.HasValue || !x.BookingRefunded.Value).ToList();
+        
         if (todaysTours == null)
             return new PaginationResponse<BookingExportDto>(parsedTodaysTours, parsedTodaysTours.Count,
                 request.PageNumber, request.PageSize);
@@ -61,6 +89,8 @@ internal class GetBookingItemsByDateRequestHandler : IRequestHandler<GetBookingI
             item.GuestDateOfBirth = guest.DateOfBirth?.Date;
             item.GuestNationality = guest.Nationality;
             item.GuestPassportNumber = guest.PassportNumber;
+            item.GuestId = guest.Id;
+            item.Amount = isSupplier ? 0 : item.Amount;
 
             parsedTodaysTours.Add(item);
 
@@ -75,7 +105,7 @@ internal class GetBookingItemsByDateRequestHandler : IRequestHandler<GetBookingI
                     {
                         parsedTodaysTours.Add(new BookingExportDto()
                         {
-                            Amount = item.Amount,
+                            Amount = isSupplier ? 0 : item.Amount,
                             BookingCurrencyCode = item.BookingCurrencyCode,
                             BookingBookingDate = item.BookingBookingDate,
                             BookingInvoiceId = item.BookingInvoiceId,
@@ -85,6 +115,7 @@ internal class GetBookingItemsByDateRequestHandler : IRequestHandler<GetBookingI
                             TourId = item.TourId,
                             TourName = item.TourName,
                             BookingGuestId = item.BookingGuestId,
+                            GuestId = additionalGuestMatch.Id,
                             GuestName = $"{additionalGuestMatch.FirstName} {additionalGuestMatch.LastName}",
                             GuestGender = additionalGuestMatch.Gender,
                             GuestDateOfBirth = additionalGuestMatch.DateOfBirth?.Date,
@@ -134,8 +165,8 @@ internal class GetBookingItemsByDateRequestHandler : IRequestHandler<GetBookingI
                     "BookingIsPaid Ascending" => filteredTours.OrderBy(t => t.BookingIsPaid).ToList(),
                     "BookingIsPaid Descending" => filteredTours.OrderByDescending(t => t.BookingIsPaid).ToList(),
                     "BookingWaiverSigned" => filteredTours.ToList(),
-                    "BookingWaiverSigned Ascending" => filteredTours.OrderBy(t => t.BookingWaiverSigned).ToList(),
-                    "BookingWaiverSigned Descending" => filteredTours.OrderByDescending(t => t.BookingWaiverSigned)
+                    "BookingWaiverSigned Ascending" => filteredTours.OrderBy(t => t.WaiverSigned).ToList(),
+                    "BookingWaiverSigned Descending" => filteredTours.OrderByDescending(t => t.WaiverSigned)
                         .ToList(),
                     _ => filteredTours
                 };

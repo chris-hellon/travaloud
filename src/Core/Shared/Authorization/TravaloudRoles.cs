@@ -9,6 +9,7 @@ public static class TravaloudRoles
     public const string Guest = nameof(Guest);
     public const string TourManager = nameof(TourManager);
     public const string PropertyManager = nameof(PropertyManager);
+    public const string Supplier = nameof(Supplier);
 
     public static IReadOnlyList<string> DefaultRoles { get; } = new ReadOnlyCollection<string>(new[]
     {
@@ -16,7 +17,8 @@ public static class TravaloudRoles
         Basic,
         Guest,
         TourManager,
-        PropertyManager
+        PropertyManager,
+        Supplier
     });
 
     public static bool IsDefault(string roleName) => DefaultRoles.Any(r => r == roleName);

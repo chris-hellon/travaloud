@@ -35,4 +35,9 @@
       </Reference>
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Catalog\TourCategories\" />
+      <Folder Include="Catalog\TourDates\Commands\" />
+    </ItemGroup>
+
 </Project>

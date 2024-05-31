@@ -13,6 +13,7 @@ public class TourPrice : AuditableEntity, IAggregateRoot
     public decimal? HourDuration { get; set; }
     public decimal? ComissionAmount { get; private set; }
     public bool? PublishToWebsite { get; private set; }
+    public bool? InHouseOnly { get; private set; }
 
     public TourPrice()
     {
@@ -29,6 +30,7 @@ public class TourPrice : AuditableEntity, IAggregateRoot
         decimal? hourDuration,
         decimal? comissionAmount,
         bool? publishToWebsite,
+        bool? inHouseOnly,
         DefaultIdType? tourId = null)
     {
         Price = price;
@@ -41,6 +43,7 @@ public class TourPrice : AuditableEntity, IAggregateRoot
         HourDuration = hourDuration;
         ComissionAmount = comissionAmount;
         PublishToWebsite = publishToWebsite;
+        InHouseOnly = inHouseOnly;
         
         if (tourId != null)
         {
@@ -48,7 +51,7 @@ public class TourPrice : AuditableEntity, IAggregateRoot
         }
     }
 
-    public TourPrice Update(decimal? price, string? title, string? description, string? monthFrom, string? monthTo, decimal? dayDuration, decimal? nightDuration, decimal? hourDuration, DefaultIdType? tourId,  decimal? comissionAmount, bool? publishToWebsite)
+    public TourPrice Update(decimal? price, string? title, string? description, string? monthFrom, string? monthTo, decimal? dayDuration, decimal? nightDuration, decimal? hourDuration, DefaultIdType? tourId,  decimal? comissionAmount, bool? publishToWebsite, bool? inHouseOnly)
     {
         if (price.HasValue && Price != price) Price = price.Value;
         if (title is not null && Title?.Equals(title) is not true) Title = title;
@@ -61,6 +64,7 @@ public class TourPrice : AuditableEntity, IAggregateRoot
         HourDuration = hourDuration;
         ComissionAmount = comissionAmount;
         PublishToWebsite = publishToWebsite;
+        InHouseOnly = inHouseOnly;
         
         return this;
     }

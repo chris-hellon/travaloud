@@ -12,7 +12,7 @@ public class CreatePartnerRequestValidator : CustomValidator<CreatePartnerReques
             .NotEmpty()
             .MaximumLength(1024)
             .MustAsync(async (name, ct) => await repo.SingleOrDefaultAsync(new PartnerByNameSpec(name), ct) is null)
-            .WithMessage((_, name) => string.Format(localizer["service.alreadyexists"], name));
+            .WithMessage((_, name) => string.Format(localizer["supplier.alreadyexists"], name));
 
         RuleFor(p => p.Address).NotEmpty();
 

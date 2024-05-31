@@ -19,7 +19,7 @@ public partial class DeleteTourDates : ComponentBase
 
     [Parameter] public required IList<TimeSpan> CurrentTimes { get; set; }
 
-    [Parameter] public EntityServerTableContext<TourDto, Guid, TourViewModel> Context { get; set; } = default!;
+    [Parameter] public EntityServerTableContext<TourDto, DefaultIdType, TourViewModel> Context { get; set; } = default!;
 
     [Inject] private IBookingsService BookingsService { get; set; }
 
@@ -57,7 +57,7 @@ public partial class DeleteTourDates : ComponentBase
             .Select(x => x.TourPriceId.Value).Distinct();
 
         var toursDates = tourDateRequests.Select(x => x.Id);
-        var tourDateIds = toursDates as Guid[] ?? toursDates.ToArray();
+        var tourDateIds = toursDates as DefaultIdType[] ?? toursDates.ToArray();
 
         var bookingsExists =
             await BookingsService.GetBookingsByDatesAsync(new BookingsByTourStartDatesRequest(tourDateIds));
@@ -90,7 +90,7 @@ public partial class DeleteTourDates : ComponentBase
             .Select(x => x.TourPriceId.Value).Distinct();
 
         var toursDates = tourDateRequests.Select(x => x.Id);
-        var tourDateIds = toursDates as Guid[] ?? toursDates.ToArray();
+        var tourDateIds = toursDates as DefaultIdType[] ?? toursDates.ToArray();
 
         var bookingsExists =
             await BookingsService.GetBookingsByDatesAsync(new BookingsByTourStartDatesRequest(tourDateIds));
@@ -122,7 +122,7 @@ public partial class DeleteTourDates : ComponentBase
             .Select(x => x.TourPriceId.Value).Distinct();
 
         var toursDates = tourDateRequests.Select(x => x.Id);
-        var tourDateIds = toursDates as Guid[] ?? toursDates.ToArray();
+        var tourDateIds = toursDates as DefaultIdType[] ?? toursDates.ToArray();
 
         var bookingsExists =
             await BookingsService.GetBookingsByDatesAsync(new BookingsByTourStartDatesRequest(tourDateIds));
@@ -151,7 +151,7 @@ public partial class DeleteTourDates : ComponentBase
                 {
                     if (DeleteDateRange != null)
                     {
-                        var dateRange = GetDatesInRange(DeleteDateRange.Start.Value, DeleteDateRange.End.Value);
+                        var dateRange = GetDatesInRange(DeleteDateRange.Start.Value, DeleteDateRange.End.Value, DeleteTimeSpan ?? null);
 
                         if (DeleteTimeSpan.HasValue)
                         {
@@ -169,7 +169,7 @@ public partial class DeleteTourDates : ComponentBase
                     else
                     {
                         var toursDates = Tour.TourDates.Select(x => x.Id);
-                        var tourDateIds = toursDates as Guid[] ?? toursDates.ToArray();
+                        var tourDateIds = toursDates as DefaultIdType[] ?? toursDates.ToArray();
 
                         var bookingsExists =
                             await BookingsService.GetBookingsByDatesAsync(
@@ -196,13 +196,16 @@ public partial class DeleteTourDates : ComponentBase
         await LoadingService.ToggleLoaderVisibility(false);
     }
 
-    private static List<DateTime> GetDatesInRange(DateTime startDate, DateTime endDate)
+    private static List<DateTime> GetDatesInRange(DateTime startDate, DateTime endDate, TimeSpan? timeSpan)
     {
         var datesInRange = new List<DateTime>();
 
         for (var date = startDate; date <= endDate; date = date.AddDays(1))
         {
-            datesInRange.Add(date);
+            if (timeSpan.HasValue)
+                datesInRange.Add(date.Date + timeSpan.Value);
+            else 
+                datesInRange.Add(date);
         }
 
         return datesInRange;

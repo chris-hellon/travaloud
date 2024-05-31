@@ -53,5 +53,10 @@
       <_ContentIncludedByDefault Remove="Components\Wizard\Step6.razor" />
       <_ContentIncludedByDefault Remove="Components\Wizard\Step7.razor" />
       <_ContentIncludedByDefault Remove="Components\Wizard\Step8.razor" />
+      <_ContentIncludedByDefault Remove="Components\Dialogs\Partners\PartnerContact.razor" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <AdditionalFiles Include="Components\Dialogs\WebsiteManagement\Tours\Suppliers\PartnerContact.razor" />
     </ItemGroup>
 </Project>

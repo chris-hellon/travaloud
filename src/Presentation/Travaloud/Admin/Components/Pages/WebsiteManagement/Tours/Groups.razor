@@ -7,7 +7,7 @@
 
 <TravaloudPageTitle Title="@L["Tour Groups"]" Description="@L["Manage Tour Groups."]"/>
 
-<EntityTable @ref="_table" TEntity="TourCategoryDto" TId="Guid" TRequest="TourGroupViewModel" Context="@Context" IsWizard="true" WizardSteps="@WizardSteps">
+<EntityTable @ref="_table" TEntity="TourCategoryDto" TId="DefaultIdType" TRequest="TourGroupViewModel" Context="@Context" IsWizard="true" WizardSteps="@WizardSteps">
     <WizardStep1Content>
         <MudGrid>
             <MudItem xs="12" md="6">
@@ -15,12 +15,12 @@
             </MudItem>
             <MudItem xs="12" md="6">
                 <div class="d-flex" style="align-items:baseline">
-                    <MudSelect T="Guid?" @bind-Value="context.ParentTourCategoryId"  For="@(() => context.ParentTourCategoryId)" Required="false" Label="Tour Category" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
+                    <MudSelect T="DefaultIdType?" @bind-Value="context.ParentTourCategoryId"  For="@(() => context.ParentTourCategoryId)" Required="false" Label="Tour Category" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
                         @if (context.ParentTourCategories != null)
                         {
                             foreach (var tourCategory in context.ParentTourCategories)
                             {
-                                <MudSelectItem T="Guid?" Value="@tourCategory.Id">@tourCategory.Name</MudSelectItem>
+                                <MudSelectItem T="DefaultIdType?" Value="@tourCategory.Id">@tourCategory.Name</MudSelectItem>
                             }
                         }
                     </MudSelect>

@@ -2,6 +2,7 @@ using MediatR;
 using Travaloud.Application.BackgroundJobs.Commands;
 using Travaloud.Application.Catalog.Destinations.Queries;
 using Travaloud.Application.Catalog.Interfaces;
+using Travaloud.Application.Catalog.TourDates.Specification;
 using Travaloud.Application.Catalog.Tours.Dto;
 using Travaloud.Application.Catalog.Tours.Queries;
 using Travaloud.Application.Catalog.Tours.Specification;

@@ -33,7 +33,14 @@ const adjustCardMargain = () => {
                                 $marginBottom = parseFloat($(v).parent('div').css('marginBottom').replace('px', ''));
 
                             let $marginTop = 315 + $marginBottom;
-                            $(v).parent('div').attr('style', 'margin-bottom: -' + $marginTop + 'px !important; top: -' + $marginTop + 'px !important;');
+                            
+                            if (i + 1 === cardsLength)
+                            {
+                                $(v).parent('div').attr('style', 'margin-bottom: -' + $marginTop + 'px !important; top: -' + $marginTop + 'px !important;');
+                            }
+                            else {
+                                $(v).parent('div').attr('style', 'top: -' + $marginTop + 'px !important;');
+                            }
                         }
                     }
                 });

@@ -1,4 +1,5 @@
-﻿using Travaloud.Application.Catalog.Tours.Commands;
+﻿using Travaloud.Application.Catalog.TourDates.Specification;
+using Travaloud.Application.Catalog.Tours.Commands;
 using Travaloud.Application.Catalog.Tours.Specification;
 using Travaloud.Domain.Catalog.Tours;
 

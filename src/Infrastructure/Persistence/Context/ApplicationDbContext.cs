@@ -16,9 +16,10 @@ using Travaloud.Domain.Catalog.Properties;
 using Travaloud.Domain.Catalog.Services;
 using Travaloud.Domain.Catalog.Tours;
 using Travaloud.Domain.Catalog.TravelGuides;
+using Travaloud.Domain.PointOfSale;
+using Travaloud.Domain.Stock;
 using Travaloud.Infrastructure.Multitenancy;
 using Travaloud.Infrastructure.Persistence.Configuration;
-
 
 namespace Travaloud.Infrastructure.Persistence.Context;
 
@@ -48,7 +49,10 @@ public class ApplicationDbContext : BaseDbContext
     public DbSet<TourPropertyLookup> TourPropertyLookup => Set<TourPropertyLookup>();
     public DbSet<Booking> Bookings => Set<Booking>();
     public DbSet<BookingItem> BookingItems => Set<BookingItem>();
+    //public DbSet<BookingPayment> BookingPayments => Set<BookingPayment>();
     public DbSet<BookingItemRoom> BookingItemRooms => Set<BookingItemRoom>();
+    public DbSet<BookingItemGuest> BookingItemGuests => Set<BookingItemGuest>();
+    // public DbSet<BookingPackage> BookingPackages => Set<BookingPackage>();
     public DbSet<TourPrice> TourPrices => Set<TourPrice>();
     public DbSet<TourImage> TourImages => Set<TourImage>();
     public DbSet<TourItinerarySection> TourItinerarySections => Set<TourItinerarySection>();
@@ -72,8 +76,65 @@ public class ApplicationDbContext : BaseDbContext
     public DbSet<GalleryImage> GalleryImages => Set<GalleryImage>();
     public DbSet<TravelGuide> TravelGuides => Set<TravelGuide>();
     public DbSet<TravelGuideGalleryImage> TravelGuideGalleryImages => Set<TravelGuideGalleryImage>();
-    public DbSet<BookingItemGuest> BookingItemGuests => Set<BookingItemGuest>();
     public DbSet<TourPickupLocation> TourPickupLocations => Set<TourPickupLocation>();
+    
+    // #region Stock 
+    // public DbSet<Barcode> Barcodes => Set<Barcode>();
+    // public DbSet<Category> Categories => Set<Category>();
+    // public DbSet<CategoryType> CategoryTypes => Set<CategoryType>();
+    // public DbSet<Order> Orders => Set<Order>();
+    // public DbSet<OrderProduct> OrderProducts => Set<OrderProduct>();
+    // public DbSet<OrderSupplierNote> OrderSupplierNotes => Set<OrderSupplierNote>();
+    // public DbSet<Product> Products => Set<Product>();
+    // public DbSet<ProductBarcode> ProductBarcodes => Set<ProductBarcode>();
+    // public DbSet<Reason> Reasons => Set<Reason>();
+    // public DbSet<Report> Reports => Set<Report>();
+    // public DbSet<ReportProduct> ReportProducts => Set<ReportProduct>();
+    // public DbSet<Return> Returns => Set<Return>();
+    // public DbSet<SupplierOffer> SupplierOffers => Set<SupplierOffer>();
+    // public DbSet<SupplierOfferCondition> SupplierOfferConditions => Set<SupplierOfferCondition>();
+    // public DbSet<SupplierOfferReward> SupplierOfferRewards => Set<SupplierOfferReward>();
+    // public DbSet<SupplierProduct> SupplierProducts => Set<SupplierProduct>();
+    // public DbSet<SupplierProperty> SupplierProperties => Set<SupplierProperty>();
+    // public DbSet<Transfer> Transfers => Set<Transfer>();
+    // public DbSet<Unit> Units => Set<Unit>();
+    // public DbSet<Waste> Wastes => Set<Waste>();
+    // #endregion
+    //
+    // #region Point Of Sale
+    //
+    // public DbSet<Deal> Deals => Set<Deal>();
+    // public DbSet<DealPriceTier> DealPriceTiers => Set<DealPriceTier>();
+    // public DbSet<FloorPlan> FloorPlans => Set<FloorPlan>();
+    // public DbSet<FloorPlanTable> FloorPlanTables => Set<FloorPlanTable>();
+    // public DbSet<MenuItem> MenuItems => Set<MenuItem>();
+    // public DbSet<MenuItemCategory> MenuItemCategories => Set<MenuItemCategory>();
+    // public DbSet<MenuItemCondimentCategory> MenuItemCondimentCategories => Set<MenuItemCondimentCategory>();
+    // public DbSet<MenuItemCondimentCategoryMenuItem> MenuItemCondimentCategoryMenuItems => Set<MenuItemCondimentCategoryMenuItem>();
+    // public DbSet<MenuItemCondimentCategoryMenuItemModifier> MenuItemCondimentCategoryMenuItemModifiers => Set<MenuItemCondimentCategoryMenuItemModifier>();
+    // public DbSet<MenuItemIngredient> MenuItemIngredients => Set<MenuItemIngredient>();
+    // public DbSet<MenuItemModifier> MenuItemModifiers => Set<MenuItemModifier>();
+    // public DbSet<MenuItemModifierPriceTier> MenuItemModifierPriceTiers => Set<MenuItemModifierPriceTier>();
+    // public DbSet<MenuItemPriceTier> MenuItemPriceTiers => Set<MenuItemPriceTier>();
+    // public DbSet<Modifier> Modifiers => Set<Modifier>();
+    // public DbSet<ModifierCategory> ModifierCategories => Set<ModifierCategory>();
+    // public DbSet<PinEntryDevice> PinEntryDevices => Set<PinEntryDevice>();
+    // public DbSet<PLU> PLUs => Set<PLU>();
+    // public DbSet<PriceTier> PriceTiers => Set<PriceTier>();
+    // public DbSet<PropertyVersion> PropertyVersions => Set<PropertyVersion>();
+    // public DbSet<Session> Sessions => Set<Session>();
+    // public DbSet<TenderMedia> TenderMedias => Set<TenderMedia>();
+    // public DbSet<TenderReason> TenderReasons => Set<TenderReason>();
+    // public DbSet<Terminal> Terminals => Set<Terminal>();
+    // public DbSet<Transaction> Transactions => Set<Transaction>();
+    // public DbSet<TransactionAppliedDeal> TransactionAppliedDeals => Set<TransactionAppliedDeal>();
+    // public DbSet<TransactionLineItem> TransactionLineItems => Set<TransactionLineItem>();
+    // public DbSet<TransactionPayment> TransactionPayments => Set<TransactionPayment>();
+    // public DbSet<VoidReason> VoidReasons => Set<VoidReason>();
+    //
+    // #endregion
+    
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

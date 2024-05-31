@@ -103,10 +103,10 @@ internal class RoleService : IRoleService
 
             _ = role ?? throw new NotFoundException(_localizer["Role Not Found"]);
 
-            if (TravaloudRoles.IsDefault(role.Name!))
-            {
-                throw new ConflictException(string.Format(_localizer["Not allowed to modify {0} Role."], role.Name));
-            }
+            // if (TravaloudRoles.IsDefault(role.Name!))
+            // {
+            //     throw new ConflictException(string.Format(_localizer["Not allowed to modify {0} Role."], role.Name));
+            // }
 
             role.Name = request.Name;
             role.NormalizedName = request.Name!.ToUpperInvariant();
@@ -128,10 +128,10 @@ internal class RoleService : IRoleService
     {
         var role = await _roleManager.FindByIdAsync(request.RoleId);
         _ = role ?? throw new NotFoundException(_localizer["Role Not Found"]);
-        if (role.Name == TravaloudRoles.Admin)
-        {
-            throw new ConflictException(_localizer["Not allowed to modify Permissions for this Role."]);
-        }
+        // if (role.Name == TravaloudRoles.Admin)
+        // {
+        //     throw new ConflictException(_localizer["Not allowed to modify Permissions for this Role."]);
+        // }
 
         if (_currentTenant.Id != MultitenancyConstants.Root.Id)
         {

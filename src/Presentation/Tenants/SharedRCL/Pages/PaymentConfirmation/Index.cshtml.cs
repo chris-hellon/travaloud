@@ -1,7 +1,10 @@
 using Travaloud.Application.Basket.Dto;
 using Travaloud.Application.Catalog.Bookings.Commands;
 using Travaloud.Application.Cloudbeds;
+using Travaloud.Application.Common.Extensions;
+using Travaloud.Application.Common.Interfaces;
 using Travaloud.Application.Common.Mailing;
+using Travaloud.Application.Identity.Users;
 using Travaloud.Application.PaymentProcessing;
 using Travaloud.Application.PaymentProcessing.Commands;
 using Travaloud.Application.PaymentProcessing.Queries;
@@ -14,12 +17,20 @@ public class IndexModel : TravaloudBasePageModel
     private readonly IStripeService _stripeService;
     private readonly ICloudbedsService _cloudbedsService;
     private readonly IPaymentConfirmationService _paymentConfirmationService;
+    private readonly IJobService _jobService;
+    private readonly IUserService _userService;
     
-    public IndexModel(IStripeService stripeService, ICloudbedsService cloudbedsService, IPaymentConfirmationService paymentConfirmationService)
+    public IndexModel(IStripeService stripeService,
+        ICloudbedsService cloudbedsService,
+        IPaymentConfirmationService paymentConfirmationService,
+        IJobService jobService, 
+        IUserService userService)
     {
         _stripeService = stripeService;
         _cloudbedsService = cloudbedsService;
         _paymentConfirmationService = paymentConfirmationService;
+        _jobService = jobService;
+        _userService = userService;
     }
 
     public int? BookingId { get; set; }
@@ -66,7 +77,21 @@ public class IndexModel : TravaloudBasePageModel
             { 
                 var guestId = Guid.Parse(stripeStatus.ClientReferenceId);
 
-                var createBookingRequest = await _paymentConfirmationService.CreateBookingRequest(guestId, Basket);
+                var errorMessages = new List<string>();
+
+                // We need to check if availability has changed since the session was created 
+                Basket = await errorMessages.CheckCloudbedsReservations(Basket, TenantWebsiteService, _cloudbedsService, BasketService);
+
+                if (errorMessages.Count != 0)
+                {
+                    StatusMessage = string.Join(", ", errorMessages);
+                    StatusSeverity = "danger";
+
+                    return await RefundAndFail(bookingId, paymentAuthorizationCode,
+                        stripeStatus.PaymentIntentId, Basket.Total);
+                }
+
+                var createBookingRequest = await _paymentConfirmationService.CreateBookingRequest(guestId, Basket, stripeSessionId);
                 bookingId = await BookingService.CreateAsync(createBookingRequest);
 
                 if (!bookingId.HasValue)
@@ -107,7 +132,7 @@ public class IndexModel : TravaloudBasePageModel
                 Basket.Items = Basket.Items.Select(x =>
                 {
                     if (!x.TourId.HasValue) return x;
-                    if (Tours != null) x.Tour = Tours.FirstOrDefault(t => t.Id == x.TourId);
+                    if (Tours != null) x.Tour = AllTours.FirstOrDefault(t => t.Id == x.TourId);
                     return x;
                 }).ToList();
                 
@@ -131,9 +156,55 @@ public class IndexModel : TravaloudBasePageModel
                 var mailRequest = new MailRequest(
                     to: [Basket.Email!],
                     subject: $"{TenantName} Order Confirmation",
-                    body: emailHtml);
+                    body: emailHtml,
+                    bcc: new List<string?> { MailSettings.ToAddress });
+                
+                _jobService.Enqueue(() => MailService.SendAsync(mailRequest));
 
-                await MailService.SendAsync(mailRequest);
+                var bookedTours = Basket.Items.Where(x => x.TourId.HasValue);
+
+                var basketItemModels = bookedTours as BasketItemModel[] ?? bookedTours.ToArray();
+                if (basketItemModels.Length != 0)
+                {
+                    var distinctSupplierIds = basketItemModels.Where(x => x.Tour != null).Select(x =>x.Tour.SupplierId.ToString()).Distinct().ToList();
+                    var suppliers = await _userService.SearchAsync(distinctSupplierIds, CancellationToken.None);
+                    
+                    foreach (var supplierId in distinctSupplierIds)
+                    {
+                        var supplier = suppliers.FirstOrDefault(x => x.Id == Guid.Parse(supplierId));
+
+                        if (supplier == null || string.IsNullOrEmpty(supplier.Email))
+                            continue;
+                        
+                        // Send confirmation email
+                        var supplierEmailModel = new SupplierBookingConfirmationTemplateModel(
+                            TenantName,
+                            MailSettings.PrimaryBackgroundColor,
+                            MailSettings.SecondaryBackgroundColor,
+                            MailSettings.HeaderBackgroundColor,
+                            MailSettings.TextColor,
+                            MailSettings.LogoImageUrl,
+                            Basket,
+                            booking.InvoiceId,
+                            $"{HttpContextAccessor.HttpContext?.Request.Scheme}://{HttpContextAccessor.HttpContext?.Request.Host}{HttpContextAccessor.HttpContext?.Request.PathBase}/contact"
+                        )
+                        {
+                            SupplierId = supplier.Id
+                        };
+                        
+                        var supplierEmailHtml =
+                            await RazorPartialToStringRenderer.RenderPartialToStringAsync(
+                                $"/Pages/EmailTemplates/SupplierBookingConfirmation.cshtml", supplierEmailModel);
+
+                        var supplierMailRequest = new MailRequest(
+                            to: [supplier.Email!],
+                            subject: $"{TenantName} Booking Confirmation",
+                            body: supplierEmailHtml,
+                            bcc: new List<string?> { MailSettings.ToAddress });
+                        
+                        _jobService.Enqueue(() => MailService.SendAsync(supplierMailRequest));
+                    }
+                }
 
                 Logger.Information("Confirmation email sent for BookingId {BookingId}", bookingId);
                 

@@ -58,7 +58,7 @@ public partial class Guests
             searchFunc: async (filter) =>
             {
                 var adaptedFilter = filter.Adapt<SearchByDapperRequest>();
-                adaptedFilter.Role = "Guest";
+                adaptedFilter.Role = TravaloudRoles.Guest;
                 adaptedFilter.TenantId = MultiTenantContextAccessor.MultiTenantContext?.TenantInfo?.Id;
 
                 if (adaptedFilter.OrderBy is {Length: 0})
@@ -106,10 +106,10 @@ public partial class Guests
             exportAction: string.Empty);
     }
 
-    private void ViewProfile(in Guid userId) =>
+    private void ViewProfile(in DefaultIdType userId) =>
         NavigationManager.NavigateTo($"/guests/{userId}/profile");
 
-    private void ManageRoles(in Guid userId) =>
+    private void ManageRoles(in DefaultIdType userId) =>
         NavigationManager.NavigateTo($"/guests/{userId}/roles");
 
     private string GetOriginFromRequest() => NavigationManager.BaseUri;

@@ -6,9 +6,9 @@ public class CloudbedsResponse<T>
 
     [JsonProperty("data")] public T? Data { get; set; }
 
-    [JsonProperty("count")] public int Count { get; set; }
+    [JsonProperty("count")] public int? Count { get; set; }
 
-    [JsonProperty("total")] public int Total { get; set; }
+    [JsonProperty("total")] public int? Total { get; set; }
 
     [JsonProperty("message")] public string? Message { get; set; }
 }

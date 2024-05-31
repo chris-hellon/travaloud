@@ -20,6 +20,7 @@ public partial class NavMenu
     
     private string? _hangfireUrl;
     private bool _canViewDashboard;
+    private bool _canViewCalendar;
     private bool _canViewHangfire;
     private bool _canViewRoles;
     private bool _canViewUsers;
@@ -29,9 +30,12 @@ public partial class NavMenu
     private bool _canViewGuests;
     private bool _canViewPartners;
     private bool _canViewProperties;
-    private bool _canViewBookings;
+    // private bool _canViewBookings;
+    
+    private bool _canViewTourBookings;
+    private bool _canViewPropertyBookings;
+    
     private bool CanViewAdministrationGroup => _canViewUsers || _canViewRoles || _canViewTenants;
-    private bool _canViewTourDropdown;
     private bool _canViewEvents;
     private bool _canViewServices;
     private bool _canViewJobVacancies;
@@ -69,16 +73,19 @@ public partial class NavMenu
         var user = authState.User;
         
         _canViewHangfire = Env.IsDevelopment();
-        _canViewDashboard = await AuthService.HasPermissionAsync(user, TravaloudAction.View, TravaloudResource.Dashboard);
+        _canViewDashboard = await AuthService.HasPermissionAsync(user, TravaloudAction.View, TravaloudResource.Dashboard); 
+        _canViewCalendar = await AuthService.HasPermissionAsync(user, TravaloudAction.View, TravaloudResource.Calendar);
         _canViewRoles = await AuthService.HasPermissionAsync(user, TravaloudAction.View, TravaloudResource.Roles);
         _canViewUsers = await AuthService.HasPermissionAsync(user, TravaloudAction.View, TravaloudResource.Users);
-        _canViewDestinations = await AuthService.HasPermissionAsync(user, TravaloudAction.View, TravaloudResource.Destinations);
+        _canViewDestinations = await AuthService.HasPermissionAsync(user, TravaloudAction.View, TravaloudResource.Locations);
         _canViewTours = await AuthService.HasPermissionAsync(user, TravaloudAction.View, TravaloudResource.Tours);
         _canViewTenants = await AuthService.HasPermissionAsync(user, TravaloudAction.View, TravaloudResource.Tenants);
         _canViewGuests = await AuthService.HasPermissionAsync(user, TravaloudAction.View, TravaloudResource.Guests);
-        _canViewPartners = await AuthService.HasPermissionAsync(user, TravaloudAction.View, TravaloudResource.Partners);
+        _canViewPartners = await AuthService.HasPermissionAsync(user, TravaloudAction.View, TravaloudResource.Suppliers);
         _canViewProperties = await AuthService.HasPermissionAsync(user, TravaloudAction.View, TravaloudResource.Properties);
-        _canViewBookings = await AuthService.HasPermissionAsync(user, TravaloudAction.View, TravaloudResource.Bookings);
+        //_canViewBookings = await AuthService.HasPermissionAsync(user, TravaloudAction.View, TravaloudResource.Bookings);
+        _canViewTourBookings = await AuthService.HasPermissionAsync(user, TravaloudAction.View, TravaloudResource.TourBookings);
+        _canViewPropertyBookings = await AuthService.HasPermissionAsync(user, TravaloudAction.View, TravaloudResource.PropertyBookings);
         _canViewEvents = await AuthService.HasPermissionAsync(user, TravaloudAction.View, TravaloudResource.Events);
         _canViewServices = await AuthService.HasPermissionAsync(user, TravaloudAction.View, TravaloudResource.Services);
         _canViewJobVacancies = await AuthService.HasPermissionAsync(user, TravaloudAction.View, TravaloudResource.JobVacancies);
@@ -87,35 +94,14 @@ public partial class NavMenu
         _canViewTravelGuides = await AuthService.HasPermissionAsync(user, TravaloudAction.View, TravaloudResource.TravelGuides);
         _canViewGallery = await AuthService.HasPermissionAsync(user, TravaloudAction.View, TravaloudResource.Gallery);
         _canViewSettings = await AuthService.HasPermissionAsync(user, TravaloudAction.View, TravaloudResource.Settings);
-        
-        switch (TenantInfo?.Id)
+
+        _canViewTourGroups = TenantInfo?.Id switch
         {
-            case "fuse":
-                _canViewDestinations = true;
-                _canViewTourDropdown = true;
-                _canViewPartners = false;
-                _canViewServices = false;
-                _canViewEvents = true;
-                _canViewTourGroups = false;
-                _canViewTravelGuides = true;
-                _canViewGallery = true;
-                break;
-            case "uncut":
-                _canViewProperties = false;
-                _canViewEvents = false;
-                _canViewTourDropdown = true;
-                _canViewTourGroups = true;
-                _canViewTravelGuides = false;
-                _canViewGallery = false;
-                break;
-            case "vbh":
-                _canViewEvents = false;
-                _canViewTourDropdown = true;
-                _canViewTourGroups = true;
-                _canViewTravelGuides = false;
-                _canViewGallery = false;
-                break;
-        }
+            "fuse" => false,
+            "uncut" => true,
+            "vbh" => true,
+            _ => _canViewTourGroups
+        };
     }
     
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e)

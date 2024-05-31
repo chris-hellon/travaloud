@@ -42,4 +42,6 @@ public interface IBookingsService : ITransientService
     Task<bool> RefundBooking(RefundBookingRequest request);
 
     Task<DefaultIdType?> FlagBookingConfirmationEmailAsync(DefaultIdType id, FlagBookingConfirmationEmailRequest request);
+
+    Task<FileResponse> ExportCalendarBookingsAsync(ExportCalendarBookingsRequest request);
 }

@@ -19,5 +19,8 @@ public class BookingDetailsDto
     public bool? WaiverSigned { get; set; }
     public string? BookingSource { get; set; }
     public bool? ConfirmationEmailSent { get; set; }
+    public bool? Refunded { get; set; }
+    public decimal? AmountOutstanding { get; set; }
+    public DefaultIdType CreatedBy { get; set; }
     public IList<BookingItemDetailsDto>? Items { get; set; }
 }

@@ -1,4 +1,6 @@
-﻿namespace Travaloud.Application.Catalog.Bookings.Dto;
+﻿using Travaloud.Application.Identity.Users;
+
+namespace Travaloud.Application.Catalog.Bookings.Dto;
 
 public class BookingDto
 {
@@ -12,6 +14,9 @@ public class BookingDto
     public string? GuestId { get; set; }
     public string? GuestName { get; set; }
     public string? GuestEmail { get; set; }
+    public string? GuestNationality { get; set; }
+    public string? GuestGender { get; set; }
+    public DateTime? GuestDateOfBirth { get; set; }
 
     public int InvoiceId { get; set; }
     public bool ShowDetails { get; set; } = default!;
@@ -22,6 +27,9 @@ public class BookingDto
     public bool? WaiverSigned { get; set; }
     public string? BookingSource { get; set; }
     public bool? ConfirmationEmailSent { get; set; }
+    public bool? Refunded { get; set; }
+    public decimal? AmountOutstanding { get; set; }
 
     public IList<BookingItemDetailsDto>? Items { get; set; }
+    public UserDto? PrimaryGuest { get; set; }
 }

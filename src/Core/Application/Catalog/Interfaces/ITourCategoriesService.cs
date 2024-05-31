@@ -12,7 +12,14 @@ public interface ITourCategoriesService : ITransientService
     /// <param name="request"></param>
     /// <returns></returns>
     Task<PaginationResponse<TourCategoryDto>> SearchAsync(SearchTourCategoriesRequest request);
-
+    
+    /// <summary>
+    /// Get all tour categories, can be filtered to return top level only.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    Task<IEnumerable<TourCategoryDto>> GetAllAsync(GetTourCategoriesRequest request);
+    
     /// <summary>
     /// Get tour category details.
     /// </summary>

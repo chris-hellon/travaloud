@@ -10,6 +10,9 @@ public class ToursBySearchSpec : EntitiesByPaginationFilterSpec<Tour, TourDto>
         : base(request) =>
         Query
             .OrderBy(c => c.Name, !request.HasOrderBy())
-            .Where(p => p.Name.Equals(request.Name), request.Name != null);
+            .Include(t => t.TourCategory)
+            .Where(p => p.Name.Equals(request.Name), request.Name != null)
+            .Where(x => x.TourCategoryId == request.TourCategoryId,
+                condition: request.TourCategoryId.HasValue);
 }
 

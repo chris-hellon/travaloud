@@ -22,52 +22,50 @@
                         <div class="col-md-12 col-lg-6 mb-5 mb-lg-0 has-parallax-scroll">
                             <h1 class="display-3">@Model.Tour.Name.ToUpper()</h1>
                             @Html.Raw(Model.Tour.Description)
-
-                            @* @if (!string.IsNullOrEmpty(Model.Tour.WhatsIncluded)) *@
-                            @* { *@
-                            @*     <h6 class="mt-4">What's Included?</h6> *@
-                            @* *@
-                            @*     var whatsIncludedList = Model.Tour.WhatsIncluded.ExtractLiElements(); *@
-                            @* *@
-                            @*     if (whatsIncludedList.Any()) *@
-                            @*     { *@
-                            @*         foreach (var listItem in whatsIncludedList) *@
-                            @*         { *@
-                            @*             <p class="mb-1"><i class="fa-solid fa-check me-2 text-mustard"></i> @listItem</p> *@
-                            @*         } *@
-                            @*     } *@
-                            @* } *@
                         </div>
                         <div class="p-0 mt-5 mt-lg-0 col-md-12 col-lg-6 d-flex align-items-center justify-content-center has-parallax-scroll">
                             <div class="bg-white p-6">
                                 <div class="text-center">
                                     <h4 class="tilted mt-n7 mb-4 display-6">BOOK YOUR TOUR</h4>
                                 </div>
-                                @{
-                                    var duration = "";
-                                    var dayDurationExists = !string.IsNullOrEmpty(Model.Tour.DayDuration);
-                                    var nightDurationExists = !string.IsNullOrEmpty(Model.Tour.NightDuration);
-                                    var hourDurationExists = !string.IsNullOrEmpty(Model.Tour.HourDuration);
-                                    
-                                    if (dayDurationExists)
-                                        duration += $"{Model.Tour.DayDuration} Day{(Model.Tour.DayDuration != "1" ? "s" : "")}";
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        @{
+                                            var duration = "";
+                                            var dayDurationExists = !string.IsNullOrEmpty(Model.Tour.DayDuration);
+                                            var nightDurationExists = !string.IsNullOrEmpty(Model.Tour.NightDuration);
+                                            var hourDurationExists = !string.IsNullOrEmpty(Model.Tour.HourDuration);
 
-                                    if (nightDurationExists)
-                                        duration += $"{(dayDurationExists ? " " : "")}{Model.Tour.NightDuration} Night{(Model.Tour.NightDuration != "1" ? "s" : "")}";
+                                            if (dayDurationExists)
+                                                duration += $"{Model.Tour.DayDuration} Day{(Model.Tour.DayDuration != "1" ? "s" : "")}";
 
-                                    if (hourDurationExists)
-                                        duration += $"{(dayDurationExists ? " " : "")}{Model.Tour.HourDuration} Hour{(Model.Tour.HourDuration != "1" ? "s" : "")}";
+                                            if (nightDurationExists)
+                                                duration += $"{(dayDurationExists ? " " : "")}{Model.Tour.NightDuration} Night{(Model.Tour.NightDuration != "1" ? "s" : "")}";
 
-                                    <p><i class="fa-solid fa-clock me-2"></i> @duration</p>
-                                }
-                               
+                                            if (hourDurationExists)
+                                                duration += $"{(dayDurationExists ? " " : "")}{Model.Tour.HourDuration} Hour{(Model.Tour.HourDuration != "1" ? "s" : "")}";
+
+                                            <p>
+                                                <i class="fa-solid fa-clock me-2"></i> @duration
+                                            </p>
+                                            
+                                            if (Model.Tour.TourPrices != null && Model.Tour.TourPrices.Any())
+                                            {
+                                                foreach (var price in Model.Tour.TourPrices)
+                                                {
+                                                    <p><i class="fa-solid fa-circle-dollar-to-slot me-2"></i> $@price.Price @(Model.Tour.TourPrices.Count > 1 ? price.Title : "")</p>
+                                                }
+                                            }
+                                        }
+                                    </div>
+                                    <div>
+                                        <span class="badge rounded-pill badge-primary tour-booking-feedback-label">@(Model.SelectedTourDate != null ? $"{Model.SelectedTourDate.AvailableSpaces} spaces available" : "Select a Date")</span>
+                                    </div>
+                                </div>
+
+
                                 @if (Model.Tour.TourPrices != null && Model.Tour.TourPrices.Any())
                                 {
-                                    foreach (var price in Model.Tour.TourPrices)
-                                    {
-                                        <p><i class="fa-solid fa-circle-dollar-to-slot me-2"></i> $@price.Price @price.Title</p>
-                                    }
-
                                     <div class="form-outline select-tour-date-picker confirm-date-on-select mb-2 mt-4" data-mdb-input-init data-mdb-toggle-button="false">
                                         <input asp-for="TourDate" type="text" class="form-control" data-mdb-toggle="datepicker" onkeydown="return false;"/>
                                         <label asp-for="TourDate" class="form-label"></label>
@@ -80,7 +78,7 @@
                                     <div class="mb-2">
                                         <select data-mdb-select-init class="select mb-2" asp-for="TourDateStartTime" disabled onchange="selectTourDateTime();">
                                             <option value="" hidden></option>
-                                            
+
                                             @if (Model.TourDate.HasValue && Model.Tour.TourDates != null && Model.Tour.TourDates.Any() && Model.TourDateStartTime.HasValue)
                                             {
                                                 foreach (var tourDate in Model.Tour.TourDates.Where(x => x.StartDate.Date == Model.TourDate.Value.Date))
@@ -93,13 +91,28 @@
                                         <span asp-validation-for="TourDateStartTime" class="travaloud-validation"></span>
                                     </div>
 
-                                    <div class="form-outline mb-4" data-mdb-input-init>
+                                    <div class="form-outline mb-2" data-mdb-input-init>
                                         <i class="fas fa-users trailing text-primary"></i>
-                                        <input type="number" asp-for="GuestQuantity" class="form-control form-icon-trailing" disabled="" max="@(Model.SelectedTourDate?.AvailableSpaces ?? 99999)" data-tour-id="@Model.Tour.Id" data-tour-name="@Model.Tour.Name" data-tour-image-url="@Model.Tour.ImagePath?.FormatImageUrl(600, "fuse")" />
+                                        <input type="number" asp-for="GuestQuantity" class="form-control form-icon-trailing" disabled="" max="@(Model.SelectedTourDate?.AvailableSpaces ?? 99999)" data-tour-id="@Model.Tour.Id" data-tour-name="@Model.Tour.Name" data-tour-image-url="@Model.Tour.ImagePath?.FormatImageUrl(600, "fuse")"/>
                                         <label class="form-label" asp-for="GuestQuantity"></label>
-                                        <div class="form-helper">@(Model.SelectedTourDate != null ? $"{Model.SelectedTourDate.AvailableSpaces} spaces available": "Select a Date")</div>
                                     </div>
                                     <span asp-validation-for="GuestQuantity" class="travaloud-validation"></span>
+
+                                    if (Model.Tour.TourPickupLocations != null && Model.Tour.TourPickupLocations.Any())
+                                    {
+                                        <div class="mb-2">
+                                            <select data-mdb-select-init class="select mb-2" asp-for="PickUpLocation">
+                                                <option value="" hidden></option>
+
+                                                @foreach (var location in Model.Tour.TourPickupLocations)
+                                                {
+                                                    <option selected="@(location.PropertyName == Model.PickUpLocation)" value="@location.PropertyName">@location.PropertyName</option>
+                                                }
+                                            </select>
+                                            <label class="form-label select-label" asp-for="PickUpLocation"></label>
+                                            <span asp-validation-for="PickUpLocation" class="travaloud-validation"></span>
+                                        </div>
+                                    }
                                 }
 
                                 <div class="text-center mb-n7 mt-4">

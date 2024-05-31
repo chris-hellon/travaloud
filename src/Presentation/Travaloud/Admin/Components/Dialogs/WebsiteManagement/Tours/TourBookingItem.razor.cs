@@ -8,6 +8,7 @@ using Travaloud.Admin.Components.Pages.Bookings;
 using Travaloud.Application.Catalog.Bookings.Commands;
 using Travaloud.Application.Catalog.Bookings.Dto;
 using Travaloud.Application.Catalog.Interfaces;
+using Travaloud.Application.Catalog.TourDates.Queries;
 using Travaloud.Application.Catalog.Tours.Dto;
 using Travaloud.Infrastructure.Common.Services;
 
@@ -17,12 +18,14 @@ public partial class TourBookingItem : ComponentBase
 {
     [Inject] protected IToursService ToursService { get; set; } = default!;
 
+    [Inject] protected ITourDatesService TourDatesService { get; set; } = default!;
+
     [Parameter] [EditorRequired] public UpdateBookingItemRequest RequestModel { get; set; } = default!;
 
     [Parameter] public TourBookingViewModel TourBooking { get; set; } = default!;
 
     [Parameter]
-    public EntityServerTableContext<BookingDto, Guid, TourBookingViewModel> Context { get; set; } = default!;
+    public EntityServerTableContext<BookingDto, DefaultIdType, TourBookingViewModel> Context { get; set; } = default!;
 
     [Parameter] public object? Id { get; set; }
 
@@ -53,7 +56,7 @@ public partial class TourBookingItem : ComponentBase
     private async Task SaveAsync()
     {
         await LoadingService.ToggleLoaderVisibility(true);
-        
+
         if (await _fluentValidationValidator!.ValidateAsync())
         {
             if (await ServiceHelper.ExecuteCallGuardedAsync(
@@ -98,15 +101,19 @@ public partial class TourBookingItem : ComponentBase
         {
             Snackbar.Add("One or more validation errors occurred.");
         }
-        
+
         await LoadingService.ToggleLoaderVisibility(false);
     }
 
-    private async Task OnTourValueChanged(Guid? tourId)
+    private async Task OnTourValueChanged(DefaultIdType? tourId)
     {
         if (tourId.HasValue)
         {
-            var tourDates = await ToursService.GetTourDatesAsync(tourId.Value, 1);
+            var tourDates = await TourDatesService.SearchAsync(new SearchTourDatesRequest()
+            {
+                TourId = tourId.Value,
+                RequestedSpaces = 1
+            });
 
             TourDates = tourDates.Data;
 
@@ -131,7 +138,7 @@ public partial class TourBookingItem : ComponentBase
         }
     }
 
-    private Task OnTourDateValueChanged(Guid? tourDateId)
+    private Task OnTourDateValueChanged(DefaultIdType? tourDateId)
     {
         if (!tourDateId.HasValue) return Task.CompletedTask;
         var tourDate = TourDates.FirstOrDefault(x => x.Id == tourDateId.Value);

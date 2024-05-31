@@ -45,6 +45,17 @@ public class CloudbedsService : BaseService, ICloudbedsService
         return Mediator.Send(request);
     }
 
+    public async Task<IEnumerable<GetDashboardResponse>> GetDashboards(IEnumerable<GetDashboardRequest> requests)
+    {
+        var results = new List<GetDashboardResponse>();
+        var tasks = requests.Select(request => Task.Run(() => Mediator.Send(request))).ToList();
+
+        await Task.WhenAll(tasks);
+        
+        results.AddRange(tasks.Select(x => x.Result.Data)!);
+
+        return results;
+    }
 
     public async Task<GetGuestsResponse> GetGuests(GetGuestsRequest request)
     {

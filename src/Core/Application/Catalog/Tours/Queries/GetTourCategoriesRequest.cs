@@ -5,6 +5,12 @@ namespace Travaloud.Application.Catalog.Tours.Queries;
 
 public class GetTourCategoriesRequest : IRequest<IEnumerable<TourCategoryDto>>
 {
+    public bool ParentOnly { get; set; }
+
+    public GetTourCategoriesRequest(bool parentOnly = false)
+    {
+        ParentOnly = parentOnly;
+    }
 }
 
 public class GetTourCategoriesRequestHandler : IRequestHandler<GetTourCategoriesRequest, IEnumerable<TourCategoryDto>>
@@ -21,7 +27,16 @@ public class GetTourCategoriesRequestHandler : IRequestHandler<GetTourCategories
 
     public async Task<IEnumerable<TourCategoryDto>> Handle(GetTourCategoriesRequest request, CancellationToken cancellationToken)
     {
-        var tourCategories = await _repository.ListAsync(cancellationToken);
-        return tourCategories.Adapt<IList<TourCategoryDto>>().Where(x => !x.TopLevelCategory.HasValue || !x.TopLevelCategory.Value).OrderBy(x => x.Name);
+        var categories = await _repository.ListAsync(cancellationToken);
+
+        return categories.Adapt<IList<TourCategoryDto>>();
+        
+        // return request.ParentOnly
+        //     ? tourCategories.Adapt<IList<TourCategoryDto>>()
+        //         .Where(x => x.TopLevelCategory == true)
+        //         .OrderBy(x => x.Name)
+        //     : tourCategories.Adapt<IList<TourCategoryDto>>()
+        //         .Where(x => !x.TopLevelCategory.HasValue || !x.TopLevelCategory.Value)
+        //         .OrderBy(x => x.Name);
     }
 }

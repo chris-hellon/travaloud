@@ -13,12 +13,12 @@ public partial class JobVacancies
 {
     [Inject] protected IJobVacanciesService JobVacanciesService { get; set; } = default!;
 
-    private EntityServerTableContext<JobVacancyDto, Guid, UpdateJobVacancyRequest> Context { get; set; } = default!;
-    private EntityTable<JobVacancyDto, Guid, UpdateJobVacancyRequest> _table = default!;
+    private EntityServerTableContext<JobVacancyDto, DefaultIdType, UpdateJobVacancyRequest> Context { get; set; } = default!;
+    private EntityTable<JobVacancyDto, DefaultIdType, UpdateJobVacancyRequest> _table = default!;
 
     protected override void OnInitialized()
     {
-        Context = new EntityServerTableContext<JobVacancyDto, Guid, UpdateJobVacancyRequest>(
+        Context = new EntityServerTableContext<JobVacancyDto, DefaultIdType, UpdateJobVacancyRequest>(
             entityName: L["Job Vacancy"],
             entityNamePlural: L["Job Vacancies"],
             entityResource: TravaloudResource.JobVacancies,

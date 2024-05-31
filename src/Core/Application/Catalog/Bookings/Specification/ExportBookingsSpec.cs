@@ -20,13 +20,14 @@ public class ExportBookingsSpec : EntitiesByBaseFilterSpec<BookingItem, BookingE
                 x => x.TourId.HasValue &&
                      (request.TourId.HasValue ? x.TourId.Value == request.TourId : !request.TourId.HasValue),
                 condition: request.IsTourBookings)
+            .Where(x => request.TourIds != null && x.TourId.HasValue && request.TourIds.Contains(x.TourId.Value), condition: request.TourIds != null)
             .Where(x => x.TourDateId == request.TourDateId, condition: request.TourDateId.HasValue)
             .Where(
                 x => x.PropertyId.HasValue && (request.PropertyId.HasValue
                     ? x.PropertyId.Value == request.PropertyId.Value
                     : !request.PropertyId.HasValue), condition: !request.IsTourBookings)
-            .Where(x => x.Booking.Description.Contains(request.Description),
-                condition: !string.IsNullOrEmpty(request.Description))
+            .Where(x => x.Booking.Description.Contains(request.Keyword) || x.Booking.InvoiceId.ToString() == request.Keyword || x.Booking.GuestName.Contains(request.Keyword),
+                condition: !string.IsNullOrEmpty(request.Keyword))
             .Where(
                 x => x.Booking.BookingDate >= request.BookingStartDate.Value &&
                      x.Booking.BookingDate <= request.BookingEndDate.Value,

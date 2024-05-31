@@ -16,8 +16,8 @@ public partial class Categories
 {
     [Inject] protected ITourCategoriesService TourCategoriesService { get; set; } = default!;
 
-    private EntityServerTableContext<TourCategoryDto, Guid, TourCategoryViewModel> Context { get; set; } = default!;
-    private EntityTable<TourCategoryDto, Guid, TourCategoryViewModel> _table = default!;
+    private EntityServerTableContext<TourCategoryDto, DefaultIdType, TourCategoryViewModel> Context { get; set; } = default!;
+    private EntityTable<TourCategoryDto, DefaultIdType, TourCategoryViewModel> _table = default!;
 
     private static Dictionary<string, bool> WizardSteps => new()
     {
@@ -27,7 +27,7 @@ public partial class Categories
 
     protected override void OnInitialized()
     {
-        Context = new EntityServerTableContext<TourCategoryDto, Guid, TourCategoryViewModel>(
+        Context = new EntityServerTableContext<TourCategoryDto, DefaultIdType, TourCategoryViewModel>(
             entityName: L["Tour Category"],
             entityNamePlural: L["Tour Categories"],
             entityResource: TravaloudResource.Tours,
@@ -44,7 +44,7 @@ public partial class Categories
                     tour.Image = new FileUploadRequest()
                     {
                         Data = tour.ImageInBytes, Extension = tour.ImageExtension ?? string.Empty,
-                        Name = $"{tour.Name}_{Guid.NewGuid():N}"
+                        Name = $"{tour.Name}_{DefaultIdType.NewGuid():N}"
                     };
                 }
 
@@ -66,7 +66,7 @@ public partial class Categories
                     tour.Image = new FileUploadRequest()
                     {
                         Data = tour.ImageInBytes, Extension = tour.ImageExtension ?? string.Empty,
-                        Name = $"{tour.Name}_{Guid.NewGuid():N}"
+                        Name = $"{tour.Name}_{DefaultIdType.NewGuid():N}"
                     };
                 }
 

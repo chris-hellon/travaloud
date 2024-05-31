@@ -10,7 +10,7 @@
 
 <TravaloudPageTitle Title="@L["Properties"]" Description="@L["Manage Properties."]"/>
 
-<EntityTable @ref="_table" TEntity="PropertyDto" TId="Guid" TRequest="PropertyViewModel" Context="@Context" IsWizard="true" WizardSteps="@WizardSteps">
+<EntityTable @ref="_table" TEntity="PropertyDto" TId="DefaultIdType" TRequest="PropertyViewModel" Context="@Context" IsWizard="true" WizardSteps="@WizardSteps">
 <WizardStep1Content>
     <MudGrid>
         <MudItem xs="12" md="5">
@@ -42,12 +42,12 @@
             if (destinationsExist)
             {
                 <MudItem xs="12" md="4">
-                    <MudSelect T="Guid?" Label="Destination" Variant="Variant.Outlined" @bind-Value="context.DestinationId" Clearable="true" For="@(() => context.DestinationId)" HelperText="Does this Property belong to a Destination?">
+                    <MudSelect T="DefaultIdType?" Label="Destination" Variant="Variant.Outlined" @bind-Value="context.DestinationId" Clearable="true" For="@(() => context.DestinationId)" HelperText="Does this Property belong to a Destination?">
                         @if (Destinations != null)
                         {
                             foreach (var tourCategory in Destinations)
                             {
-                                <MudSelectItem T="Guid?" Value="@tourCategory.Id">@tourCategory.Name</MudSelectItem>
+                                <MudSelectItem T="DefaultIdType?" Value="@tourCategory.Id">@tourCategory.Name</MudSelectItem>
                             }
                         }
                     </MudSelect>

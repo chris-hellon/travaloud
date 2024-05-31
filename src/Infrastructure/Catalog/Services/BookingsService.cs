@@ -114,6 +114,13 @@ public class BookingsService : BaseService, IBookingsService
         return new FileResponse(response);
     }
 
+    public async Task<FileResponse> ExportCalendarBookingsAsync(ExportCalendarBookingsRequest request)
+    {
+        var response = await Mediator.Send(request);
+        
+        return new FileResponse(response);
+    }
+    
     public Task<PaginationResponse<StaffBookingDto>> StaffBookingsByDateRange(StaffBookingsByDateRangeRequest request)
     {
         return Mediator.Send(request);

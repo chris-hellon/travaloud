@@ -15,7 +15,7 @@
 
             <MudGrid>
                 <MudItem xs="12" md="12">
-                    <MudDateRangePicker AutoClose="true" @bind-DateRange="@DateRange" Margin="Margin.Dense" MinDate="DateTime.Now.AddDays(-1)" Variant="Variant.Outlined" DateFormat="dd/MM/yyyy" Clearable="true" PlaceholderStart="Start Date" PlaceholderEnd="End Date"/>
+                    <MudDateRangePicker AutoClose="true" @bind-DateRange="@DateRange" Margin="Margin.Dense" MaxDate="DateTime.Now.AddYears(3)" MinDate="DateTime.Now.AddDays(-1)" Variant="Variant.Outlined" DateFormat="dd/MM/yyyy" Clearable="true" PlaceholderStart="Start Date" PlaceholderEnd="End Date"/>
                 </MudItem>
 
                 <MudItem xs="12" md="12">
@@ -23,13 +23,13 @@
                 </MudItem>
 
                 <MudItem xs="12" md="12">
-                    <MudSelect T="Guid?" Label="@L["Price"]" @bind-Value="RequestModel.TourPriceId" Variant="Variant.Outlined" Margin="Margin.Dense" HelperText="Select a Price that this date applies to." Required="true">
-                        <MudSelectItem T="Guid?" Value="null" Style="display:none;"></MudSelectItem>
+                    <MudSelect T="DefaultIdType?" Label="@L["Price"]" @bind-Value="RequestModel.TourPriceId" Variant="Variant.Outlined" Margin="Margin.Dense" HelperText="Select a Price that this date applies to." Required="true">
+                        <MudSelectItem T="DefaultIdType?" Value="null" Style="display:none;"></MudSelectItem>
                         @if (Tour.TourPrices != null && Tour.TourPrices.Any(x => x.DayDuration.HasValue || x.NightDuration.HasValue || x.HourDuration.HasValue))
                         {
                             @foreach (var tourPrice in Tour.TourPrices.Where(x => x.DayDuration.HasValue || x.NightDuration.HasValue || x.HourDuration.HasValue))
                             {
-                                <MudSelectItem T="Guid?" Value="@tourPrice.Id">@tourPrice.Price @tourPrice.Description</MudSelectItem>
+                                <MudSelectItem T="DefaultIdType?" Value="@tourPrice.Id">@tourPrice.Price @tourPrice.Description</MudSelectItem>
                             }
                         }
                     </MudSelect>

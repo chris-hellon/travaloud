@@ -5,9 +5,9 @@
 @using (Html.BeginCollectionItem("PropertyTours"))
 {
     <div class="row border-bottom mb-4 pb-4 d-flex align-items-center">
-        <div class="col-md-4 mb-4 mb-md-0">
-            <div class="bg-image rounded-5 overflow-hidden d-block">
-                <img src="@Model.ImagePath" class="w-100" alt=""/>
+        <div class="col-md-3 mb-4 mb-md-0">
+            <div class="bg-image rounded-5 overflow-hidden d-block" style="height:200px;">
+                <img src="@Model.ImagePath" class="w-100 object-fit-cover h-100" alt=""/>
 
                 <a href="#!">
                     <div class="hover-overlay">
@@ -19,7 +19,7 @@
                 </a>
             </div>
         </div>
-        <div class="col-lg-8">
+        <div class="col-lg-9">
             <div class="row">
                 <div class="col-md-8 mb-4 mb-md-0">
                     <p class="fw-bold">@Model.Name</p>

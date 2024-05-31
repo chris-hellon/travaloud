@@ -51,9 +51,10 @@ public static class Startup
             .AddRouting(options => options.LowercaseUrls = true)
             .AddCloudbedsHttpClient(config);
 
+        services.AddBackgroundJobs(config);
+        
         if (isBlazor)
         {
-            services.AddBackgroundJobs(config);
             services.AddScoped<UserManager<ApplicationUser>, UserManager<ApplicationUser>>();
             
             services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false)

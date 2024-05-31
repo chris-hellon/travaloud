@@ -6,4 +6,11 @@ public static class IntegerExtensions
     {
         return (int)(dollars * 100);
     }
+    
+    public static decimal ConvertToDollars(this long? cents)
+    {
+        if (cents != null) return cents.Value / 100m;
+
+        return 0;
+    }
 }

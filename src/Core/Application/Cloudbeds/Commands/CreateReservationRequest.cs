@@ -39,8 +39,8 @@ public class CreateReservationRequest : IRequest<CreateReservationResponse>
     [JsonProperty("paymentMethod")] public string PaymentMethod { get; set; }
 
     [JsonProperty("cardToken")] public string CardToken { get; set; }
-
-    [JsonProperty("paymentAuthorizationCode")] public string PaymentAuthorizationCode { get; set; }
+    //
+    // [JsonProperty("paymentAuthorizationCode")] public string PaymentAuthorizationCode { get; set; }
 
     [JsonProperty("promoCode")] public string PromoCode { get; set; } = string.Empty;
 
@@ -115,7 +115,7 @@ public class CreateReservationRequest : IRequest<CreateReservationResponse>
 
         PaymentMethod = "credit";
         CardToken = cardToken;
-        PaymentAuthorizationCode = paymentAuthorizationCode;
+        // PaymentAuthorizationCode = paymentAuthorizationCode;
         ThirdPartyIdentifier = "Fuse Website / Travaloud";
     }
 }

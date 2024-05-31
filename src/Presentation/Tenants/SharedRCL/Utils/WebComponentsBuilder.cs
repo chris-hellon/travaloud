@@ -449,9 +449,9 @@ public static class WebComponentsBuilder
                 tourCategory != null
                     ?
                     toursWithCategories
-                        .Where(x => x.CategoryId == tourCategory.Id || x.ParentTourCategoryId == tourCategory.Id)
+                        .Where(x => x.TourCategoryId == tourCategory.Id || x.ParentTourCategoryId == tourCategory.Id)
                         .OrderBy(x => x.SortOrder)
-                    : toursWithCategories.Where(x => x.CategoryId == null && x.ParentTourCategoryId == null)
+                    : toursWithCategories.Where(x => x.TourCategoryId == null && x.ParentTourCategoryId == null)
                         .OrderBy(x => x.SortOrder);
 
             var tourWithCategoryDtos = toursWithCategories as TourWithCategoryDto[] ?? toursWithCategories.ToArray();
@@ -667,9 +667,9 @@ public static class WebComponentsBuilder
             tourCategory != null
                 ?
                 toursWithCategories.Where(x =>
-                    x.CategoryId == tourCategory.Id || x.ParentTourCategoryId == tourCategory.Id ||
+                    x.TourCategoryId == tourCategory.Id || x.ParentTourCategoryId == tourCategory.Id ||
                     x.GroupParentCategoryId == tourCategory.Id)
-                : toursWithCategories.Where(x => x.CategoryId == null && x.ParentTourCategoryId == null);
+                : toursWithCategories.Where(x => x.TourCategoryId == null && x.ParentTourCategoryId == null);
 
         var tourWithCategoryDtos = toursWithCategories as TourWithCategoryDto[] ?? toursWithCategories.ToArray();
         if (tourWithCategoryDtos.Length != 0)

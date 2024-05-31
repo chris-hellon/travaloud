@@ -17,7 +17,7 @@ public partial class TourItinerary : ComponentBase
 
     [Parameter] public TourViewModel Tour { get; set; } = default!;
 
-    [Parameter] public EntityServerTableContext<TourDto, Guid, TourViewModel> Context { get; set; } = default!;
+    [Parameter] public EntityServerTableContext<TourDto, DefaultIdType, TourViewModel> Context { get; set; } = default!;
 
     [Parameter] public MudCarousel<TourItinerarySectionRequest>? Carousel { get; set; }
 
@@ -56,7 +56,7 @@ public partial class TourItinerary : ComponentBase
                         Tour.TourItineraries ??= new List<TourItineraryRequest>();
 
                         RequestModel.IsCreate = true;
-                        RequestModel.Id = Guid.NewGuid();
+                        RequestModel.Id = DefaultIdType.NewGuid();
 
                         if (Tour.TourItineraries.Any())
                         {
@@ -90,7 +90,7 @@ public partial class TourItinerary : ComponentBase
         TourItinerarySectionRequest newSection = new()
         {
             IsCreate = true,
-            Id = Guid.NewGuid()
+            Id = DefaultIdType.NewGuid()
         };
 
         RequestModel.Sections ??= new List<TourItinerarySectionRequest>();

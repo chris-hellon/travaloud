@@ -2,8 +2,8 @@
 @model FuseHostelsAndTravel.Pages.TravelGuide.IndexModel
 
 @section Styles {
-    <link rel="stylesheet" href="https://mdbcdn.b-cdn.net/wp-content/themes/mdbootstrap4/docs-app/css/dist/mdb5/plugins/standard/multi-carousel.min.css" />
-    <link rel="stylesheet" href="/css/travelguides.min.css" />
+    <link rel="stylesheet" href="https://mdbcdn.b-cdn.net/wp-content/themes/mdbootstrap4/docs-app/css/dist/mdb5/plugins/standard/multi-carousel.min.css"/>
+    <link rel="stylesheet" href="/css/travelguides.min.css"/>
 }
 
 <section id="headerBanner">
@@ -14,8 +14,41 @@
     <div class="container-fluid">
         <div class="container pb-8 pt-8">
             <div class="row">
-                <div class="col-md-12 col-lg-8 mb-5 mb-lg-0 has-parallax-scroll">
+                <div class="col-md-12 col-lg-9 mb-5 mb-lg-0 has-parallax-scroll">
                     <h1 class="display-3">@Model.TravelGuide?.Title.ToUpper()</h1>
+
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="row align-items-center mb-4">
+                        <div class="col-lg-12 text-center text-lg-end mb-3">
+                            <small> Published <u>@Model.TravelGuide?.CreatedOn.ToShortDateString()</u> by @Model.UserName</small>
+                        </div>
+
+                        @{
+                            var urlToShare = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}{HttpContext.Request.PathBase}{HttpContext.Request.Path}{HttpContext.Request.QueryString}";
+
+                            <div class="col-lg-12 text-center text-lg-end">
+                                <a class="btn text-white btn-lg btn-floating" data-mdb-ripple-init
+                                   style="background-color: #3b5998;"
+                                   target="_blank"
+                                   href="@($"https://www.facebook.com/sharer/sharer.php?u={urlToShare}")"
+                                   role="button">
+                                    <i class="fab fa-facebook-f"></i>
+                                </a>
+
+                                <a class="btn text-white btn-lg btn-floating" data-mdb-ripple-init
+                                   style="background-color: #55acee;"
+                                   target="_blank"
+                                   href="@($"http://twitter.com/share?text={Model.TravelGuide?.Title}&url={urlToShare}")"
+                                   role="button">
+                                    <i class="fab fa-twitter"></i>
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="col-md-12 col-lg-12 mb-5 mb-lg-0 has-parallax-scroll">
                     <h3 class="mb-3">@Model.TravelGuide?.SubTitle.ToUpper()</h3>
                     @Html.Raw(Model.TravelGuide?.Description)
 
@@ -61,63 +94,34 @@
                         </div>
                     }
                 </div>
-                <div class="col-md-4 mb-4">
-                    <section class="border-bottom mb-4">
-                        <div class="row align-items-center mb-4">
-                            <div class="col-lg-12 text-center text-lg-start mb-3">
-                                <small> Published <u>@Model.TravelGuide?.CreatedOn.ToShortDateString()</u> by @Model.UserName</small>
-                            </div>
-
-                            @{
-                                var urlToShare = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}{HttpContext.Request.PathBase}{HttpContext.Request.Path}{HttpContext.Request.QueryString}";
-
-                                <div class="col-lg-12 text-center text-lg-start">
-                                    <a class="btn text-white btn-lg btn-floating" data-mdb-ripple-init 
-                                       style="background-color: #3b5998;" 
-                                       target="_blank" 
-                                       href="@($"https://www.facebook.com/sharer/sharer.php?u={urlToShare}")" 
-                                       role="button">
-                                        <i class="fab fa-facebook-f"></i>
-                                    </a>
-
-                                    <a class="btn text-white btn-lg btn-floating" data-mdb-ripple-init
-                                       style="background-color: #55acee;"
-                                       target="_blank" 
-                                       href="@($"http://twitter.com/share?text={Model.TravelGuide?.Title}&url={urlToShare}")" 
-                                       role="button">
-                                        <i class="fab fa-twitter"></i>
-                                    </a>
-                                </div>
-                            }
-                        </div>
-                    </section>
-                    <div class="col-md-12 mb-4 mb-lg-0">
-                        <p class="text-muted">More Like This</p>
-                        @if (Model.RelatedTravelGuide != null)
-                        {
-                            if (!string.IsNullOrEmpty(Model.RelatedTravelGuide.ImagePath))
-                            {
-                                var formattedImagePath = Model.RelatedTravelGuide.ImagePath.FormatImageUrl(700, Model.TenantId);
-
-                                <div class="bg-image hover-overlay shadow-1-strong mb-4 mt-3" data-mdb-ripple-init data-mdb-ripple-color="light">
-                                    <img src="@formattedImagePath" class="img-fluid" alt="@Model.RelatedTravelGuide.Title"/>
-                                    <a asp-page="/TravelGuide/Index" asp-route-title="@Model.RelatedTravelGuide.Title.UrlFriendly()">
-                                        <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
-                                    </a>
-                                </div>
-                            }
-
-                            <h5>@Model.RelatedTravelGuide.Title</h5>
-
-                            @Html.Raw(Model.RelatedTravelGuide.ShortDescription)
-
-                            <div class="d-flex justify-content-between">
-                                <a class="btn btn-primary mt-3" asp-page="/TravelGuide/Index" asp-route-title="@Model.RelatedTravelGuide.Title.UrlFriendly()" data-mdb-ripple-init>Read more</a>
-                                <a class="btn btn-outline-primary mt-3" asp-page="/TravelGuides/Index" asp-route-pageNumber="" data-mdb-ripple-init>View All</a>
-                            </div>
-                        }
-                    </div>
-                </div>
+                
+                
+                @* <div class="col-md-12 mb-4 mb-lg-0 border-top mt-4"> *@
+                @*     <p class="text-muted pt-3">More Like This</p> *@
+                @*     @if (Model.RelatedTravelGuide != null) *@
+                @*     { *@
+                @*         if (!string.IsNullOrEmpty(Model.RelatedTravelGuide.ImagePath)) *@
+                @*         { *@
+                @*             var formattedImagePath = Model.RelatedTravelGuide.ImagePath.FormatImageUrl(700, Model.TenantId); *@
+                @* *@
+                @*             <div class="bg-image hover-overlay shadow-1-strong mb-4 mt-3" data-mdb-ripple-init data-mdb-ripple-color="light"> *@
+                @*                 <img src="@formattedImagePath" class="img-fluid" alt="@Model.RelatedTravelGuide.Title"/> *@
+                @*                 <a asp-page="/TravelGuide/Index" asp-route-title="@Model.RelatedTravelGuide.Title.UrlFriendly()"> *@
+                @*                     <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div> *@
+                @*                 </a> *@
+                @*             </div> *@
+                @*         } *@
+                @* *@
+                @*         <h5>@Model.RelatedTravelGuide.Title</h5> *@
+                @* *@
+                @*         @Html.Raw(Model.RelatedTravelGuide.ShortDescription) *@
+                @* *@
+                @*         <div class="d-flex justify-content-between"> *@
+                @*             <a class="btn btn-primary mt-3" asp-page="/TravelGuide/Index" asp-route-title="@Model.RelatedTravelGuide.Title.UrlFriendly()" data-mdb-ripple-init>Read more</a> *@
+                @*             <a class="btn btn-outline-primary mt-3" asp-page="/TravelGuides/Index" asp-route-pageNumber="" data-mdb-ripple-init>View All</a> *@
+                @*         </div> *@
+                @*     } *@
+                @* </div> *@
             </div>
         </div>
     </div>

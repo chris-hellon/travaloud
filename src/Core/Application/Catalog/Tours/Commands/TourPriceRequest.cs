@@ -25,5 +25,6 @@ public class TourPriceRequest : IRequest<DefaultIdType>
     public bool IsCreate { get; set; }
     public decimal? ComissionAmount { get; set; }
     public bool? PublishToWebsite { get; set; }
+    public bool? InHouseOnly { get; set; }
     public IList<TourDateRequest>? Dates { get; set; }
 }

@@ -17,8 +17,8 @@ public class TravelGuide : AuditableEntity, IAggregateRoot
     {
         Title = title;
         SubTitle = subTitle;
-        Description = description;
-        ShortDescription = shortDescription;
+        Description = description.FormatTextEditorString();;
+        ShortDescription = shortDescription.FormatTextEditorString();;
         ImagePath = imagePath;
         MetaKeywords = metaKeywords;
         MetaDescription = metaDescription;
@@ -34,10 +34,10 @@ public class TravelGuide : AuditableEntity, IAggregateRoot
             SubTitle = subTitle;
 
         if (description is not null && Description != description)
-            Description = description;
+            Description = description.FormatTextEditorString();;
 
         if (shortDescription is not null && ShortDescription != shortDescription)
-            ShortDescription = shortDescription;
+            ShortDescription = shortDescription.FormatTextEditorString();;
 
         if (imagePath is not null && ImagePath != imagePath)
             ImagePath = imagePath;

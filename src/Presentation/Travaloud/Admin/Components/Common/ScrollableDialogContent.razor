@@ -1,8 +1,9 @@
-<div style="max-height: 600px; overflow-y:scroll; overflow-x: hidden; padding: 8px 24px !important; max-width: unset !important;">
+<div style="max-height: 600px; overflow-y:scroll; overflow-x: hidden; @(!DisablePadding ? "padding: 8px 24px !important;" : "") max-width: unset !important;">
     @ChildContent
 </div>
 
 @code {
     [Parameter] public int MaxHeight { get; set; } = 600;
+    [Parameter] public bool DisablePadding { get; set; }
     [Parameter] public required RenderFragment ChildContent { get; set; }
 }

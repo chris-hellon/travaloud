@@ -32,7 +32,7 @@ class BasketItemRoomModel {
 
 class BasketItemDateModel
 {
-    constructor(dateId, tourId, tourName, tourImageUrl, guestQuantity, price, startDate) {
+    constructor(dateId, tourId, tourName, tourImageUrl, guestQuantity, price, startDate, pickupLocation) {
         this.DateId = dateId;
         this.TourId = tourId;
         this.TourName = tourName;
@@ -40,6 +40,7 @@ class BasketItemDateModel
         this.TourImageUrl = tourImageUrl;
         this.Price = price;
         this.StartDate = startDate;
+        this.PickupLocation = pickupLocation;
     }
 }
 

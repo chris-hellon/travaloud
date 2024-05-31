@@ -18,6 +18,11 @@ public class TourCategoriesService : BaseService, ITourCategoriesService
         return Mediator.Send(request);
     }
     
+    public Task<IEnumerable<TourCategoryDto>> GetAllAsync(GetTourCategoriesRequest request)
+    {
+        return Mediator.Send(new GetTourCategoriesRequest());
+    }
+    
     public Task<TourCategoryDto> GetAsync(DefaultIdType id)
     {
         return Mediator.Send(new GetTourCategoryRequest(id));

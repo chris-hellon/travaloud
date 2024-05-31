@@ -23,23 +23,23 @@
 
             <MudGrid>
                 <MudItem xs="12" md="12">
-                    <MudSelect T="Guid?" For="@(() => RequestModel.TourId)" Label="Tour" Clearable="true" Required="true" HelperText="Select a Tour" Variant="Variant.Outlined" ValueChanged="@(async (Guid? s) => await OnTourValueChanged(s))">
+                    <MudSelect T="DefaultIdType?" For="@(() => RequestModel.TourId)" Label="Tour" Clearable="true" Required="true" HelperText="Select a Tour" Variant="Variant.Outlined" ValueChanged="@(async (DefaultIdType? s) => await OnTourValueChanged(s))">
                         @if (Tours != null)
                         {
                             foreach (var tour in Tours)
                             {
-                                <MudSelectItem T="Guid?" Value="@tour.Id">@tour.Name</MudSelectItem>
+                                <MudSelectItem T="DefaultIdType?" Value="@tour.Id">@tour.Name</MudSelectItem>
                             }
                         }
                     </MudSelect>
                 </MudItem>
                 <MudItem xs="12" md="12">
-                    <MudSelect T="Guid?" For="@(() => RequestModel.TourDateId)" Label="Tour Date" Clearable="true" Required="true" HelperText="Select a Tour Date" Variant="Variant.Outlined" ValueChanged="@(async (Guid? s) => await OnTourDateValueChanged(s))">
+                    <MudSelect T="DefaultIdType?" For="@(() => RequestModel.TourDateId)" Label="Tour Date" Clearable="true" Required="true" HelperText="Select a Tour Date" Variant="Variant.Outlined" ValueChanged="@(async (DefaultIdType? s) => await OnTourDateValueChanged(s))">
                         @if (TourDates != null)
                         {
                             foreach (var tourDate in TourDates)
                             {
-                                <MudSelectItem T="Guid?" Value="@tourDate.Id">@tourDate.StartDate ($@(tourDate.TourPrice?.Price)) - @tourDate.AvailableSpaces spaces available</MudSelectItem>
+                                <MudSelectItem T="DefaultIdType?" Value="@tourDate.Id">@tourDate.StartDate ($@(tourDate.TourPrice?.Price)) - @tourDate.AvailableSpaces spaces available</MudSelectItem>
                             }
                         }
                     </MudSelect>

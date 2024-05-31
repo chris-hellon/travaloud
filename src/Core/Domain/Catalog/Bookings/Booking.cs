@@ -7,6 +7,7 @@ public class Booking : AuditableEntity, IAggregateRoot
 {
     public string Description { get; private set; } = default!;
     public decimal TotalAmount { get; private set; }
+    public decimal? AmountOutstanding { get; private set; }
     public string CurrencyCode { get; private set; } = default!;
     public int ItemQuantity { get; private set; }
     public bool IsPaid { get; private set; }
@@ -15,18 +16,22 @@ public class Booking : AuditableEntity, IAggregateRoot
     public string? GuestName { get; private set; }
     public string? GuestEmail { get; private set; }
     public string? StripeSessionId { get; private set; }
+    public string? UpdateStripeSessionId { get; private set; }
     public bool? BookingConfirmed { get; private set; }
     public bool? WaiverSigned { get; private set; }
     public string? AdditionalNotes { get; private set; }
     [MaxLength(128)] public string? BookingSource { get; private set; }
     public bool? ConfirmationEmailSent { get; private set; }
+    public bool? Refunded { get; private set; }
 
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int InvoiceId { get; private set; }
 
     public int ConcurrencyVersion { get; set; }
+    
     public virtual IList<BookingItem> Items { get; set; } = default!;
-
+    public virtual IEnumerable<BookingPayment> Payments { get; set; } = default!;
+    
     public Booking()
     {
     }
@@ -44,7 +49,9 @@ public class Booking : AuditableEntity, IAggregateRoot
         string? guestName,
         string? guestEmail,
         string? additionalNotes,
-        string? bookingSource)
+        string? bookingSource,
+        bool? refunded, 
+        decimal? amountOutstanding)
     {
         Description = description;
         TotalAmount = totalAmount;
@@ -59,6 +66,8 @@ public class Booking : AuditableEntity, IAggregateRoot
         GuestEmail = guestEmail;
         AdditionalNotes = additionalNotes;
         BookingSource = bookingSource;
+        Refunded = refunded;
+        AmountOutstanding = amountOutstanding;
     }
 
     public Booking Update(
@@ -75,13 +84,24 @@ public class Booking : AuditableEntity, IAggregateRoot
         string? guestEmail = null,
         string? additionalNotes = null,
         string? bookingSource = null,
-        IList<BookingItem>? items = null)
+        bool? refunded = null,
+        IList<BookingItem>? items = null,
+        DefaultIdType? createdBy = null, 
+        bool doNotUpdateAmount = false,
+        decimal? amountOutstanding = null,
+        string? updateStripeSessionId = null)
     {
         if (description is not null && Description != description)
             Description = description;
 
-        if (totalAmount is not null && TotalAmount != totalAmount)
-            TotalAmount = totalAmount.Value;
+        if (!doNotUpdateAmount)
+        {
+            if (totalAmount is not null && TotalAmount != totalAmount)
+                TotalAmount = totalAmount.Value;
+            
+            if (amountOutstanding is not null && AmountOutstanding != amountOutstanding)
+                AmountOutstanding = amountOutstanding.Value;
+        }
 
         if (currencyCode is not null && CurrencyCode != currencyCode)
             CurrencyCode = currencyCode;
@@ -103,6 +123,9 @@ public class Booking : AuditableEntity, IAggregateRoot
 
         if (stripeSessionId is not null && StripeSessionId != stripeSessionId)
             StripeSessionId = stripeSessionId;
+        
+        if (updateStripeSessionId is not null && UpdateStripeSessionId != updateStripeSessionId)
+            UpdateStripeSessionId = updateStripeSessionId;
 
         if (waiverSigned is not null && WaiverSigned != waiverSigned)
             WaiverSigned = waiverSigned.Value;
@@ -115,6 +138,14 @@ public class Booking : AuditableEntity, IAggregateRoot
 
         AdditionalNotes = additionalNotes;
         BookingSource = bookingSource;
+        
+        if (refunded is not null && Refunded != refunded)
+            Refunded = refunded.Value;
+
+        if (!createdBy.HasValue || CreatedBy == createdBy) return this;
+        
+        OverrideCreatedBy = true;
+        CreatedBy = createdBy.Value;
 
         return this;
     }
@@ -123,6 +154,7 @@ public class Booking : AuditableEntity, IAggregateRoot
     {
         IsPaid = true;
         BookingConfirmed = true;
+        AmountOutstanding = 0;
 
         return this;
     }
@@ -130,6 +162,14 @@ public class Booking : AuditableEntity, IAggregateRoot
     public Booking FlagConfirmationEmailSent()
     {
         ConfirmationEmailSent = true;
+
+        return this;
+    }
+    
+    public Booking FlagBookingAsRefunded()
+    {
+        Refunded = true;
+        IsPaid = false;
 
         return this;
     }

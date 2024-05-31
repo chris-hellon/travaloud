@@ -14,12 +14,14 @@ namespace Travaloud.Admin.Components.Pages.WebsiteManagement.Tours;
 
 public partial class Groups
 {
-    [Inject] protected ITourGroupsService TourCategoriesClient { get; set; } = default!;
+    [Inject] protected ITourGroupsService TourGroupsService { get; set; } = default!;
+
+    [Inject] protected ITourCategoriesService TourCategoriesService { get; set; } = default!;
 
     [Inject] protected IToursService ToursClient { get; set; } = default!;
 
-    private EntityServerTableContext<TourCategoryDto, Guid, TourGroupViewModel> Context { get; set; } = default!;
-    private EntityTable<TourCategoryDto, Guid, TourGroupViewModel> _table = default!;
+    private EntityServerTableContext<TourCategoryDto, DefaultIdType, TourGroupViewModel> Context { get; set; } = default!;
+    private EntityTable<TourCategoryDto, DefaultIdType, TourGroupViewModel> _table = default!;
 
     private static Dictionary<string, bool> WizardSteps => new()
     {
@@ -29,14 +31,14 @@ public partial class Groups
 
     protected override void OnInitialized()
     {
-        Context = new EntityServerTableContext<TourCategoryDto, Guid, TourGroupViewModel>(
+        Context = new EntityServerTableContext<TourCategoryDto, DefaultIdType, TourGroupViewModel>(
             entityName: L["Tour Group"],
             entityNamePlural: L["Tour Groups"],
             entityResource: TravaloudResource.Tours,
             fields: [new EntityField<TourCategoryDto>(tour => tour.Name, L["Name"], "Name")],
             enableAdvancedSearch: false,
             idFunc: tour => tour.Id,
-            searchFunc: async filter => (await TourCategoriesClient
+            searchFunc: async filter => (await TourGroupsService
                     .SearchAsync(filter.Adapt<SearchTourGroupsRequest>()))
                 .Adapt<PaginationResponse<TourCategoryDto>>(),
             createFunc: async tour =>
@@ -46,16 +48,16 @@ public partial class Groups
                     tour.Image = new FileUploadRequest()
                     {
                         Data = tour.ImageInBytes, Extension = tour.ImageExtension ?? string.Empty,
-                        Name = $"{tour.Name}_{Guid.NewGuid():N}"
+                        Name = $"{tour.Name}_{DefaultIdType.NewGuid():N}"
                     };
                 }
 
-                await TourCategoriesClient.CreateAsync(tour.Adapt<CreateTourCategoryRequest>());
+                await TourGroupsService.CreateAsync(tour.Adapt<CreateTourCategoryRequest>());
                 tour.ImageInBytes = string.Empty;
             },
             getDetailsFunc: async (id) =>
             {
-                var tour = await TourCategoriesClient.GetAsync(id);
+                var tour = await TourGroupsService.GetAsync(id);
                 var parsedModel = tour.Adapt<TourGroupViewModel>();
 
                 return parsedModel;
@@ -64,7 +66,7 @@ public partial class Groups
             {
                 var tour = new TourGroupViewModel
                 {
-                    ParentTourCategories = await ToursClient.GetParentCategoriesAsync()
+                    ParentTourCategories = await TourCategoriesService.GetAllAsync(new GetTourCategoriesRequest(true))
                 };
 
                 return tour;
@@ -77,15 +79,15 @@ public partial class Groups
                     tour.Image = new FileUploadRequest()
                     {
                         Data = tour.ImageInBytes, Extension = tour.ImageExtension ?? string.Empty,
-                        Name = $"{tour.Name}_{Guid.NewGuid():N}"
+                        Name = $"{tour.Name}_{DefaultIdType.NewGuid():N}"
                     };
                 }
 
-                await TourCategoriesClient.UpdateAsync(id, tour.Adapt<UpdateTourCategoryRequest>());
+                await TourGroupsService.UpdateAsync(id, tour.Adapt<UpdateTourCategoryRequest>());
                 tour.ImageInBytes = string.Empty;
             },
             exportAction: string.Empty,
-            deleteFunc: async id => await TourCategoriesClient.DeleteAsync(id)
+            deleteFunc: async id => await TourGroupsService.DeleteAsync(id)
         );
     }
 

@@ -1,0 +1,101 @@
+@using Travaloud.Application.Catalog.Bookings.Dto
+@using Travaloud.Application.Catalog.Bookings.Commands
+@using Travaloud.Application.Catalog.Interfaces
+@using Travaloud.Admin.Components.Dialogs.Guests
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            Guests for @BookingExports.First().TourName @StartDate.ToString("hh:mm tt")
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <ScrollableDialogContent DisablePadding="true">
+            <MudTable @ref="@_guestsTable" Items="@BookingExports" Elevation="0" Dense="true" Style="padding:0px !important;" Breakpoint="Breakpoint.Sm" Loading="@Loading" LoadingProgressColor="Color.Info">
+                <HeaderContent>
+                    <MudTh>Reference</MudTh>
+                    <MudTh>Guest</MudTh>
+                    <MudTh>Is Paid</MudTh>
+                    <MudTh>Waiver Signed</MudTh>
+                    <MudTh Style="width:145px;"></MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Reference">@context.BookingInvoiceId</MudTd>
+                    <MudTd DataLabel="Guest">@context.GuestName</MudTd>
+                    <MudTd DataLabel="Is Paid">@context.BookingIsPaid</MudTd>
+                    <MudTd DataLabel="Waiver Signed">@context.WaiverSigned</MudTd>
+                    <MudTd DataLabel="Actions"><MudButton Variant="Variant.Filled" Size="Size.Small" StartIcon="@Icons.Material.Filled.Edit" OnClick="@(() => InvokeEditGuestDialog(context.GuestId))" Color="Color.Secondary" Class="me-2">Edit Guest</MudButton></MudTd>
+                </RowTemplate>
+            </MudTable>
+        </ScrollableDialogContent>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@ExportManifest"
+                   Variant="Variant.Filled" Color="Color.Primary"
+                   StartIcon="@Icons.Material.Filled.ImportExport"
+                   Style="margin-left: 5px;"
+                   IconColor="Color.Surface">
+            Export
+        </MudButton>
+        <MudButton DisableElevation Variant="Variant.Filled" OnClick="Close" StartIcon="@Icons.Material.Filled.Cancel">Close</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [Parameter] public required List<BookingExportDto> BookingExports { get; set; }
+    [Parameter] public required DateTime StartDate { get; set; }
+    [Parameter] public required DateTime EndDate { get; set; }
+    [CascadingParameter] private MudDialogInstance MudDialog { get; set; } = default!;
+    [Inject] private IBookingsService BookingsService { get; set; } = default!;
+    [Inject] private IJSRuntime JS { get; set; } = default!;
+    
+    private bool Loading { get; set; } = true;
+    private MudTable<BookingExportDto> _guestsTable = default!;
+
+    protected override Task OnParametersSetAsync()
+    {
+        Loading = false;
+        return base.OnParametersSetAsync();
+    }
+
+    private void Close() =>
+        MudDialog.Cancel();
+
+    private async Task ExportManifest()
+    {
+        await LoadingService.ToggleLoaderVisibility(true);
+        
+        var export = await BookingsService.ExportCalendarBookingsAsync(new ExportCalendarBookingsRequest(BookingExports));
+        
+        using var streamRef = new DotNetStreamReference(export.Stream);
+
+        var tourName = BookingExports.First().TourName;
+        
+        await JS.InvokeVoidAsync("downloadFileFromStream", $"{tourName} {StartDate:hh:mm tt}.xlsx", streamRef);
+
+        await LoadingService.ToggleLoaderVisibility(false);
+    }
+
+        
+    private async Task InvokeEditGuestDialog(string id)
+    {
+        DialogOptions options = new() {CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, DisableBackdropClick = true};
+        DialogParameters parameters = new()
+        {
+            {nameof(CreateUpdateGuest.Id), id},
+            {nameof(CreateUpdateGuest.EmailRequired), false}
+        };
+
+        var dialog = await DialogService.ShowAsync<CreateUpdateGuest>(string.Empty, parameters, options);
+
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            var guest = BookingExports.FirstOrDefault(x => x.GuestId == id);
+            guest.GuestName = result.Data.ToString();
+            
+            await _guestsTable.ReloadServerData();
+        }
+    }
+}

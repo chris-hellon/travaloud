@@ -109,6 +109,14 @@ internal class CreateStripeQrCodeRequestHandler : IRequestHandler<CreateStripeQr
             SuccessUrl = _stripeSettings.QRCodeUrl + "/travaloud-payment-confirmation/{CHECKOUT_SESSION_ID}",
             CancelUrl = _stripeSettings.QRCodeUrl + "/order-failed"
         };
+
+        if (booking is {AmountOutstanding: not null})
+        {
+            foreach (var lineItem in options.LineItems)
+            {
+                lineItem.PriceData.UnitAmount = lineItem == options.LineItems.First() ? booking.AmountOutstanding.Value.ConvertToCents() : 0;
+            }
+        }
         
         var existingCustomer = await _stripeService.SearchStripeCustomer(new SearchMultiTenantStripeCustomerRequest(request.GuestEmail!));
             
@@ -132,8 +140,8 @@ internal class CreateStripeQrCodeRequestHandler : IRequestHandler<CreateStripeQr
 
         if (session == null)
             throw new CustomException("Unable to create a Stripe Session");
-
-        await _bookingsService.FlagBookingStripeStatus(new FlagBookingStripeStatusRequest(booking.Id, session.Id));
+                
+        await _bookingsService.FlagBookingStripeStatus(new FlagBookingStripeStatusRequest(booking.Id, session.Id, booking.AmountOutstanding is > 0));
         
         return session.Url;
     }

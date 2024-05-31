@@ -7,7 +7,7 @@ using Travaloud.Application.Catalog.Interfaces;
 using Travaloud.Application.Catalog.Properties.Dto;
 using Travaloud.Application.Cloudbeds;
 using Travaloud.Application.Cloudbeds.Commands;
-using Travaloud.Application.Cloudbeds.Responses;
+using Travaloud.Application.Cloudbeds.Queries;
 using Travaloud.Application.PaymentProcessing;
 using Travaloud.Application.PaymentProcessing.Commands;
 using Travaloud.Infrastructure.Identity;
@@ -20,13 +20,16 @@ public class PaymentConfirmationService : IPaymentConfirmationService
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly ISender _mediator;
 
-    public PaymentConfirmationService(UserManager<ApplicationUser> userManager, ISender mediator)
+    public PaymentConfirmationService(
+        UserManager<ApplicationUser> userManager,
+        ISender mediator)
     {
         _userManager = userManager;
         _mediator = mediator;
     }
 
-    public async Task<CreateBookingRequest> CreateBookingRequest(DefaultIdType guestId, BasketModel basket)
+    public async Task<CreateBookingRequest> CreateBookingRequest(DefaultIdType guestId, BasketModel basket,
+        string stripeSessionId)
     {
         var propertyBookings = basket.Items.Where(x => x.PropertyId.HasValue);
         var tourBookings = basket.Items.Where(x => x.TourId.HasValue);
@@ -45,10 +48,12 @@ public class PaymentConfirmationService : IPaymentConfirmationService
             $"{basket.FirstName} {basket.Surname}",
             basket.Email,
             basket.AdditionalNotes,
-            "Website")
+            "Website"
+        )
         {
             CreatedBy = basket.CreateId,
             Items = new List<CreateBookingItemRequest>(),
+            StripeSessionId = stripeSessionId
         };
 
         foreach (var propertyBooking in basket.Items.Where(x => x.PropertyId.HasValue))
@@ -120,7 +125,8 @@ public class PaymentConfirmationService : IPaymentConfirmationService
                 {
                     Id = tourDate.DateId
                 },
-                GuestQuantity = tourDate.GuestQuantity
+                GuestQuantity = tourDate.GuestQuantity,
+                PickupLocation = tourBooking.PickupLocation
             };
 
             if (tourBooking.Guests != null && tourBooking.Guests.Any())
@@ -148,11 +154,11 @@ public class PaymentConfirmationService : IPaymentConfirmationService
     }
 
     public async Task<bool> ProcessPropertyBookings(
-        BasketModel basket, 
-        BookingDetailsDto booking, 
+        BasketModel basket,
+        BookingDetailsDto booking,
         string cardToken,
         string paymentAuthorizationCode,
-        ITenantWebsiteService tenantWebsiteService, 
+        ITenantWebsiteService tenantWebsiteService,
         ICloudbedsService cloudbedsService,
         IBookingsService bookingsService)
     {
@@ -162,7 +168,7 @@ public class PaymentConfirmationService : IPaymentConfirmationService
 
             if (properties == null)
                 return false;
-            
+
             // Create cloudbeds reservation
             foreach (var basketItem in basket.Items.Where(x => x.PropertyId.HasValue))
             {
@@ -186,11 +192,24 @@ public class PaymentConfirmationService : IPaymentConfirmationService
 
                     reservationId = createReservationResponse.ReservationID;
 
-                    var createReservationPaymentRequest = await cloudbedsService.CreateReservationPayment(
-                        new CreateReservationPaymentRequest(property.CloudbedsPropertyId, reservationId, basketItem.Total, property.CloudbedsApiKey));
+                    //Get reservation on Cloudbeds and check if any balance is to be handled, if so, manually make a payment for it.
+                    var reservation = await _mediator.Send(new GetReservationRequest(
+                        property.CloudbedsPropertyId,
+                        reservationId,
+                        property.CloudbedsApiKey));
 
-                    if (!createReservationPaymentRequest.Success)
-                        return false;
+                    if (reservation is {Success: true, Data.Balance: > 0})
+                    {
+                        var createReservationPaymentRequest = await cloudbedsService.CreateReservationPayment(
+                            new CreateReservationPaymentRequest(property.CloudbedsPropertyId, reservationId,
+                                reservation.Data.Balance, property.CloudbedsApiKey,
+                                "Deducted value of Tours paid on Travaloud."));
+
+                        if (!createReservationPaymentRequest.Success)
+                        {
+                            return false;
+                        }
+                    }
                 }
                 catch (Exception)
                 {
@@ -231,13 +250,13 @@ public class PaymentConfirmationService : IPaymentConfirmationService
 
         return true;
     }
-    
+
     private async Task<DefaultIdType?> CreateGuest(BasketItemGuestModel guest, BasketModel basket)
     {
         DefaultIdType? guestId = null;
 
         var emailToUse = string.IsNullOrEmpty(guest.Email)
-            ? $"{DefaultIdType.NewGuid()}@travaloudguest.com" 
+            ? $"{DefaultIdType.NewGuid()}@travaloudguest.com"
             : guest.Email;
         var existingUser = await _userManager.FindByEmailAsync(emailToUse);
 

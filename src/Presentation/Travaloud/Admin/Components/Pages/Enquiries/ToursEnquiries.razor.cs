@@ -15,17 +15,17 @@ public partial class ToursEnquiries
 {
     [Inject] protected ITourEnquiriesService TourEnquiriesService { get; set; } = default!;
 
-    private EntityServerTableContext<TourEnquiryDto, Guid, UpdateTourEnquiryRequest> Context { get; set; } = default!;
+    private EntityServerTableContext<TourEnquiryDto, DefaultIdType, UpdateTourEnquiryRequest> Context { get; set; } = default!;
 
     protected TourDto Tour { get; set; } = default!;
 
     private EditContext? EditContext { get; set; }
 
-    private EntityTable<TourEnquiryDto, Guid, UpdateTourEnquiryRequest> _table = default!;
+    private EntityTable<TourEnquiryDto, DefaultIdType, UpdateTourEnquiryRequest> _table = default!;
     
     protected override void OnInitialized()
     {
-        Context = new EntityServerTableContext<TourEnquiryDto, Guid, UpdateTourEnquiryRequest>(
+        Context = new EntityServerTableContext<TourEnquiryDto, DefaultIdType, UpdateTourEnquiryRequest>(
             entityName: L["Tour Enquiry"],
             entityNamePlural: L["Tour Enquiries"],
             entityResource: TravaloudResource.Enquiries,

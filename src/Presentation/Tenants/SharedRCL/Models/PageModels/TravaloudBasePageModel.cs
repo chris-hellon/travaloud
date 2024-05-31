@@ -212,6 +212,11 @@ public class TravaloudBasePageModel : PageModel
     /// An array of Tenant Tours
     /// </summary>
     public IEnumerable<TourDto>? Tours { get; private set; }
+    
+    /// <summary>
+    /// An array of Tenant Hidden Tours
+    /// </summary>
+    public IEnumerable<TourDto>? AllTours { get; private set; }
 
     /// <summary>
     /// An array of Tenant Destinations
@@ -563,10 +568,11 @@ public class TravaloudBasePageModel : PageModel
         await Task.WhenAll(propertiesTask, toursTask, servicesTask, destinationsTask);
         
         Properties = propertiesTask.Result;
-        Tours = toursTask.Result;
+        Tours = toursTask.Result.Where(x => x.PublishToSite.HasValue && x.PublishToSite.Value);
+        AllTours = toursTask.Result;
         Services = servicesTask.Result;
         Destinations = destinationsTask.Result;
-
+    
         if (TenantId != "fuse")
         {
             var toursWithCategoriesTask = TenantWebsiteService.GetToursWithCategories(TenantId, cancellationToken);
@@ -630,7 +636,7 @@ public class TravaloudBasePageModel : PageModel
     private NavigationLinkModel[] GetTourCategoriesNavigation()
     {
         var parentTourWithCategories = ToursWithCategories?.Where(x =>
-            !x.CategoryId.HasValue && !x.ParentTourCategoryId.HasValue && !x.GroupParentCategoryId.HasValue);
+            !x.TourCategoryId.HasValue && !x.ParentTourCategoryId.HasValue && !x.GroupParentCategoryId.HasValue);
 
         return parentTourWithCategories?.Select(ConvertTourToNavigationLinkModel).ToArray() ??
                Array.Empty<NavigationLinkModel>();
@@ -656,11 +662,11 @@ public class TravaloudBasePageModel : PageModel
 
         // Get child tours with matching CategoryId
         var childTours = ToursWithCategories?.Where(t =>
-                t.CategoryId == tour.Id || t.ParentTourCategoryId == tour.Id || t.GroupParentCategoryId == tour.Id)
+                t.TourCategoryId == tour.Id || t.ParentTourCategoryId == tour.Id || t.GroupParentCategoryId == tour.Id)
             .ToList();
 
         if (DestinationsWithCategories != null && DestinationsWithCategories.Any())
-            childTours?.AddRange(DestinationsWithCategories.Where(t => t.CategoryId == tour.Id).ToList());
+            childTours?.AddRange(DestinationsWithCategories.Where(t => t.TourCategoryId == tour.Id).ToList());
 
         // If there are child tours, recursively convert each one to a NavigationLinkModel and add to the Children array
         if (childTours is {Count: 0}) return navigationLinkModel;
@@ -712,7 +718,7 @@ public class TravaloudBasePageModel : PageModel
             {
                 var categoriesWithinCategory = ToursWithCategories.Where(t =>
                     t.ParentTourCategoryId.HasValue && t.ParentTourCategoryId.Value == x.Id);
-                var toursWithinCategory = ToursWithCategories.Where(t => t.CategoryId == x.Id);
+                var toursWithinCategory = ToursWithCategories.Where(t => t.TourCategoryId == x.Id);
 
                 if (!toursWithinCategory.Any() && !categoriesWithinCategory.Any()) return x;
                 {
@@ -728,7 +734,7 @@ public class TravaloudBasePageModel : PageModel
                     {
                         var categoryIds = categoriesWithinCategory.Select(x => x.Id).ToList();
                         var categoryTours = ToursWithCategories.Where(t =>
-                            t.CategoryId.HasValue && categoryIds.Contains(t.CategoryId.Value));
+                            t.TourCategoryId.HasValue && categoryIds.Contains(t.TourCategoryId.Value));
 
                         if (categoryTours.Any())
                             tourIds.AddRange(categoryTours.Select(t => t.Id));

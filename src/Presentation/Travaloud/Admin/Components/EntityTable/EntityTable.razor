@@ -22,7 +22,7 @@
 
             <MudExpansionPanel @bind-IsExpanded="_advancedSearchExpanded"
                                Style="padding:10px!important; margin-bottom:10px!important;border-radius: var(--mud-default-borderradius) !important;"
-                               Class="@searchClass" Text="@L["Advanced Search"]" Dense="@(Elevation == 0)">
+                               Class="@searchClass" Text="@L["Advanced Search"]" Dense="@(Elevation == 0 || Dense)">
                 <MudTextField @bind-Value="SearchString" Immediate="true"
                               Placeholder="@($"{L["Search for"]} {Context.EntityNamePlural}")" Adornment="Adornment.Start"
                               AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium"
@@ -46,7 +46,8 @@
         }
 
         <MudTable @ref="_table" Elevation="@Elevation" ServerData="@ServerReloadFunc" Items="@EntityList" Filter="LocalSearch"
-                  Loading="@Loading" LoadingProgressColor="@Color.Secondary" ChildRowContent="@ChildRowContent" Class="mb-0">
+                  Loading="@Loading" LoadingProgressColor="@Color.Secondary" ChildRowContent="@ChildRowContent" Class="mb-0"
+                  Dense="@Dense">
 
             <ToolBarContent>
                 <div class="justify-center mud-text-align-center">
@@ -111,8 +112,11 @@
                         </MudTh>
                     }
                 }
-                
-                <MudTh Style="text-align:right">@L["Actions"]</MudTh>
+
+                @if (!HideActionsColumn)
+                {
+                    <MudTh Style="text-align:right">@L["Actions"]</MudTh>
+                }
             </HeaderContent>
 
             <RowTemplate>
@@ -137,9 +141,9 @@
                                 {
                                     var colorValue = color.Value;
                                     var style = $"color:{colorValue};";
-                                    
+
                                     <MudText Style="@style">
-                                         <MudHighlighter Text="@field.ValueFunc(context)?.ToString()" Style="@style" HighlightedText="@SearchString"/>
+                                        <MudHighlighter Text="@field.ValueFunc(context)?.ToString()" Style="@style" HighlightedText="@SearchString"/>
                                     </MudText>
                                 }
                                 else
@@ -147,77 +151,81 @@
                                     <MudHighlighter Text="@field.ValueFunc(context)?.ToString()" HighlightedText="@SearchString"/>
                                 }
                             }
-                            else {
+                            else
+                            {
                                 <MudHighlighter Text="@field.ValueFunc(context)?.ToString()" HighlightedText="@SearchString"/>
                             }
                         }
                     </MudTd>
                 }
-                
+
                 @{
                     var tdWith = ExtraActions != null ? "text-align: right; width: 310px;" : "text-align: right; ";
                 }
-                <MudTd DataLabel="Actions" Style="@tdWith">
-                    @if (ActionsContent is not null && !HasActions)
-                    {
-                        @ActionsContent(context)
-                    }
-
-                    @if (HasActions)
-                    {
-                        if (ActionsContent is not null)
+                @if (!HideActionsColumn)
+                {
+                    <MudTd DataLabel="Actions" Style="@tdWith">
+                        @if (ActionsContent is not null && !HasActions)
                         {
                             @ActionsContent(context)
                         }
 
-                        var canEditEntity = CanUpdateEntity(context);
-                        var canDeleteEntity = CanDeleteEntity(context);
-                        var canViewEntity = CanViewEntity(context);
-                        var hasExtraActions = ExtraActions is not null;
+                        @if (HasActions)
+                        {
+                            if (ActionsContent is not null)
+                            {
+                                @ActionsContent(context)
+                            }
 
-                        if (canEditEntity || canDeleteEntity || canViewEntity || hasExtraActions)
+                            var canEditEntity = CanUpdateEntity(context);
+                            var canDeleteEntity = CanDeleteEntity(context);
+                            var canViewEntity = CanViewEntity(context);
+                            var hasExtraActions = ExtraActions is not null;
+
+                            if (canEditEntity || canDeleteEntity || canViewEntity || hasExtraActions && !HideActionsColumn)
+                            {
+                                <MudMenu Label="@L["Actions"]" Variant="Variant.Filled" DisableElevation="true"
+                                         EndIcon="@Icons.Material.Filled.KeyboardArrowDown" IconColor="Color.Info" Direction="Direction.Left"
+                                         OffsetX="true">
+                                    @if (canEditEntity)
+                                    {
+                                        if (LoadEditPage(context))
+                                        {
+                                            <MudMenuItem @onclick="@(() => InvokeEditPage(context))">@L["Edit"]</MudMenuItem>
+                                        }
+                                        else
+                                        {
+                                            <MudMenuItem @onclick="@(() => InvokeModal(context))">@L["Edit"]</MudMenuItem>
+                                        }
+                                    }
+                                    else if (canViewEntity)
+                                    {
+                                        <MudMenuItem @onclick="@(() => InvokeModal(context))">@L["View"]</MudMenuItem>
+                                    }
+                                    @if (canDeleteEntity)
+                                    {
+                                        <MudMenuItem Style="color:red!important" @onclick="@(() => Delete(context))">@L["Delete"]</MudMenuItem>
+                                    }
+                                    @if (ExtraActions is not null)
+                                    {
+                                        @ExtraActions(context)
+                                    }
+                                </MudMenu>
+                            }
+                        }
+                        else if (HasExtraActions && !HideActionsColumn)
                         {
                             <MudMenu Label="@L["Actions"]" Variant="Variant.Filled" DisableElevation="true"
                                      EndIcon="@Icons.Material.Filled.KeyboardArrowDown" IconColor="Color.Info" Direction="Direction.Left"
                                      OffsetX="true">
-                                @if (canEditEntity)
-                                {
-                                    if (LoadEditPage(context))
-                                    {
-                                        <MudMenuItem @onclick="@(() => InvokeEditPage(context))">@L["Edit"]</MudMenuItem>
-                                    }
-                                    else
-                                    {
-                                        <MudMenuItem @onclick="@(() => InvokeModal(context))">@L["Edit"]</MudMenuItem>
-                                    }
-                                }
-                                else if (canViewEntity)
-                                {
-                                    <MudMenuItem @onclick="@(() => InvokeModal(context))">@L["View"]</MudMenuItem>
-                                }
-                                @if (canDeleteEntity)
-                                {
-                                    <MudMenuItem Style="color:red!important" @onclick="@(() => Delete(context))">@L["Delete"]</MudMenuItem>
-                                }
                                 @if (ExtraActions is not null)
                                 {
                                     @ExtraActions(context)
                                 }
                             </MudMenu>
                         }
-                    }
-                    else if (HasExtraActions)
-                    {
-                        <MudMenu Label="@L["Actions"]" Variant="Variant.Filled" DisableElevation="true"
-                                 EndIcon="@Icons.Material.Filled.KeyboardArrowDown" IconColor="Color.Info" Direction="Direction.Left"
-                                 OffsetX="true">
-                            @if (ExtraActions is not null)
-                            {
-                                @ExtraActions(context)
-                            }
-                        </MudMenu>
-                    }
-                </MudTd>
+                    </MudTd>
+                }
             </RowTemplate>
 
             <PagerContent>

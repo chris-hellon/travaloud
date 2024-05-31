@@ -8,7 +8,7 @@
 
 <TravaloudPageTitle Title="@L["Pages"]" Description="@L["Manage Pages."]"/>
 
-<EntityTable @ref="_table" TEntity="PageDto" TId="Guid" TRequest="UpdatePageRequest" Context="@Context" ModalWidth="MaxWidth.Medium">
+<EntityTable @ref="_table" TEntity="PageDto" TId="DefaultIdType" TRequest="UpdatePageRequest" Context="@Context" ModalWidth="MaxWidth.Medium">
     <EditFormContent>
         <MudGrid>
             @if (context.Title.Contains("Tours - ") || context.Title.Contains("Hostels - "))

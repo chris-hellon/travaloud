@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Travaloud.Application.Identity.Users;
 using Travaloud.Domain.Catalog.Pages;
 using Travaloud.Domain.Catalog.Tours;
 using Travaloud.Domain.Common.Events;
@@ -36,7 +37,9 @@ public class CreateTourRequest : IRequest<DefaultIdType>
     public string? BookingConfirmationEmailDetails { get; set; }
     public string? TermsAndConditions { get; set; }
     public string? CancellationPolicy { get; set; }
-
+    public string? SupplierEmailText { get; set; }
+    public string? SupplierId { get; set; }
+    
     [Display(Name = "Url Slug")] public string? UrlSlug { get; set; }
 
     [Display(Name = "H1 Tag")] public string? H1 { get; set; }
@@ -47,9 +50,6 @@ public class CreateTourRequest : IRequest<DefaultIdType>
     public FileUploadRequest? Video { get; set; }
     public FileUploadRequest? MobileVideo { get; set; }
     public DefaultIdType? TourCategoryId { get; set; }
-    public string? SelectedParentTourCategoriesString { get; set; }
-    public List<DefaultIdType>? SelectedParentTourCategories { get; set; }
-
     [Display(Name = "Pricing")] public IList<TourPriceRequest>? TourPrices { get; set; }
 
     [Display(Name = "Dates")] public IList<TourDateRequest>? TourDates { get; set; }
@@ -59,14 +59,15 @@ public class CreateTourRequest : IRequest<DefaultIdType>
     [Display(Name = "Pick Up Locations")]
     public IEnumerable<TourPickupLocationRequest>? TourPickupLocations { get; set; }
     
-    public IList<TourCategoryLookupRequest>? TourCategoryLookups { get; set; }
-    public IList<TourCategoryRequest>? TourCategories { get; set; }
+    public IEnumerable<TourPickupLocationRequest>? SelectedPickupLocations = [];
     public IList<TourCategoryRequest>? ParentTourCategories { get; set; }
     public IEnumerable<TourDestinationLookupRequest>? TourDestinationLookups { get; set; }
     public IList<TourImageRequest>? Images { get; set; }
+    public IEnumerable<TourDestinationLookupRequest>? SelectedDestinations = [];
 
     public bool? PublishToSite { get; set; }
     public bool? AdditionalGuestDetailsRequired { get; set; }
+    public bool? WaiverRequired { get; set; }
 }
 
 public class CreateTourRequestHandler : IRequestHandler<CreateTourRequest, DefaultIdType>
@@ -75,22 +76,34 @@ public class CreateTourRequestHandler : IRequestHandler<CreateTourRequest, Defau
     private readonly IRepositoryFactory<Page> _pageRepository;
     private readonly IFileStorageService _file;
     private readonly ICurrentUser _currentUser;
+    private readonly IUserService _userService;
 
-    public CreateTourRequestHandler(IRepositoryFactory<Tour> repository, IFileStorageService file,
-        IRepositoryFactory<Page> pageRepository, ICurrentUser currentUser)
+    public CreateTourRequestHandler(
+        IRepositoryFactory<Tour> repository, 
+        IFileStorageService file,
+        IRepositoryFactory<Page> pageRepository, 
+        ICurrentUser currentUser, 
+        IUserService userService)
     {
         _repository = repository;
         _file = file;
         _pageRepository = pageRepository;
         _currentUser = currentUser;
+        _userService = userService;
     }
 
     public async Task<DefaultIdType> Handle(CreateTourRequest request, CancellationToken cancellationToken)
     {
-        var tourImagePath = await _file.UploadAsync<Tour>(request.Image, FileType.Image, cancellationToken);
+        var tourImagePath = request.Image != null
+            ? await _file.UploadAsync<Tour>(request.Image,
+                FileType.Image,
+                cancellationToken)
+            : string.Empty;
+        
         var videoPath = request.Video != null
             ? await _file.UploadAsync<Tour>(request.Video, FileType.Video, cancellationToken)
             : string.Empty;
+        
         var mobileVideoPath = request.MobileVideo != null
             ? await _file.UploadAsync<Tour>(request.MobileVideo, FileType.Video, cancellationToken)
             : string.Empty;
@@ -126,23 +139,37 @@ public class CreateTourRequestHandler : IRequestHandler<CreateTourRequest, Defau
             request.BookingConfirmationEmailDetails,
             request.TermsAndConditions,
             request.CancellationPolicy,
-            request.AdditionalGuestDetailsRequired);
+            request.AdditionalGuestDetailsRequired,
+            request.WaiverRequired,
+            request.SupplierId,
+            request.SupplierEmailText,
+            request.TourCategoryId);
 
         tour.ProcessTourPricesAndDates(request.TourPrices, request.TourDates, request.MaxCapacity ?? 99999,
             tour.MaxCapacity, userId);
-        tour.ProcessTourCategories(request.TourCategoryId, request.SelectedParentTourCategories,
-            request.TourCategoryLookups, userId);
-        tour.ProcessTourDestinations(request.TourDestinationLookups, userId);
-        tour.ProcessTourPickupLocations(request.TourPickupLocations, userId);
+        // tour.ProcessTourCategories(request.TourCategoryId, request.SelectedParentTourCategories,
+        //     request.TourCategoryLookups, userId);
+        tour.ProcessTourDestinations(request.SelectedDestinations, userId);
+        tour.ProcessTourPickupLocations(request.SelectedPickupLocations, userId);
 
         await tour.ProcessTourItineraries(request.TourItineraries, userId, _file, cancellationToken);
         await tour.ProcessImages(request.Images, userId, _file, cancellationToken);
-
+        
         // Add Domain Events to be raised after the commit
         tour.DomainEvents.Add(EntityCreatedEvent.WithEntity(tour));
 
         await _repository.AddAsync(tour, cancellationToken);
 
+        if (!string.IsNullOrEmpty(request.SupplierId))
+        {
+            await _userService.CreateClaimAsync(new CreateUserClaimRequest()
+            {
+                UserId = request.SupplierId,
+                ClaimType = "SupplierTour",
+                ClaimValue = tour.Id.ToString()
+            }, request.SupplierId);
+        }
+        
         var page = new Page($"Tours - {request.Name}", request.MetaKeywords, request.MetaDescription, tourImagePath);
 
         page.DomainEvents.Add(EntityCreatedEvent.WithEntity(page));

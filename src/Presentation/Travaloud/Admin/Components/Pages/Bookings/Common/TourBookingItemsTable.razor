@@ -1,4 +1,8 @@
+@using Microsoft.IdentityModel.Tokens
+@using Org.BouncyCastle.Ocsp
 @using Travaloud.Application.Catalog.Bookings.Dto
+@using Travaloud.Application.Common.Extensions
+@using Travaloud.Application.Identity.Users
 
 @inject IStringLocalizer<TourBookingEditForm> L
 
@@ -15,19 +19,29 @@
                             {
                                 <MudAlert Severity="Severity.Info" Class="mb-3">@L["Notes"] : <strong>@RequestModel.AdditionalNotes</strong></MudAlert>
                             }
+                            
+                            @if (RequestModel.AmountOutstanding.HasValue && RequestModel.AmountOutstanding.Value > 0)
+                            {
+                                <MudAlert Severity="Severity.Warning" Class="mb-3">@L["Amount Outstanding"] : <strong>@($"$ {RequestModel.AmountOutstanding:n2}")</strong></MudAlert>
+                            }
+                         
                             <MudAlert Icon="@Icons.Material.Filled.Person" Severity="Severity.Success" Class="mb-3">
-                                @L["Booked By"] : <strong>@RequestModel.StaffName</strong>
+                                @L["Booked By"] : <strong>@(RequestModel.GuestId == RequestModel.CreatedBy.ToString() || RequestModel.StaffName.IsNullOrEmpty() ? "Direct from Website" : RequestModel.StaffName)</strong>
                                 @if (!string.IsNullOrEmpty(RequestModel.BookingSource))
                                 {
-                                    <br/> @((MarkupString) $"{L["Booking Source"]} : <strong>{@RequestModel.BookingSource}</strong>")
+                                    <br/>
+                                    @((MarkupString) $"{L["Booking Source"]} : <strong>{@RequestModel.BookingSource}</strong>")
                                 }
                             </MudAlert>
-                            <MudAlert Severity="Severity.Normal">@L["Items for Booking"] : <strong>@RequestModel.Description</strong></MudAlert>
+                            <MudAlert Icon="@Icons.Material.Filled.PersonOutline" Severity="Severity.Normal" Class="mb-3">@L["Primary Guest"] : <strong>@GetUserDetailsLabel(RequestModel.PrimaryGuest)</strong></MudAlert>
+                            @* <MudAlert Severity="Severity.Normal">@L["Items for Booking"] : <strong>@RequestModel.Description</strong></MudAlert> *@
                         </CardHeaderContent>
                     </MudCardHeader>
                     <MudCardContent>
                         <MudTable Items="@RequestModel.Items.Where(x => x.TourId.HasValue)" Context="ItemContext" Hover="true" Breakpoint="Breakpoint.Sm" Elevation="0">
                             <ColGroup>
+                                <col/>
+                                <col/>
                                 <col/>
                                 <col/>
                                 <col/>
@@ -42,8 +56,10 @@
                                 <MudTh>Start Date</MudTh>
                                 <MudTh>End Date</MudTh>
                                 <MudTh>Pick Up Location</MudTh>
-                                <MudTh>Price</MudTh>
+                                <MudTh Style="width:90px;">Price</MudTh>
                                 <MudTh>Total Price</MudTh>
+                                <MudTh>Waiver Signed</MudTh>
+                                @* <MudTh></MudTh> *@
                             </HeaderContent>
                             <RowTemplate>
                                 <MudTd DataLabel="Tour">@ItemContext.Tour?.Name</MudTd>
@@ -53,7 +69,48 @@
                                 <MudTd DataLabel="End Date">@ItemContext.PickupLocation</MudTd>
                                 <MudTd DataLabel="Price">@($"$ {string.Format("{0:n2}", ItemContext.Amount)}")</MudTd>
                                 <MudTd DataLabel="Total Price">@($"$ {string.Format("{0:n2}", ItemContext.TotalAmount)}")</MudTd>
+                                <MudTd DataLabel="Waiver Signed">@(ItemContext.WaiverSigned.HasValue && ItemContext.WaiverSigned.Value ? "Yes" : "No")</MudTd>
+                                <MudTd DataLabel="Actions" Style="@(ItemContext.Guests.Count > 0 ? "width:195px;" : "")">
+                                    @if (ItemContext.Guests.Count > 0)
+                                    {
+                                        <MudButton Variant="Variant.Filled" OnClick="@(() => ShowBookingItemGuests(ItemContext))" DisableElevation="true" Style="margin-right:10px; margin-top:-4px;" EndIcon="@Icons.Material.Filled.KeyboardArrowDown" IconColor="Color.Info">
+                                            @((ItemContext.ShowGuestDetails) ? L["Hide"] : L["Show"]) @L["Guests"]
+                                        </MudButton>
+                                    }
+                                </MudTd>
                             </RowTemplate>
+                            <ChildRowContent>
+                                @if (ItemContext.ShowGuestDetails)
+                                {
+                                    <MudTr>
+                                        <td colspan="5">
+                                            <MudTable Items="@ItemContext.Guests" Context="GuestContext" Hover="true" Breakpoint="Breakpoint.Sm" Elevation="0">
+                                                <ColGroup>
+                                                    <col/>
+                                                    <col/>
+                                                    <col/>
+                                                    <col/>
+                                                    <col/>
+                                                </ColGroup>
+                                                <HeaderContent>
+                                                    <MudTh>Guest Name</MudTh>
+                                                    <MudTh>Date of Birth</MudTh>
+                                                    <MudTh>Nationality</MudTh>
+                                                    <MudTh>Gender</MudTh>
+                                                    <MudTh>Email</MudTh>
+                                                </HeaderContent>
+                                                <RowTemplate>
+                                                    <MudTd DataLabel="Guest Name">@GuestContext.FullName</MudTd>
+                                                    <MudTd DataLabel="Date of Birth">@(GuestContext.DateOfBirth.HasValue ? GuestContext.DateOfBirth.Value.ToShortDateString() : "-")</MudTd>
+                                                    <MudTd DataLabel="Nationality">@GuestContext.Nationality?.TwoLetterCodeToCountry()</MudTd>
+                                                    <MudTd DataLabel="Gender">@GuestContext.Gender?.GenderMatch()</MudTd>
+                                                    <MudTd DataLabel="Email">@GuestContext.Email</MudTd>
+                                                </RowTemplate>
+                                            </MudTable>
+                                        </td>
+                                    </MudTr>
+                                }
+                            </ChildRowContent>
                         </MudTable>
 
                         @if (RequestModel.Items.Any(x => x.PropertyId.HasValue))
@@ -141,7 +198,7 @@
 @code {
     [Parameter] public required BookingDto RequestModel { get; set; }
 
-    [Parameter] public EntityServerTableContext<BookingDto, Guid, TourBookingViewModel> Context { get; set; }
+    [Parameter] public EntityServerTableContext<BookingDto, DefaultIdType, TourBookingViewModel> Context { get; set; }
 
     private static void ShowBookingItemRooms(BookingItemDetailsDto request, BookingDto bookingItem)
     {
@@ -153,5 +210,35 @@
         }
     }
 
-}
+    private static void ShowBookingItemGuests(BookingItemDetailsDto request)
+    {
+        request.ShowGuestDetails = !request.ShowGuestDetails;
+    }
 
+    private string GetUserDetailsLabel(UserDto e)
+    {
+        var details = new List<string>
+        {
+            $"{e.FirstName} {e.LastName}"
+        };
+
+        if (e.DateOfBirth.HasValue)
+        {
+            details.Add(e.DateOfBirth.Value.ToShortDateString());
+        }
+
+        if (!string.IsNullOrEmpty(e.Gender))
+        {
+            details.Add(e.Gender.GenderMatch());
+        }
+
+        if (!string.IsNullOrEmpty(e.Nationality))
+        {
+            details.Add(e.Nationality.TwoLetterCodeToCountry());
+        }
+
+        if (e.Email != null) details.Add(e.Email);
+
+        return string.Join(" - ", details);
+    }
+}

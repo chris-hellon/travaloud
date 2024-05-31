@@ -72,7 +72,6 @@ $('.js-tour-date-select').on('change', function () {
 
             if (startDate.getDate() === tourDateFormatted.getDate())
             {
-                console.log(v);
                 let tourDateTimeParsed = moment(startDate).format('HH:mm');
                 tourPriceSelect.append('<option data-start-date="' + v.StartDate + '" data-tour-price="' + v.TourPrice.Price + '" data-max-guests="' + v.AvailableSpaces + '" value="' + v.Id + '">' + tourDateTimeParsed + '</option>')
             }
@@ -89,9 +88,7 @@ $('.js-tour-time-select').on('change', function () {
     let tourPrice = $(this).find('option:selected').data('tour-price');
     let startDate = $(this).find('option:selected').data('start-date');
     let tourDatesParsed = $('.js-tour-date-select[data-tour-id=' + tourId + ']').data('tour-dates');
-    
-    alert(startDate);
-    
+
     let guestQuantityControl = $('.js-tour-guest-quantity-select[data-tour-id=' + tourId + ']');
     let tourName = guestQuantityControl.data('tour-name');
     let tourImageUrl = guestQuantityControl.data('tour-image-url');
@@ -103,10 +100,12 @@ $('.js-tour-time-select').on('change', function () {
 });
 
 const addTourToBasket = (tourId, tourName, tourImageUrl, tourDateId, guestQuantity, tourPrice, startDate) => {
-    let request = new BasketItemDateModel(tourDateId, tourId, tourName, tourImageUrl, guestQuantity, tourPrice, new Date(startDate));
+    let localDate = new Date(startDate);
+    let timezoneOffset = localDate.getTimezoneOffset() * 60000;
+    let gmtDate = new Date(localDate.getTime() - timezoneOffset);
 
-    console.log(request);
-    
+    let request = new BasketItemDateModel(tourDateId, tourId, tourName, tourImageUrl, guestQuantity, tourPrice, gmtDate);
+
     doPost({
         url : "AddTourDateToBasket",
         formData: request,
@@ -118,27 +117,6 @@ const addTourToBasket = (tourId, tourName, tourImageUrl, tourDateId, guestQuanti
             $('.basketItemsNavQuantity').html(itemsCount).removeClass('d-none');
             $('#basketTotal').html('$ ' + basket.total.toFixed(2));
             $('#selectionTotal').html('$ ' + item.total.toFixed(2));
-
-            // let proceedToCheckoutButton = $('.proceed-to-checkout-button');
-            // let addToBasketButton = $('.add-tour-to-basket-button');
-            //
-            // if (addToBasketButton.html() !== 'Update Basket')
-            // {
-            //     let guestQuantityControl = $('#GuestQuantity');
-            //     guestQuantityControl.parent().find('.form-helper').html('Select a Date');
-            //
-            //     $('#TourDate, #TourDateStartTime').val('').removeClass('active');
-            //     $('#TourDate').prop('disabled', false);
-            //     guestQuantityControl.val('').prop('disabled', true).removeClass('active');
-            //     $('#TourDateStartTime').html('<option value="" hidden></option>').val('').prop('disabled', true);
-            // }
-            //
-            // addToBasketButton.prop('disabled', true);
-            // proceedToCheckoutButton.prop('disabled', false);
-            // proceedToCheckoutButton.on('click', function() {
-            //     showLoader();
-            //     window.location.href = "/checkout";
-            // })
         }
     });
 }

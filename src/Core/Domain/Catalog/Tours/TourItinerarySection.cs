@@ -34,8 +34,8 @@ public class TourItinerarySection : AuditableEntity, IAggregateRoot
     {
         if (subTitle is not null && SubTitle?.Equals(subTitle) is not true) SubTitle = subTitle;
         if (title is not null && Title?.Equals(title) is not true) Title = title;
-        if (description is not null && Description?.Equals(description) is not true) Description = description;
-        if (highlights is not null && Highlights?.Equals(highlights) is not true) Highlights = highlights;
+        if (description is not null && Description?.Equals(description) is not true) Description = description.FormatTextEditorString();;
+        if (highlights is not null && Highlights?.Equals(highlights) is not true) Highlights = highlights.FormatTextEditorString();;
         if (tourItineraryId.HasValue && tourItineraryId.Value != DefaultIdType.Empty && !TourItineraryId.Equals(tourItineraryId.Value)) TourItineraryId = tourItineraryId.Value;
         if (images != null && Images?.SequenceEqual(images) == false) Images = images;
 

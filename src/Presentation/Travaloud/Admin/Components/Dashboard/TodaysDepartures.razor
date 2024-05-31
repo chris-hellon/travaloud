@@ -1,0 +1,262 @@
+@using Mapster
+@using Travaloud.Application.Catalog.Bookings.Commands
+@using Travaloud.Application.Catalog.Bookings.Dto
+@using Travaloud.Application.Catalog.Interfaces
+@using Travaloud.Application.Catalog.Tours.Dto
+@using Travaloud.Application.Catalog.Tours.Queries
+@using Travaloud.Application.Dashboard
+@using Travaloud.Application.Identity.Users
+
+@inject IStringLocalizer<TodaysDepartures> L
+
+@attribute [StreamRendering]
+
+<MudItem xs="12" sm="12">
+    <MudCard Elevation="25" Class="h-100">
+        <MudCardHeader>
+            <CardHeaderContent>
+                <MudText Typo="Typo.h4">Departures</MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+        <MudCardContent>
+            <MudTabs Elevation="0" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6" SliderColor="Color.Secondary">
+                <MudTabPanel Text="Today">
+                    @if (TodaysDeparturesContext != null)
+                    {
+                        <EntityTable @ref="@TodaysDeparturesTable" TEntity="BookingExportDto" TId="DefaultIdType" TRequest="BookingExportDto" Context="@TodaysDeparturesContext" Dense="true" ModalWidth="MaxWidth.Large" Elevation="0" HideActionsColumn="true">
+                            <AdvancedSearchContent>
+                                @if (Tours is {Count: > 0})
+                                {
+                                    <MudSelect T="DefaultIdType?" @bind-Value="SearchTourId" Label="Filter by Tour" Clearable="true">
+                                        @foreach (var tour in Tours)
+                                        {
+                                            <MudSelectItem T="DefaultIdType?" Value="tour.Id">@tour.Name</MudSelectItem>
+                                        }
+                                    </MudSelect>
+                                }
+                            </AdvancedSearchContent>
+                        </EntityTable>
+                    }
+                    else
+                    {
+                        <MudSkeleton Height="500px" SkeletonType="SkeletonType.Rectangle"/>
+                    }
+                </MudTabPanel>
+                <MudTabPanel Text="Tomorrow">
+                    @if (TomorrowsDeparturesContext != null)
+                    {
+                        <EntityTable @ref="@TomorrowsDeparturesTable" TEntity="BookingExportDto" TId="DefaultIdType" TRequest="BookingExportDto" Context="@TomorrowsDeparturesContext" Dense="true" ModalWidth="MaxWidth.Large" Elevation="0" HideActionsColumn="true">
+                            <AdvancedSearchContent>
+                                @if (Tours is {Count: > 0})
+                                {
+                                    <MudSelect T="DefaultIdType?" @bind-Value="SearchTomorrowTourId" Label="Filter by Tour" Clearable="true">
+                                        @foreach (var tour in Tours)
+                                        {
+                                            <MudSelectItem T="DefaultIdType?" Value="tour.Id">@tour.Name</MudSelectItem>
+                                        }
+                                    </MudSelect>
+                                }
+                            </AdvancedSearchContent>
+                        </EntityTable>
+                    }
+                    else
+                    {
+                        <MudSkeleton Height="500px" SkeletonType="SkeletonType.Rectangle"/>
+                    }
+                </MudTabPanel>
+            </MudTabs>
+
+
+        </MudCardContent>
+    </MudCard>
+</MudItem>
+
+@code {
+    [Parameter] public required EntityTable<BookingExportDto, DefaultIdType, BookingExportDto> TodaysDeparturesTable { get; set; }
+    [Parameter] public required EntityTable<BookingExportDto, DefaultIdType, BookingExportDto> TomorrowsDeparturesTable { get; set; }
+
+    [CascadingParameter] private MudTheme? CurrentTheme { get; set; }
+    [CascadingParameter] private TravaloudTenantInfo? TenantInfo { get; set; }
+    
+    [Inject] private IDashboardService DashboardService { get; set; } = default!;
+    [Inject] private IBookingsService BookingsService { get; set; } = default!;
+    [Inject] private IToursService ToursService { get; set; } = default!;
+    [Inject] private IUserService UserService { get; set; } = default!;
+    
+    [Parameter]
+    public EventCallback<int> OnTodayTourDeparturesCountSet { get; set; }
+    
+    private EntityServerTableContext<BookingExportDto, DefaultIdType, BookingExportDto> TodaysDeparturesContext { get; set; }
+    private EntityServerTableContext<BookingExportDto, DefaultIdType, BookingExportDto> TomorrowsDeparturesContext { get; set; }
+    private ICollection<TourDto> Tours { get; set; } = new List<TourDto>();
+    private List<UserDetailsDto>? Guests { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        var toursTask = Task.Run(() => ToursService.SearchAsync(new SearchToursRequest {PageNumber = 1, PageSize = 99999}));
+        var guestsTask = Task.Run(() => UserService.SearchByDapperAsync(new SearchByDapperRequest()
+        {
+            PageNumber = 1,
+            PageSize = int.MaxValue,
+            TenantId = TenantInfo?.Id!,
+            Role = TravaloudRoles.Guest
+        }, CancellationToken.None));
+
+        Tours = toursTask.Result.Data;
+        Guests = guestsTask.Result.Data;
+    }
+
+    protected override void OnInitialized()
+    {
+        TodaysDeparturesContext = new EntityServerTableContext<BookingExportDto, DefaultIdType, BookingExportDto>(
+            entityName: L["Booking"],
+            entityNamePlural: L["Bookings"],
+            entityResource: TravaloudResource.Bookings,
+            fields:
+            [
+                new EntityField<BookingExportDto>(booking => booking.BookingInvoiceId, L["Reference"],
+                    "BookingInvoiceId"),
+                new EntityField<BookingExportDto>(booking => booking.TourName, L["Tour"], "TourName"),
+                new EntityField<BookingExportDto>(booking => booking.GuestName, L["Guest"], "GuestName"),
+                new EntityField<BookingExportDto>(booking => booking.StartDate.TimeOfDay, L["Start Time"], "StartDate"),
+                new EntityField<BookingExportDto>(booking => booking.EndDate.TimeOfDay, L["End Time"], "EndDate"),
+                new EntityField<BookingExportDto>(booking => booking.BookingIsPaid ? "Paid" : booking.BookingRefunded.HasValue && booking.BookingRefunded.Value ? "Refunded" : "Unpaid", L["Status"], "IsPaid",
+                    Color: booking => !booking.BookingIsPaid && (!booking.BookingRefunded.HasValue || !booking.BookingRefunded.Value) ? CurrentTheme?.Palette.Error : null),
+                new EntityField<BookingExportDto>(booking => booking.WaiverSigned, L["Waiver Signed"], "BookingWaiverSigned"),
+            ],
+            enableAdvancedSearch: false,
+            createAction: string.Empty,
+            deleteAction: string.Empty,
+            updateAction: string.Empty,
+            viewAction: string.Empty,
+            searchFunc: async (filter) =>
+            {
+                var adaptedFilter = filter.Adapt<GetBookingItemsByDateRequest>();
+                adaptedFilter.Guests = Guests;
+                adaptedFilter.TourStartDate = DateTime.Now;
+                adaptedFilter.TourEndDate = DateTime.Now;
+                adaptedFilter.TourId = SearchTourId;
+                adaptedFilter.Description = SearchDescription;
+
+                var todaysTours = await DashboardService.GetTourBookingItemsByDateAsync(
+                    adaptedFilter);
+
+                await OnTodayTourDeparturesCountSet.InvokeAsync(todaysTours.TotalCount);
+                
+                return todaysTours.Adapt<PaginationResponse<BookingExportDto>>();
+            },
+            exportFunc: async (filter) =>
+            {
+                var adaptedFilter = new ExportBookingsRequest()
+                {
+                    Guests = Guests,
+                    TourStartDate = DateTime.Now.Date + new TimeSpan(00, 00, 00),
+                    TourEndDate = DateTime.Now.Date + new TimeSpan(23, 59, 59),
+                    IsTourBookings = true,
+                    TourId = SearchTourId,
+                    Description = SearchDescription
+                };
+                return await BookingsService.ExportAsync(adaptedFilter);
+            }
+        );
+
+        TomorrowsDeparturesContext = new EntityServerTableContext<BookingExportDto, DefaultIdType, BookingExportDto>(
+            entityName: L["Booking"],
+            entityNamePlural: L["Bookings"],
+            entityResource: TravaloudResource.Bookings,
+            fields:
+            [
+                new EntityField<BookingExportDto>(booking => booking.BookingInvoiceId, L["Reference"],
+                    "BookingInvoiceId"),
+                new EntityField<BookingExportDto>(booking => booking.TourName, L["Tour"], "TourName"),
+                new EntityField<BookingExportDto>(booking => booking.GuestName, L["Guest"], "GuestName"),
+                new EntityField<BookingExportDto>(booking => booking.StartDate.TimeOfDay, L["Start Time"], "StartDate"),
+                new EntityField<BookingExportDto>(booking => booking.EndDate.TimeOfDay, L["End Time"], "EndDate"),
+                new EntityField<BookingExportDto>(booking => booking.BookingIsPaid ? "Paid" : booking.BookingRefunded.HasValue && booking.BookingRefunded.Value ? "Refunded" : "Unpaid", L["Status"], "IsPaid",
+                    Color: booking => !booking.BookingIsPaid && (!booking.BookingRefunded.HasValue || !booking.BookingRefunded.Value) ? CurrentTheme.Palette.Error : null),
+                new EntityField<BookingExportDto>(booking => booking.WaiverSigned, L["Waiver Signed"], "BookingWaiverSigned"),
+            ],
+            enableAdvancedSearch: false,
+            createAction: string.Empty,
+            deleteAction: string.Empty,
+            updateAction: string.Empty,
+            viewAction: string.Empty,
+            searchFunc: async (filter) =>
+            {
+                var adaptedFilter = filter.Adapt<GetBookingItemsByDateRequest>();
+                adaptedFilter.Guests = Guests;
+                adaptedFilter.TourStartDate = DateTime.Now.AddDays(1);
+                adaptedFilter.TourEndDate = DateTime.Now.AddDays(1);
+                adaptedFilter.TourId = SearchTomorrowTourId;
+                adaptedFilter.Description = SearchTomorrowDescription;
+
+                var todaysTours = await DashboardService.GetTourBookingItemsByDateAsync(
+                    adaptedFilter);
+
+                return todaysTours.Adapt<PaginationResponse<BookingExportDto>>();
+            },
+            exportFunc: async (filter) =>
+            {
+                var adaptedFilter = new ExportBookingsRequest()
+                {
+                    Guests = Guests,
+                    TourStartDate = DateTime.Now.Date + new TimeSpan(00, 00, 00),
+                    TourEndDate = DateTime.Now.Date + new TimeSpan(23, 59, 59),
+                    IsTourBookings = true,
+                    TourId = SearchTourId,
+                    Description = SearchDescription
+                };
+                return await BookingsService.ExportAsync(adaptedFilter);
+            }
+        );
+    }
+
+    private string? _searchDescription;
+
+    private string SearchDescription
+    {
+        get => _searchDescription ?? string.Empty;
+        set
+        {
+            _searchDescription = value;
+            _ = TodaysDeparturesTable.ReloadDataAsync();
+        }
+    }
+
+    private string? _searchTomorrowDescription;
+
+    private string SearchTomorrowDescription
+    {
+        get => _searchTomorrowDescription ?? string.Empty;
+        set
+        {
+            _searchTomorrowDescription = value;
+            _ = TomorrowsDeparturesTable.ReloadDataAsync();
+        }
+    }
+
+    private DefaultIdType? _searchTourId;
+
+    private DefaultIdType? SearchTourId
+    {
+        get => _searchTourId;
+        set
+        {
+            _searchTourId = value;
+            _ = TodaysDeparturesTable.ReloadDataAsync();
+        }
+    }
+
+    private DefaultIdType? _searchTomorrowTourId;
+
+    private DefaultIdType? SearchTomorrowTourId
+    {
+        get => _searchTomorrowTourId;
+        set
+        {
+            _searchTomorrowTourId = value;
+            _ = TomorrowsDeparturesTable.ReloadDataAsync();
+        }
+    }
+
+}

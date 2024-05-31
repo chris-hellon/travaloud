@@ -39,7 +39,7 @@ else
 
 @code {
     [Parameter] public required TourViewModel Tour { get; set; }
-    [Parameter] public required EntityServerTableContext<TourDto, Guid, TourViewModel> Context { get; set; } = default!;
+    [Parameter] public required EntityServerTableContext<TourDto, DefaultIdType, TourViewModel> Context { get; set; } = default!;
 
     private async Task InvokeItineraryDialog(TourItineraryRequest requestModel, TourViewModel tour, bool isCreate = false)
     {
@@ -69,7 +69,7 @@ else
         Context.AddEditModal?.ForceRender();
     }
 
-    private async Task RemoveItineraryRow(TourViewModel tour, Guid id)
+    private async Task RemoveItineraryRow(TourViewModel tour, DefaultIdType id)
     {
         string deleteContent =
             L[

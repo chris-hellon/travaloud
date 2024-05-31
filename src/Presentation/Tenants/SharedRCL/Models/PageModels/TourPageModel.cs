@@ -3,6 +3,7 @@ using AspNetCore.ReCaptcha;
 using Travaloud.Application.Catalog.Interfaces;
 using Travaloud.Application.Catalog.TourEnquiries.Commands;
 using Travaloud.Application.Catalog.Tours.Dto;
+using Travaloud.Application.Catalog.Tours.Queries;
 
 namespace Travaloud.Tenants.SharedRCL.Models.PageModels;
 
@@ -64,6 +65,10 @@ public abstract class TourPageModel : ContactBasePageModel<EmailTemplates.TourEn
     [Display(Name = "No. of Guests")]
     public int? GuestQuantity { get; set; }
     
+    [Required]
+    [Display(Name = "Pick up Location")]
+    public string? PickUpLocation { get; set; }
+    
     public TourDateDto? SelectedTourDate { get; set; }
     
     protected TourPageModel(ITourEnquiriesService tourEnquiriesService, IToursService toursService)
@@ -75,7 +80,7 @@ public abstract class TourPageModel : ContactBasePageModel<EmailTemplates.TourEn
     [BindProperty]
     public EnquireNowComponent EnquireNowComponent { get; set; }
 
-    public async Task<IActionResult> OnGetTourAsync(string? tourName = null, Guid? tourDate = null, int? guestQuantity = null)
+    public async Task<IActionResult> OnGetTourAsync(string? tourName = null, Guid? tourDate = null, int? guestQuantity = null, bool includeAllPrices = false, bool includeNotPublishedToSiteTour = false)
     {
         await base.OnGetDataAsync();
 
@@ -84,18 +89,40 @@ public abstract class TourPageModel : ContactBasePageModel<EmailTemplates.TourEn
 
         var tour = Tours?.FirstOrDefault(x => x.FriendlyUrl == tourName);
 
+        if (tour == null && includeNotPublishedToSiteTour == true)
+        {
+            var tours = await _toursService.SearchAsync(new SearchToursRequest()
+            {
+                PageNumber = 1,
+                PageSize = int.MaxValue
+            });
+
+            if (tours.Data.Any())
+            {
+                tour = tours.Data.FirstOrDefault(x => x.FriendlyUrl == tourName);
+            }
+        }
+        
         if (tour == null) return Page();
         {
             Tour = await _toursService.GetAsync(tour.Id);
 
             if (Tour == null) return Page();
 
+            if (Tour.TourPickupLocations != null && Tour.TourPickupLocations.Any())
+            {
+                if (Tour.TourPickupLocations.Count == 1)
+                    PickUpLocation = Tour.TourPickupLocations.First().PropertyName;
+            }
 
             if (Tour.TourPrices != null)
+                Tour.TourPrices = Tour.TourPrices.Where(x => !x.InHouseOnly.HasValue || !x.InHouseOnly.Value).ToList();
+    
+            if (Tour.TourPrices != null && !includeAllPrices)
                 Tour.TourPrices = Tour.TourPrices.Where(x => x.PublishToWebsite.HasValue && x.PublishToWebsite.Value)
                     .ToList();
 
-            if (Tour.TourDates != null)
+            if (Tour.TourDates != null && !includeAllPrices)
                 Tour.TourDates = Tour.TourDates.Where(x => x.TourPrice is {PublishToWebsite: not null} && x.TourPrice.PublishToWebsite.Value).ToList();
             
             ViewData["Title"] = Tour?.Name;

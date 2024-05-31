@@ -19,16 +19,16 @@ public partial class TravelGuides
     [Inject] protected ITravelGuidesService TravelGuidesService { get; set; } = default!;
     [Inject] protected IFileStorageService FileStorageService { get; set; } = default!;
     
-    private EntityServerTableContext<TravelGuideDto, Guid, TravelGuideViewModel> Context { get; set; } = default!;
+    private EntityServerTableContext<TravelGuideDto, DefaultIdType, TravelGuideViewModel> Context { get; set; } = default!;
 
     private EditContext? EditContext { get; set; }
 
-    private EntityTable<TravelGuideDto, Guid, TravelGuideViewModel> _table = default!;
+    private EntityTable<TravelGuideDto, DefaultIdType, TravelGuideViewModel> _table = default!;
 
     private static Dictionary<string, bool> WizardSteps => new()
     {
         {"Basic Information", true},
-        {"Description", true},
+        {"Content", true},
         {"SEO", true},
         {"Images", true},
     };
@@ -49,7 +49,7 @@ public partial class TravelGuides
     
     protected override void OnInitialized()
     {
-        Context = new EntityServerTableContext<TravelGuideDto, Guid, TravelGuideViewModel>(
+        Context = new EntityServerTableContext<TravelGuideDto, DefaultIdType, TravelGuideViewModel>(
             entityName: L["Travel Guide"],
             entityNamePlural: L["Travel Guides"],
             entityResource: TravaloudResource.TravelGuides,
@@ -63,6 +63,12 @@ public partial class TravelGuides
             searchFunc: async filter => (await TravelGuidesService
                     .SearchAsync(filter.Adapt<SearchTravelGuidesRequest>()))
                 .Adapt<PaginationResponse<TravelGuideDto>>(),
+            getDetailsFunc: async (id) =>
+            {
+                var travelGuide = await TravelGuidesService.GetAsync(id);
+
+                return travelGuide.Adapt<TravelGuideViewModel>();
+            },
             createFunc: async travelGuide =>
             {
                 if (!string.IsNullOrEmpty(travelGuide.ImageInBytes))
@@ -70,7 +76,7 @@ public partial class TravelGuides
                     travelGuide.Image = new FileUploadRequest()
                     {
                         Data = travelGuide.ImageInBytes, Extension = travelGuide.ImageExtension ?? string.Empty,
-                        Name = $"{travelGuide.Title}_{Guid.NewGuid():N}"
+                        Name = $"{travelGuide.Title}_{DefaultIdType.NewGuid():N}"
                     };
                 }
 
@@ -83,7 +89,7 @@ public partial class TravelGuides
                             image.Image = new FileUploadRequest()
                             {
                                 Data = image.ImageInBytes, Extension = image.ImageExtension ?? string.Empty,
-                                Name = $"{travelGuide.Title}_{Guid.NewGuid():N}"
+                                Name = $"{travelGuide.Title}_{DefaultIdType.NewGuid():N}"
                             };
                         }
                     }
@@ -100,7 +106,7 @@ public partial class TravelGuides
                     travelGuide.Image = new FileUploadRequest()
                     {
                         Data = travelGuide.ImageInBytes, Extension = travelGuide.ImageExtension ?? string.Empty,
-                        Name = $"{travelGuide.Title}_{Guid.NewGuid():N}"
+                        Name = $"{travelGuide.Title}_{DefaultIdType.NewGuid():N}"
                     };
                 }
 
@@ -113,7 +119,7 @@ public partial class TravelGuides
                             image.Image = new FileUploadRequest()
                             {
                                 Data = image.ImageInBytes, Extension = image.ImageExtension ?? string.Empty,
-                                Name = $"{travelGuide.Title}_{Guid.NewGuid():N}"
+                                Name = $"{travelGuide.Title}_{DefaultIdType.NewGuid():N}"
                             };
                         }
                     }

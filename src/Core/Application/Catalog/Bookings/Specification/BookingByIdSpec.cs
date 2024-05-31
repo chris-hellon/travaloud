@@ -14,3 +14,13 @@ public class BookingByIdSpec : Specification<Booking, BookingDetailsDto>, ISingl
             .Include(p => p.Items).ThenInclude(x => x.TourDate).ThenInclude(x => x.TourPrice)
             .Include(p => p.Items).ThenInclude(x => x.Guests);
 }
+
+public class BookingByIdWithDetailsSpec : Specification<Booking>, ISingleResultSpecification<Booking>
+{
+    public BookingByIdWithDetailsSpec(DefaultIdType id) =>
+        Query
+            .Where(p => p.Id == id)
+            .Include(p => p.Items).ThenInclude(x => x.Rooms)
+            .Include(p => p.Items).ThenInclude(x => x.TourDate).ThenInclude(x => x.TourPrice)
+            .Include(p => p.Items).ThenInclude(x => x.Guests);
+}

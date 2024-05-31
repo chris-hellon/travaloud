@@ -1,5 +1,6 @@
 using System.Data;
 using Travaloud.Application.Catalog.Bookings.Commands;
+using Travaloud.Application.Catalog.TourDates.Specification;
 using Travaloud.Application.Catalog.Tours.Specification;
 using Travaloud.Application.Common.Utils;
 using Travaloud.Domain.Catalog.Bookings;
@@ -74,7 +75,10 @@ public static class BookingsExtensions
                     updateItemRequest.TourDateId,
                     updateItemRequest.CloudbedsReservationId,
                     updateItemRequest.CloudbedsPropertyId,
-                    updateItemRequest.PickupLocation);
+                    updateItemRequest.PickupLocation,
+                    updateItemRequest.WaiverSigned,
+                    updateItemRequest.TourCategoryId,
+                    booking.CreatedBy);
                     
                 newBookingItem.ProcessBookingItemGuests(updateItemRequest.Guests, userId);
 
@@ -136,7 +140,10 @@ public static class BookingsExtensions
                     updateItemRequest.CloudbedsReservationId,
                     updateItemRequest.CloudbedsPropertyId,
                     null,
-                    updateItemRequest.PickupLocation);
+                    updateItemRequest.PickupLocation,
+                    updateItemRequest.WaiverSigned,
+                    updateItemRequest.TourCategoryId,
+                    booking.CreatedBy);
                 
                 var currentGuestCount = currentBookingItem.Guests != null && currentBookingItem.Guests.Any()
                     ? currentBookingItem.Guests.Count + 1

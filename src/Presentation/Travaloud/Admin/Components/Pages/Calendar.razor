@@ -1,6 +1,7 @@
 @page "/calendar"
 
-@attribute [MustHavePermission(TravaloudAction.View, TravaloudResource.Dashboard)]
+
+@attribute [MustHavePermission(TravaloudAction.View, TravaloudResource.Calendar)]
 
 @inject IStringLocalizer<Dashboard> L
 
@@ -8,7 +9,7 @@
 
 <MudGrid>
     <MudItem xs="12" sm="12" md="12">
-        <MudCalendar Items="_events" MonthCellMinHeight="100" DateRangeChanged="DateRangeChanged">
+        <MudCalendar Items="CalendarItems" MonthCellMinHeight="100" DateRangeChanged="DateRangeChanged" ItemClicked="OnItemClick">
             <CellTemplate>
                 <MudTooltip Inline="false" RootStyle="width:100%; height:100%;">
                     <ChildContent>
@@ -16,7 +17,7 @@
                     </ChildContent>
                     <TooltipContent>
                         <MudText Typo="Typo.h6">@context.Text.Split('|')[0]</MudText>
-                        <MudText Typo="Typo.body2">@context.Start.TimeOfDay - @context.End.Value.TimeOfDay</MudText>
+                        <MudText Typo="Typo.body2">@context.Start.ToString("hh:mm tt") - @context.End.Value.ToString("hh:mm tt")</MudText>
                         <MudText Typo="Typo.body2">@context.Text.Split('|')[1]</MudText>
                     </TooltipContent>
                 </MudTooltip>

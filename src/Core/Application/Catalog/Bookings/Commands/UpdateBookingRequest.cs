@@ -26,9 +26,12 @@ public class UpdateBookingRequest : IRequest<DefaultIdType>
     public string? AdditionalNotes { get; set; }
     public bool WaiverSigned { get; set; }
     public string? BookingSource { get; set; }
-    
+    public bool DoNotUpdateAmount { get; set; }
+    public decimal? AmountOutstanding { get; set; }
+
     public IList<UpdateBookingItemRequest> Items { get; set; } = [];
     public UserDetailsDto? Guest { get; set; }
+    public UserDetailsDto? StaffMember { get; set; }
 }
 
 public class UpdateBookingRequestHandler : IRequestHandler<UpdateBookingRequest, DefaultIdType>
@@ -62,6 +65,11 @@ public class UpdateBookingRequestHandler : IRequestHandler<UpdateBookingRequest,
             // Handle concurrency conflict scenario
             throw new DBConcurrencyException("Booking has been updated by another user.");
         }
+        
+        if (request.StaffMember == null)
+            throw new CustomException("Please Select a Staff Member");
+        
+        var createdBy = DefaultIdType.Parse(request.StaffMember.Id);
 
         // Update the booking properties
         var updatedBooking = booking.Update(
@@ -77,7 +85,12 @@ public class UpdateBookingRequestHandler : IRequestHandler<UpdateBookingRequest,
             request.GuestName,
             request.GuestEmail,
             request.AdditionalNotes,
-            request.BookingSource);
+            request.BookingSource,
+            null,
+            null,
+            createdBy,
+            request.DoNotUpdateAmount,
+            request.AmountOutstanding);
         
         var userId = _currentUser.GetUserId();
         

@@ -61,6 +61,10 @@ public partial class EntityTable<TEntity, TId, TRequest>
 
     [Parameter] public bool ShowActionsMenu { get; set; } = true;
     
+    [Parameter] public bool HideActionsColumn { get; set; }
+    
+    [Parameter] public bool Dense { get; set; }
+    
     [Inject] protected IAuthorizationService AuthService { get; set; } = default!;
 
     private bool _canSearch;
@@ -277,9 +281,7 @@ public partial class EntityTable<TEntity, TId, TRequest>
     private void InvokeCreatePage()
     {
         var url = Context.CreateNavigateTo?.Invoke();
-
-        Console.WriteLine(url);
-
+        
         if (url != null)
             NavigationManager.NavigateTo(url);
     }

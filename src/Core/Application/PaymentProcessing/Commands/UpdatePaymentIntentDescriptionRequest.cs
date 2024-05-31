@@ -32,7 +32,7 @@ internal class UpdatePaymentIntentDescriptionRequestHandler : IRequestHandler<Up
     {
         var options = new PaymentIntentUpdateOptions()
         {
-            Description = $"{request.PaymentIntent.Description} - Booking: {request.InvoiceId}"
+            Description = $"{request.PaymentIntent.Description} - Booking: {request.InvoiceId}",
         };
 
         var service = new PaymentIntentService(_stripeClient);

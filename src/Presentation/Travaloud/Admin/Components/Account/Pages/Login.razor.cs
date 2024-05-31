@@ -45,7 +45,7 @@ public partial class Login
 
             if (currentUrl.Contains("localhost"))
             {
-                Input.Email = MultitenancyConstants.Root.EmailAddress;
+                Input.Email = MultitenancyConstants.Root.EmailAddress; 
                 Input.Password = MultitenancyConstants.DefaultPassword;
             }
         }
@@ -57,11 +57,11 @@ public partial class Login
         
         var user = await UserManager.FindByEmailAsync(Input.Email);
         
-        if (user != null)
+        if (user is {IsActive: true})
         {
             var userRoles = await UserManager.GetRolesAsync(user);
 
-            if (userRoles.Contains("Guest"))
+            if (userRoles.Contains(TravaloudRoles.Guest))
             {
                 ErrorMessage = "Error: You do not have access to Travaloud";
             }
@@ -82,7 +82,7 @@ public partial class Login
         
                         BusySubmitting = false;
                         StateHasChanged();
-            
+
                         RedirectManager.RedirectTo(ReturnUrl);
                     }
                     else

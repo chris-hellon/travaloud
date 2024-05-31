@@ -1,0 +1,158 @@
+@using Mapster
+@using Travaloud.Application.Catalog.Bookings.Commands
+@using Travaloud.Application.Catalog.Bookings.Dto
+@using Travaloud.Application.Catalog.Bookings.Queries
+@using Travaloud.Application.Catalog.Interfaces
+@inject IStringLocalizer<StaffBookingsReport> L
+
+@attribute [StreamRendering]
+
+<MudItem xs="12" sm="12">
+    <MudCard Elevation="25" Class="h-100">
+        <MudCardHeader>
+            <CardHeaderContent>
+                <MudText Typo="Typo.h4">Staff Bookings Report</MudText>
+                <MudText Typo="Typo.h6">@($"{SearchStaffBookingsDateRange.Start.Value.ToShortDateString()} - {SearchStaffBookingsDateRange.End.Value.ToShortDateString()}")</MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+        <MudCardContent>
+            @if (StaffBookingsContext != null)
+            {
+                <EntityTable @ref="@StaffBookingsTable" TEntity="StaffBookingDto" TId="string" TRequest="StaffBookingDto" Context="@StaffBookingsContext" ModalWidth="MaxWidth.Large" Elevation="0" Dense="true">
+                    <AdvancedSearchContent>
+                        <MudDateRangePicker AutoClose="true" @ref="_staffBookingsDateRangePicker" PickerVariant="PickerVariant.Dialog" Label="@L["Date Range"]" @bind-DateRange="SearchStaffBookingsDateRange" Clearable="false">
+                            <PickerActions>
+                                <MudButton Class="mr-auto align-self-start" OnClick="@(() => _staffBookingsDateRangePicker.Clear())">@L["Clear"]</MudButton>
+                                <MudButton OnClick="@(() => _staffBookingsDateRangePicker.Close(false))">@L["Cancel"]</MudButton>
+                                <MudButton Color="Color.Primary" OnClick="@(() => _staffBookingsDateRangePicker.Close())">@L["Ok"]</MudButton>
+                            </PickerActions>
+                        </MudDateRangePicker>
+                    </AdvancedSearchContent>
+
+                    <ActionsContent>
+                        <MudButton Variant="Variant.Filled" DisableElevation="true" EndIcon="@Icons.Material.Filled.KeyboardArrowDown" IconColor="Color.Info"
+                                   OnClick="@(() => ShowStaffReportDetails(context))">
+                            @((context.ShowDetails == true) ? L["Hide"] : L["Show"]) @L["Details"]
+                        </MudButton>
+                    </ActionsContent>
+
+                    <ChildRowContent>
+                        @if (context.ShowDetails)
+                        {
+                            if (context.TourDetails?.Any() == true)
+                            {
+                                <MudTr>
+                                    <td colspan="8">
+                                        <MudCard Elevation="25" style="margin: 10px !important;">
+                                            <MudCardHeader>
+                                                <CardHeaderContent>
+                                                    <MudAlert Severity="Severity.Normal">@L["Items for Staff Member"] : <strong>@context.FullName</strong></MudAlert>
+                                                </CardHeaderContent>
+                                            </MudCardHeader>
+                                            <MudCardContent>
+                                                <MudTable Items="@context.TourDetails" Context="ItemContext" Hover="true" Breakpoint="Breakpoint.Sm" Elevation="0">
+                                                    <ColGroup>
+                                                        <col/>
+                                                        <col/>
+                                                        <col/>
+                                                        <col/>
+                                                    </ColGroup>
+                                                    <HeaderContent>
+                                                        <MudTh>Tour</MudTh>
+                                                        <MudTh>Total Bookings Made</MudTh>
+                                                        <MudTh>Total Bookings Revenue</MudTh>
+                                                        <MudTh>Total Commission Amount</MudTh>
+                                                    </HeaderContent>
+                                                    <RowTemplate>
+                                                        <MudTd DataLabel="Tour">@ItemContext.TourName</MudTd>
+                                                        <MudTd DataLabel="Total Bookings Made">@ItemContext.QuantityBooked</MudTd>
+                                                        <MudTd DataLabel="Total Bookings Revenue">@($"$ {string.Format("{0:n2}", ItemContext.TotalAmount)}")</MudTd>
+                                                        <MudTd DataLabel="Total Commission Amount">@($"$ {string.Format("{0:n2}", ItemContext.TotalCommissionAmount)}")</MudTd>
+                                                    </RowTemplate>
+                                                </MudTable>
+                                            </MudCardContent>
+                                        </MudCard>
+                                    </td>
+                                </MudTr>
+                            }
+                        }
+                    </ChildRowContent>
+                </EntityTable>
+            }
+            else
+            {
+                <MudSkeleton Height="500px" SkeletonType="SkeletonType.Rectangle"/>
+            }
+        </MudCardContent>
+    </MudCard>
+</MudItem>
+
+@code {
+    [Parameter] public required EntityTable<StaffBookingDto, string, StaffBookingDto> StaffBookingsTable { get; set; }
+    
+    [CascadingParameter] private TravaloudTenantInfo? TenantInfo { get; set; }
+    
+    [Inject] private IBookingsService BookingsService { get; set; } = default!;
+    
+    private EntityServerTableContext<StaffBookingDto, string, StaffBookingDto>? StaffBookingsContext { get; set; }
+    private MudDateRangePicker _staffBookingsDateRangePicker = new();
+
+    protected override void OnInitialized()
+    {
+        _searchStaffBookingsDateRange = new DateRange(DateTime.Now.AddMonths(-1), DateTime.Now);
+        
+        StaffBookingsContext = new EntityServerTableContext<StaffBookingDto, string, StaffBookingDto>(
+            entityName: L["Staff"],
+            entityNamePlural: L["Staff Bookings"],
+            entityResource: TravaloudResource.Bookings,
+            fields:
+            [
+                new EntityField<StaffBookingDto>(user => user.FullName, L["Staff Name"], "FullName"),
+                new EntityField<StaffBookingDto>(user => user.BookingsMade, L["Total Bookings Made"], "BookingsMade"),
+                new EntityField<StaffBookingDto>(user => user.ItemsCount, L["Total Items Booked"], "ItemsCount"),
+                new EntityField<StaffBookingDto>(user => $"$ {user.TotalBookingsAmount:n2}",
+                    L["Total Bookings Revenue"], "TotalBookingsAmount"),
+                new EntityField<StaffBookingDto>(user => $"$ {user.TotalComission:n2}", L["Total Commission Amount"], "TotalComission")
+            ],
+            searchFunc: async (filter) =>
+            {
+                var adaptedFilter = filter.Adapt<StaffBookingsByDateRangeRequest>();
+                adaptedFilter.TenantId = TenantInfo.Id;
+                adaptedFilter.FromDate = SearchStaffBookingsDateRange.Start.Value.Date + new TimeSpan(0, 00, 00, 00, 00);
+                adaptedFilter.ToDate = SearchStaffBookingsDateRange.End.Value.Date + new TimeSpan(0, 23, 59, 59, 999);
+
+                var staffBookings = await BookingsService.StaffBookingsByDateRange(adaptedFilter);
+                return staffBookings.Adapt<PaginationResponse<StaffBookingDto>>();
+            },
+            exportFunc: async filter =>
+            {
+                var exportFilter = filter.Adapt<ExportStaffBookingsRequest>();
+                exportFilter.TenantId = TenantInfo.Id;
+                exportFilter.FromDate = SearchStaffBookingsDateRange.Start.Value.Date + new TimeSpan(0, 00, 00, 00, 00);
+                exportFilter.ToDate = SearchStaffBookingsDateRange.End.Value.Date + new TimeSpan(0, 23, 59, 59, 999);
+
+                return await BookingsService.ExportStaffBookingsAsync(exportFilter);
+            },
+            createAction: string.Empty,
+            updateAction: string.Empty,
+            deleteAction: string.Empty,
+            viewAction: string.Empty);
+    }
+    
+    private void ShowStaffReportDetails(StaffBookingDto request)
+    {
+        request.ShowDetails = !request.ShowDetails;
+    }
+    
+    private DateRange? _searchStaffBookingsDateRange;
+
+    private DateRange? SearchStaffBookingsDateRange
+    {
+        get => _searchStaffBookingsDateRange;
+        set
+        {
+            _searchStaffBookingsDateRange = value;
+            _ = StaffBookingsTable.ReloadDataAsync();
+        }
+    }
+}

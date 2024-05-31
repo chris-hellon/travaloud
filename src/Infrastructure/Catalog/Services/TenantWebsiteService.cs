@@ -1,5 +1,7 @@
+using Finbuckle.MultiTenant;
 using MediatR;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 using Travaloud.Application.Catalog.Destinations.Dto;
 using Travaloud.Application.Catalog.Destinations.Queries;
 using Travaloud.Application.Catalog.Interfaces;
@@ -12,6 +14,7 @@ using Travaloud.Application.Catalog.Services.Queries;
 using Travaloud.Application.Catalog.Tours.Dto;
 using Travaloud.Application.Catalog.Tours.Queries;
 using Travaloud.Application.Common.Caching;
+using Travaloud.Infrastructure.Multitenancy;
 
 namespace Travaloud.Infrastructure.Catalog.Services;
 
@@ -20,27 +23,60 @@ public class TenantWebsiteService : BaseService, ITenantWebsiteService
     private readonly ICacheService _cache;
     private readonly ICacheKeyService _cacheKeys;
     private readonly IWebHostEnvironment _hostEnvironment;
+    private readonly string _tenantKey;
     
-    public TenantWebsiteService(ISender mediator, ICacheService cache, ICacheKeyService cacheKeys, IWebHostEnvironment hostEnvironment) : base(mediator)
+    public TenantWebsiteService(ISender mediator,
+        ICacheService cache,
+        ICacheKeyService cacheKeys,
+        IWebHostEnvironment hostEnvironment,
+        IMultiTenantContextAccessor<TravaloudTenantInfo> multiTenantContextAccessor) : base(mediator)
     {
         _cache = cache;
         _cacheKeys = cacheKeys;
         _hostEnvironment = hostEnvironment;
+        _tenantKey = multiTenantContextAccessor.MultiTenantContext?.TenantInfo?.Identifier ?? string.Empty;
     }
 
-    public Task<IEnumerable<PropertyDto>?> GetProperties(CancellationToken cancellationToken)
+    public Task<IEnumerable<PropertyDto>> GetProperties(CancellationToken cancellationToken)
     {
-        return Mediator.Send(new GetPropertiesByPublishToWebsiteRequest(), cancellationToken);
+        // if (_hostEnvironment.IsDevelopment())
+        //     return Mediator.Send(new GetPropertiesByPublishToWebsiteRequest(), cancellationToken);
+        
+        var currentDate = DateTime.Now;
+        var cacheKey = _cacheKeys.GetCacheKey($"{_tenantKey}-Properties", $"{currentDate:yyyy-MM-dd-HH}");
+        
+        return _cache.GetOrSetAsync(
+            cacheKey,
+            () => Mediator.Send(new GetPropertiesByPublishToWebsiteRequest(), cancellationToken),
+            cancellationToken: cancellationToken);
     }
 
     public Task<IEnumerable<DestinationDto>> GetDestinations(CancellationToken cancellationToken)
     {
-        return Mediator.Send(new GetDestinationsRequest(), cancellationToken);
+        // if (_hostEnvironment.IsDevelopment())
+        //     return Mediator.Send(new GetDestinationsRequest(), cancellationToken);
+
+        var currentDate = DateTime.Now;
+        var cacheKey = _cacheKeys.GetCacheKey($"{_tenantKey}-Destinations", $"{currentDate:yyyy-MM-dd-HH}");
+
+        return _cache.GetOrSetAsync(
+            cacheKey,
+            () => Mediator.Send(new GetDestinationsRequest(), cancellationToken),
+            cancellationToken: cancellationToken);
     }
     
     public Task<IEnumerable<TourDto>> GetTours(CancellationToken cancellationToken)
     {
-        return Mediator.Send(new GetToursByPublishToWebsiteRequest(), cancellationToken);
+        // if (_hostEnvironment.IsDevelopment())
+        //     return Mediator.Send(new GetToursByPublishToWebsiteRequest(), cancellationToken);
+
+        var currentDate = DateTime.Now;
+        var cacheKey = _cacheKeys.GetCacheKey($"{_tenantKey}-Tours", $"{currentDate:yyyy-MM-dd-HH}");
+
+        return _cache.GetOrSetAsync(
+            cacheKey,
+            () => Mediator.Send(new GetToursByPublishToWebsiteRequest(), cancellationToken),
+            cancellationToken: cancellationToken);
     }
 
     public Task<IEnumerable<TourPriceDto>> GetTourPrices(GetTourPricesRequest request, CancellationToken cancellationToken)

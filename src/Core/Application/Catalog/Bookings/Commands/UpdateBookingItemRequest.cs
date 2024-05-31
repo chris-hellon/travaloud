@@ -7,6 +7,7 @@ public class UpdateBookingItemRequest : IRequest<DefaultIdType>
     public DateTime? EndDate { get; set; }
     public decimal? Amount { get; set; }
     public int? RoomQuantity { get; set; }
+    public bool WaiverSigned { get; set; }
 
     public int GuestQuantity
     {
@@ -22,6 +23,9 @@ public class UpdateBookingItemRequest : IRequest<DefaultIdType>
 
     [RequiredIfNull("PropertyId", ErrorMessage = "A Tour Date is required")]
     public DefaultIdType? TourDateId { get; set; }
+    
+    [RequiredIfNull("PropertyId", ErrorMessage = "A Tour Category is required")]
+    public DefaultIdType? TourCategoryId { get; set; }
     
     public string? PickupLocation { get; set; }
 

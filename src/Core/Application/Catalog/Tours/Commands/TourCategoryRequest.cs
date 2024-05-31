@@ -12,4 +12,14 @@ public class TourCategoryRequest : IRequest<DefaultIdType>
     public FileUploadRequest? Image { get; set; }
     public bool IsCreate { get; set; }
     public bool? TopLevelCategory { get; set; }
+    
+    public override int GetHashCode() => Name?.GetHashCode() ?? 0;
+    
+    public override string ToString() => Name;
+    
+    public override bool Equals(object? o)
+    {
+        var other = o as TourCategoryRequest;
+        return other?.Name == Name;
+    }
 }

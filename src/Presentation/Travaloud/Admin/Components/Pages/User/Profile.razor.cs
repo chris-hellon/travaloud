@@ -63,7 +63,7 @@ public partial class Profile
 
     private async Task UploadFiles(InputFileChangeEventArgs e)
     {
-        var fileName = $"{_userId}-{Guid.NewGuid():N}";
+        var fileName = $"{_userId}-{DefaultIdType.NewGuid():N}";
         fileName = fileName[..Math.Min(fileName.Length, 90)];
        
         var fileUploadDetails = await FileUploadHelper.UploadFile(e, Snackbar);

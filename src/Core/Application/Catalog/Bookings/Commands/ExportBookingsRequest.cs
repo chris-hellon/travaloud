@@ -3,6 +3,7 @@ using Travaloud.Application.Catalog.Bookings.Specification;
 using Travaloud.Application.Common.Exporters;
 using Travaloud.Application.Identity.Users;
 using Travaloud.Domain.Catalog.Bookings;
+using Travaloud.Shared.Authorization;
 
 namespace Travaloud.Application.Catalog.Bookings.Commands;
 
@@ -19,7 +20,9 @@ public class ExportBookingsRequest : BaseFilter, IRequest<Stream>
     public DefaultIdType? TourDateId { get; set; }
     public DefaultIdType? PropertyId { get; set; }
     public List<UserDetailsDto>? Guests { get; set; }
+    public IEnumerable<DefaultIdType>? TourIds { get; set; }
     public bool IsTourBookings { get; set; }
+    public bool HideRefunded { get; set; }
 }
 
 public class ExportBookingsRequestHandler : IRequestHandler<ExportBookingsRequest, Stream>
@@ -27,24 +30,31 @@ public class ExportBookingsRequestHandler : IRequestHandler<ExportBookingsReques
     private readonly IRepositoryFactory<BookingItem> _repository;
     private readonly IExcelWriter _excelWriter;
     private readonly IUserService _userService;
+    private readonly ICurrentUser _currentUser;
 
     public ExportBookingsRequestHandler(
         IRepositoryFactory<BookingItem> repository, 
         IExcelWriter excelWriter, 
-        IUserService userService)
+        IUserService userService, 
+        ICurrentUser currentUser)
     {
         _repository = repository;
         _excelWriter = excelWriter;
         _userService = userService;
+        _currentUser = currentUser;
     }
 
     public async Task<Stream> Handle(ExportBookingsRequest request, CancellationToken cancellationToken)
     {
+        var isSupplier = _currentUser.IsInRole(TravaloudRoles.Supplier);
         var spec = new ExportBookingsSpec(request);
 
         var list = await _repository.ListAsync(spec, cancellationToken);
         var parsedList = new List<BookingExportDto>();
 
+        if (request.HideRefunded)
+            list = list.Where(x => !x.BookingRefunded.HasValue || !x.BookingRefunded.Value).ToList();
+        
         var staffIds = list.Select(x => x.CreatedBy.ToString()).ToList();
 
         var staff = await _userService.SearchAsync(staffIds, CancellationToken.None);
@@ -55,8 +65,8 @@ public class ExportBookingsRequestHandler : IRequestHandler<ExportBookingsReques
             {
                 var staffMember = staff.FirstOrDefault(s => s.Id == x.CreatedBy);
 
-                if (staffMember != null)
-                    x.BookingStaffName = $"{staffMember.FirstName} {staffMember.LastName}";
+                x.BookingStaffName = staffMember == null || staffMember.Id.ToString() == x.BookingGuestId ? "Direct from Website"  : $"{staffMember.FirstName} {staffMember.LastName}";
+                   
                 return x;
             });
 
@@ -75,6 +85,8 @@ public class ExportBookingsRequestHandler : IRequestHandler<ExportBookingsReques
             item.GuestDateOfBirth = guest.DateOfBirth?.Date;
             item.GuestNationality = guest.Nationality?.Length == 2 ? guest.Nationality.TwoLetterCodeToCountry() : guest.Nationality;
             item.GuestPassportNumber = guest.PassportNumber;
+            item.GuestId = guest.Id;
+            item.Amount = isSupplier ? 0 : item.Amount;
 
             parsedList.Add(item);
 
@@ -84,7 +96,7 @@ public class ExportBookingsRequestHandler : IRequestHandler<ExportBookingsReques
                 .Select(additionalGuestMatch => new BookingExportDto()
                 {
                     BookingAdditionalNotes = item.BookingAdditionalNotes,
-                    Amount = item.Amount,
+                    Amount = isSupplier ? 0 : item.Amount,
                     BookingCurrencyCode = item.BookingCurrencyCode,
                     BookingBookingDate = item.BookingBookingDate,
                     BookingInvoiceId = item.BookingInvoiceId,
@@ -93,14 +105,15 @@ public class ExportBookingsRequestHandler : IRequestHandler<ExportBookingsReques
                     EndDate = item.EndDate,
                     TourId = item.TourId,
                     TourName = item.TourName,
-                    BookingGuestId = item.BookingGuestId,
+                    BookingGuestId = additionalGuestMatch.Id,
+                    GuestId = item.GuestId,
                     GuestName = $"{additionalGuestMatch.FirstName} {additionalGuestMatch.LastName}",
                     GuestGender = additionalGuestMatch.Gender,
                     GuestDateOfBirth = additionalGuestMatch.DateOfBirth?.Date,
                     GuestNationality = additionalGuestMatch.Nationality?.Length == 2 ? additionalGuestMatch.Nationality.TwoLetterCodeToCountry() : additionalGuestMatch.Nationality,
                     GuestPassportNumber = additionalGuestMatch.PassportNumber,
                     PickupLocation = item.PickupLocation,
-                    BookingWaiverSigned = item.BookingWaiverSigned,
+                    WaiverSigned = item.WaiverSigned,
                     BookingBookingSource = item.BookingBookingSource,
                     BookingStaffName = item.BookingStaffName
                 }));

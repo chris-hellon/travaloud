@@ -15,17 +15,17 @@ public partial class ServicesEnquiries
 {
     [Inject] protected IServicesEnquiriesService ServicesEnquiriesService { get; set; } = default!;
 
-    private EntityServerTableContext<ServiceEnquiryDto, Guid, UpdateServiceEnquiryRequest> Context { get; set; } = default!;
+    private EntityServerTableContext<ServiceEnquiryDto, DefaultIdType, UpdateServiceEnquiryRequest> Context { get; set; } = default!;
 
     protected ServiceDto Service { get; set; } = default!;
 
     private EditContext? EditContext { get; set; }
 
-    private EntityTable<ServiceEnquiryDto, Guid, UpdateServiceEnquiryRequest> _table = default!;
+    private EntityTable<ServiceEnquiryDto, DefaultIdType, UpdateServiceEnquiryRequest> _table = default!;
     
     protected override void OnInitialized()
     {
-        Context = new EntityServerTableContext<ServiceEnquiryDto, Guid, UpdateServiceEnquiryRequest>(
+        Context = new EntityServerTableContext<ServiceEnquiryDto, DefaultIdType, UpdateServiceEnquiryRequest>(
             entityName: L["Service Enquiry"],
             entityNamePlural: L["Service Enquiries"],
             entityResource: TravaloudResource.Enquiries,

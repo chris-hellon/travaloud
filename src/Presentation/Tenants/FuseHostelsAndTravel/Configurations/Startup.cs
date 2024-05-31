@@ -24,6 +24,7 @@ internal static class Startup
                 .AddJsonFile($"{configurationsDirectory}/rollbar.json", optional: false, reloadOnChange: true)
                 .AddJsonFile($"{configurationsDirectory}/recaptcha.json", optional: false, reloadOnChange: true)
                 .AddJsonFile($"{configurationsDirectory}/travaloud.json", optional: false, reloadOnChange: true)
+                .AddJsonFile($"{configurationsDirectory}/hangfire.json", optional: false, reloadOnChange: true)
                 .AddJsonFile($"{configurationsDirectory}/stripe.{env.EnvironmentName}.json", optional: false, reloadOnChange: true)
                 .AddEnvironmentVariables();
         });

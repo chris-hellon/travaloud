@@ -73,42 +73,12 @@ public class ImportCloudbedsGuestsHandler : IRequestHandler<ImportCloudbedsGuest
                     }
                 }
             }
-            
-            var groupedDistinctGuests = distinctGuests
-                .Where(x => !string.IsNullOrEmpty(x.Email))
-                .GroupBy(x => x.Email) // Group by email address
-                .Select(group => new
-                {
-                    Email = group.Key,
-                    Guests = group.ToList().DistinctBy(x => $"{x.FirstName} {x.LastName}") // List of guests with the same email address
-                });
-            
-            var flattenedList = groupedDistinctGuests
-                .SelectMany(group =>
-                    group.Guests.Select((guest, index) => new GuestDto()
-                    {
-                        FirstName = guest.FirstName,
-                        LastName = guest.LastName,
-                        Nationality = guest.Nationality,
-                        Gender = guest.Gender,
-                        DateOfBirth = guest.DateOfBirth,
-                        Phone = guest.Phone,
-                        Email = index == 0 ? group.Email : $"+{index}{group.Email}",
-                        GuestId = guest.GuestId,
-                        CustomFields = guest.CustomFields,
-                        GuestDocumentType = guest.GuestDocumentType,
-                        GuestDocumentNumber = guest.GuestDocumentNumber,
-                        GuestDocumentIssueDate = guest.GuestDocumentIssueDate,
-                        GuestDocumentIssuingCountry = guest.GuestDocumentIssuingCountry,
-                        GuestDocumentExpirationDate = guest.GuestDocumentExpirationDate
-                    }))
-                .ToList();
 
             var usersWithoutEmail = distinctGuests.Where(x => string.IsNullOrEmpty(x.Email));
-            flattenedList = flattenedList.Union(usersWithoutEmail).ToList();
+            distinctGuests = distinctGuests.Union(usersWithoutEmail).ToList();
 
-            var guestsToInsert = await _cloudbedsService.SearchGuests(new SearchCloudbedsGuests(flattenedList));
-            
+            var guestsToInsert = await _cloudbedsService.SearchGuests(new SearchCloudbedsGuests(distinctGuests));
+
             var guestDtos = guestsToInsert as GuestDto[] ?? guestsToInsert.ToArray();
             if (guestDtos.Any())
             {
@@ -151,6 +121,7 @@ public class ImportCloudbedsGuestsHandler : IRequestHandler<ImportCloudbedsGuest
                     {
                         createUserRequests.Add(new CreateUserRequest()
                         {
+                            Username = DefaultIdType.NewGuid().ToString(),
                             FirstName = toRegister.FirstName.TrimStart().ReplaceFunkyFirstnames(),
                             LastName = toRegister.LastName.ReplaceFunkyFirstnames(),
                             Email = toRegister.Email,

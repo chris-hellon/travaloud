@@ -4,7 +4,7 @@ public class PropertyDirectionContent : AuditableEntity, IAggregateRoot
 {
     public PropertyDirectionContent(string body, string? style)
     {
-        Body = body;
+        Body = body.FormatTextEditorString();;
         Style = style;
     }
 
@@ -15,7 +15,7 @@ public class PropertyDirectionContent : AuditableEntity, IAggregateRoot
 
     public PropertyDirectionContent Update(string body, string? style)
     {
-        if (body is not null && Body?.Equals(body) is not true) Body = body;
+        if (body is not null && Body?.Equals(body) is not true) Body = body.FormatTextEditorString();;
         if (style is not null && Style?.Equals(style) is not true) Style = style;
         return this;
     }

@@ -67,8 +67,8 @@ public class Property : AuditableEntity, IAggregateRoot
         string? cloudbedsPropertyId)
     {
         Name = name;
-        Description = description;
-        ShortDescription = shortDescription;
+        Description = description.FormatTextEditorString();;
+        ShortDescription = shortDescription.FormatTextEditorString();;
         ImagePath = imagePath != null ? !imagePath.Contains("w-1000") ? $"{imagePath}?w=1000" : imagePath : null;
         ThumbnailImagePath = thumbnailImagePath != null ? !thumbnailImagePath.Contains("w-700") ? $"{thumbnailImagePath}?w=700" : thumbnailImagePath : null;
         AddressLine1 = addressLine1;
@@ -116,8 +116,8 @@ public class Property : AuditableEntity, IAggregateRoot
         string? cloudbedsPropertyId)
     {
         if (name is not null && Name?.Equals(name) is not true) Name = name;
-        if (description is not null && Description?.Equals(description) is not true) Description = description;
-        if (shortDescription is not null && ShortDescription?.Equals(shortDescription) is not true) ShortDescription = shortDescription;
+        if (description is not null && Description?.Equals(description) is not true) Description = description.FormatTextEditorString();;
+        if (shortDescription is not null && ShortDescription?.Equals(shortDescription) is not true) ShortDescription = shortDescription.FormatTextEditorString();;
         if (imagePath is not null && ImagePath?.Equals(imagePath) is not true) ImagePath = !imagePath.Contains("w-1000") ? $"{imagePath}?w=1000" : imagePath;
         if (thumbnailImagePath is not null && ThumbnailImagePath?.Equals(thumbnailImagePath) is not true) ThumbnailImagePath = thumbnailImagePath.Contains("w-700") ? $"{thumbnailImagePath}?w=700" : thumbnailImagePath;
         if (addressLine1 is not null && AddressLine1?.Equals(addressLine1) is not true) AddressLine1 = addressLine1;

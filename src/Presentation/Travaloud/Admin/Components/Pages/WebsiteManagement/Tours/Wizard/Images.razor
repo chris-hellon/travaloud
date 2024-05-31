@@ -117,7 +117,7 @@
 
 @code {
     [Parameter] public required TourViewModel Tour { get; set; }
-    [Parameter] public required EntityServerTableContext<TourDto, Guid, TourViewModel> Context { get; set; } = default!;
+    [Parameter] public required EntityServerTableContext<TourDto, DefaultIdType, TourViewModel> Context { get; set; } = default!;
 
     public void ClearImageInBytes()
     {

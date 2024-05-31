@@ -137,7 +137,14 @@ div[style*="margin: 16px 0;"] { margin: 0 !important; }
                                             <td width="25%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800; line-height: 24px; padding: 10px; border-top: 3px solid #eeeeee; border-bottom: 3px solid #eeeeee;">
                                                 @if (Booking != null)
                                                 {
-                                                    @($"${Booking.TotalAmount:n2}")
+                                                    if (Booking.AmountOutstanding.HasValue)
+                                                    {
+                                                        @($"${Booking.AmountOutstanding:n2}")
+                                                    }
+                                                    else
+                                                    {
+                                                        @($"${Booking.TotalAmount:n2}")
+                                                    }
                                                 }
                                             </td>
                                         </tr>

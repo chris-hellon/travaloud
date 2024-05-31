@@ -38,6 +38,9 @@ public partial class QRCodes
                 {
                     foreach (var tour in tours.Data)
                     {
+                        if (!tour.PublishToSite.HasValue || !tour.PublishToSite.Value)
+                            continue;
+                        
                         using MemoryStream ms = new();
                         QRCodeGenerator qrCodeGenerate = new();
                         var url = await BookingsService.CreateStaffTourBookingQrCodeUrl(new CreateStaffTourBookingQrCodeUrlRequest(_userId, tour.Name));

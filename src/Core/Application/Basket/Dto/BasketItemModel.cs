@@ -41,6 +41,7 @@ public class BasketItemModel
     public DefaultIdType? TourId { get; set; }
     public string? TourName { get; set; }
     public string? TourImageUrl { get; set; }
+    public string? PickupLocation { get; set; }
     public IList<BasketItemDateModel>? TourDates { get; set; }
     public TourDto? Tour { get; set; }
     #endregion
@@ -68,12 +69,14 @@ public class BasketItemModel
         string tourName,
         DefaultIdType tourId,
         string tourImageUrl,
+        string pickupLocation,
         IList<BasketItemDateModel> tourDates)
     {
         TourName = tourName;
         TourId = tourId;
         TourImageUrl = tourImageUrl;
         TourDates = tourDates;
+        PickupLocation = pickupLocation;
     }
     
     public BasketItemModel(

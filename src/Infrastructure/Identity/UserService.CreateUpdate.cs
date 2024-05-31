@@ -5,6 +5,7 @@ using Travaloud.Application.Identity.Users;
 using Travaloud.Application.Identity.Users.Password;
 using Travaloud.Domain.Common;
 using Travaloud.Domain.Identity;
+using Exception = System.Exception;
 
 namespace Travaloud.Infrastructure.Identity;
 
@@ -38,7 +39,7 @@ internal partial class UserService
                 FirstName = request.FirstName,
                 LastName = request.LastName,
                 FullName = $"{request.FirstName} {request.LastName}",
-                UserName = request.Email,
+                UserName = request.Username ?? request.Email,
                 PhoneNumber = request.PhoneNumber,
                 Address = request.Address,
                 City = request.City,
@@ -56,7 +57,7 @@ internal partial class UserService
                 IsActive = true,
                 EmailConfirmed = true,
                 NormalizedEmail = request.Email.Normalize().ToUpper(),
-                NormalizedUserName = request.Email.Normalize().ToUpper(),
+                NormalizedUserName = request.Username != null ? request.Username.Normalize().ToUpper() : request.Email.Normalize().ToUpper(),
                 LockoutEnabled = true
             };
 
@@ -168,7 +169,7 @@ internal partial class UserService
             var usersToInsert = new List<ApplicationUser>();
             foreach (var user in request)
             {
-                var username = string.IsNullOrEmpty(user.Email) ? DefaultIdType.NewGuid().ToString() : user.Email;
+                var username = string.IsNullOrEmpty(user.Email) ? DefaultIdType.NewGuid().ToString() : user.Username;
                 var newUser = new ApplicationUser
                 {
                     Email = user.Email,
@@ -339,6 +340,60 @@ internal partial class UserService
         catch (Exception)
         {
             throw new InternalServerException(_localizer["Update profile failed"]);
+        }
+    }
+
+    public async Task<bool> CreateClaimAsync(CreateUserClaimRequest request, string userId)
+    {
+        try
+        {
+            await using var dbContext = CreateDbContext();
+            var user = await GetUserById(dbContext, userId);
+
+            _ = user ?? throw new NotFoundException(_localizer["User Not Found."]);
+
+            var userClaim = new IdentityUserClaim<string>()
+            {
+                ClaimType = request.ClaimType,
+                ClaimValue = request.ClaimValue,
+                UserId = request.UserId
+            };
+
+            await dbContext.UserClaims.AddAsync(userClaim);
+            await dbContext.SaveChangesAsync();
+            
+            return true;
+        }
+        catch (Exception ex)
+        {
+            return false;
+        }
+    }
+    
+    public async Task<bool> DeleteClaimAsync(DeleteUserClaimRequest request, string userId)
+    {
+        try
+        {
+            await using var dbContext = CreateDbContext();
+            var user = await GetUserById(dbContext, userId);
+
+            _ = user ?? throw new NotFoundException(_localizer["User Not Found."]);
+
+            var userClaim = await dbContext.UserClaims.FirstOrDefaultAsync(x =>
+                x.ClaimType == request.ClaimType &&
+                x.ClaimValue == request.ClaimValue &&
+                x.UserId == request.UserId);
+            
+            _ = userClaim ?? throw new NotFoundException(_localizer["User Claim Not Found."]);
+
+            dbContext.UserClaims.Remove(userClaim);
+            await dbContext.SaveChangesAsync();
+            
+            return true;
+        }
+        catch (Exception ex)
+        {
+            return false;
         }
     }
 }

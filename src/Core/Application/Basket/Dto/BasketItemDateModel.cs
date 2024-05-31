@@ -12,6 +12,7 @@ public class BasketItemDateModel
     public DateTime StartDate { get; set; }
     public string FormattedPrice => $"{Price:n2}";
     public string GuestQuantityLabel => $"{GuestQuantity} Guest{(GuestQuantity > 1 ? "s" : "")}";
+    public string? PickupLocation { get; set; }
     public IList<BasketItemGuestModel>? Guests { get; set; }
     public void Update(int guestQuantity)
     {

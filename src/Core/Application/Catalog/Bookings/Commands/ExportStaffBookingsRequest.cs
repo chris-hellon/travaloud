@@ -30,7 +30,8 @@ internal class StaffBookingsByDateRangeRequestHandler : IRequestHandler<ExportSt
             {
                 request.TenantId,
                 request.FromDate,
-                request.ToDate
+                request.ToDate,
+                PageSize = int.MaxValue
             },
             commandType: CommandType.StoredProcedure,
             cancellationToken: cancellationToken);

@@ -15,15 +15,15 @@ public partial class JobVacancyEnquiries
 {
     [Inject] protected IJobVacancyResponsesService JobVacancyResponsesService { get; set; } = default!;
 
-    private EntityServerTableContext<JobVacancyResponseDto, Guid, JobVacancyResponseViewModel> Context { get; set; } = default!;
+    private EntityServerTableContext<JobVacancyResponseDto, DefaultIdType, JobVacancyResponseViewModel> Context { get; set; } = default!;
 
     private EditContext? EditContext { get; set; }
 
-    private EntityTable<JobVacancyResponseDto, Guid, JobVacancyResponseViewModel> _table = default!;
+    private EntityTable<JobVacancyResponseDto, DefaultIdType, JobVacancyResponseViewModel> _table = default!;
 
     protected override void OnInitialized()
     {
-        Context = new EntityServerTableContext<JobVacancyResponseDto, Guid, JobVacancyResponseViewModel>(
+        Context = new EntityServerTableContext<JobVacancyResponseDto, DefaultIdType, JobVacancyResponseViewModel>(
             entityName: L["Job Vacancy Enquiry"],
             entityNamePlural: L["Job Vacancy Enquiries"],
             entityResource: TravaloudResource.Enquiries,

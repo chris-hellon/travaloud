@@ -98,8 +98,6 @@ internal class CreateStripeSessionRequestHandler : IRequestHandler<CreateStripeS
                 ReceiptEmail = request.CustomerEmail,
                 Metadata = new Dictionary<string, string>
                 {
-                    // {"BookingId", request.BookingId.ToString()!},
-                    // {"InvoiceId", request.InvoiceId!.Value.ToString()},
                     {"Properties", propertiesLabel ?? string.Empty},
                     {"Tours", toursLabel ?? string.Empty}
                 },

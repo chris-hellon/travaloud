@@ -35,7 +35,7 @@
                 }
 
                 <MudItem xs="12" md="12">
-                    <MudDatePicker Label="@L["Start Date"]" @bind-Date="RequestModel.StartDate" For="@(() => RequestModel.StartDate)" MinDate="DateTime.Now.AddDays(-1)" DateFormat="dd/MM/yyyy" Variant="Variant.Outlined" Margin="Margin.Dense" Required="true"/>
+                    <MudDatePicker Label="@L["Start Date"]" @bind-Date="RequestModel.StartDate" For="@(() => RequestModel.StartDate)" MinDate="DateTime.Now.AddDays(-1)" MaxDate="DateTime.Now.AddYears(3)" DateFormat="dd/MM/yyyy" Variant="Variant.Outlined" Margin="Margin.Dense" Required="true"/>
                 </MudItem>
 
                 <MudItem xs="12" md="12">
@@ -43,13 +43,13 @@
                 </MudItem>
 
                 <MudItem xs="12" md="12">
-                    <MudSelect T="Guid?" Label="@L["Price"]" @bind-Value="RequestModel.TourPriceId" Variant="Variant.Outlined" Margin="Margin.Dense" HelperText="Select a Price that this date applies to." Required="true">
-                        <MudSelectItem T="Guid?" Value="null" Style="display:none;"></MudSelectItem>
+                    <MudSelect T="DefaultIdType?" Label="@L["Price"]" @bind-Value="RequestModel.TourPriceId" Variant="Variant.Outlined" Margin="Margin.Dense" HelperText="Select a Price that this date applies to." Required="true">
+                        <MudSelectItem T="DefaultIdType?" Value="null" Style="display:none;"></MudSelectItem>
                         @if (Tour.TourPrices != null && Tour.TourPrices.Any(x => x.DayDuration.HasValue || x.NightDuration.HasValue || x.HourDuration.HasValue))
                         {
                             @foreach (var tourPrice in Tour.TourPrices.Where(x => x.DayDuration.HasValue || x.NightDuration.HasValue || x.HourDuration.HasValue))
                             {
-                                <MudSelectItem T="Guid?" Value="@tourPrice.Id">@tourPrice.Price @tourPrice.Title</MudSelectItem>
+                                <MudSelectItem T="DefaultIdType?" Value="@tourPrice.Id">@tourPrice.Price @tourPrice.Title</MudSelectItem>
                             }
                         }
                     </MudSelect>

@@ -1,46 +1,37 @@
 ﻿using Travaloud.Application.Catalog.Bookings.Specification;
-using Travaloud.Application.Identity.Users;
 using Travaloud.Domain.Catalog.Bookings;
-using Travaloud.Domain.Catalog.Properties;
 using Travaloud.Domain.Catalog.Tours;
 
 namespace Travaloud.Application.Dashboard;
 
 public class GetStatsRequest : IRequest<StatsDto>
 {
-    public List<UserDetailsDto> Guests { get; set; }
+    public DateTime? StartDate { get; set; }
+    public DateTime? EndDate { get; set; }
+    public required string TenantId { get; set; } 
 }
 
 public class GetStatsRequestHandler : IRequestHandler<GetStatsRequest, StatsDto>
 {
-    private readonly IRepositoryFactory<Property> _propertiesRepo;
     private readonly IRepositoryFactory<Booking> _bookingsRepo;
     private readonly IRepositoryFactory<Tour> _toursRepo;
 
     public GetStatsRequestHandler(
-        IRepositoryFactory<Property> propertiesRepo,
         IRepositoryFactory<Booking> bookingsRepo, 
         IRepositoryFactory<Tour> toursRepo)
     {
-        _propertiesRepo = propertiesRepo;
         _bookingsRepo = bookingsRepo;
         _toursRepo = toursRepo;
     }
 
     public async Task<StatsDto> Handle(GetStatsRequest request, CancellationToken cancellationToken)
     {
-        var tourBookingsRequest = Task.Run(() => _bookingsRepo.ListAsync(new TourBookingsCountSpec(), cancellationToken), cancellationToken);
+        var tourBookingsRequest = Task.Run(() => _bookingsRepo.ListAsync(new TourBookingsCountSpec(null, null), cancellationToken), cancellationToken);
         var toursRequest = Task.Run(() => _toursRepo.ListAsync(cancellationToken), cancellationToken);
-        var propertiesCountRequest = Task.Run(() => _propertiesRepo.CountAsync(cancellationToken), cancellationToken);
-        var bookingsCountRequest = Task.Run(() => _bookingsRepo.CountAsync(cancellationToken), cancellationToken);
-        var propertyBookingsCountRequest = Task.Run(() => _bookingsRepo.CountAsync(new PropertyBookingsCountSpec(), cancellationToken), cancellationToken);
-
+        
         await Task.WhenAll(
-            tourBookingsRequest, 
-            toursRequest, 
-            propertiesCountRequest, 
-            bookingsCountRequest,
-            propertyBookingsCountRequest);
+            toursRequest,
+            tourBookingsRequest);
         
         var tourBookings = tourBookingsRequest.Result;
         var tourItemBookings = tourBookings.GroupBy(x => new
@@ -63,13 +54,8 @@ public class GetStatsRequestHandler : IRequestHandler<GetStatsRequest, StatsDto>
         
         var stats = new StatsDto()
         {
-            PropertiesCount = propertiesCountRequest.Result,
-            BookingsCount = bookingsCountRequest.Result,
             TourBookingsCount = tourItemBookings.Sum(x => x.AllItemsCount),
             TourBookingsRevenue = tourItemBookings.Sum(x => x.Revenue),
-            PropertyBookingsCount = bookingsCountRequest.Result,
-            GuestsCount = request.Guests.Count,
-            ToursCount = tours.Count,
             PaidTourBookings = tourItemBookings.SelectMany(x => x.PaidItems),
             AllTourBookings = tourItemBookings.SelectMany(x => x.AllItems)
         };
@@ -79,7 +65,7 @@ public class GetStatsRequestHandler : IRequestHandler<GetStatsRequest, StatsDto>
             var summary = new TourBookingsBarChartSummary()
             {
                 TourName = tour.Name,
-                MonthlyAmounts = new List<TourBookingsBarChartSummary.MonthAmount>()
+                MonthlyAmounts = []
             };
             
             var selectedYear = DateTime.Now.Year;

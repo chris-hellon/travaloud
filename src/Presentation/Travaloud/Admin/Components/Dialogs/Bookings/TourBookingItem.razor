@@ -1,7 +1,6 @@
 ﻿@inject IStringLocalizer<SharedResource> L
 
 @using Travaloud.Infrastructure.Common
-@using Org.BouncyCastle.Ocsp
 @using Travaloud.Application.Catalog.Bookings.Commands
 
 <EditForm @ref="EditForm" Model="@RequestModel" OnValidSubmit="SaveAsync" Context="_editContext">
@@ -31,26 +30,37 @@
 
             <MudGrid>
                 <MudItem xs="12" md="12">
-                    <MudSelect T="Guid?" Value="RequestModel.TourId" For="@(() => RequestModel.TourId)" Disabled="TourBooking.IsPaid" Label="Tour" Clearable="true" Required="true" HelperText="Select a Tour" Variant="Variant.Outlined" ValueChanged="@(async (Guid? s) => await OnTourValueChanged(s))" ToStringFunc="TourToStringConverter">
-                        @foreach (var tour in Tours)
+                    <MudSelect T="DefaultIdType?" Value="RequestModel.TourCategoryId" For="@(() => RequestModel.TourCategoryId)" Disabled="FormDisabled" Label="Category" Clearable="true" Required="true" HelperText="Select a Category" Variant="Variant.Outlined" OnClearButtonClick="ClearTourCategories" ValueChanged="@(async (DefaultIdType? s) => await OnTourCategoryValueChanged(s))" ToStringFunc="TourCategoryToStringConverter">
+                        @foreach (var tourCategory in TourCategories)
                         {
-                            <MudSelectItem T="Guid?" Value="@tour.Id">@tour.Name</MudSelectItem>
+                            <MudSelectItem T="DefaultIdType?" Value="@tourCategory.Id">@tourCategory.Name</MudSelectItem>
                         }
                     </MudSelect>
                 </MudItem>
                 <MudItem xs="12" md="12">
-                    <MudSelect T="Guid?" Value="RequestModel.TourDateId" For="@(() => RequestModel.TourDateId)" Disabled="TourBooking.IsPaid" Label="Tour Date" Clearable="true" Required="true" HelperText="Select a Tour Date" Variant="Variant.Outlined" ValueChanged="@((Guid? s) => OnTourDateValueChanged(s))" ToStringFunc="TourDateToStringConverter">
-                        @if (TourDates != null)
+                    <MudSelect T="DefaultIdType?" Value="RequestModel.TourId" For="@(() => RequestModel.TourId)" Disabled="FormDisabled" Label="Tour" Clearable="true" Required="true" HelperText="Select a Tour" Variant="Variant.Outlined" ValueChanged="@(async (DefaultIdType? s) => await OnTourValueChanged(s))" ToStringFunc="TourToStringConverter">
+                        @if (Tours != null)
                         {
-                            foreach (var tourDate in TourDates)
+                            foreach (var tour in Tours)
                             {
-                                <MudSelectItem T="Guid?" Value="@tourDate.Id">@tourDate.StartDate ($@tourDate.TourPrice?.Price) - @tourDate.AvailableSpaces spaces available</MudSelectItem>
+                                <MudSelectItem T="DefaultIdType?" Value="@tour.Id">@tour.Name</MudSelectItem>
                             }
                         }
                     </MudSelect>
                 </MudItem>
                 <MudItem xs="12" md="12">
-                    <MudSelect T="string?" @bind-Value="RequestModel.PickupLocation" For="@(() => RequestModel.PickupLocation)" Label="Pickup Location" Clearable="true" Required="true" HelperText="Select a Pickup Location" Variant="Variant.Outlined">
+                    <MudSelect T="DefaultIdType?" Value="RequestModel.TourDateId" For="@(() => RequestModel.TourDateId)" Disabled="BookingRefunded" Label="Tour Date" Clearable="true" Required="true" HelperText="Select a Tour Date" Variant="Variant.Outlined" ValueChanged="@((DefaultIdType? s) => OnTourDateValueChanged(s))" ToStringFunc="TourDateToStringConverter">
+                        @if (TourDates != null)
+                        {
+                            foreach (var tourDate in TourDates)
+                            {
+                                <MudSelectItem T="DefaultIdType?" Value="@tourDate.Id">@tourDate.StartDate ($@tourDate.TourPrice?.Price) - @tourDate.AvailableSpaces spaces available</MudSelectItem>
+                            }
+                        }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12" md="12">
+                    <MudSelect T="string?" @bind-Value="RequestModel.PickupLocation" Disabled="BookingRefunded" For="@(() => RequestModel.PickupLocation)" Label="Pickup Location" Clearable="true" Required="true" HelperText="Select a Pickup Location" Variant="Variant.Outlined">
                         @if (TourPickupLocations != null)
                         {
                             foreach (var tourPickupLocation in TourPickupLocations)
@@ -60,13 +70,24 @@
                         }
                     </MudSelect>
                 </MudItem>
+                @if (IsWaiverRequired)
+                {
+                    <MudItem xs="12" md="6">
+                        <MudCheckBox For="@(() => RequestModel.WaiverSigned)" @bind-Value="@RequestModel.WaiverSigned" Label="@L["Has a Waiver been signed?"]"></MudCheckBox>
+                    </MudItem>
+                }
                 @if (RequestModel.Guests == null || !RequestModel.Guests.Any())
                 {
-                    if (!TourBooking.IsPaid)
+                    if (!FormDisabled)
                     {
                         <MudItem xs="12" md="12">
                             <MudButton DisableElevation Size="Size.Small" Variant="Variant.Filled" Color="Color.Primary" OnClick="(() => InvokeBookingItemGuestDialog(RequestModel))" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Surface" Class="mb-2">@L["Add additional Guest"]</MudButton>
-                        </MudItem>   
+
+                            @if (IsWaiverRequired && !string.IsNullOrEmpty(WaiverTermsAndConditions))
+                            {
+                                <MudButton OnClick="ShowWaiverDialog" Size="Size.Small" Color="Color.Info" Variant="Variant.Filled" IconColor="Color.Surface" StartIcon="@Icons.Material.Filled.FileOpen" Class="mb-2 ms-2">Show Waiver</MudButton>
+                            }
+                        </MudItem>
                     }
                 }
                 else
@@ -74,9 +95,13 @@
                     <MudItem xs="12" md="12">
                         <MudTable T="BookingItemGuestRequest"Style="table-layout:auto; padding:0px !important;" Items="@RequestModel.Guests" Context="itemContext" Hover="false" HorizontalScrollbar="true" Elevation="0" Breakpoint="Breakpoint.Sm" LoadingProgressColor="Color.Info" CanCancelEdit="true" ReadOnly="false">
                             <ToolBarContent>
-                                @if (!TourBooking.IsPaid)
+                                @if (!FormDisabled)
                                 {
                                     <MudButton DisableElevation Size="Size.Small" Variant="Variant.Filled" Color="Color.Primary" OnClick="(() => InvokeBookingItemGuestDialog(RequestModel))" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Surface" Class="mb-2">@L["Add additional Guest"]</MudButton>
+                                    if (IsWaiverRequired && !string.IsNullOrEmpty(WaiverTermsAndConditions))
+                                    {
+                                        <MudButton OnClick="ShowWaiverDialog" Size="Size.Small" Color="Color.Info" Variant="Variant.Filled" IconColor="Color.Surface" StartIcon="@Icons.Material.Filled.FileOpen" Class="mb-2 ms-2">Show Waiver</MudButton>
+                                    }
                                 }
                             </ToolBarContent>
                             <ColGroup>
@@ -92,11 +117,11 @@
                             <RowTemplate>
                                 <MudTd DataLabel="Name">@itemContext.FirstName @itemContext.LastName</MudTd>
                                 <MudTd DataLabel="Email Address">@itemContext.EmailAddress</MudTd>
-                                <MudTd DataLabel="Edit" Style="min-width: 0; width: 270px; text-align: right;">
-                                     <MudButton Variant="Variant.Filled" Size="Size.Small" StartIcon="@Icons.Material.Filled.Edit" Color="Color.Tertiary" OnClick="(() => InvokeBookingItemGuestDialog(RequestModel, itemContext))">Edit</MudButton>
-                                    @if (!TourBooking.IsPaid)
+                                <MudTd DataLabel="Edit" Style="min-width: 0; width: 200px; text-align: right;">
+                                    <MudButton Variant="Variant.Filled" Size="Size.Small" StartIcon="@Icons.Material.Filled.Edit" Color="Color.Tertiary" Class="me-2" OnClick="(() => InvokeBookingItemGuestDialog(RequestModel, itemContext))">Edit</MudButton>
+                                    @if (CanDelete)
                                     {
-                                        <MudButton Variant="Variant.Filled" Size="Size.Small" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="(() => RemoveGuestRow(RequestModel, itemContext.GuestId))">Delete</MudButton>
+                                        <MudButton Variant="Variant.Filled" Size="Size.Small" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="(() => RemoveGuestRow(RequestModel, itemContext.GuestId))">Delete</MudButton>   
                                     }
                                 </MudTd>
                             </RowTemplate>

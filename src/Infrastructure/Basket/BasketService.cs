@@ -105,20 +105,6 @@ public class BasketService : IBasketService
                                                     x.CheckInDateParsed.Value.Date == room.CheckInDateParsed.Date &&
                                                     x.CheckOutDateParsed.Value.Date == room.CheckOutDateParsed.Date);
 
-        // item = await AddItem(
-        //     basket: basket,
-        //     item: new BasketItemModel(room.PropertyName,
-        //         room.PropertyId,
-        //         room.PropertyImageUrl,
-        //         room.CheckInDate,
-        //         room.CheckOutDate,
-        //         propertyBookingUrl,
-        //         room.CloudbedsPropertyId,
-        //         userId,
-        //         new List<BasketItemRoomModel>()));
-        //
-        // item.AddRoom(room);
-        
         if (item == null)
         {
             item = await AddItem(
@@ -164,15 +150,6 @@ public class BasketService : IBasketService
         var basket = await GetBasket();
         var item = basket.Items.FirstOrDefault(x => x.TourId == date.TourId && x.TourDates?.FirstOrDefault(td => td.DateId == date.DateId) != null);
 
-        // item = await AddItem(
-        //     basket: basket,
-        //     item: new BasketItemModel(date.TourName!,
-        //         date.TourId,
-        //         date.TourImageUrl!,
-        //         new List<BasketItemDateModel>()));
-        //
-        // item.AddDate(date);
-        //
         if (item == null)
         {
             item = await AddItem(
@@ -180,6 +157,7 @@ public class BasketService : IBasketService
                 item: new BasketItemModel(date.TourName!,
                     date.TourId,
                     date.TourImageUrl!,
+                    date.PickupLocation!,
                     new List<BasketItemDateModel>()));
         
             item.AddDate(date);
@@ -208,39 +186,6 @@ public class BasketService : IBasketService
         return new Tuple<BasketModel, BasketItemModel>(basket, item);
     }
 
-    
-    // public async Task<Tuple<BasketModel, BasketItemModel>> AddItem(DefaultIdType tourId, DefaultIdType tourDateId, int guestQuantity)
-    // {
-    //     var basket = await GetBasket();
-    //     var item = basket.Items.FirstOrDefault(x => x.TourId == tourId);
-    //
-    //     if (item == null)
-    //     {
-    //         await AddItem(
-    //             basket: basket,
-    //             item: new BasketItemModel(tour, new List<BasketItemDateModel>
-    //             {
-    //                 new(tourDate, guestQuantity, tour.Name, tour.ImagePath ?? string.Empty)
-    //             }));
-    //     }
-    //     else
-    //     {
-    //         var itemTourDate = item.TourDates?.FirstOrDefault(x => x.TourDate.Id == tourDate.Id);
-    //
-    //         if (itemTourDate != null)
-    //             itemTourDate.GuestQuantity += guestQuantity;
-    //         else
-    //             item.TourDates?.Add(new BasketItemDateModel(tourDate, guestQuantity, tour.Name,
-    //                 tour.ImagePath ?? string.Empty));
-    //     }
-    //
-    //     basket.CalculateTotal();
-    //     _session.UpdateObjectInSession(BasketKey, basket);
-    //
-    //     return new Tuple<BasketModel, BasketItemModel>(basket, item);
-    // }
-    //
-    //
     public async Task<Tuple<BasketModel, BasketItemModel>?> AddGuest(DefaultIdType itemId, BasketItemGuestModel guest)
     {
         var basket = await GetBasket();
@@ -281,22 +226,7 @@ public class BasketService : IBasketService
                 );
             }
         }
-
-        // if (basketItem?.Guests != null)
-        // {
-        //     var basketItemGuest = basketItem.Guests.FirstOrDefault(x => x.Id == guest.Id);
-        //
-        //     basketItemGuest?.Update(
-        //         guest.FirstName,
-        //         guest.Surname,
-        //         guest.Email,
-        //         guest.DateOfBirth,
-        //         guest.PhoneNumber,
-        //         guest.Nationality,
-        //         guest.Gender
-        //     );
-        // }
-
+        
         _session.UpdateObjectInSession(BasketKey, basket);
 
         return basketItem != null ? new Tuple<BasketModel, BasketItemModel>(basket, basketItem) : null;

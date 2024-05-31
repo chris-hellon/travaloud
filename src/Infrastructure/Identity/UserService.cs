@@ -26,10 +26,6 @@ namespace Travaloud.Infrastructure.Identity;
 internal partial class UserService : IUserService
 {
     private readonly IStringLocalizer<UserService> _localizer;
-    // private readonly IMailService _mailService;
-    // private readonly MailSettings _mailSettings;
-    // private readonly SecuritySettings _securitySettings;
-    // private readonly IEmailTemplateService _templateService;
     private readonly IFileStorageService _fileStorage;
     private readonly ICacheService _cache;
     private readonly ICacheKeyService _cacheKeys;
@@ -45,15 +41,11 @@ internal partial class UserService : IUserService
     
     public UserService(
         IStringLocalizer<UserService> localizer,
-        // IMailService mailService,
-        // IOptions<MailSettings> mailSettings,
-        // IEmailTemplateService templateService,
         IFileStorageService fileStorage,
         IEventPublisher events,
         ICacheService cache,
         ICacheKeyService cacheKeys,
         ITenantInfo currentTenant,
-        // IOptions<SecuritySettings> securitySettings,
         ICurrentUser currentUser,
         IMultiTenantContextAccessor<TravaloudTenantInfo> multiTenantContextAccessor,
         IConfiguration configuration,
@@ -61,9 +53,6 @@ internal partial class UserService : IUserService
         IOptions<DatabaseSettings> dbSettings, IPasswordHasher<ApplicationUser> passwordHasher, ISender mediator)
     {
         _localizer = localizer;
-        // _mailService = mailService;
-        // _mailSettings = mailSettings.Value;
-        // _templateService = templateService;
         _fileStorage = fileStorage;
         _events = events;
         _cache = cache;
@@ -76,7 +65,6 @@ internal partial class UserService : IUserService
         _dbSettings = dbSettings;
         _passwordHasher = passwordHasher;
         _mediator = mediator;
-        // _securitySettings = securitySettings.Value;
     }
 
     public Task<PaginationResponse<UserDetailsDto>> SearchByDapperAsync(SearchByDapperRequest request, CancellationToken cancellationToken)
@@ -263,6 +251,25 @@ internal partial class UserService : IUserService
 
         await _events.PublishAsync(new ApplicationUserUpdatedEvent(user.Id));
     }
+    
+    public async Task<IEnumerable<IdentityUserClaim<string>>> GetUserClaims(GetUserClaimsRequest request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await using var dbContext = CreateDbContext();
+
+            var spec = new UserClaimsFilteredSpec(request);
+            
+            return await dbContext.UserClaims
+                .AsNoTracking()
+                .WithSpecification(spec)
+                .ToListAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            return Array.Empty<IdentityUserClaim<string>>();
+        }
+    }
 
     private static async Task<bool> IsUserInRole(ApplicationDbContext dbContext, ApplicationUser user, string roleName)
     {
@@ -291,7 +298,7 @@ internal partial class UserService : IUserService
         else
         {
             // Get all users that aren't guests
-            var roles = await dbContext.Roles.AsNoTracking().Where(x => x.Name != TravaloudRoles.Guest).ToListAsync();
+            var roles = await dbContext.Roles.AsNoTracking().Where(x => x.Name != TravaloudRoles.Guest && x.Name != TravaloudRoles.Supplier).ToListAsync();
             var roleIds = roles.Select(x => x.Id);
             var userRoles = await dbContext.UserRoles.AsNoTracking().Where(x => roleIds.Contains(x.RoleId)).ToListAsync();
             var users = await dbContext.Users.AsNoTracking().ToListAsync();

@@ -1,19 +1,21 @@
 let datepickerWithFilter = $('.confirm-date-on-select');
 let tourPrice = 0;
 let startDate = null;
+let feedbackLabel = $('.tour-booking-feedback-label');
+let proceedToCheckoutButton = $('.proceed-to-checkout-button');
 
 $("document").ready(function () {
     filterDates();
 
     let tourDate = $('#TourDate');
     let guestQuantity = $('#GuestQuantity');
+    let pickUpLocation = $('#PickUpLocation');
     let startTime = $('#TourDateStartTime');
-
-    let proceedToCheckoutButton = $('.proceed-to-checkout-button');
     
     if (tourDate.val() !== undefined && tourDate.val().length &&
         guestQuantity.val() !== undefined && guestQuantity.val().length &&
-        startTime.val() !== undefined && startTime.val().length)
+        startTime.val() !== undefined && startTime.val().length &&
+        pickUpLocation.val() !== undefined && pickUpLocation.val().length)
     {
         proceedToCheckoutButton.on('click', function() {
             window.location.href = "/checkout";
@@ -24,36 +26,64 @@ $("document").ready(function () {
         let value = $(this).val();
         if (value.length > 0 && parseInt(value) > 0)
         {
-            $('.add-tour-to-basket-button, .proceed-to-checkout-button').prop('disabled', false);
-
-            let guestQuantityControl = $('#GuestQuantity');
-           
-            proceedToCheckoutButton.on('click', function() {
-                let tourId = guestQuantityControl.data('tour-id');
-                let tourName = guestQuantityControl.data('tour-name');
-                let tourImageUrl = guestQuantityControl.data('tour-image-url');
-                let tourDateId = $('#TourDateStartTime').val();
-                let guestQuantity = guestQuantityControl.val();
-
-                let request = new BasketItemDateModel(tourDateId, tourId, tourName, tourImageUrl, guestQuantity, tourPrice, startDate);
-
-                showLoader();
-                
-                doPost({
-                    url : "AddTourDateToBasket",
-                    formData: request,
-                    successCallback: (result) => {
-                        window.location.href = "/checkout";
-                    },
-                    skipLoader: true
-                });
-            })
+            if (pickUpLocation.val() == "")
+            {
+                setFeedbackLabel('Select a Pick Up Location');
+            }
+            else {
+                setFeedbackLabel('<i class="fas fa-check"></i>', true);
+            }
         }
         else {
-            $('.add-tour-to-basket-button, .proceed-to-checkout-button').prop('disabled', true);
+            setFeedbackLabel('Enter an amount of Guests');
         }
     });
+
+    pickUpLocation.on('change', function() {
+        setFeedbackLabel('<i class="fas fa-check"></i>', true);
+    });
 });
+
+const setFeedbackLabel = (html, isSuccess = false) => {
+    if (isSuccess)
+    {
+        $('.add-tour-to-basket-button, .proceed-to-checkout-button').prop('disabled', false);
+
+        let guestQuantityControl = $('#GuestQuantity');
+
+        proceedToCheckoutButton.unbind('click');
+        proceedToCheckoutButton.on('click', function() {
+            let tourId = guestQuantityControl.data('tour-id');
+            let tourName = guestQuantityControl.data('tour-name');
+            let tourImageUrl = guestQuantityControl.data('tour-image-url');
+            let tourDateId = $('#TourDateStartTime').val();
+            let guestQuantity = guestQuantityControl.val();
+            let pickupLocation = $('#PickUpLocation').val();
+
+            let request = new BasketItemDateModel(tourDateId, tourId, tourName, tourImageUrl, guestQuantity, tourPrice, startDate, pickupLocation);
+
+            showLoader();
+
+            doPost({
+                url : "AddTourDateToBasket",
+                formData: request,
+                successCallback: (result) => {
+                    window.location.href = "/checkout";
+                },
+                skipLoader: true
+            });
+        });
+
+        feedbackLabel.removeClass('badge-primary').addClass('badge-success');
+    }
+    else
+    {
+        feedbackLabel.removeClass('badge-success').addClass('badge-primary');
+        $('.add-tour-to-basket-button, .proceed-to-checkout-button').prop('disabled', true);
+    }
+    
+    feedbackLabel.html(html);
+}
 
 function filterDates() {
     let tourDates = [];
@@ -104,7 +134,7 @@ const setTourDateTimeDropdown = function(selectedDate)
         let selectedDateParsed = moment(selectedDate).format('DD/MM/YYYY');
         let tourDateParsed = moment(tourDateFormatted).format('DD/MM/YYYY');
         let tourDateTimeParsed = moment(v.startDate).format('HH:mm');
-        
+
         if (tourDateParsed === selectedDateParsed) {
             if (multiplePrices === "True")
             {
@@ -130,18 +160,20 @@ const selectTourDateTime = () => {
     
     if (tourDate.availableSpaces <= 5)
     {
-        guestQuantityControl.parent().find('.form-helper').html(tourDate.availableSpaces + ' spaces available.');
+        setFeedbackLabel(tourDate.availableSpaces + ' spaces available.');
     }
-    else {
-        guestQuantityControl.parent().find('.form-helper').html('Enter an amount of Guests');
+    else if (guestQuantityControl.val().length === 0) {
+        setFeedbackLabel('Enter an amount of Guests');
     }
+    else setFeedbackLabel('Select a Pickup Location');
 }
 
 const addTourToBasket = (tourId, tourName, tourImageUrl) => {
     let tourDateId = $('#TourDateStartTime').val();
     let guestQuantity = $('#GuestQuantity').val();
-
-    let request = new BasketItemDateModel(tourDateId, tourId, tourName, tourImageUrl, guestQuantity, tourPrice, startDate);
+    let pickupLocation = $('#PickUpLocation').val();
+            
+    let request = new BasketItemDateModel(tourDateId, tourId, tourName, tourImageUrl, guestQuantity, tourPrice, startDate, pickupLocation);
 
     doPost({
         url : "AddTourDateToBasket",
@@ -161,9 +193,9 @@ const addTourToBasket = (tourId, tourName, tourImageUrl) => {
             if (addToBasketButton.html() !== 'Update Basket')
             {
                 let guestQuantityControl = $('#GuestQuantity');
-                guestQuantityControl.parent().find('.form-helper').html('Select a Date');
+                setFeedbackLabel('Select a Date');
 
-                $('#TourDate, #TourDateStartTime').val('').removeClass('active');
+                $('#TourDate, #TourDateStartTime, #PickUpLocation').val('').removeClass('active');
                 $('#TourDate').prop('disabled', false);
                 guestQuantityControl.val('').prop('disabled', true).removeClass('active');
                 $('#TourDateStartTime').html('<option value="" hidden></option>').val('').prop('disabled', true);

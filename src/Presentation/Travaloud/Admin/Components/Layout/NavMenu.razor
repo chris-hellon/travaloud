@@ -7,64 +7,68 @@
     @if (_canViewDashboard)
     {
         <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">@L["Dashboard"]</MudNavLink>
-        <MudNavLink Href="/calendar" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.CalendarToday">@L["Calendar"]</MudNavLink>
-        <MudDivider/>
     }
+    
+    @if (_canViewCalendar)
+    {
+        <MudNavLink Href="/calendar" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.CalendarToday">@L["Calendar"]</MudNavLink>
+    }
+    
+    <MudDivider/>
+    
     @if (_canViewHangfire)
     {
         <MudNavLink Href="@_hangfireUrl" Match="NavLinkMatch.All" Target="_blank" Icon="@Icons.Material.Filled.Work">@L["Hangfire"]</MudNavLink>
     }
-    @if (_canViewBookings)
+    
+    @if (_canViewTourBookings && _canViewPropertyBookings)
     {
         <MudNavGroup Title="@L["Bookings"]" Expanded="@ShouldExpand("/bookings")" Icon="@Icons.Material.Filled.Payments">
             <MudNavLink Href="/bookings/tour-bookings" Match="NavLinkMatch.All">@L["Tour Bookings"]</MudNavLink>
-
-            @if (_canViewProperties)
-            {
-                <MudNavLink Href="/bookings/property-bookings" Match="NavLinkMatch.All">@L["Property Bookings"]</MudNavLink>
-            }
+            <MudNavLink Href="/bookings/property-bookings" Match="NavLinkMatch.All">@L["Property Bookings"]</MudNavLink>
         </MudNavGroup>
     }
-
+    else if (_canViewTourBookings)
+    {
+        <MudNavLink Href="/bookings/tour-bookings" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Payments">@L["Tour Bookings"]</MudNavLink>
+    }
+    else if (_canViewPropertyBookings)
+    {
+        <MudNavLink Href="/bookings/property-bookings" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Payments">@L["Property Bookings"]</MudNavLink>
+    }
+    
     @if (_canViewProperties || _canViewTours || _canViewDestinations || _canViewEvents || _canViewServices || _canViewJobVacancies || _canViewTravelGuides || _canViewGallery || _canViewPages)
     {
         <MudNavGroup Title="@L["Management"]" Expanded="@ShouldExpand("/management")" Icon="@Icons.Material.Filled.Web">
+            @if (_canViewDestinations)
+            {
+                <MudNavLink Href="/management/destinations" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.FlightTakeoff">
+                    @L["Locations"]
+                </MudNavLink>
+            }
+
+            @if (_canViewTours)
+            {
+                <MudNavGroup Title="@L["Tours"]" Expanded="@ShouldExpand("/management/tours")" Icon="@Icons.Material.Filled.Route">
+                    <MudNavLink Href="/management/tours" Match="NavLinkMatch.All">@L["Tours"]</MudNavLink>
+                    <MudNavLink Href="/management/tours/tour-categories" Match="NavLinkMatch.All">@L["Categories"]</MudNavLink>
+
+                    @if (_canViewTourGroups)
+                    {
+                        <MudNavLink Href="/management/tours/tour-groups" Match="NavLinkMatch.All">@L["Groups"]</MudNavLink>
+                    }
+
+                    <MudNavLink Href="/management/tours/suppliers" Match="NavLinkMatch.Prefix">@L["Suppliers"]</MudNavLink>
+                </MudNavGroup>
+            }
+            
             @if (_canViewProperties)
             {
                 <MudNavLink Href="/management/properties" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.LocationCity">
                     @L["Properties"]
                 </MudNavLink>
             }
-
-            @if (_canViewTours)
-            {
-                if (_canViewTourDropdown)
-                {
-                    <MudNavGroup Title="@L["Tours"]" Expanded="@ShouldExpand("/management/tours")" Icon="@Icons.Material.Filled.Route">
-                        <MudNavLink Href="/management/tours" Match="NavLinkMatch.All">@L["Tours"]</MudNavLink>
-                        <MudNavLink Href="/management/tours/tour-categories" Match="NavLinkMatch.All">@L["Categories"]</MudNavLink>
-
-                        @if (_canViewTourGroups)
-                        {
-                            <MudNavLink Href="/management/tours/tour-groups" Match="NavLinkMatch.All">@L["Groups"]</MudNavLink>
-                        }
-                    </MudNavGroup>
-                }
-                else
-                {
-                    <MudNavLink Href="/management/tours" Icon="@Icons.Material.Filled.Route">
-                        @L["Tours"]
-                    </MudNavLink>
-                }
-            }
-
-            @if (_canViewDestinations)
-            {
-                <MudNavLink Href="/management/destinations" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.FlightTakeoff">
-                    @L["Destinations"]
-                </MudNavLink>
-            }
-
+            
             @if (_canViewEvents)
             {
                 <MudNavLink Href="/management/events" Match="NavLinkMatch.All"Icon="@Icons.Material.Filled.Event">
@@ -72,12 +76,12 @@
                 </MudNavLink>
             }
 
-            @if (_canViewServices)
-            {
-                <MudNavLink Href="/management/services" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.MiscellaneousServices">
-                    @L["Services"]
-                </MudNavLink>
-            }
+            @* @if (_canViewServices) *@
+            @* { *@
+            @*     <MudNavLink Href="/management/services" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.MiscellaneousServices"> *@
+            @*         @L["Services"] *@
+            @*     </MudNavLink> *@
+            @* } *@
 
             @if (_canViewJobVacancies)
             {
@@ -116,10 +120,10 @@
             <MudNavLink Href="/enquiries/general-enquiries" Match="NavLinkMatch.All">@L["General"]</MudNavLink>
             <MudNavLink Href="/enquiries/tours-enquiries" Match="NavLinkMatch.All">@L["Tours"]</MudNavLink>
 
-            @if (_canViewServices)
-            {
-                <MudNavLink Href="/enquiries/services-enquiries" Match="NavLinkMatch.All">@L["Services"]</MudNavLink>
-            }
+            @* @if (_canViewServices) *@
+            @* { *@
+            @*     <MudNavLink Href="/enquiries/services-enquiries" Match="NavLinkMatch.All">@L["Services"]</MudNavLink> *@
+            @* } *@
 
             @if (_canViewJobVacancies)
             {
@@ -128,18 +132,17 @@
         </MudNavGroup>
     }
 
-    @if (_canViewPartners)
+    <MudDivider/>
+    
+    @if (_canViewGuests)
     {
-        <MudNavLink Href="/partners" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Contacts">@L["Partners"]</MudNavLink>
+        <MudNavLink Match="NavLinkMatch.Prefix" Href="/guests" Icon="@Icons.Material.Filled.Groups">@L["Guests"]</MudNavLink>
     }
-
+    
     @if (CanViewAdministrationGroup)
     {
-        <MudDivider/>
-
         @if (_canViewUsers)
         {
-            <MudNavLink Match="NavLinkMatch.Prefix" Href="/guests" Icon="@Icons.Material.Filled.Groups">@L["Guests"]</MudNavLink>
             <MudNavLink Match="NavLinkMatch.Prefix" Href="/staff" Icon="@Icons.Material.Filled.PeopleAlt">@L["Staff"]</MudNavLink>
         }
 

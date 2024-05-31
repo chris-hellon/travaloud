@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using Travaloud.Application.Catalog.TourDates.Specification;
 using Travaloud.Application.Catalog.Tours.Specification;
 using Travaloud.Application.Common.Utils;
 using Travaloud.Application.Identity.Users;
@@ -25,7 +26,9 @@ public class CreateBookingRequest : IRequest<DefaultIdType?>
     public UserDetailsDto? Guest { get; set; }
     public string? AdditionalNotes { get; set; }
     public string? BookingSource { get; set; }
-    
+    public string? StripeSessionId { get; set; }
+    public decimal? AmountOutstanding { get; set; }
+
     public CreateBookingRequest()
     {
         
@@ -117,12 +120,14 @@ public class CreateBookingRequestHandler : IRequestHandler<CreateBookingRequest,
             request.IsPaid,
             request.BookingDate,
             request.GuestId, 
-            null,
+            request.StripeSessionId,
             request.WaiverSigned,
             request.GuestName,
             request.GuestEmail,
             request.AdditionalNotes,
-            request.BookingSource);
+            request.BookingSource,
+            null,
+            request.AmountOutstanding);
 
         if (!string.IsNullOrEmpty(request.CreatedBy))
         {
@@ -146,7 +151,10 @@ public class CreateBookingRequestHandler : IRequestHandler<CreateBookingRequest,
                     itemRequest.TourDateId,
                     itemRequest.CloudbedsReservationId,
                     itemRequest.CloudbedsPropertyId,
-                    itemRequest.PickupLocation);
+                    itemRequest.PickupLocation,
+                    itemRequest.WaiverSigned,
+                    itemRequest.TourCategoryId,
+                    booking.CreatedBy);
                 
                 if (!string.IsNullOrEmpty(request.CreatedBy))
                 {

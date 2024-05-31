@@ -1,7 +1,7 @@
 ﻿@model ContainerHalfImageTextComponent
 @inject Wangkanai.Detection.Services.IDetectionService DetectionService
 
-<div class="container-fluid">
+<div class="container-xxl g-0">
     <div class="row @Model.CssClass @(Model.SwapDirection ? "flex-row-reverse" : "")@(Model.OvalContainer != null ? " position-relative" : "")">
         @if (Model.SwapDirection)
         {
@@ -19,8 +19,8 @@
         <div class="col-md-12 @(Model.SwapDirection ? "col-lg-6" : "col-lg-6 offset-lg-1") p-0 offcut-image-border has-parallax-scroll order-lg-2 order-1">
             @{
                 var isMobile = DetectionService.Device.Type == Wangkanai.Detection.Models.Device.Mobile;
-                var imageWidth = 1300;
-                var imageHeight = 800;
+                var imageWidth = 1172;
+                var imageHeight = 667;
                 if (isMobile)
                 {
                     imageWidth = 600;

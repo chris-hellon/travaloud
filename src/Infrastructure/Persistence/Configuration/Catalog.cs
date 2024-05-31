@@ -54,6 +54,15 @@ public class BookingsConfig : IEntityTypeConfiguration<Booking>
     }
 }
 
+public class BookingPackagesConfig : IEntityTypeConfiguration<BookingPackage>
+{
+    public void Configure(EntityTypeBuilder<BookingPackage> builder)
+    {
+        builder.IsMultiTenant();
+    }
+}
+
+
 public class TourConfig : IEntityTypeConfiguration<Tour>
 {
     public void Configure(EntityTypeBuilder<Tour> builder)

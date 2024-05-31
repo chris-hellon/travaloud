@@ -5,6 +5,7 @@ using Travaloud.Application.BackgroundJobs.Commands;
 using Travaloud.Application.Catalog.Destinations.Specification;
 using Travaloud.Application.Catalog.Interfaces;
 using Travaloud.Application.Catalog.Properties.Queries;
+using Travaloud.Application.Catalog.TourDates.Specification;
 using Travaloud.Application.Catalog.Tours.Specification;
 using Travaloud.Application.Common.Mailing;
 using Travaloud.Application.Common.Persistence;
@@ -92,7 +93,8 @@ public class SendDailyTourManifestHandler : IRequestHandler<SendDailyTourManifes
         {
             Guests = guests.Data,
             TourDateId = request.TourDateId,
-            TourId = request.TourId
+            TourId = request.TourId,
+            HideRefunded = true
         };
 
         var destinationManifests = new Dictionary<string, byte[]>();

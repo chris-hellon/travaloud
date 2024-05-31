@@ -27,13 +27,16 @@ public class BookingItemDetailsDto
     public DefaultIdType? TourDateId { get; set; }
     public string? CloudbedsReservationId { get; set; }
     public int? CloudbedsPropertyId { get; set; }
-    public bool ShowDetails { get; set; } = default!;
-    public bool ShowGuestDetails { get; set; } = default!;
-    public int ConcurrencyVersion { get; set; } = default!;
+    public bool ShowDetails { get; set; }
+    public bool ShowGuestDetails { get; set; } 
+    public int ConcurrencyVersion { get; set; } 
     public string? PickupLocation { get; set; }
+    public bool? WaiverSigned { get;  set; }
+    public DefaultIdType? TourCategoryId { get; set; }
     
     public TourDto? Tour { get; set; }
     public TourDateDto? TourDate { get; set; }
+    public TourCategoryDto? TourCategory { get; set; }
     public PropertyDto? Property { get; set; }
     public List<BookingItemRoomDto>? Rooms { get; set; }
     public List<BookingItemGuestDto>? Guests { get; set; }

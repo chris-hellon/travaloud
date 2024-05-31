@@ -37,7 +37,7 @@
             <MudAutocomplete T="string" MaxItems="null" Label="@L["Nationality"]" For="@(() => context.Nationality)" @bind-Value="context.Nationality" SearchFunc="@SearchNationalities" AnchorOrigin="Origin.BottomCenter" Required="false"/>
         </MudItem>
         <MudItem xs="12" md="6">
-            <MudSelect For="@(() => context.Gender)" @bind-Value="context.Gender" @bind-SelectedValues="context.Genders" Label="@L["Gender"]" AnchorOrigin="Origin.BottomCenter" MultiSelection="true" Clearable="true" Required="false">
+            <MudSelect For="@(() => context.Gender)" @bind-Value="context.Gender" Label="@L["Gender"]" AnchorOrigin="Origin.BottomCenter" Clearable="true" Required="false">
                 <MudSelectItem Value="@("Male")"/>
                 <MudSelectItem Value="@("Female")"/>
                 <MudSelectItem Value="@("N/A")"/>

@@ -16,7 +16,7 @@ public partial class TourPrice : ComponentBase
 
     [Parameter] public TourViewModel Tour { get; set; } = default!;
 
-    [Parameter] public EntityServerTableContext<TourDto, Guid, TourViewModel> Context { get; set; } = default!;
+    [Parameter] public EntityServerTableContext<TourDto, DefaultIdType, TourViewModel> Context { get; set; } = default!;
 
     [Parameter] public object? Id { get; set; }
 
@@ -55,7 +55,7 @@ public partial class TourPrice : ComponentBase
                         Tour.TourPrices ??= new List<TourPriceRequest>();
 
                         RequestModel.IsCreate = true;
-                        RequestModel.Id = Guid.NewGuid();
+                        RequestModel.Id = DefaultIdType.NewGuid();
 
                         if (Tour.TourPrices.Any())
                         {
