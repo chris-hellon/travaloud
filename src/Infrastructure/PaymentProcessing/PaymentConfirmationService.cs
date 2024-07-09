@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Serilog;
 using Travaloud.Application.Basket.Dto;
 using Travaloud.Application.Catalog.Bookings.Commands;
 using Travaloud.Application.Catalog.Bookings.Dto;
@@ -19,13 +20,16 @@ public class PaymentConfirmationService : IPaymentConfirmationService
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly ISender _mediator;
+    private readonly ILogger _logger;
 
     public PaymentConfirmationService(
         UserManager<ApplicationUser> userManager,
-        ISender mediator)
+        ISender mediator, 
+        ILogger logger)
     {
         _userManager = userManager;
         _mediator = mediator;
+        _logger = logger;
     }
 
     public async Task<CreateBookingRequest> CreateBookingRequest(DefaultIdType guestId, BasketModel basket,
@@ -188,10 +192,15 @@ public class PaymentConfirmationService : IPaymentConfirmationService
                             basketItem, property.CloudbedsApiKey, cardToken, paymentAuthorizationCode));
 
                     if (!createReservationResponse.Success || booking.Items == null)
+                    {
+                        if (createReservationResponse.Message != null) _logger.Error(createReservationResponse.Message);
                         return false;
+                    }
 
                     reservationId = createReservationResponse.ReservationID;
 
+                    _logger.Information("Cloudbeds reservation {ReservationId} created successfully", reservationId);
+                    
                     //Get reservation on Cloudbeds and check if any balance is to be handled, if so, manually make a payment for it.
                     var reservation = await _mediator.Send(new GetReservationRequest(
                         property.CloudbedsPropertyId,
@@ -207,12 +216,16 @@ public class PaymentConfirmationService : IPaymentConfirmationService
 
                         if (!createReservationPaymentRequest.Success)
                         {
+                            if (createReservationPaymentRequest.Message != null)
+                                _logger.Error(createReservationPaymentRequest.Message);
+                            
                             return false;
                         }
                     }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    _logger.Error(ex.Message);
                     return false;
                 }
 

@@ -98,20 +98,30 @@ internal class RefundBookingRequestHandler : IRequestHandler<RefundBookingReques
             }
         }
 
-        await _stripeService.RefundSession(new RefundSessionRequest(
-            stripeChargeId, 
-            paymentIntentId,
-            stripeSession.AmountTotal.ConvertToDollars()));
+        if (!request.IsPartialRefund)
+        {
+            await _stripeService.RefundSession(new RefundSessionRequest(
+                stripeChargeId, 
+                paymentIntentId,
+                stripeSession.AmountTotal.ConvertToDollars()));
         
-        if (updateStripeSession == null) return true;
+            if (updateStripeSession == null) return true;
         
-        stripeChargeId = updateStripeSession.PaymentIntent.LatestChargeId; 
-        paymentIntentId = updateStripeSession.PaymentIntentId;
+            stripeChargeId = updateStripeSession.PaymentIntent.LatestChargeId; 
+            paymentIntentId = updateStripeSession.PaymentIntentId;
             
-        await _stripeService.RefundSession(new RefundSessionRequest(
-            stripeChargeId, 
-            paymentIntentId,
-            updateStripeSession.AmountTotal.ConvertToDollars()));
+            await _stripeService.RefundSession(new RefundSessionRequest(
+                stripeChargeId, 
+                paymentIntentId,
+                updateStripeSession.AmountTotal.ConvertToDollars()));
+        }
+        else
+        {
+            await _stripeService.RefundSession(new RefundSessionRequest(
+                stripeChargeId, 
+                paymentIntentId,
+                request.Amount));
+        }
 
         return true;
     }

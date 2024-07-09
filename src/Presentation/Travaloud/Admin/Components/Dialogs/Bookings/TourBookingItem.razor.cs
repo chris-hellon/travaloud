@@ -25,6 +25,8 @@ public partial class TourBookingItem : ComponentBase
 {
     [Inject] protected IToursService ToursService { get; set; } = default!;
 
+    [Inject] protected ITenantWebsiteService TenantWebsiteService { get; set; } = default!;
+    
     [Inject] protected ITourCategoriesService TourCategoriesService { get; set; } = default!;
 
     [Inject] protected ITourDatesService TourDatesService { get; set; } = default!;
@@ -49,6 +51,8 @@ public partial class TourBookingItem : ComponentBase
     
     public ICollection<TourDateDto>? TourDates { get; set; }
     
+    public IEnumerable<TourPriceDto>? TourPrices { get; set; }
+    
     public IEnumerable<TourPickupLocationDto>? TourPickupLocations { get; set; }
     
     public EditForm EditForm { get; set; } = default!;
@@ -65,6 +69,7 @@ public partial class TourBookingItem : ComponentBase
     protected Func<DefaultIdType?, string> TourDateToStringConverter;
     protected Func<DefaultIdType?, string> TourToStringConverter;
     protected Func<DefaultIdType?, string> TourCategoryToStringConverter;
+    protected Func<DefaultIdType?, string> TourPriceToStringConverter;
 
     private bool FormDisabled { get; set; }
     private bool BookingRefunded { get; set; }
@@ -77,6 +82,7 @@ public partial class TourBookingItem : ComponentBase
         TourDateToStringConverter = GenerateTourDateDisplayString;
         TourToStringConverter = GenerateTourDisplayString;
         TourCategoryToStringConverter = GenerateTourCategoryDisplayString;
+        TourPriceToStringConverter = GenerateTourPriceDisplayString;
         BookingRefunded = (TourBooking.Refunded.HasValue && TourBooking.Refunded.Value);
         UserIsAdmin = authState.User.IsInRole(TravaloudRoles.Admin);
         FormDisabled = (TourBooking.IsPaid || BookingRefunded) && !UserIsAdmin;
@@ -109,7 +115,9 @@ public partial class TourBookingItem : ComponentBase
             var tourDatesRequest = Task.Run(() => TourDatesService.SearchAsync(new SearchTourDatesRequest()
             {
                 TourId = RequestModel.TourId.Value,
-                RequestedSpaces = 1
+                RequestedSpaces = 1,
+                UserIsAdmin = UserIsAdmin,
+                PriceId = RequestModel.TourPriceId
             }));
             
             var tourPickupLocationsRequest = Task.Run(() => ToursService.GetTourPickupLocations(RequestModel.TourId.Value));
@@ -121,14 +129,22 @@ public partial class TourBookingItem : ComponentBase
                 PageSize = 99999
             }));
             
-            await Task.WhenAll(tourDatesRequest, tourPickupLocationsRequest, filteredToursRequest);
+            var tourPricesRequest = Task.Run(() => TenantWebsiteService.GetTourPrices(new GetTourPricesRequest(new[] {RequestModel.TourId.Value}), CancellationToken.None));
+            
+            await Task.WhenAll(tourDatesRequest, tourPickupLocationsRequest, filteredToursRequest, tourPricesRequest);
 
             Tours = filteredToursRequest.Result?.Data;
             
             var tourDates = tourDatesRequest.Result;
             
-            TourDates = tourDates.Data.Where(x => x.StartDate > DateTime.Now).ToList();
+            TourDates = tourDates.Data.Where(x => !UserIsAdmin ? x.StartDate > DateTime.Now : x.StartDate > DateTime.Now.AddMonths(-1)).ToList();
+            TourPrices = tourPricesRequest.Result;
             TourPickupLocations = tourPickupLocationsRequest.Result;
+
+            var tourDate = tourDates.Data.FirstOrDefault(x => x.Id == RequestModel.TourDateId);
+            RequestModel.TourPriceId = tourDate?.TourPriceId;
+
+            TourDates = TourDates.Where(x => x.TourPriceId == RequestModel.TourPriceId).ToList();
 
             var tour = Tours?.FirstOrDefault(x => x.Id == RequestModel.TourId.Value);
 
@@ -147,7 +163,7 @@ public partial class TourBookingItem : ComponentBase
         var tourDate = TourDates?.FirstOrDefault(u => u.Id == tourDateId);
 
         return tourDate != null
-            ? $"{tourDate.StartDate} ({tourDate.TourPrice?.Price}) - {tourDate.AvailableSpaces} spaces available"
+            ? $"{tourDate.StartDate} - {tourDate.AvailableSpaces} spaces available"
             : string.Empty;
     }
 
@@ -164,6 +180,31 @@ public partial class TourBookingItem : ComponentBase
 
         return tourCategory?.Name ?? string.Empty;
     }
+    
+    private string GenerateTourPriceDisplayString(DefaultIdType? tourPriceId)
+    {
+        var tourPrice = TourPrices?.FirstOrDefault(u => u.Id == tourPriceId);
+
+        if (tourPrice == null) return string.Empty;
+        var details = new List<string>
+        {
+            $"$ {tourPrice.Price:n2}"
+        };
+        
+        if (!string.IsNullOrEmpty(tourPrice.Title))
+        {
+            details.Add(tourPrice.Title);
+        }
+        
+        if (!string.IsNullOrEmpty(tourPrice.Description))
+        {
+            details.Add(tourPrice.Description);
+        }
+
+        return string.Join(" - ", details);
+
+    }
+
 
     private void Cancel() =>
         MudDialog.Cancel();
@@ -244,6 +285,7 @@ public partial class TourBookingItem : ComponentBase
 
             RequestModel.TourId = null;
             RequestModel.TourDateId = null;
+            RequestModel.TourPriceId = null;
             RequestModel.PickupLocation = null;
             RequestModel.TourDateId = null;
             TourDates = new List<TourDateDto>();
@@ -252,39 +294,56 @@ public partial class TourBookingItem : ComponentBase
             StateHasChanged();
         }
     }
-    
+
     private async Task OnTourValueChanged(DefaultIdType? tourId)
     {
         RequestModel.WaiverSigned = false;
+        RequestModel.TourDateId = null;
+        RequestModel.PickupLocation = null;
+        RequestModel.TourPriceId = null;
         
         if (tourId.HasValue)
         {
-            var tourDatesRequest = Task.Run(() => TourDatesService.SearchAsync(new SearchTourDatesRequest()
-            {
-                TourId = tourId.Value,
-                RequestedSpaces = 1,
-                EndDate = DateTime.Now.AddMonths(6)
-            }));
-            
-            var tourPickupLocationsRequest = Task.Run(() => ToursService.GetTourPickupLocations(tourId.Value));
-
-            await Task.WhenAll(tourDatesRequest, tourPickupLocationsRequest);
-
             var tour = Tours.FirstOrDefault(x => x.Id == tourId);
             
             if (tour == null)
                 throw new NotFoundException("Tour not found.");
             
-            var tourDates = tourDatesRequest.Result;
+            var tourPickupLocationsRequest = Task.Run(() => ToursService.GetTourPickupLocations(tourId.Value));
+            var tourPricesReqest = Task.Run(() => TenantWebsiteService.GetTourPrices(new GetTourPricesRequest(new[] {tourId.Value}), CancellationToken.None));
 
+            await Task.WhenAll(tourPickupLocationsRequest, tourPricesReqest);
+            
             TourPickupLocations = tourPickupLocationsRequest.Result;
-            TourDates = tourDates.Data.Where(x => x.StartDate > DateTime.Now).ToList();
+            TourPrices = tourPricesReqest.Result;
             IsWaiverRequired = tour.WaiverRequired.HasValue && tour.WaiverRequired.Value;
             WaiverTermsAndConditions = tour.TermsAndConditions;
+            
+            RequestModel.TourId = tourId.Value;
+            StateHasChanged();
+        }
+    }
+    
+    private async Task OnTourPriceValueChanged(DefaultIdType? tourPriceId)
+    {
+        RequestModel.WaiverSigned = false;
+        
+        if (tourPriceId.HasValue)
+        {
+            RequestModel.TourPriceId = tourPriceId.Value;
+            
+            var tourDates = await TourDatesService.SearchAsync(new SearchTourDatesRequest()
+            {
+                PriceId = tourPriceId.Value,
+                RequestedSpaces = 1,
+                EndDate = DateTime.Now.AddMonths(6),
+                UserIsAdmin = UserIsAdmin
+            });
+
+            TourDates = tourDates.Data.Where(x => !UserIsAdmin ? x.StartDate > DateTime.Now : x.StartDate > DateTime.Now.AddMonths(-1)).ToList();
                 
             RequestModel.TourDateId = null;
-            RequestModel.PickupLocation = null;
-            
+
             if (tourDates.Data.Count == 0)
             {
                 RequestModel.TourDateId = null;
@@ -292,11 +351,10 @@ public partial class TourBookingItem : ComponentBase
             else if (TourBooking.Items?.Any() == true)
             {
                 var tourDateIds = TourBooking.Items.Select(x => x.TourDateId);
-
+    
                 TourDates = TourDates.Where(x => !tourDateIds.Contains(x.Id)).ToList();
             }
-
-            RequestModel.TourId = tourId.Value;
+            
             StateHasChanged();
         }
     }

@@ -28,6 +28,7 @@ public class CreateBookingRequest : IRequest<DefaultIdType?>
     public string? BookingSource { get; set; }
     public string? StripeSessionId { get; set; }
     public decimal? AmountOutstanding { get; set; }
+    public bool IsWebsite { get; set; }
 
     public CreateBookingRequest()
     {
@@ -108,7 +109,7 @@ public class CreateBookingRequestHandler : IRequestHandler<CreateBookingRequest,
 
     public async Task<DefaultIdType?> Handle(CreateBookingRequest request, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrEmpty(request.GuestId))
+        if (!request.IsWebsite && string.IsNullOrEmpty(request.GuestId))
             throw new CustomException("A Guest must be selected.");
         
         // Create the booking

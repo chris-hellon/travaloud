@@ -1,6 +1,5 @@
 ﻿@page
-@using System.Web
-@using Newtonsoft.Json
+
 @model Travaloud.Tenants.SharedRCL.Pages.PropertyBooking.IndexModel
 
 @{
@@ -11,6 +10,8 @@
 
     @if (Model.TenantId == "fuse")
     {
+        var cloudbedsApiDataAvailable = Model.CloudbedsPropertyResponse is {Success: true, Data: not null} && Model.CloudbedsPropertyResponse.Data.Any();
+
         <section id="headerBanner">
             @Html.DisplayFor(x => x.HeaderBanner)
         </section>
@@ -19,145 +20,146 @@
             @Html.DisplayFor(x => x.BookNowBanner)
         </section>
 
-        var cloudbedsApiDataAvailable = Model.CloudbedsPropertyResponse is {Success: true, Data: not null} && Model.CloudbedsPropertyResponse.Data.Any();
-
         <section id="bookingSection">
             <div class="container">
                 <div class="row pt-8 pb-8">
-                    @if (!string.IsNullOrEmpty(Model.Property.CloudbedsApiKey))
-                    {
-                        <div class="col-lg-9 mb-4 mb-md-0">
-                            @if (cloudbedsApiDataAvailable)
-                            {
-                                foreach (var room in Model.CloudbedsPropertyResponse.Data.First().PropertyRooms)
-                                {
-                                    room.CurrencySymbol = Model.CloudbedsPropertyResponse.Data.First().PropertyCurrency.CurrencySymbol;
-                                    room.PropertyId = Model.PropertyId;
-                                    room.PropertyName = Model.PropertyName;
-                                    room.CloudbedsPropertyId = Model.CloudbedsPropertyId;
-                                    room.PropertyImageUrl = Model.PropertyImageUrl;
-                            
-                                    <partial name="_PropertyRoomCardPartial" model="room"/>
-                                    <partial name="_PropertyRoomDetailsPartial" model="room"/>
-                                }
-                            }
-                            else
-                            {
-                                <div class="alert" role="alert" data-mdb-color="warning" data-mdb-alert-init>
-                                    <i class="fas fa-exclamation-triangle me-3"></i>There are no available rooms for the requested dates. <br/>Please try another date range, or check out our other hostels.
-                                </div>
-                            }
-                            @* <ul class="stepper" data-mdb-stepper-init> *@
-                            @*     <li class="stepper-step stepper-active"> *@
-                            @*         <div class="stepper-head"> *@
-                            @*             <span class="stepper-head-icon">1</span> *@
-                            @*             <span class="stepper-head-text">Choose Your Bed</span> *@
-                            @*         </div> *@
-                            @*         <div class="stepper-content py-3"> *@
-                            @*             @if (cloudbedsApiDataAvailable) *@
-                            @*             { *@
-                            @*                 foreach (var room in Model.CloudbedsPropertyResponse.Data.First().PropertyRooms) *@
-                            @*                 { *@
-                            @*                     room.CurrencySymbol = Model.CloudbedsPropertyResponse.Data.First().PropertyCurrency.CurrencySymbol; *@
-                            @*                     room.PropertyId = Model.PropertyId; *@
-                            @*                     room.PropertyName = Model.PropertyName; *@
-                            @*                     room.CloudbedsPropertyId = Model.CloudbedsPropertyId; *@
-                            @*                     room.PropertyImageUrl = Model.PropertyImageUrl; *@
-                            @* *@
-                            @*                     <partial name="_PropertyRoomCardPartial" model="room"/> *@
-                            @*                     <partial name="_PropertyRoomDetailsPartial" model="room"/> *@
-                            @*                 } *@
-                            @*             } *@
-                            @*             else *@
-                            @*             { *@
-                            @*                 <div class="alert" role="alert" data-mdb-color="warning" data-mdb-alert-init> *@
-                            @*                     <i class="fas fa-exclamation-triangle me-3"></i>There are no available rooms for the requested dates. <br/>Please try another date range, or check out our other hostels. *@
-                            @*                 </div> *@
-                            @*             } *@
-                            @*         </div> *@
-                            @*     </li> *@
-                            @*     <li class="stepper-step"> *@
-                            @*         <div class="stepper-head"> *@
-                            @*             <span class="stepper-head-icon">2</span> *@
-                            @*             <span class="stepper-head-text">Choose your Tours</span> *@
-                            @*         </div> *@
-                            @*         <div class="stepper-content py-3"> *@
-                            @*             @foreach (var tour in Model.PropertyTours) *@
-                            @*             { *@
-                            @*                 <partial name="_TourBookingCardPartial" model="tour"/> *@
-                            @*             } *@
-                            @*         </div> *@
-                            @*     </li> *@
-                            @* </ul> *@
-                        </div>
-                        <div class="col-lg-3 bg-grey sticky" data-mdb-sticky-init data-mdb-sticky-direction="both" data-mdb-sticky-offset="92" data-mdb-sticky-delay="92" data-mdb-sticky-media="968">
-                            <div class="shadow-4 p-3 mb-3">
-                                @* <h3 class="fw-bold mb-5 mt-2 pt-1">Summary</h3> *@
-                                @* *@
-                                <div class="p-3 bg-light mb-3">
-                                    <h5 class="font-size-16 mb-0">Order Summary</h5>
-                                </div>
-                                <div class="d-flex justify-content-between">
-                                    <h5 class="text-uppercase">Total</h5>
-                                    <h5 id="selectionTotal">@($"$ {Model.BasketItem?.Total ?? 0}")</h5>
-                                </div>
-                                <div class="d-flex justify-content-between">
-                                    <h6 class="text-uppercase text-muted" id="selectionRoomCount">@($"{Model.BasketItem?.Rooms.Count ?? 0} rooms")</h6>
-                                </div>
-                                <hr class="my-4">
-
-                                <div class="d-flex justify-content-between">
-                                    <h5 class="text-uppercase">Basket Total</h5>
-                                    <h5 id="basketTotal">$ @($"{Model.Basket.Total:n2}")</h5>
-                                </div>
-                                <div class="d-flex justify-content-between mb-3">
-                                    <a asp-page="/Basket/Index">
-                                        <h6 class="text-primary">View Basket</h6>
-                                    </a>
-                                </div>
-
-                                <a asp-page="/Checkout/Index" class="btn btn-primary btn-block btn-lg" id="btnProceedToCheckout" disabled="@(Model.Basket.ItemsCount == 0)">
-                                    Proceed To Checkout
-                                </a>
-                                @* <button asp-page="/Checkout/Index" class="btn btn-primary btn-block btn-lg" id="btnProceedToCheckout" disabled="@(Model.Basket.ItemsCount == 0)"> *@
-                                @*     Proceed To Checkout *@
-                                @* </button> *@
-                            </div>
-                            @* <div class="shadow-4 p-4 rounded-5"> *@
-                            @*     <h5 class="mb-4">Apply promo code</h5> *@
-                            @* *@
-                            @*     <div class="d-flex align-items-center"> *@
-                            @*         <input *@
-                            @*             asp-for="PromoCode" *@
-                            @*             type="text" *@
-                            @*             class="form-control rounded me-1" *@
-                            @*             placeholder="Promo code"/> *@
-                            @*         <button *@
-                            @*             type="button" *@
-                            @*             class="btn btn-primary btn-sm overflow-visible"> *@
-                            @*             Apply *@
-                            @*         </button> *@
-                            @*     </div> *@
-                            @* </div> *@
-                        </div>
-                    }
-                    else
-                    {
-                        <iframe class="w-100" id="booking-iframe" src="@Model.IframeUrl" scrolling="no"></iframe>
-                    }
+                    <iframe class="w-100" id="booking-iframe" src="@Model.IframeUrl" scrolling="no"></iframe>
+                    @* @if (!string.IsNullOrEmpty(Model.Property.CloudbedsApiKey)) *@
+                    @* { *@
+                    @*     <div class="col-lg-9 mb-4 mb-md-0"> *@
+                    @*         @if (cloudbedsApiDataAvailable) *@
+                    @*         { *@
+                    @*             foreach (var room in Model.CloudbedsPropertyResponse.Data.First().PropertyRooms) *@
+                    @*             { *@
+                    @*                 room.CurrencySymbol = Model.CloudbedsPropertyResponse.Data.First().PropertyCurrency.CurrencySymbol; *@
+                    @*                 room.PropertyId = Model.PropertyId; *@
+                    @*                 room.PropertyName = Model.PropertyName; *@
+                    @*                 room.CloudbedsPropertyId = Model.CloudbedsPropertyId; *@
+                    @*                 room.PropertyImageUrl = Model.PropertyImageUrl; *@
+                    @* *@
+                    @*                 <partial name="/Pages/PropertyBooking/_PropertyRoomCardPartial.cshtml" model="room"/> *@
+                    @*                 <partial name="/Pages/PropertyBooking/_PropertyRoomDetailsPartial.cshtml" model="room"/> *@
+                    @*             } *@
+                    @*         } *@
+                    @*         else *@
+                    @*         { *@
+                    @*             <div class="alert" role="alert" data-mdb-color="warning" data-mdb-alert-init> *@
+                    @*                 <i class="fas fa-exclamation-triangle me-3"></i>There are no available rooms for the requested dates. <br/>Please try another date range, or check out our other hostels. *@
+                    @*             </div> *@
+                    @*         } *@
+                    @*         $1$ <ul class="stepper" data-mdb-stepper-init> #1# *@
+                    @*         $1$     <li class="stepper-step stepper-active"> #1# *@
+                    @*         $1$         <div class="stepper-head"> #1# *@
+                    @*         $1$             <span class="stepper-head-icon">1</span> #1# *@
+                    @*         $1$             <span class="stepper-head-text">Choose Your Bed</span> #1# *@
+                    @*         $1$         </div> #1# *@
+                    @*         $1$         <div class="stepper-content py-3"> #1# *@
+                    @*         $1$             @if (cloudbedsApiDataAvailable) #1# *@
+                    @*         $1$             { #1# *@
+                    @*         $1$                 foreach (var room in Model.CloudbedsPropertyResponse.Data.First().PropertyRooms) #1# *@
+                    @*         $1$                 { #1# *@
+                    @*         $1$                     room.CurrencySymbol = Model.CloudbedsPropertyResponse.Data.First().PropertyCurrency.CurrencySymbol; #1# *@
+                    @*         $1$                     room.PropertyId = Model.PropertyId; #1# *@
+                    @*         $1$                     room.PropertyName = Model.PropertyName; #1# *@
+                    @*         $1$                     room.CloudbedsPropertyId = Model.CloudbedsPropertyId; #1# *@
+                    @*         $1$                     room.PropertyImageUrl = Model.PropertyImageUrl; #1# *@
+                    @*         $1$ #1# *@
+                    @*         $1$                     <partial name="_PropertyRoomCardPartial" model="room"/> #1# *@
+                    @*         $1$                     <partial name="_PropertyRoomDetailsPartial" model="room"/> #1# *@
+                    @*         $1$                 } #1# *@
+                    @*         $1$             } #1# *@
+                    @*         $1$             else #1# *@
+                    @*         $1$             { #1# *@
+                    @*         $1$                 <div class="alert" role="alert" data-mdb-color="warning" data-mdb-alert-init> #1# *@
+                    @*         $1$                     <i class="fas fa-exclamation-triangle me-3"></i>There are no available rooms for the requested dates. <br/>Please try another date range, or check out our other hostels. #1# *@
+                    @*         $1$                 </div> #1# *@
+                    @*         $1$             } #1# *@
+                    @*         $1$         </div> #1# *@
+                    @*         $1$     </li> #1# *@
+                    @*         $1$     <li class="stepper-step"> #1# *@
+                    @*         $1$         <div class="stepper-head"> #1# *@
+                    @*         $1$             <span class="stepper-head-icon">2</span> #1# *@
+                    @*         $1$             <span class="stepper-head-text">Choose your Tours</span> #1# *@
+                    @*         $1$         </div> #1# *@
+                    @*         $1$         <div class="stepper-content py-3"> #1# *@
+                    @*         $1$             @foreach (var tour in Model.PropertyTours) #1# *@
+                    @*         $1$             { #1# *@
+                    @*         $1$                 <partial name="_TourBookingCardPartial" model="tour"/> #1# *@
+                    @*         $1$             } #1# *@
+                    @*         $1$         </div> #1# *@
+                    @*         $1$     </li> #1# *@
+                    @*         $1$ </ul> #1# *@
+                    @*     </div> *@
+                    @*     <div class="col-lg-3 bg-grey sticky" data-mdb-sticky-init data-mdb-sticky-direction="both" data-mdb-sticky-offset="92" data-mdb-sticky-delay="92" data-mdb-sticky-media="968"> *@
+                    @*         <div class="shadow-4 p-3 mb-3"> *@
+                    @*             $1$ <h3 class="fw-bold mb-5 mt-2 pt-1">Summary</h3> #1# *@
+                    @*             $1$ #1# *@
+                    @*             <div class="p-3 bg-light mb-3"> *@
+                    @*                 <h5 class="font-size-16 mb-0">Order Summary</h5> *@
+                    @*             </div> *@
+                    @*             <div class="d-flex justify-content-between"> *@
+                    @*                 <h5 class="text-uppercase">Total</h5> *@
+                    @*                 <h5 id="selectionTotal">@($"$ {Model.BasketItem?.Total ?? 0}")</h5> *@
+                    @*             </div> *@
+                    @*             <div class="d-flex justify-content-between"> *@
+                    @*                 <h6 class="text-uppercase text-muted" id="selectionRoomCount">@($"{Model.BasketItem?.Rooms.Count ?? 0} rooms")</h6> *@
+                    @*             </div> *@
+                    @*             <hr class="my-4"> *@
+                    @* *@
+                    @*             <div class="d-flex justify-content-between"> *@
+                    @*                 <h5 class="text-uppercase">Basket Total</h5> *@
+                    @*                 <h5 id="basketTotal">$ @($"{Model.Basket.Total:n2}")</h5> *@
+                    @*             </div> *@
+                    @*             <div class="d-flex justify-content-between mb-3"> *@
+                    @*                 <a asp-page="/Basket/Index"> *@
+                    @*                     <h6 class="text-primary">View Basket</h6> *@
+                    @*                 </a> *@
+                    @*             </div> *@
+                    @* *@
+                    @*             <a asp-page="/Checkout/Index" class="btn btn-primary btn-block btn-lg" id="btnProceedToCheckout" disabled="@(Model.Basket.ItemsCount == 0)"> *@
+                    @*                 Proceed To Checkout *@
+                    @*             </a> *@
+                    @*             $1$ <button asp-page="/Checkout/Index" class="btn btn-primary btn-block btn-lg" id="btnProceedToCheckout" disabled="@(Model.Basket.ItemsCount == 0)"> #1# *@
+                    @*             $1$     Proceed To Checkout #1# *@
+                    @*             $1$ </button> #1# *@
+                    @*         </div> *@
+                    @*         $1$ <div class="shadow-4 p-4 rounded-5"> #1# *@
+                    @*         $1$     <h5 class="mb-4">Apply promo code</h5> #1# *@
+                    @*         $1$ #1# *@
+                    @*         $1$     <div class="d-flex align-items-center"> #1# *@
+                    @*         $1$         <input #1# *@
+                    @*         $1$             asp-for="PromoCode" #1# *@
+                    @*         $1$             type="text" #1# *@
+                    @*         $1$             class="form-control rounded me-1" #1# *@
+                    @*         $1$             placeholder="Promo code"/> #1# *@
+                    @*         $1$         <button #1# *@
+                    @*         $1$             type="button" #1# *@
+                    @*         $1$             class="btn btn-primary btn-sm overflow-visible"> #1# *@
+                    @*         $1$             Apply #1# *@
+                    @*         $1$         </button> #1# *@
+                    @*         $1$     </div> #1# *@
+                    @*         $1$ </div> #1# *@
+                    @*     </div> *@
+                    @* } *@
+                    @* else *@
+                    @* { *@
+                    @*     <iframe class="w-100" id="booking-iframe" src="@Model.IframeUrl" scrolling="no"></iframe> *@
+                    @* } *@
                 </div>
 
-                @if (cloudbedsApiDataAvailable)
-                {
-                    <div class="row pb-5" id="securitySprite">
-                        <div class="col-lg-12">
-                            <div class="security-sprite security-pci"></div>
-                            <div class="security-sprite security-ssl"></div>
-                        </div>
-                    </div>
-                }
+                @* @if (cloudbedsApiDataAvailable) *@
+                @* { *@
+                @*     <div class="row pb-5" id="securitySprite"> *@
+                @*         <div class="col-lg-12"> *@
+                @*             <div class="security-sprite security-pci"></div> *@
+                @*             <div class="security-sprite security-ssl"></div> *@
+                @*         </div> *@
+                @*     </div> *@
+                @* } *@
             </div>
         </section>
+
+        @* <partial name="_PropertyBookingPartial" model="Model"/> *@
     }
     else
     {
@@ -188,6 +190,8 @@
         const propertyImageUrl = '@Model.Property.ImagePath';
         const checkInDate = new Date('@Model.CheckInDate.ToString("yyyy-MM-ddTHH:mm:ssZ")');
         const checkOutDate = new Date('@Model.CheckOutDate.ToString("yyyy-MM-ddTHH:mm:ssZ")');
+        let guestName = "";
+        let guestEmail = "";
 
         var serializedData = JSON.parse('@if (Model.CloudbedsPropertyResponse is {Success: true, Data: not null} && Model.CloudbedsPropertyResponse.Data.Any())
                                          {
@@ -217,12 +221,13 @@
                                     formData: booking,
                                     successCallback: (result) => {
                                        bookingInserted = true;
+                                       //$('#booking-iframe').css('height', '2578px');
                                     }
                                 });
             }
         }
 
-        function Booking(description, totalAmount, currencyCode, itemQuantity, isPaid, guestId, items) {
+        function Booking(description, totalAmount, currencyCode, itemQuantity, isPaid, guestId, items, guestName, guestEmail) {
             this.Id = null;
             this.Description = description;
             this.TotalAmount = parseValueToDecimal(totalAmount);
@@ -231,6 +236,8 @@
             this.IsPaid = isPaid;
             this.Items = items;
             this.InvoiceId = null;
+            this.GuestName = guestName;
+            this.GuestEmail = guestEmail;
         }
 
         function BookingItem(startDate, endDate, amount, currencyCode, cloudbedsReservationId, cloudbedsPropertyId, rooms, propertyId, userId) {
@@ -284,9 +291,16 @@
                 //    window.scrollTo(0, 0);
                 //}
             }
+            else if (data.target == "cloudbeds-booking-widget-guest-details") {
+               guestName = data.data.guestName;
+               guestEmail = data.data.email;
+            }
             else if (data.target == "cloudbeds-booking-confirmation") {
-                let bookingConfirmation = data.data;
+                let bookingConfirmation = data.data.createdBooking;
+                let height = data.data.height;
 
+                $('iframe').height(height);
+                
                 let bookingItemRooms = [];
                 let totalNights = 0;
                 $(bookingConfirmation.resRooms).each(function (i, v) {
@@ -297,11 +311,17 @@
                 let bookingItem = new BookingItem(bookingConfirmation.checkin_date, bookingConfirmation.checkout_date, bookingConfirmation.booking_total, bookingConfirmation.currency_code, bookingConfirmation.booking_id, bookingConfirmation.widget_property, bookingItemRooms, $('#BookingPropertyId').val(), $('#BookingUserId').val())
                 let description = 'A stay at @Html.Raw(Model.PropertyName)';
 
-                postPropertyBooking(new Booking(description, bookingConfirmation.booking_total, bookingConfirmation.currency_code, 1, true, $('#BookingUserId').val(), [bookingItem]));
+                postPropertyBooking(new Booking(description, bookingConfirmation.booking_total, bookingConfirmation.currency_code, 1, true, $('#BookingUserId').val(), [bookingItem], guestName, guestEmail));
             }
         });</script>
 
     <script type="text/javascript" src="/shared/js/propertybooking.min.js"></script>
+
+   
+
+<!-- Google tag (gtag.js) --> <script async src="https://www.googletagmanager.com/gtag/js?id=AW-11265968954"></script> <script> window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'AW-11265968954'); </script>
+<!-- Event snippet for Website traffic conversion page --> <script> gtag('event', 'conversion', {'send_to': 'AW-11265968954/eCtkCMG7nc8YELqWhPwp'}); </script>
+   
 }
 
 @section Styles {

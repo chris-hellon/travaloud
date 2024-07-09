@@ -30,15 +30,15 @@
                      Style="width:54px; height:54px;">
             </MudIcon>
             <div>
-                <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">@L["Today's Tours Booked"]</MudText>
+                <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">@L["Today's Tour Bookings"]</MudText>
 
-                @if (!TodayTourBookingsCount.HasValue)
+                @if (!TodaysBookingsCount.HasValue)
                 {
                     <MudProgressCircular Color="Color.Secondary" Indeterminate="true" Size="Size.Small"/>
                 }
                 else
                 {
-                    <MudText Typo="Typo.h5">@TodayTourBookingsCount</MudText>
+                    <MudText Typo="Typo.h5">@TodaysBookingsCount</MudText>
                 }
             </div>
         </MudPaper>
@@ -51,13 +51,13 @@
             <div>
                 <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">@L["Today's Tour Departures"]</MudText>
 
-                @if (!TodayTourDeparturesCount.HasValue)
+                @if (!TodaysTourDeparturesCount.HasValue)
                 {
                     <MudProgressCircular Color="Color.Secondary" Indeterminate="true" Size="Size.Small"/>
                 }
                 else
                 {
-                    <MudText Typo="Typo.h5">@TodayTourDeparturesCount</MudText>
+                    <MudText Typo="Typo.h5">@TodaysTourDeparturesCount</MudText>
                 }
             </div>
         </MudPaper>
@@ -72,13 +72,13 @@
                 <div>
                     <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">@L["Today's Tour Bookings Revenue"]</MudText>
 
-                    @if (!TodayTourBookingsRevenue.HasValue)
+                    @if (!TodaysBookingsRevenue.HasValue)
                     {
                         <MudProgressCircular Color="Color.Secondary" Indeterminate="true" Size="Size.Small"/>
                     }
                     else
                     {
-                        <MudText Typo="Typo.h5">@($"$ {TodayTourBookingsRevenue:n2}")</MudText>
+                        <MudText Typo="Typo.h5">@($"$ {TodaysBookingsRevenue:n2}")</MudText>
                     }
                 </div>
             </MudPaper>
@@ -91,15 +91,15 @@
                      Style="width:54px; height:54px;">
             </MudIcon>
             <div>
-                <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">@L["Total Tours Booked"]</MudText>
+                <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">@L["Total Tour Bookings"]</MudText>
 
-                @if (!TourBookingsCount.HasValue)
+                @if (!TotalBookingsCount.HasValue)
                 {
                     <MudProgressCircular Color="Color.Secondary" Indeterminate="true" Size="Size.Small"/>
                 }
                 else
                 {
-                    <MudText Typo="Typo.h5">@TourBookingsCount</MudText>
+                    <MudText Typo="Typo.h5">@TotalBookingsCount</MudText>
                 }
             </div>
         </MudPaper>
@@ -115,13 +115,13 @@
                 <div>
                     <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">@L["Total Tour Bookings Revenue"]</MudText>
 
-                    @if (!TourBookingsRevenue.HasValue)
+                    @if (!TotalBookingsRevenue.HasValue)
                     {
                         <MudProgressCircular Color="Color.Secondary" Indeterminate="true" Size="Size.Small"/>
                     }
                     else
                     {
-                        <MudText Typo="Typo.h5">@($"$ {TourBookingsRevenue:n2}")</MudText>
+                        <MudText Typo="Typo.h5">@($"$ {TotalBookingsRevenue:n2}")</MudText>
                     }
                 </div>
             </MudPaper>
@@ -228,78 +228,78 @@
 
 @if (UserIsAdmin)
 {
-    <MudItem xs="12" sm="6">
-        <MudCard Elevation="25" Class="h-100">
-            <MudCardHeader>
-                <CardHeaderContent>
-                    <MudText Typo="Typo.h4">Total Revenue by Tour</MudText>
-                </CardHeaderContent>
-            </MudCardHeader>
-            <MudCardContent Class="dashboard-pie-chart" Style="height:calc(100% - 74px);">
-                @if (PaidTourBookings != null)
-                {
-                    <ApexChart @ref="@_toursRevenuePieChart"
-                               TItem="BookingItemDetailsDto"
-                               Options="_toursRevenuePieChartOptions">
-
-                        <ApexPointSeries
-                            TItem="BookingItemDetailsDto"
-                            Items="PaidTourBookings"
-                            SeriesType="@SeriesType.Pie"
-                            Name="Bookings"
-                            XValue="@(e => e.Tour.Name)"
-                            YAggregate="@(e => e.Sum(x => x.TotalAmount))"
-                            OrderBy="e => e.Y"/>
-                    </ApexChart>
-                }
-                else
-                {
-                    <div class="d-flex justify-center align-center" style="height:400px;">
-                        <MudProgressCircular Color="Color.Secondary" Style="height:70px;width:70px;" Indeterminate="true"/>
-                    </div>
-                }
-            </MudCardContent>
-        </MudCard>
-    </MudItem>
-    <MudItem xs="12" sm="6">
-        <MudCard Elevation="25" Class="h-100">
-            <MudCardHeader>
-                <CardHeaderContent>
-                    <MudText Typo="Typo.h4">Total Bookings by Tour</MudText>
-                </CardHeaderContent>
-            </MudCardHeader>
-            <MudCardContent>
-                @if (TourBookingsBarChartSummaries != null)
-                {
-                    <ApexChart @ref="@_tourBookingsBarChart"
-                               TItem="TourBookingsBarChartSummary.MonthAmount"
-                               XAxisType="XAxisType.Datetime"
-                               Options="@_tourBookingsBarChartOptions">
-
-                        @{
-                            foreach (var packageMonthly in TourBookingsBarChartSummaries)
-                            {
-                                <ApexPointSeries
-                                    TItem="TourBookingsBarChartSummary.MonthAmount"
-                                    Items="packageMonthly.MonthlyAmounts"
-                                    SeriesType="@SeriesType.Bar"
-                                    Name="@packageMonthly.TourName"
-                                    XValue="@(e => DateTimeOffset.Parse(e.MonthYear.ToString()).FirstDayOfMonth().ToUnixTimeMilliseconds())"
-                                    YAggregate="@(e => e.Sum(x => x.Count))"
-                                    OrderBy="e => e.Y"/>
-                            }
-                        }
-                    </ApexChart>
-                }
-                else
-                {
-                    <div class="d-flex justify-center align-center" style="height:400px;">
-                        <MudProgressCircular Color="Color.Secondary" Style="height:70px;width:70px;" Indeterminate="true"/>
-                    </div>
-                }
-            </MudCardContent>
-        </MudCard>
-    </MudItem>
+    @* <MudItem xs="12" sm="6"> *@
+    @*     <MudCard Elevation="25" Class="h-100"> *@
+    @*         <MudCardHeader> *@
+    @*             <CardHeaderContent> *@
+    @*                 <MudText Typo="Typo.h4">Total Revenue by Tour</MudText> *@
+    @*             </CardHeaderContent> *@
+    @*         </MudCardHeader> *@
+    @*         <MudCardContent Class="dashboard-pie-chart" Style="height:calc(100% - 74px);"> *@
+    @*             @if (PaidTourBookings != null) *@
+    @*             { *@
+    @*                 <ApexChart @ref="@_toursRevenuePieChart" *@
+    @*                            TItem="BookingItemDetailsDto" *@
+    @*                            Options="_toursRevenuePieChartOptions"> *@
+    @* *@
+    @*                     <ApexPointSeries *@
+    @*                         TItem="BookingItemDetailsDto" *@
+    @*                         Items="PaidTourBookings" *@
+    @*                         SeriesType="@SeriesType.Pie" *@
+    @*                         Name="Bookings" *@
+    @*                         XValue="@(e => e.Tour.Name)" *@
+    @*                         YAggregate="@(e => e.Sum(x => x.TotalAmount))" *@
+    @*                         OrderBy="e => e.Y"/> *@
+    @*                 </ApexChart> *@
+    @*             } *@
+    @*             else *@
+    @*             { *@
+    @*                 <div class="d-flex justify-center align-center" style="height:400px;"> *@
+    @*                     <MudProgressCircular Color="Color.Secondary" Style="height:70px;width:70px;" Indeterminate="true"/> *@
+    @*                 </div> *@
+    @*             } *@
+    @*         </MudCardContent> *@
+    @*     </MudCard> *@
+    @* </MudItem> *@
+    @* <MudItem xs="12" sm="6"> *@
+    @*     <MudCard Elevation="25" Class="h-100"> *@
+    @*         <MudCardHeader> *@
+    @*             <CardHeaderContent> *@
+    @*                 <MudText Typo="Typo.h4">Total Bookings by Tour</MudText> *@
+    @*             </CardHeaderContent> *@
+    @*         </MudCardHeader> *@
+    @*         <MudCardContent> *@
+    @*             @if (TourBookingsBarChartSummaries != null) *@
+    @*             { *@
+    @*                 <ApexChart @ref="@_tourBookingsBarChart" *@
+    @*                            TItem="TourBookingsBarChartSummary.MonthAmount" *@
+    @*                            XAxisType="XAxisType.Datetime" *@
+    @*                            Options="@_tourBookingsBarChartOptions"> *@
+    @* *@
+    @*                     @{ *@
+    @*                         foreach (var packageMonthly in TourBookingsBarChartSummaries) *@
+    @*                         { *@
+    @*                             <ApexPointSeries *@
+    @*                                 TItem="TourBookingsBarChartSummary.MonthAmount" *@
+    @*                                 Items="packageMonthly.MonthlyAmounts" *@
+    @*                                 SeriesType="@SeriesType.Bar" *@
+    @*                                 Name="@packageMonthly.TourName" *@
+    @*                                 XValue="@(e => DateTimeOffset.Parse(e.MonthYear.ToString()).FirstDayOfMonth().ToUnixTimeMilliseconds())" *@
+    @*                                 YAggregate="@(e => e.Sum(x => x.Count))" *@
+    @*                                 OrderBy="e => e.Y"/> *@
+    @*                         } *@
+    @*                     } *@
+    @*                 </ApexChart> *@
+    @*             } *@
+    @*             else *@
+    @*             { *@
+    @*                 <div class="d-flex justify-center align-center" style="height:400px;"> *@
+    @*                     <MudProgressCircular Color="Color.Secondary" Style="height:70px;width:70px;" Indeterminate="true"/> *@
+    @*                 </div> *@
+    @*             } *@
+    @*         </MudCardContent> *@
+    @*     </MudCard> *@
+    @* </MudItem> *@
 }
 
 @if (UserIsAdmin)

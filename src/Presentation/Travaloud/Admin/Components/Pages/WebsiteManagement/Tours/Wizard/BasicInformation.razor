@@ -14,15 +14,47 @@
 
     <MudItem xs="12" md="5">
         <div class="d-flex" style="align-items:baseline">
-            <MudSelect T="TourCategoryRequest?" Label="Tour Category" Clearable="true" Variant="Variant.Outlined" @bind-Value="Tour.TourCategory" For="@(() => Tour.TourCategory)" HelperText="Does this Tour belong to a category?">
-                @if (Tour.ParentTourCategories != null)
+            @if (CanViewTourGroups)
+            {
+                if (Tour.UseTourGroup)
                 {
-                    foreach (var tourCategory in Tour.ParentTourCategories)
-                    {
-                        <MudSelectItem Value="@tourCategory" />
-                    }
+                    <MudSelect T="Guid?" Label="Tour Group" Required="Tour.UseTourGroup" Variant="Variant.Outlined" @bind-Value="Tour.TourCategoryId" Clearable="true" For="@(() => Tour.TourCategoryId)" HelperText="Does this Tour belong to a group?">
+                        @if (Tour.TourCategories != null)
+                        {
+                            foreach (var tourCategory in Tour.TourCategories)
+                            {
+                                <MudSelectItem T="Guid?" Value="@tourCategory.Id">@tourCategory.Name</MudSelectItem>
+                            }
+                        }
+                    </MudSelect>
                 }
-            </MudSelect>
+                else
+                {
+                    <MudSelect T="string" MultiSelection="true" Label="Tour Category" Clearable="true" Variant="Variant.Outlined" @bind-Value="Tour.SelectedParentTourCategoriesString" SelectAll="true" @bind-SelectedValues="@Tour.TourCategoriesOptions" For="@(() => Tour.SelectedParentTourCategoriesString)" HelperText="Does this Tour belong to a category?">
+                        @if (Tour.ParentTourCategories != null)
+                        {
+                            foreach (var tourCategory in Tour.ParentTourCategories)
+                            {
+                                <MudSelectItem T="string" Value="@tourCategory.Name" @key="@tourCategory.Id">@tourCategory.Name</MudSelectItem>
+                            }
+                        }
+                    </MudSelect>
+                }
+                
+                <MudButton Variant="Variant.Filled" Color="Color.Tertiary" Style="height:50px; margin-left:20px;" OnClick="@(() => ToggleTourGroup(Tour))">@(Tour.UseTourGroup ? "Use Category" : "Use Group")</MudButton>
+            }
+            else
+            {
+                <MudSelect T="TourCategoryRequest?" Label="Tour Category" Clearable="true" Variant="Variant.Outlined" @bind-Value="Tour.TourCategory" For="@(() => Tour.TourCategory)" HelperText="Does this Tour belong to a category?">
+                    @if (Tour.ParentTourCategories != null)
+                    {
+                        foreach (var tourCategory in Tour.ParentTourCategories)
+                        {
+                        <MudSelectItem Value="@tourCategory"/>
+                        }
+                    }
+                </MudSelect>
+            }
         </div>
     </MudItem>
 
@@ -103,4 +135,23 @@
     [Parameter] public required bool CanViewTourGroups { get; set; }
     [Parameter] public required bool CanViewTourCategories { get; set; }
     [Parameter] public required EntityServerTableContext<TourDto, DefaultIdType, TourViewModel> Context { get; set; } = default!;
+    
+    private void ToggleTourGroup(TourViewModel context)
+    {
+        context.UseTourGroup = !context.UseTourGroup;
+
+        if (context.UseTourGroup)
+        {
+            context.SelectedParentTourCategoriesString = string.Empty;
+            context.SelectedParentTourCategories = new List<Guid>();
+            context.TourCategoriesOptions = null;
+        }
+        else
+        {
+            context.TourCategoryId = null;
+        }
+
+        StateHasChanged();
+        Context.AddEditModal?.ForceRender();
+    }
 }

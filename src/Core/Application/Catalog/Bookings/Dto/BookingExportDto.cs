@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Travaloud.Application.Catalog.Tours.Dto;
 
 namespace Travaloud.Application.Catalog.Bookings.Dto;
 
@@ -16,6 +17,9 @@ public class BookingExportDto
 
     [ExportColumn("Tour")]
     public string? TourName { get; set; }
+    
+    // [ExportColumn(true)]
+    // public string? TourCategoryName { get; set; }
     
     [ExportColumn("Pickup Location")]
     public string? PickupLocation { get; set; }

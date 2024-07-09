@@ -4,14 +4,15 @@ using Travaloud.Domain.Catalog.Tours;
 
 namespace Travaloud.Application.Catalog.TourDates.Specification;
 
-public class SearchTourDatesSpec : EntitiesByBaseFilterSpec<TourDate, TourDateDto>
+public class SearchTourDatesSpec : EntitiesByPaginationFilterSpec<TourDate, TourDateDto>
 {
     public SearchTourDatesSpec(SearchTourDatesRequest request)
         : base(request) =>
         Query
             .Include(x => x.TourPrice)
             .OrderBy(c => c.StartDate)
-            .Where(p => p.StartDate > DateTime.Now)
+            .Where(p => p.StartDate > DateTime.Now, condition: !request.UserIsAdmin)
+            .Where(p => p.StartDate > DateTime.Now.AddMonths(-1), condition: request.UserIsAdmin)
             .Where(x => x.EndDate <= request.EndDate.Value, condition: request.EndDate.HasValue)
             .Where(p => p.TourId == request.TourId, condition: request.TourId.HasValue)
             .Where(p => p.TourPriceId == request.PriceId, condition: request.PriceId.HasValue)

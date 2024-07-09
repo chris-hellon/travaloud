@@ -166,6 +166,9 @@ public partial class TourDate : ComponentBase
         var startTime = RequestModel.StartTime.Value;
 
         var dates = new List<TourDateRequest>();
+
+        const int yearLimit = 1;
+        const int recordLimit = 500;
         
         switch (RequestModel.RepeatsCondition)
         {
@@ -175,15 +178,15 @@ public partial class TourDate : ComponentBase
                     startDate = RequestModel.StartDate.Value.AddDays(i * 7);
                     endDate = RequestModel.EndDate.Value.AddDays(i * 7);
 
-                    if (startDate > DateTime.Now.AddYears(3))
+                    if (startDate > DateTime.Now.AddYears(yearLimit))
                     {
-                        Snackbar.Add($"Dates greater than {DateTime.Now.AddYears(3).ToShortDateString()} were unable to be added.", Severity.Info);
+                        Snackbar.Add($"Dates greater than {DateTime.Now.AddYears(yearLimit).ToShortDateString()} were unable to be added.", Severity.Info);
                         break;
                     }
                     
-                    if (dates.Count >= 1000)
+                    if (dates.Count >= recordLimit)
                     {
-                        Snackbar.Add($"A maximum of 1000 dates can be added per request. Any dates from {startDate.Date.ToShortDateString()} onwards have not been added.", Severity.Info);
+                        Snackbar.Add($"A maximum of {recordLimit} dates can be added per request. Any dates from {startDate.Date.ToShortDateString()} onwards have not been added.", Severity.Info);
                         break;
                     }
                     
@@ -215,15 +218,15 @@ public partial class TourDate : ComponentBase
                         startDate = RequestModel.StartDate.Value.AddDays(j * 7);
                         endDate = startDate.AddDays((RequestModel.EndDate.Value - RequestModel.StartDate.Value).TotalDays);
 
-                        if (startDate > DateTime.Now.AddYears(3))
+                        if (startDate > DateTime.Now.AddYears(yearLimit))
                         {
-                            Snackbar.Add($"Dates greater than {DateTime.Now.AddYears(3).ToShortDateString()} were unable to be added.", Severity.Info);
+                            Snackbar.Add($"Dates greater than {DateTime.Now.AddYears(yearLimit).ToShortDateString()} were unable to be added.", Severity.Info);
                             break;
                         }
                         
-                        if (dates.Count >= 1000)
+                        if (dates.Count >= recordLimit)
                         {
-                            Snackbar.Add($"A maximum of 1000 dates can be added per request. Any dates from {startDate.Date.ToShortDateString()} onwards have not been added.", Severity.Info);
+                            Snackbar.Add($"A maximum of {recordLimit} dates can be added per request. Any dates from {startDate.Date.ToShortDateString()} onwards have not been added.", Severity.Info);
                             break;
                         }
                         
@@ -257,15 +260,15 @@ public partial class TourDate : ComponentBase
                         startDate = RequestModel.StartDate.Value.AddDays(i * 52 * 7).AddDays(j * 7);
                         endDate = startDate.AddDays((RequestModel.EndDate.Value - RequestModel.StartDate.Value).TotalDays);
 
-                        if (startDate > DateTime.Now.AddYears(3))
+                        if (startDate > DateTime.Now.AddYears(yearLimit))
                         {
-                            Snackbar.Add($"Dates greater than {DateTime.Now.AddYears(3).ToShortDateString()} were unable to be added.", Severity.Info);
+                            Snackbar.Add($"Dates greater than {DateTime.Now.AddYears(yearLimit).ToShortDateString()} were unable to be added.", Severity.Info);
                             break;
                         }
 
-                        if (dates.Count >= 1000)
+                        if (dates.Count >= recordLimit)
                         {
-                            Snackbar.Add($"A maximum of 1000 dates can be added per request. Any dates from {startDate.Date.ToShortDateString()} onwards have not been added.", Severity.Info);
+                            Snackbar.Add($"A maximum of {recordLimit} dates can be added per request. Any dates from {startDate.Date.ToShortDateString()} onwards have not been added.", Severity.Info);
                             break;
                         }
                         
@@ -297,7 +300,7 @@ public partial class TourDate : ComponentBase
         
         var tourDateRequests = newDates as TourDateRequest[] ?? newDates.ToArray();
 
-        if (tourDateRequests.Length <= 1000) return;
+        if (tourDateRequests.Length <= recordLimit) return;
         
         var filteredNewDates = tourDateRequests.Take(1000);
         Tour.TourDates.RemoveRange(tourDateRequests);
@@ -307,6 +310,6 @@ public partial class TourDate : ComponentBase
         Tour.TourDates.AddRange(itemsToAdd);
         tourPrice.Dates?.AddRange(tourDateRequests);
                 
-        Snackbar.Add($"A maximum of 1000 dates can be added per request. Any dates from {itemsToAdd.Last().StartDate?.ToShortDateString()} onwards have been removed. Please submit and add more dates in the next request.", Severity.Info);
+        Snackbar.Add($"A maximum of {recordLimit} dates can be added per request. Any dates from {itemsToAdd.Last().StartDate?.ToShortDateString()} onwards have been removed. Please submit and add more dates in the next request.", Severity.Info);
     }
 }

@@ -288,6 +288,12 @@ const bindSelectsAndModals = () => {
                     disableFuture: $(v).hasClass('datepicker-disable-future'),
                     disablePast: $(v).hasClass('datepicker-disable-past')
                 });
+
+                let control = $(v).find('.form-control');
+
+                $(control).on('valueChanged.mdb.datepicker', (e) => {
+                    console.log(e);
+                })
             }
         });
     }
@@ -636,6 +642,15 @@ const confirmCookie = () => {
     $('#cookiesModal').modal('hide');
 }
 
+const getBaseUrl = () => {
+    let pathArray = location.href.split('/');
+    let protocol = pathArray[0];
+    let host = pathArray[2];
+    let url = protocol + '//' + host + '/';
+
+    return url;
+}
+
 const doPost = (options) => {
     const {
         url,
@@ -647,7 +662,7 @@ const doPost = (options) => {
 
     $.ajax({
         type: "POST",
-        url: "/?handler=" + url,
+        url: location.href + "?handler=" + url,
         data: JSON.stringify(formData),
         dataType: 'json',
         contentType: 'application/json',

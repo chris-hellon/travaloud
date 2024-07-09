@@ -49,12 +49,23 @@
                     </MudSelect>
                 </MudItem>
                 <MudItem xs="12" md="12">
+                    <MudSelect T="DefaultIdType?" Value="RequestModel.TourPriceId" For="@(() => RequestModel.TourPriceId)" Disabled="BookingRefunded" Label="Tour Price" Clearable="true" Required="true" HelperText="Select a Tour Price" Variant="Variant.Outlined" ValueChanged="@((DefaultIdType? s) => OnTourPriceValueChanged(s))" ToStringFunc="TourPriceToStringConverter">
+                        @if (TourPrices != null)
+                        {
+                            foreach (var tourPrice in TourPrices)
+                            {
+                                <MudSelectItem T="DefaultIdType?" Value="@tourPrice.Id"></MudSelectItem>
+                            }
+                        }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12" md="12">
                     <MudSelect T="DefaultIdType?" Value="RequestModel.TourDateId" For="@(() => RequestModel.TourDateId)" Disabled="BookingRefunded" Label="Tour Date" Clearable="true" Required="true" HelperText="Select a Tour Date" Variant="Variant.Outlined" ValueChanged="@((DefaultIdType? s) => OnTourDateValueChanged(s))" ToStringFunc="TourDateToStringConverter">
                         @if (TourDates != null)
                         {
                             foreach (var tourDate in TourDates)
                             {
-                                <MudSelectItem T="DefaultIdType?" Value="@tourDate.Id">@tourDate.StartDate ($@tourDate.TourPrice?.Price) - @tourDate.AvailableSpaces spaces available</MudSelectItem>
+                                <MudSelectItem T="DefaultIdType?" Value="@tourDate.Id"></MudSelectItem>
                             }
                         }
                     </MudSelect>

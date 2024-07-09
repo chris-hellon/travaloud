@@ -313,6 +313,9 @@ internal partial class UserService
             }
         }
 
+        user.Email = request.Email;
+        user.NormalizedEmail = request.Email?.Normalize().ToUpper();
+        user.NormalizedUserName = request.Email.Normalize().ToUpper();
         user.FirstName = request.FirstName;
         user.LastName = request.LastName;
         user.FullName = $"{request.FirstName} {request.LastName}";

@@ -1,0 +1,79 @@
+@font-face {
+    font-family: 'DIN 2014 Demi';
+    src: url(/fonts/din2014-demi-webfont.woff2) format('woff2'), url(/fonts/din2014-demi-webfont.woff) format('woff');
+    font-weight: 400;
+    font-style: normal;
+    font-display:swap
+}
+
+@font-face {
+    font-family: 'DIN 2014 Narrow';
+    src: url(/fonts/din2014-narrow-webfont.woff2) format('woff2'), url(/fonts/din2014-narrow-webfont.woff) format('woff');
+    font-weight: 400;
+    font-style: normal;
+    font-display:swap
+}
+
+@font-face {
+    font-family: 'DIN 2014 Narrow Bold';
+    src: url(/fonts/din2014-narrowbold-webfont.woff2) format('woff2'), url(/fonts/din2014-narrowbold-webfont.woff) format('woff');
+    font-weight: 400;
+    font-style: normal;
+    font-display:swap
+}
+
+@font-face {
+    font-family: 'DIN 2014 Narrow Demi';
+    src: url(/fonts/din2014-narrowdemi-webfont.woff2) format('woff2'), url(/fonts/din2014-narrowdemi-webfont.woff) format('woff');
+    font-weight: 400;
+    font-style:normal
+}
+
+@font-face {
+    font-family: 'DIN 2014 Narrow Extra Light';
+    src: url(/fonts/din2014-narrowextralight-webfont.woff2) format('woff2'), url(/fonts/din2014-narrowextralight-webfont.woff) format('woff');
+    font-weight: 400;
+    font-style: normal;
+    font-display:swap
+}
+
+@font-face {
+    font-family: 'DIN 2014 Regular';
+    src: url(/fonts/din2014-regular-webfont.woff2) format('woff2'), url(/fonts/din2014-regular-webfont.woff) format('woff');
+    font-weight: 400;
+    font-style: normal;
+    font-display:swap
+}
+
+@font-face {
+    font-family: 'DIN 2014 Bold';
+    src: url(/fonts/din2014-bold-webfont.woff2) format('woff2'), url(/fonts/din2014-bold-webfont.woff) format('woff');
+    font-weight: 400;
+    font-style: normal;
+    font-display:swap
+}
+
+.pre-loader {
+    background-color: #000 !important;
+    text-align: center !important;
+    height: 100vh !important;
+    width: 100% !important;
+    left: 0 !important;
+    top: 0 !important;
+    position: fixed !important;
+    z-index: 100000;
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    justify-content:center
+}
+
+.spinner-border {
+    border: .25em solid;
+    border-right-color: transparent;
+    width: 2rem;
+    height: 2rem;
+    vertical-align: -.125em;
+    border-radius: 50%;
+    animation: .75s linear infinite spinner-border
+}

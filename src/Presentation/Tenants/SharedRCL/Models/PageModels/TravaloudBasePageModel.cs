@@ -1454,17 +1454,64 @@ public class TravaloudBasePageModel : PageModel
     {
         try
         {
-            await BookingService.CreateAsync(new CreateBookingRequest(
-                booking.Description,
+            var bookingRequest = new CreateBookingRequest(
+                "Web Booking: 1 Property",
                 booking.TotalAmount,
                 booking.CurrencyCode,
                 booking.ItemQuantity,
                 booking.IsPaid,
-                booking.BookingDate,
+                DateTime.Now,
                 UserId != null ? UserId.Value.ToString() : string.Empty,
                 booking.GuestName,
                 booking.GuestEmail,
-                booking.AdditionalNotes, "Website"));
+                booking.AdditionalNotes, "Website")
+            {
+                IsWebsite = true
+            };
+
+            if (booking.Items.Any())
+            {
+                bookingRequest.Items = new List<CreateBookingItemRequest>();
+                
+                foreach (var item in booking.Items)
+                {
+                    var itemRequest = new CreateBookingItemRequest()
+                    {
+                        Amount = item.Amount,
+                        CloudbedsPropertyId = item.CloudbedsPropertyId,
+                        CloudbedsReservationId = item.CloudbedsReservationId,
+                        StartDate = item.StartDate,
+                        EndDate = item.EndDate,
+                        GuestQuantity = item.GuestQuantity,
+                        RoomQuantity = item.RoomQuantity,
+                        PropertyId = item.PropertyId
+                    };
+
+                    if (item.Rooms != null && item.Rooms.Any())
+                    {
+                        itemRequest.Rooms = new List<CreateBookingItemRoomRequest>();
+                        
+                        foreach (var room in item.Rooms)
+                        {
+                            itemRequest.Rooms?.Add(new CreateBookingItemRoomRequest()
+                            {
+                                RoomName = room.RoomName,
+                                Amount = room.Amount,
+                                Nights = room.Nights,
+                                CheckInDate = room.CheckInDate,
+                                CheckOutDate = room.CheckOutDate,
+                                GuestFirstName = room.GuestFirstName,
+                                GuestLastName = room.GuestLastName,
+                                CloudbedsGuestId = room.CloudbedsGuestId,
+                            });
+                        }
+                    }
+                    
+                    bookingRequest.Items.Add(itemRequest);
+                }
+            }
+            
+            await BookingService.CreateAsync(bookingRequest);
 
             return JsonSuccessResult(booking);
         }

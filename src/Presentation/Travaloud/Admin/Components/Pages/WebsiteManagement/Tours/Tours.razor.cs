@@ -66,7 +66,7 @@ public partial class Tours
         else
         {
             _canViewTourGroups = true;
-            _canViewTourCategories = false;
+            _canViewTourCategories = true;
             WizardSteps["Itineraries"] = true;
         }
 

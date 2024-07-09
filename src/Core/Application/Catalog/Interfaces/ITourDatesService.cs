@@ -6,4 +6,6 @@ namespace Travaloud.Application.Catalog.Interfaces;
 public interface ITourDatesService : ITransientService
 {
     Task<PaginationResponse<TourDateDto>> SearchAsync(SearchTourDatesRequest request);
+
+    Task<TourDateDto?> GetAsync(DefaultIdType id);
 }

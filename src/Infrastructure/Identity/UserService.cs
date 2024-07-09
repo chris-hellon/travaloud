@@ -72,6 +72,11 @@ internal partial class UserService : IUserService
         return _mediator.Send(request, cancellationToken);
     }
 
+    public Task<IEnumerable<UserDetailsDto>> SearchStaffByDapperAsync(SearchStaffByDapperRequest request, CancellationToken cancellationToken)
+    {
+        return _mediator.Send(request, cancellationToken);
+    }
+
     public async Task<PaginationResponse<UserDetailsDto>> SearchAsync(UserListFilter filter, CancellationToken cancellationToken)
     {
         await using var dbContext = CreateDbContext();

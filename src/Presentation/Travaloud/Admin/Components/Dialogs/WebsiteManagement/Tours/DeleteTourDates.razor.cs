@@ -49,7 +49,7 @@ public partial class DeleteTourDates : ComponentBase
     {
         var datesToRemove = Tour.TourDates.Where(x =>
             x.StartDate.HasValue &&
-            dateRange.Contains(x.StartDate.Value.Date + DeleteTimeSpan.Value));
+            dateRange.Contains(x.StartDate.Value));
 
         var tourDateRequests = datesToRemove as TourDateRequest[] ?? datesToRemove.ToArray();
         var datesToRemovePrices = tourDateRequests

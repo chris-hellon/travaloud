@@ -1,4 +1,5 @@
 using System.Data;
+using Dapper;
 
 namespace Travaloud.Application.Identity.Users;
 
@@ -6,6 +7,7 @@ public class SearchByDapperRequest : PaginationFilter, IRequest<PaginationRespon
 {
     public string? Role { get; set; }
     public string TenantId { get; set; }
+    public List<string>? UserIds { get; set; }
 }
 
 internal class SearchByDapperRequestHandler : IRequestHandler<SearchByDapperRequest, PaginationResponse<UserDetailsDto>>
@@ -19,6 +21,19 @@ internal class SearchByDapperRequestHandler : IRequestHandler<SearchByDapperRequ
 
     public async Task<PaginationResponse<UserDetailsDto>> Handle(SearchByDapperRequest request, CancellationToken cancellationToken)
     {
+        var userIds = new DataTable();
+        userIds.Columns.Add("Id");
+
+        if (request.UserIds != null)
+        {
+            foreach (var userId in request.UserIds)
+            {
+                var dataRow = userIds.NewRow();
+                dataRow["Id"] = userId;
+                userIds.Rows.Add(dataRow);
+            }
+        }
+        
         var users = await _repository.QueryAsync<UserDetailsDto>(
             sql: "SearchUsers",
             param: new
@@ -28,7 +43,8 @@ internal class SearchByDapperRequestHandler : IRequestHandler<SearchByDapperRequ
                 Search = request.Keyword,
                 request.PageNumber,
                 request.PageSize,
-                OrderBy = request.OrderBy != null ? request.OrderBy.First() : "FirstName Ascending"
+                OrderBy = request.OrderBy != null ? request.OrderBy.First() : "FirstName Ascending",
+                //UserIds = userIds.AsTableValuedParameter()
             },
             commandType: CommandType.StoredProcedure,
             cancellationToken: cancellationToken);

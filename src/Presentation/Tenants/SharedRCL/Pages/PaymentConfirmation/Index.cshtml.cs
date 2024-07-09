@@ -171,6 +171,9 @@ public class IndexModel : TravaloudBasePageModel
                     
                     foreach (var supplierId in distinctSupplierIds)
                     {
+                        if (string.IsNullOrEmpty(supplierId))
+                            continue;
+                        
                         var supplier = suppliers.FirstOrDefault(x => x.Id == Guid.Parse(supplierId));
 
                         if (supplier == null || string.IsNullOrEmpty(supplier.Email))

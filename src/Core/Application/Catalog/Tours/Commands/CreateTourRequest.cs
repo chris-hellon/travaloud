@@ -64,7 +64,8 @@ public class CreateTourRequest : IRequest<DefaultIdType>
     public IEnumerable<TourDestinationLookupRequest>? TourDestinationLookups { get; set; }
     public IList<TourImageRequest>? Images { get; set; }
     public IEnumerable<TourDestinationLookupRequest>? SelectedDestinations = [];
-
+    public TourCategoryRequest? TourCategory { get; set; }
+    
     public bool? PublishToSite { get; set; }
     public bool? AdditionalGuestDetailsRequired { get; set; }
     public bool? WaiverRequired { get; set; }
@@ -77,19 +78,21 @@ public class CreateTourRequestHandler : IRequestHandler<CreateTourRequest, Defau
     private readonly IFileStorageService _file;
     private readonly ICurrentUser _currentUser;
     private readonly IUserService _userService;
-
+    private readonly IRepositoryFactory<TourCategory> _tourCategoryRepository;
+    
     public CreateTourRequestHandler(
         IRepositoryFactory<Tour> repository, 
         IFileStorageService file,
         IRepositoryFactory<Page> pageRepository, 
         ICurrentUser currentUser, 
-        IUserService userService)
+        IUserService userService, IRepositoryFactory<TourCategory> tourCategoryRepository)
     {
         _repository = repository;
         _file = file;
         _pageRepository = pageRepository;
         _currentUser = currentUser;
         _userService = userService;
+        _tourCategoryRepository = tourCategoryRepository;
     }
 
     public async Task<DefaultIdType> Handle(CreateTourRequest request, CancellationToken cancellationToken)
@@ -143,8 +146,11 @@ public class CreateTourRequestHandler : IRequestHandler<CreateTourRequest, Defau
             request.WaiverRequired,
             request.SupplierId,
             request.SupplierEmailText,
-            request.TourCategoryId);
+            request.TourCategory?.Id);
 
+        // var tourCategory = await _tourCategoryRepository.GetByIdAsync(request.TourCategory?.Id, cancellationToken);
+        // tour.TourCategory = tourCategory;
+        
         tour.ProcessTourPricesAndDates(request.TourPrices, request.TourDates, request.MaxCapacity ?? 99999,
             tour.MaxCapacity, userId);
         // tour.ProcessTourCategories(request.TourCategoryId, request.SelectedParentTourCategories,

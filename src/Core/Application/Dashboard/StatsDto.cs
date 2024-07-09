@@ -5,24 +5,26 @@ namespace Travaloud.Application.Dashboard;
 
 public class StatsDto
 {
-    public int BookingsCount { get; init; }
-    public int TourBookingsCount { get; init; }
-    public decimal TourBookingsRevenue { get; init; }
-    public int PropertyBookingsCount { get; init; }
-    public int GuestsCount { get; init; }
-    public int ToursCount { get; init; }
-    public int PropertiesCount { get; init; }
-    public List<BookingExportDto>? TodaysTours { get; set; }
-    
-    public List<ChartSeries> DataEnterBarChart { get; set; } = [];
-    public Dictionary<string, double>? ProductByBrandTypePieChart { get; set; }
-    
-    public IEnumerable<BookingItemDetailsDto>? PaidTourBookings { get; init; }
-    public IEnumerable<BookingItemDetailsDto>? AllTourBookings { get; init; }
-
-    public List<TourBookingsBarChartSummary> TourBookingsBarChartSummaries { get; set; } = [];
-
-    public GetDashboardResponse CloudbedsDashboard { get; set; } = new();
+    public int TodaysBookingsCount { get; init; }
+    public int TodaysTourDeparturesCount { get; init; }
+    public decimal TodaysBookingsRevenue { get; init; }
+    public int TotalBookingsCount { get; init; }
+    public decimal TotalBookingsRevenue { get; init; }
+    // public int PropertyBookingsCount { get; init; }
+    // public int GuestsCount { get; init; }
+    // public int ToursCount { get; init; }
+    // public int PropertiesCount { get; init; }
+    // public List<BookingExportDto>? TodaysTours { get; set; }
+    //
+    // public List<ChartSeries> DataEnterBarChart { get; set; } = [];
+    // public Dictionary<string, double>? ProductByBrandTypePieChart { get; set; }
+    //
+    // public IEnumerable<BookingItemDetailsDto>? PaidTourBookings { get; init; }
+    // public IEnumerable<BookingItemDetailsDto>? AllTourBookings { get; init; }
+    //
+    // public List<TourBookingsBarChartSummary> TourBookingsBarChartSummaries { get; set; } = [];
+    //
+    // public GetDashboardResponse CloudbedsDashboard { get; set; } = new();
 }
 
 public class ChartSeries

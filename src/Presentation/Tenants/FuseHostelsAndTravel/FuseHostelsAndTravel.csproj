@@ -78,4 +78,8 @@
       <_ContentIncludedByDefault Remove="wwwroot\scss\_variables.scss" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="wwwroot\fonts\" />
+    </ItemGroup>
+
 </Project>

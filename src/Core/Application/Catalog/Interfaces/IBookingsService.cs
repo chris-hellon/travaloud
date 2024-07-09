@@ -31,7 +31,7 @@ public interface IBookingsService : ITransientService
 
     Task<DefaultIdType> DeleteItemAsync(DefaultIdType id);
 
-    Task<FileResponse> ExportAsync(ExportBookingsRequest filter);
+    Task<FileResponse> ExportAsync(ExportBookingsByDapperRequest filter);
 
     Task<PaginationResponse<StaffBookingDto>> StaffBookingsByDateRange(StaffBookingsByDateRangeRequest request);
 

@@ -96,8 +96,7 @@ public class IndexModel : TravaloudBasePageModel
                             var mailRequest = new MailRequest(
                                 to: [stripeStatus.CustomerDetails.Email!],
                                 subject: $"{TenantName} Order Confirmation",
-                                body: emailHtml,
-                                bcc: new List<string?>() {MailSettings?.ToAddress});
+                                body: emailHtml);
 
                             await MailService.SendAsync(mailRequest);
 
@@ -112,10 +111,13 @@ public class IndexModel : TravaloudBasePageModel
                                 var suppliers =
                                     await _userService.SearchAsync(distinctSupplierIds, CancellationToken.None);
 
-                                if (suppliers.Any())
+                                if (suppliers.Count != 0)
                                 {
                                     foreach (var supplierId in distinctSupplierIds)
                                     {
+                                        if (string.IsNullOrEmpty(supplierId))
+                                            continue;
+                                        
                                         var supplier = suppliers.FirstOrDefault(x => x.Id == Guid.Parse(supplierId));
 
                                         if (supplier == null || string.IsNullOrEmpty(supplier.Email))
@@ -146,8 +148,7 @@ public class IndexModel : TravaloudBasePageModel
                                         var supplierMailRequest = new MailRequest(
                                             to: [supplier.Email],
                                             subject: $"{TenantName} Booking Confirmation",
-                                            body: supplierEmailHtml,
-                                            bcc: new List<string?> {MailSettings.ToAddress});
+                                            body: supplierEmailHtml);
                                         
                                         _jobService.Enqueue(() => MailService.SendAsync(supplierMailRequest));
                                     }

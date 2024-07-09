@@ -70,8 +70,8 @@ public class UpdateTourRequest : IRequest<DefaultIdType>
     public FileUploadRequest? MobileVideo { get; set; }
     public TourCategoryRequest? TourCategory { get; set; }
     public DefaultIdType? TourCategoryId { get; set; }
-    // public string? SelectedParentTourCategoriesString { get; set; }
-    // public List<DefaultIdType>? SelectedParentTourCategories { get; set; }
+    public string? SelectedParentTourCategoriesString { get; set; }
+    public List<DefaultIdType>? SelectedParentTourCategories { get; set; }
 
     [Display(Name = "Pricing")]
     public IList<TourPriceRequest>? TourPrices { get; set; }

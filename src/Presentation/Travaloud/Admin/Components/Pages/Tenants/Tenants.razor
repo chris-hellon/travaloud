@@ -55,20 +55,20 @@
         <MudItem xs="12" md="6">
             <MudTextField T="string" For="@(() => context.PrimaryColor)" @bind-Value="context.PrimaryColor" Label="@L["Primary Color"]" />
         </MudItem>
-        <MudItem xs="12" md="6">
-            <MudTextField T="string" For="@(() => context.PrimaryHoverColor)" @bind-Value="context.PrimaryHoverColor" Label="@L["Primary Hover Color"]" />
-        </MudItem>
+        @* <MudItem xs="12" md="6"> *@
+        @*     <MudTextField T="string" For="@(() => context.PrimaryHoverColor)" @bind-Value="context.PrimaryHoverColor" Label="@L["Primary Hover Color"]" /> *@
+        @* </MudItem> *@
         <MudItem xs="12" md="6">
             <MudTextField T="string" For="@(() => context.SecondaryColor)" @bind-Value="context.SecondaryColor" Label="@L["Secondary Color"]" />
         </MudItem>
-        <MudItem xs="12" md="6">
-            <MudTextField T="string" For="@(() => context.SecondaryHoverColor)" @bind-Value="context.SecondaryHoverColor" Label="@L["Secondary Hover Color"]" />
-        </MudItem>
+        @* <MudItem xs="12" md="6"> *@
+        @*     <MudTextField T="string" For="@(() => context.SecondaryHoverColor)" @bind-Value="context.SecondaryHoverColor" Label="@L["Secondary Hover Color"]" /> *@
+        @* </MudItem> *@
         <MudItem xs="12" md="6">
             <MudTextField T="string" For="@(() => context.TeritaryColor)" @bind-Value="context.TeritaryColor" Label="@L["Teritary Color"]" />
         </MudItem>
         <MudItem xs="12" md="6">
-            <MudTextField T="string" For="@(() => context.TeritaryHoverColor)" @bind-Value="context.TeritaryHoverColor" Label="@L["Teritary Hover Color"]" />
+            <MudTextField T="string" For="@(() => context.TeritaryHoverColor)" @bind-Value="context.TeritaryHoverColor" Label="@L["Info Color"]" />
         </MudItem>
     </EditFormContent>
     <ExtraActions>

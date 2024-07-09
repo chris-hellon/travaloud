@@ -13,6 +13,8 @@ public class SearchTourDatesRequest : PaginationFilter, IRequest<PaginationRespo
     public int? RequestedSpaces { get; set; }
     
     public DateTime? EndDate { get; set; }
+    
+    public bool UserIsAdmin { get; set; }
 }
 
 public class SearchTourDatesRequestHandler : IRequestHandler<SearchTourDatesRequest, PaginationResponse<TourDateDto>>

@@ -132,7 +132,7 @@
             searchFunc: async (filter) =>
             {
                 var adaptedFilter = filter.Adapt<GetBookingItemsByDateRequest>();
-                adaptedFilter.Guests = Guests;
+                //adaptedFilter.Guests = Guests;
                 adaptedFilter.TourStartDate = DateTime.Now;
                 adaptedFilter.TourEndDate = DateTime.Now;
                 adaptedFilter.TourId = SearchTourId;
@@ -147,12 +147,11 @@
             },
             exportFunc: async (filter) =>
             {
-                var adaptedFilter = new ExportBookingsRequest()
+                var adaptedFilter = new ExportBookingsByDapperRequest()
                 {
-                    Guests = Guests,
+                    TenantId = TenantInfo.Id,
                     TourStartDate = DateTime.Now.Date + new TimeSpan(00, 00, 00),
                     TourEndDate = DateTime.Now.Date + new TimeSpan(23, 59, 59),
-                    IsTourBookings = true,
                     TourId = SearchTourId,
                     Description = SearchDescription
                 };
@@ -184,7 +183,7 @@
             searchFunc: async (filter) =>
             {
                 var adaptedFilter = filter.Adapt<GetBookingItemsByDateRequest>();
-                adaptedFilter.Guests = Guests;
+                //adaptedFilter.Guests = Guests;
                 adaptedFilter.TourStartDate = DateTime.Now.AddDays(1);
                 adaptedFilter.TourEndDate = DateTime.Now.AddDays(1);
                 adaptedFilter.TourId = SearchTomorrowTourId;
@@ -197,14 +196,13 @@
             },
             exportFunc: async (filter) =>
             {
-                var adaptedFilter = new ExportBookingsRequest()
+                var adaptedFilter = new ExportBookingsByDapperRequest()
                 {
-                    Guests = Guests,
                     TourStartDate = DateTime.Now.Date + new TimeSpan(00, 00, 00),
                     TourEndDate = DateTime.Now.Date + new TimeSpan(23, 59, 59),
-                    IsTourBookings = true,
                     TourId = SearchTourId,
-                    Description = SearchDescription
+                    Description = SearchDescription,
+                    TenantId = TenantInfo.Id
                 };
                 return await BookingsService.ExportAsync(adaptedFilter);
             }

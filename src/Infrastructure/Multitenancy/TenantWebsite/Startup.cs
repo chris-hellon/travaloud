@@ -119,6 +119,7 @@ public static class Startup
             var provider = new PhysicalFileProvider(libraryPath);
 
             pipeline.AddScssBundle("/css/theme.min.css",
+                "/css/load.min.css",
                     "/mdb/src/scss/mdb.pro.scss")
                 .MinifyCss();
 

@@ -10,6 +10,7 @@ using Travaloud.Application.Cloudbeds.Queries;
 using Travaloud.Application.Cloudbeds.Responses;
 
 using PropertyRoomDto = Travaloud.Application.Cloudbeds.Dto.PropertyRoomDto;
+using Travaloud.Application.Common.Extensions;
 
 namespace Travaloud.Tenants.SharedRCL.Pages.PropertyBooking;
 
@@ -40,7 +41,7 @@ public class IndexModel : TravaloudBasePageModel
     }
 
     private ApplicationUser? ApplicationUser { get; set; }
-    
+   
     public PropertyDetailsDto? Property { get; set; }
     
     public string PropertyName { get; set; } = string.Empty;
@@ -103,6 +104,8 @@ public class IndexModel : TravaloudBasePageModel
         
         if (Property == null) return LocalRedirect("/error");
         
+        TempData.Put("CloudbedsProperty", Property);
+        
         var pageTitle = Property.PageTitle ?? Property.Name;
         var pageSubTitle = Property.PageSubTitle ?? "";
 
@@ -133,6 +136,39 @@ public class IndexModel : TravaloudBasePageModel
             DateRange = $"{CheckInDate.ToShortDateString()} - {CheckOutDate.ToShortDateString()}"
         };
 
+        IframeUrl = $"https://hotels.cloudbeds.com/reservation/{property.CloudbedsKey}";
+
+        if (ApplicationUser != null)
+        {
+            IframeUrl += "?";
+
+            if (!string.IsNullOrEmpty(ApplicationUser.FirstName))
+                IframeUrl += $"firstName={ApplicationUser.FirstName}";
+
+            if (!string.IsNullOrEmpty(ApplicationUser.LastName))
+                IframeUrl += $"&lastName={ApplicationUser.LastName}";
+
+            if (!string.IsNullOrEmpty(ApplicationUser.Email))
+                IframeUrl += $"&email={ApplicationUser.Email}";
+
+            if (!string.IsNullOrEmpty(ApplicationUser.Nationality))
+                IframeUrl += $"&country={ApplicationUser.Nationality}";
+
+            if (!string.IsNullOrEmpty(ApplicationUser.PhoneNumber))
+                IframeUrl += $"&phone={ApplicationUser.PhoneNumber}";
+        }
+
+        if (!string.IsNullOrEmpty(checkInDate) || !string.IsNullOrEmpty(checkOutDate))
+        {
+            IframeUrl += "#";
+
+            if (!string.IsNullOrEmpty(checkInDate))
+                IframeUrl += $"&checkin={checkInDate}";
+
+            if (!string.IsNullOrEmpty(checkOutDate))
+                IframeUrl += $"&checkout={checkOutDate}";
+        }
+        
         if (string.IsNullOrEmpty(Property.CloudbedsApiKey) || string.IsNullOrEmpty(Property.CloudbedsPropertyId) ||
             string.IsNullOrEmpty(checkInDate) || string.IsNullOrEmpty(checkOutDate)) return Page();
         
@@ -195,6 +231,27 @@ public class IndexModel : TravaloudBasePageModel
                     }
                 }
             }
+        }
+    }
+    
+    public async Task<IActionResult> OnPostGetCloudbedsData(string checkInDate, string checkOutDate)
+    {
+        try
+        {
+            Property = TempData.Get<PropertyDetailsDto>("CloudbedsProperty");
+            Basket = await BasketService.GetBasket();
+            
+            await GetCloudbedsProperties(checkInDate, checkOutDate);
+
+            return JsonSuccessResult(new
+            {
+                Html = RazorPartialToStringRenderer.RenderPartialToStringAsync("/Pages/PropertyBooking/_PropertyBookingPartial.cshtml", this)
+            });
+        }
+        catch (Exception ex)
+        {
+            Logger.Error("Error: {Message}", ex.Message);
+            return StatusCode(500, "There was an error submitting tour request.");
         }
     }
 }

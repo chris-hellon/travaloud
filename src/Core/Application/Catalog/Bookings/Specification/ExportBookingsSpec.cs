@@ -15,6 +15,7 @@ public class ExportBookingsSpec : EntitiesByBaseFilterSpec<BookingItem, BookingE
             .Include(x => x.Guests)
             .Include(x => x.Booking)
             .Include(x => x.Tour)
+            // .ThenInclude(x => x.TourCategory)
             .Include(x => x.TourDate)
             .Where(
                 x => x.TourId.HasValue &&

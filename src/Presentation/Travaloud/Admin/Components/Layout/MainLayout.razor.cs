@@ -1,3 +1,4 @@
+using Finbuckle.MultiTenant;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using Travaloud.Admin.Theme;
@@ -10,10 +11,10 @@ namespace Travaloud.Admin.Components.Layout;
 public partial class MainLayout
 {
     [Inject] private IUserService UserService { get; set; } = default!;
-    
+
     private string? _currentUrl;
     private bool _isDarkMode;
-    private MudTheme CurrentTheme = new LightTheme();
+    private MudTheme CurrentTheme;
     private bool _drawerOpen = true;
     private TravaloudTenantInfo? TenantInfo;
     private List<UserDetailsDto>? Guests;
@@ -23,6 +24,7 @@ public partial class MainLayout
         if (HttpContextAccessor.HttpContext == null) return;
 
         TenantInfo = MultiTenantContextAccessor.MultiTenantContext?.TenantInfo;
+        CurrentTheme = new LightTheme(TenantInfo);
     }
 
     protected override Task OnAfterRenderAsync(bool firstRender)
@@ -57,7 +59,7 @@ public partial class MainLayout
     public void ToggleDarkMode(bool toggled)
     {
         _isDarkMode = toggled;
-        CurrentTheme = _isDarkMode ? new DarkTheme() : new LightTheme();
+        CurrentTheme = _isDarkMode ? new DarkTheme() : new LightTheme(TenantInfo);
     }
 
     private void DrawerToggle()

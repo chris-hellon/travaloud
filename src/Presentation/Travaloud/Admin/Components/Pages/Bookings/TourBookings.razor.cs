@@ -26,6 +26,7 @@ using Travaloud.Application.Common.Models;
 using Travaloud.Application.Identity.Users;
 using Travaloud.Application.PaymentProcessing;
 using Travaloud.Application.PaymentProcessing.Commands;
+using Travaloud.Application.PaymentProcessing.Queries;
 using Travaloud.Infrastructure.Auth;
 using Travaloud.Infrastructure.Common.Services;
 using Travaloud.Infrastructure.Multitenancy;
@@ -106,7 +107,7 @@ public partial class TourBookings
                 new EntityField<BookingDto>(booking => $"$ {booking.TotalAmount:n2}", L["Total Amount"], "TotalAmount"),
                 new EntityField<BookingDto>(
                     booking => booking.IsPaid ? "Paid" :
-                        booking.Refunded.HasValue && booking.Refunded.Value ? "Refunded" : booking.AmountOutstanding.HasValue ? "Partially Paid" : "Unpaid", L["Status"],
+                        booking.Refunded.HasValue && booking.Refunded.Value ? "Refunded" : booking.AmountOutstanding is > 0 ? "Partially Paid" : "Unpaid", L["Status"],
                     "IsPaid",
                     Color: booking => !booking.IsPaid && (!booking.Refunded.HasValue || !booking.Refunded.Value)
                         ? CurrentTheme.Palette.Error
@@ -321,19 +322,19 @@ public partial class TourBookings
                     if (refundPercentageAmount > 0)
                     {
                         var percentageAmount = RefundAmount.Value * (refundPercentageAmount / 100.0m);
-                    
-                        //refund and update
-                        await ServiceHelper.ExecuteCallGuardedAsync(
-                            async () =>
-                            {
-                                await BookingsService.RefundBooking(new RefundBookingRequest(id, percentageAmount, false,
-                                    true));
-                                await BookingsService.UpdateAsync(id, request);
-                            },
-                            Snackbar,
-                            Logger, "Booking Refunded Successfully");
 
-                        _ = _table.ReloadDataAsync();
+                       // refund and update
+                         await ServiceHelper.ExecuteCallGuardedAsync(
+                             async () =>
+                             {
+                                 await BookingsService.RefundBooking(new RefundBookingRequest(id, percentageAmount, false,
+                                     true));
+                                 await BookingsService.UpdateAsync(id, request);
+                             },
+                             Snackbar,
+                             Logger, "Booking Refunded Successfully");
+                        
+                         _ = _table.ReloadDataAsync();
                     }
                     else
                     {
@@ -351,37 +352,15 @@ public partial class TourBookings
 
     private async Task<FileResponse> ExportTourBooking(BaseFilter filter)
     {
-        var exportFilter = filter.Adapt<ExportBookingsRequest>();
+        var exportFilter = filter.Adapt<ExportBookingsByDapperRequest>();
 
         exportFilter.Description = SearchDescription == default ? null : SearchDescription;
         exportFilter.BookingStartDate = SearchBookingDateRange?.Start;
         exportFilter.BookingEndDate = SearchBookingDateRange?.End;
         exportFilter.TourStartDate = SearchTourStartDateRange?.Start;
         exportFilter.TourEndDate = SearchTourStartDateRange?.End;
-        exportFilter.IsTourBookings = true;
-
-        if (exportFilter.BookingEndDate.HasValue)
-        {
-            exportFilter.BookingEndDate = exportFilter.BookingEndDate.Value + new TimeSpan(0, 23, 59, 59, 999);
-        }
-
-        if (exportFilter.BookingStartDate.HasValue)
-        {
-            exportFilter.BookingStartDate =
-                exportFilter.BookingStartDate.Value + new TimeSpan(0, 00, 00, 00, 00);
-        }
-
-        if (exportFilter.TourEndDate.HasValue)
-        {
-            exportFilter.TourEndDate = exportFilter.TourEndDate.Value + new TimeSpan(0, 23, 59, 59, 999);
-        }
-
-        if (exportFilter.TourStartDate.HasValue)
-        {
-            exportFilter.TourStartDate = exportFilter.TourStartDate.Value + new TimeSpan(0, 00, 00, 00, 00);
-        }
-
         exportFilter.TourId = SearchTourId;
+        exportFilter.TenantId = TenantInfo.Id;
 
         return await BookingsService.ExportAsync(exportFilter);
     }

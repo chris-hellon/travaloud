@@ -7,6 +7,9 @@ public interface IUserService : ITransientService
 {
     Task<PaginationResponse<UserDetailsDto>> SearchByDapperAsync(SearchByDapperRequest request,
         CancellationToken cancellationToken);
+
+    Task<IEnumerable<UserDetailsDto>> SearchStaffByDapperAsync(SearchStaffByDapperRequest request,
+        CancellationToken cancellationToken);
     Task<PaginationResponse<UserDetailsDto>> SearchAsync(UserListFilter filter, CancellationToken cancellationToken); 
     Task<List<UserDto>> SearchAsync(List<string> userIds, CancellationToken cancellationToken);
     

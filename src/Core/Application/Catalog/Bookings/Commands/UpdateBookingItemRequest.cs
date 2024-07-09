@@ -24,6 +24,9 @@ public class UpdateBookingItemRequest : IRequest<DefaultIdType>
     [RequiredIfNull("PropertyId", ErrorMessage = "A Tour Date is required")]
     public DefaultIdType? TourDateId { get; set; }
     
+    [RequiredIfNull("PropertyId", ErrorMessage = "A Tour Price is required")]
+    public DefaultIdType? TourPriceId { get; set; }
+    
     [RequiredIfNull("PropertyId", ErrorMessage = "A Tour Category is required")]
     public DefaultIdType? TourCategoryId { get; set; }
     

@@ -79,22 +79,23 @@ public class SendDailyTourManifestHandler : IRequestHandler<SendDailyTourManifes
         var tenantId = _multiTenantContextAccessor.MultiTenantContext?.TenantInfo?.Id ??
                        throw new Exception("No Tenant found.");
         
-        var guests = await _userService.SearchByDapperAsync(new SearchByDapperRequest()
-        {
-            Role = TravaloudRoles.Guest,
-            PageNumber = 1,
-            PageSize = 99999,
-            TenantId = tenantId
-        }, cancellationToken);
-
-        if (guests.Data.Count == 0) return;
+        // var guests = await _userService.SearchByDapperAsync(new SearchByDapperRequest()
+        // {
+        //     Role = TravaloudRoles.Guest,
+        //     PageNumber = 1,
+        //     PageSize = 99999,
+        //     TenantId = tenantId
+        // }, cancellationToken);
+        //
+        // if (guests.Data.Count == 0) return;
         
         var adaptedFilter = new GetBookingItemsByDateRequest
         {
-            Guests = guests.Data,
+            //Guests = guests.Data,
             TourDateId = request.TourDateId,
             TourId = request.TourId,
-            HideRefunded = true
+            HideRefunded = true,
+            TenantId = tenantId
         };
 
         var destinationManifests = new Dictionary<string, byte[]>();

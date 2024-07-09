@@ -137,7 +137,7 @@ public class TravaloudTenantInfo : ITenantInfo
     public string? BodyFontWoff2Url { get; set; }
 
     public string? BodyFont { get; set; }
-
+    
     /// <summary>
     /// Used by AzureAd Authorization to store the AzureAd Tenant Issuer to map against.
     /// </summary>

@@ -206,17 +206,13 @@ else
         if (string.IsNullOrEmpty(value))
             return Array.Empty<UserDetailsDto>();
 
-        var staff = await UserService.GetListAsync(token);
+        var staff = await UserService.SearchStaffByDapperAsync(new SearchStaffByDapperRequest()
+        {
+            TenantId = TenantContextAccessor.MultiTenantContext.TenantInfo.Id,
+            Search = value
+        }, token);
 
-        return staff.Count != 0
-            ? staff.Where(x => !string.IsNullOrEmpty(x.Email) && string.IsNullOrWhiteSpace(value)
-                               || x.FullName?.Contains(value, StringComparison.OrdinalIgnoreCase) == true
-                               || x.FirstName?.Contains(value, StringComparison.OrdinalIgnoreCase) == true
-                               || x.LastName?.Contains(value, StringComparison.OrdinalIgnoreCase) == true
-                               || x.Email?.Contains(value, StringComparison.OrdinalIgnoreCase) == true
-                               || x.PhoneNumber?.Contains(value, StringComparison.OrdinalIgnoreCase) == true
-                               || x.UserName?.Contains(value, StringComparison.OrdinalIgnoreCase) == true)
-            : Array.Empty<UserDetailsDto>();
+        return staff;
     }
 
 

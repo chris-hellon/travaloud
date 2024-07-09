@@ -105,9 +105,9 @@ public class BookingsService : BaseService, IBookingsService
         return Mediator.Send(request);
     }
     
-    public async Task<FileResponse> ExportAsync(ExportBookingsRequest filter)
+    public async Task<FileResponse> ExportAsync(ExportBookingsByDapperRequest filter)
     {
-        filter.Guests = await _userService.GetListAsync(TravaloudRoles.Guest);
+        //filter.Guests = await _userService.GetListAsync(TravaloudRoles.Guest);
         
         var response = await Mediator.Send(filter);
         

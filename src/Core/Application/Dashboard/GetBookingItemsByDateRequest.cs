@@ -1,6 +1,6 @@
-using Travaloud.Application.Catalog.Bookings.Commands;
+using System.Data;
+using Dapper;
 using Travaloud.Application.Catalog.Bookings.Dto;
-using Travaloud.Application.Catalog.Bookings.Specification;
 using Travaloud.Application.Identity.Users;
 using Travaloud.Domain.Catalog.Bookings;
 using Travaloud.Shared.Authorization;
@@ -9,6 +9,7 @@ namespace Travaloud.Application.Dashboard;
 
 public class GetBookingItemsByDateRequest : PaginationFilter, IRequest<PaginationResponse<BookingExportDto>>
 {
+    public required string TenantId { get; set; }
     public DateTime? TourStartDate { get; set; }
     public DateTime? TourEndDate { get; set; }
     public DateTime? BookingStartDate { get; set; }
@@ -17,7 +18,6 @@ public class GetBookingItemsByDateRequest : PaginationFilter, IRequest<Paginatio
     public DefaultIdType? TourDateId { get; set; }
     public IEnumerable<DefaultIdType>? TourIds { get; set; }
     public string? Description { get; set; }
-    public IEnumerable<UserDetailsDto>? Guests { get; set; }
     public bool HideRefunded { get; set; } = true;
 }
 
@@ -26,15 +26,18 @@ internal class GetBookingItemsByDateRequestHandler : IRequestHandler<GetBookingI
     private readonly IRepositoryFactory<BookingItem> _repository;
     private readonly IUserService _userService;
     private readonly ICurrentUser _currentUser;
+    private IDapperRepository _dapperRepository;
     
     public GetBookingItemsByDateRequestHandler(
         IRepositoryFactory<BookingItem> repository, 
         IUserService userService, 
-        ICurrentUser currentUser)
+        ICurrentUser currentUser,
+        IDapperRepository dapperRepository)
     {
         _repository = repository;
         _userService = userService;
         _currentUser = currentUser;
+        _dapperRepository = dapperRepository;
     }
 
     public async Task<PaginationResponse<BookingExportDto>> Handle(GetBookingItemsByDateRequest request, CancellationToken cancellationToken)
@@ -51,134 +54,85 @@ internal class GetBookingItemsByDateRequestHandler : IRequestHandler<GetBookingI
 
             request.TourIds = userClaims.Select(x => DefaultIdType.Parse(x.ClaimValue)).ToArray();
         }
-        
-        var exportBookingsRequest = new ExportBookingsRequest()
+
+        var tourIdsDt = new DataTable();
+        tourIdsDt.Columns.Add("Id");
+
+        if (request.TourIds != null)
         {
-            TourStartDate = request.TourStartDate.HasValue ? request.TourStartDate.Value.Date + new TimeSpan(00, 00, 00) : null,
-            TourEndDate = request.TourEndDate.HasValue ? request.TourEndDate.Value.Date + new TimeSpan(23, 59, 59) : null,
-            BookingStartDate = request.BookingStartDate.HasValue ? request.BookingStartDate.Value.Date + new TimeSpan(00, 00, 00) : null,
-            BookingEndDate = request.BookingEndDate.HasValue ? request.BookingEndDate.Value.Date + new TimeSpan(23, 59, 59) : null,
-            Description = request.Description,
-            IsTourBookings = true,
-            TourId = request.TourId,
-            TourDateId = request.TourDateId,
-            TourIds = request.TourIds,
-            HideRefunded = true
-        };
-        var spec = new ExportBookingsSpec(exportBookingsRequest);
-        
-        var todaysTours = await _repository.ListAsync(spec, cancellationToken);
-        var parsedTodaysTours = new List<BookingExportDto>();
-
-        if (request.HideRefunded)
-            todaysTours = todaysTours.Where(x => !x.BookingRefunded.HasValue || !x.BookingRefunded.Value).ToList();
-        
-        if (todaysTours == null)
-            return new PaginationResponse<BookingExportDto>(parsedTodaysTours, parsedTodaysTours.Count,
-                request.PageNumber, request.PageSize);
-        
-        foreach (var item in todaysTours)
-        {
-            if (item.BookingGuestId == null || request.Guests == null) continue;
-            var guest = request.Guests.FirstOrDefault(g => g.Id == item.BookingGuestId);
-
-            if (guest == null) continue;
-            
-            item.GuestName = $"{guest.FirstName} {guest.LastName}";
-            item.GuestGender = guest.Gender;
-            item.GuestDateOfBirth = guest.DateOfBirth?.Date;
-            item.GuestNationality = guest.Nationality;
-            item.GuestPassportNumber = guest.PassportNumber;
-            item.GuestId = guest.Id;
-            item.Amount = isSupplier ? 0 : item.Amount;
-
-            parsedTodaysTours.Add(item);
-
-            if (item.Guests == null || !item.Guests.Any()) continue;
+            foreach (var tourId in request.TourIds)
             {
-                foreach (var additionalGuest in item.Guests)
-                {
-                    var additionalGuestMatch =
-                        request.Guests.FirstOrDefault(x => DefaultIdType.Parse(x.Id) == additionalGuest.GuestId);
+                var dataRow = tourIdsDt.NewRow();
+                dataRow["Id"] = tourId;
 
-                    if (additionalGuestMatch != null)
-                    {
-                        parsedTodaysTours.Add(new BookingExportDto()
-                        {
-                            Amount = isSupplier ? 0 : item.Amount,
-                            BookingCurrencyCode = item.BookingCurrencyCode,
-                            BookingBookingDate = item.BookingBookingDate,
-                            BookingInvoiceId = item.BookingInvoiceId,
-                            BookingIsPaid = item.BookingIsPaid,
-                            StartDate = item.StartDate,
-                            EndDate = item.EndDate,
-                            TourId = item.TourId,
-                            TourName = item.TourName,
-                            BookingGuestId = item.BookingGuestId,
-                            GuestId = additionalGuestMatch.Id,
-                            GuestName = $"{additionalGuestMatch.FirstName} {additionalGuestMatch.LastName}",
-                            GuestGender = additionalGuestMatch.Gender,
-                            GuestDateOfBirth = additionalGuestMatch.DateOfBirth?.Date,
-                            GuestNationality = additionalGuestMatch.Nationality,
-                            GuestPassportNumber = additionalGuestMatch.PassportNumber,
-                            PickupLocation = item.PickupLocation
-                        });
-                    }
-                }
+                tourIdsDt.Rows.Add(dataRow);
             }
         }
-        
-        var filteredTours = parsedTodaysTours;
 
-        if (!string.IsNullOrEmpty(request.Keyword))
+        var tourStartDate = request.TourStartDate.HasValue
+            ? request.TourStartDate.Value.Date + new TimeSpan(00, 00, 00)
+            : new DateTime?();
+
+        var tourEndDate = request.TourEndDate.HasValue
+            ? request.TourEndDate.Value.Date + new TimeSpan(23, 59, 59)
+            : new DateTime?();
+        
+        var todaysTours = await _dapperRepository.QueryAsync<BookingExportDto>("GetBookingsExports", new
         {
-            var searchTerm = request.Keyword.ToLower();
-            filteredTours = filteredTours.Where(t =>
-                    t.BookingInvoiceId.ToString().Contains(searchTerm, StringComparison.CurrentCultureIgnoreCase) ||
-                    t.GuestName!.Contains(searchTerm, StringComparison.CurrentCultureIgnoreCase) ||
-                    t.TourName!.Contains(searchTerm, StringComparison.CurrentCultureIgnoreCase)
-            ).ToList();
-        }
+            request.Description,
+            TourStartDate = request.TourStartDate.HasValue ? request.TourStartDate.Value.Date + new TimeSpan(00, 00, 00) : new DateTime?(),
+            TourEndDate = request.TourEndDate.HasValue ? request.TourEndDate.Value.Date + new TimeSpan(23, 59, 59) : new DateTime?(),
+            BookingStartDate = request.BookingStartDate.HasValue ? request.BookingStartDate.Value.Date + new TimeSpan(00, 00, 00) : new DateTime?(),
+            BookingEndDate = request.BookingEndDate.HasValue ? request.BookingEndDate.Value.Date + new TimeSpan(23, 59, 59) :new DateTime?(),
+            request.TourId,
+            request.TourDateId,
+            TourIds = tourIdsDt.AsTableValuedParameter(),
+            request.HideRefunded,
+            request.TenantId
+        }, commandType: CommandType.StoredProcedure, cancellationToken: cancellationToken);
+        
+        if (todaysTours.Count == 0)
+            return new PaginationResponse<BookingExportDto>(new List<BookingExportDto>(),0,
+                request.PageNumber, request.PageSize);
+
+        var parsedTours = todaysTours.ToList();
         
         if (request.OrderBy is {Length: > 0})
         {
-            foreach (var orderByField in request.OrderBy)
+            parsedTours = request.OrderBy.Aggregate(parsedTours, (current, orderByField) => orderByField switch
             {
-                filteredTours = orderByField switch
-                {
-                    "Reference" => filteredTours.ToList(),
-                    "Reference Ascending" => filteredTours.OrderBy(t => t.BookingInvoiceId).ToList(),
-                    "Reference Descending" => filteredTours.OrderByDescending(t => t.BookingInvoiceId).ToList(),
-                    "GuestName" => filteredTours.ToList(),
-                    "GuestName Ascending" => filteredTours.OrderBy(t => t.GuestName).ToList(),
-                    "GuestName Descending" => filteredTours.OrderByDescending(t => t.GuestName).ToList(),
-                    "TourName" => filteredTours.ToList(),
-                    "TourName Ascending" => filteredTours.OrderBy(t => t.TourName).ToList(),
-                    "TourName Descending" => filteredTours.OrderByDescending(t => t.TourName).ToList(),
-                    "StartDate" => filteredTours.ToList(),
-                    "StartDate Ascending" => filteredTours.OrderBy(t => t.StartDate).ToList(),
-                    "StartDate Descending" => filteredTours.OrderByDescending(t => t.StartDate).ToList(),
-                    "EndDate" => filteredTours.ToList(),
-                    "EndDate Ascending" => filteredTours.OrderBy(t => t.EndDate).ToList(),
-                    "EndDate Descending" => filteredTours.OrderByDescending(t => t.EndDate).ToList(),
-                    "BookingIsPaid" => filteredTours.ToList(),
-                    "BookingIsPaid Ascending" => filteredTours.OrderBy(t => t.BookingIsPaid).ToList(),
-                    "BookingIsPaid Descending" => filteredTours.OrderByDescending(t => t.BookingIsPaid).ToList(),
-                    "BookingWaiverSigned" => filteredTours.ToList(),
-                    "BookingWaiverSigned Ascending" => filteredTours.OrderBy(t => t.WaiverSigned).ToList(),
-                    "BookingWaiverSigned Descending" => filteredTours.OrderByDescending(t => t.WaiverSigned)
-                        .ToList(),
-                    _ => filteredTours
-                };
-            }
+                "Reference" => current,
+                "Reference Ascending" => current.OrderBy(t => t.BookingInvoiceId).ToList(),
+                "Reference Descending" => current.OrderByDescending(t => t.BookingInvoiceId).ToList(),
+                "GuestName" => current,
+                "GuestName Ascending" => parsedTours.OrderBy(t => t.GuestName).ToList(),
+                "GuestName Descending" => parsedTours.OrderByDescending(t => t.GuestName).ToList(),
+                "TourName" => current,
+                "TourName Ascending" => current.OrderBy(t => t.TourName).ToList(),
+                "TourName Descending" => current.OrderByDescending(t => t.TourName).ToList(),
+                "StartDate" => current,
+                "StartDate Ascending" => current.OrderBy(t => t.StartDate).ToList(),
+                "StartDate Descending" => current.OrderByDescending(t => t.StartDate).ToList(),
+                "EndDate" => current,
+                "EndDate Ascending" => current.OrderBy(t => t.EndDate).ToList(),
+                "EndDate Descending" => current.OrderByDescending(t => t.EndDate).ToList(),
+                "BookingIsPaid" => current,
+                "BookingIsPaid Ascending" => current.OrderBy(t => t.BookingIsPaid).ToList(),
+                "BookingIsPaid Descending" => current.OrderByDescending(t => t.BookingIsPaid).ToList(),
+                "BookingWaiverSigned" => current,
+                "BookingWaiverSigned Ascending" => current.OrderBy(t => t.WaiverSigned).ToList(),
+                "BookingWaiverSigned Descending" => current.OrderByDescending(t => t.WaiverSigned)
+                    .ToList(),
+                _ => current
+            });
         }
 
         // Apply pagination after ordering
-        var totalCount = filteredTours.Count;
+        var totalCount = parsedTours.Count;
         var skip = (request.PageNumber - 1) * request.PageSize;
-        filteredTours = filteredTours.Skip(skip).Take(request.PageSize).ToList();
+        parsedTours = parsedTours.Skip(skip).Take(request.PageSize).ToList();
 
-        return new PaginationResponse<BookingExportDto>(filteredTours, totalCount, request.PageNumber, request.PageSize);
+        return new PaginationResponse<BookingExportDto>(parsedTours, totalCount, request.PageNumber, request.PageSize);
 
     }
 }

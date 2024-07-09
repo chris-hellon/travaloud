@@ -64,11 +64,27 @@ public partial class TourDates : ComponentBase
                         {
                             var dates = GetDatesInRange(DateRange.Start.Value, DateRange.End.Value);
 
-                            foreach (var date in dates)
+                            const int yearLimit = 1;
+                            const int recordLimit = 500;
+                            
+                            for (var i = 0; i < dates.Count; i++)
                             {
+                                var date = dates[i];
                                 var startDate = date.Date + RequestModel.StartTime;
 
                                 if (!startDate.HasValue) continue;
+                                
+                                if (startDate > DateTime.Now.AddYears(yearLimit))
+                                {
+                                    Snackbar.Add($"Dates greater than {DateTime.Now.AddYears(yearLimit).ToShortDateString()} were unable to be added.", Severity.Info);
+                                    break;
+                                }
+                                
+                                if (i + 1 >= recordLimit)
+                                {
+                                    Snackbar.Add($"A maximum of {recordLimit} dates can be added per request. Any dates from {startDate.Value.Date.ToShortDateString()} onwards have not been added.", Severity.Info);
+                                    break;
+                                }
                                 
                                 var startTime = startDate.Value.TimeOfDay;
                                 

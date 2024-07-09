@@ -134,7 +134,7 @@ internal class CreateReservationRequestHandler : IRequestHandler<CreateReservati
         var httpRequest = new HttpRequestMessage(HttpMethod.Post, "postReservation");
         httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", request.PropertyApiKey);
 
-        //var requestString = JsonConvert.SerializeObject(request);
+        var requestString = JsonConvert.SerializeObject(request);
         var requestData = request.FlattenObject();
         
         using var formContent = new FormUrlEncodedContent(requestData);

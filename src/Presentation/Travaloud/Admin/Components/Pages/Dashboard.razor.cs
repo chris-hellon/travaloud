@@ -22,91 +22,88 @@ namespace Travaloud.Admin.Components.Pages;
 
 public partial class Dashboard
 {
-    [Parameter] public int? PropertiesCount { get; set; }
-    [Parameter] public int? BookingsCount { get; set; }
-    [Parameter] public int? TourBookingsCount { get; set; }
-    [Parameter] public int? FutureTourBookingsCount { get; set; }
-    [Parameter] public int? TodayTourBookingsCount { get; set; }
-    [Parameter] public int? TodayTourDeparturesCount { get; set; }
-    [Parameter] public decimal? TodayTourBookingsRevenue { get; set; }
-    [Parameter] public decimal? TourBookingsRevenue { get; set; }
-    [Parameter] public int? PropertyBookingsCount { get; set; }
-    [Parameter] public int? ToursCount { get; set; }
-    [Parameter] public int? GuestsCount { get; set; }
+    [Parameter] public int? TodaysBookingsCount { get; set; }
+    [Parameter] public int? TodaysTourDeparturesCount { get; set; }
+    [Parameter] public decimal? TodaysBookingsRevenue { get; set; }
+    [Parameter] public int? TotalBookingsCount { get; set; }
+    [Parameter] public decimal? TotalBookingsRevenue { get; set; }
+
     [Parameter] public IEnumerable<BookingItemDetailsDto>? PaidTourBookings { get; set; }
-    [Parameter] public IEnumerable<BookingItemDetailsDto>? AllTourBookings { get; set; } 
+    [Parameter] public IEnumerable<BookingItemDetailsDto>? AllTourBookings { get; set; }
     [Parameter] public List<TourBookingsBarChartSummary>? TourBookingsBarChartSummaries { get; set; }
-    
+
     [CascadingParameter] private TravaloudTenantInfo? TenantInfo { get; set; }
     [CascadingParameter] private MudTheme? CurrentTheme { get; set; }
-    
+
     [Inject] private IDashboardService DashboardService { get; set; } = default!;
     [Inject] private IBookingsService BookingsService { get; set; } = default!;
     [Inject] private IBackgroundJobsService BackgroundJobsService { get; set; } = default!;
     [Inject] private IToursService ToursService { get; set; } = default!;
     [Inject] private IUserService UserService { get; set; } = default!;
-    
-    private ICollection<TourDto> Tours { get; set; } = new List<TourDto>();
-    private List<UserDetailsDto>? Guests { get; set; }
-    
+
+    private ICollection<TourDto>? Tours { get; set; } = new List<TourDto>();
+
     private bool UserIsAdmin { get; set; }
     private bool UserIsSupplier { get; set; }
 
-    private EntityServerTableContext<BookingExportDto, DefaultIdType, BookingExportDto>? TodaysDeparturesContext { get; set; }
-    private EntityServerTableContext<BookingExportDto, DefaultIdType, BookingExportDto>? TomorrowsDeparturesContext { get; set; }
+    private EntityServerTableContext<BookingExportDto, DefaultIdType, BookingExportDto>? TodaysDeparturesContext
+    {
+        get;
+        set;
+    }
+
+    private EntityServerTableContext<BookingExportDto, DefaultIdType, BookingExportDto>? TomorrowsDeparturesContext
+    {
+        get;
+        set;
+    }
+
     private EntityServerTableContext<BookingDto, DefaultIdType, BookingDto>? TodaysActivityContext { get; set; }
     private EntityServerTableContext<StaffBookingDto, string, StaffBookingDto>? StaffBookingsContext { get; set; }
-    
+
     private EntityTable<BookingExportDto, DefaultIdType, BookingExportDto> _todaysDeparturesTable = new();
     private EntityTable<BookingExportDto, DefaultIdType, BookingExportDto> _tomorrowsDeparturesTable = new();
     private EntityTable<BookingDto, DefaultIdType, BookingDto> _todaysActivityTable = new();
     private EntityTable<StaffBookingDto, string, StaffBookingDto> _staffBookingsTable = new();
 
-    private ApexChart<TourBookingsBarChartSummary.MonthAmount> _tourBookingsBarChart = new();
-    private ApexChart<BookingItemDetailsDto> _toursRevenuePieChart = new();
-    private ApexChartOptions<BookingItemDetailsDto>? _toursRevenuePieChartOptions;
-    private ApexChartOptions<TourBookingsBarChartSummary.MonthAmount>? _tourBookingsBarChartOptions;
-    
-    private MudDateRangePicker _staffBookingsDateRangePicker = new();
-    
-    protected override void OnInitialized()
-    {        
-        _searchStaffBookingsDateRange = new DateRange(DateTime.Now.AddMonths(-1), DateTime.Now);
-        _toursRevenuePieChartOptions = new ApexChartOptions<BookingItemDetailsDto>
-        {
-            Theme = new ApexCharts.Theme { Palette = PaletteType.Palette7},
-            Yaxis =
-            [
-                new YAxis
-                {
-                    Labels = new YAxisLabels
-                    {
-                        Formatter = @"function (value) {
-                    return '$' + Number(value).toLocaleString();}"
-                    }
-                }
-            ]
-        };
-        _tourBookingsBarChartOptions = new ApexChartOptions<TourBookingsBarChartSummary.MonthAmount>
-        {
-            Theme = new ApexCharts.Theme
-            {
-                Palette = PaletteType.Palette7
-            }
-        };
-        
-        var toursTask = Task.Run(() => ToursService.SearchAsync(new SearchToursRequest {PageNumber = 1, PageSize = 99999}));
-        var guestsTask = Task.Run(() => UserService.SearchByDapperAsync(new SearchByDapperRequest()
-        {
-            PageNumber = 1,
-            PageSize = int.MaxValue,
-            TenantId = TenantInfo?.Id!,
-            Role = TravaloudRoles.Guest
-        }, CancellationToken.None));
+    // private ApexChart<TourBookingsBarChartSummary.MonthAmount> _tourBookingsBarChart = new();
+    // private ApexChart<BookingItemDetailsDto> _toursRevenuePieChart = new();
+    // private ApexChartOptions<BookingItemDetailsDto>? _toursRevenuePieChartOptions;
+    // private ApexChartOptions<TourBookingsBarChartSummary.MonthAmount>? _tourBookingsBarChartOptions;
 
-        Tours = toursTask.Result.Data;
-        Guests = guestsTask.Result.Data;
-        
+    private MudDateRangePicker _staffBookingsDateRangePicker = new();
+
+    protected override void OnInitialized()
+    {
+        _searchStaffBookingsDateRange = new DateRange(DateTime.Now.AddMonths(-1), DateTime.Now);
+        // _toursRevenuePieChartOptions = new ApexChartOptions<BookingItemDetailsDto>
+        // {
+        //     Theme = new ApexCharts.Theme { Palette = PaletteType.Palette7},
+        //     Yaxis =
+        //     [
+        //         new YAxis
+        //         {
+        //             Labels = new YAxisLabels
+        //             {
+        //                 Formatter = @"function (value) {
+        //             return '$' + Number(value).toLocaleString();}"
+        //             }
+        //         }
+        //     ]
+        // };
+        // _tourBookingsBarChartOptions = new ApexChartOptions<TourBookingsBarChartSummary.MonthAmount>
+        // {
+        //     Theme = new ApexCharts.Theme
+        //     {
+        //         Palette = PaletteType.Palette7
+        //     }
+        // };
+
+        var toursTask = Task.Run(() =>
+            ToursService.SearchAsync(new SearchToursRequest {PageNumber = 1, PageSize = 99999}));
+
+        Tours = toursTask.Result?.Data;
+
         LoadTables();
     }
 
@@ -114,17 +111,19 @@ public partial class Dashboard
     {
         if (!firstRender)
             return base.OnAfterRenderAsync(firstRender);
-        
+
         await LoadData();
         StateHasChanged();
 
         Logger.Information("Set Background Jobs if not set already");
 
-        var importCloudbedsBackgroundJobTask = BackgroundJobsService.ImportCloudbedsGuests(new ImportCloudbedsGuestsRequest());
-        var sendDailyTourManifestTask = BackgroundJobsService.SendDailyTourManifest(new SendDailyTourManifestBatchRequest());
-        
+        var importCloudbedsBackgroundJobTask =
+            BackgroundJobsService.ImportCloudbedsGuests(new ImportCloudbedsGuestsRequest());
+        var sendDailyTourManifestTask =
+            BackgroundJobsService.SendDailyTourManifest(new SendDailyTourManifestBatchRequest());
+
         await Task.WhenAll(importCloudbedsBackgroundJobTask, sendDailyTourManifestTask);
-        
+
         return Task.CompletedTask;
     }
 
@@ -137,31 +136,13 @@ public partial class Dashboard
 
     private async Task LoadData()
     {
-        var statsRequest = await DashboardService.GetAsync(new GetStatsRequest()
-        {
-            TenantId = TenantInfo.Id,
-            StartDate = DateTime.Now.AddMonths(-1),
-            EndDate = DateTime.Now
-        });
+        var statsRequest = await DashboardService.GetAsync(new GetStatsRequest(TenantInfo.Id));
 
-        PropertiesCount = statsRequest.PropertiesCount;
-        ToursCount = statsRequest.ToursCount;
-        GuestsCount = statsRequest.GuestsCount;
-        BookingsCount = statsRequest.BookingsCount;
-        TourBookingsCount = statsRequest.TourBookingsCount;
-        TourBookingsRevenue = statsRequest.TourBookingsRevenue;
-        PropertyBookingsCount = statsRequest.PropertyBookingsCount;
-        AllTourBookings = statsRequest.AllTourBookings;
-        PaidTourBookings = statsRequest.PaidTourBookings;
-        TourBookingsBarChartSummaries = statsRequest.TourBookingsBarChartSummaries;
-
-        var todaysBookings =
-            (PaidTourBookings ?? Array.Empty<BookingItemDetailsDto>()).Where(x =>
-                x.CreatedOn.Date == DateTime.Now.Date);
-
-        var bookingItemDetailsDtos = todaysBookings as BookingItemDetailsDto[] ?? todaysBookings.ToArray();
-        TodayTourBookingsCount = bookingItemDetailsDtos.Length;
-        TodayTourBookingsRevenue = bookingItemDetailsDtos.Sum(x => x.TotalAmount);
+        TodaysBookingsCount = statsRequest.TodaysBookingsCount;
+        TodaysTourDeparturesCount = statsRequest.TodaysTourDeparturesCount;
+        TodaysBookingsRevenue = statsRequest.TodaysBookingsRevenue;
+        TotalBookingsCount = statsRequest.TotalBookingsCount;
+        TotalBookingsRevenue = statsRequest.TotalBookingsRevenue;
     }
 
     private void LoadTables()
@@ -178,9 +159,16 @@ public partial class Dashboard
                 new EntityField<BookingExportDto>(booking => booking.GuestName, L["Guest"], "GuestName"),
                 new EntityField<BookingExportDto>(booking => booking.StartDate.TimeOfDay, L["Start Time"], "StartDate"),
                 new EntityField<BookingExportDto>(booking => booking.EndDate.TimeOfDay, L["End Time"], "EndDate"),
-                new EntityField<BookingExportDto>(booking => booking.BookingIsPaid ? "Paid" : booking.BookingRefunded.HasValue && booking.BookingRefunded.Value ? "Refunded" : booking.BookingAmountOutstanding.HasValue ? "Partially Paid" : "Unpaid", L["Status"], "IsPaid",
-                    Color: booking => !booking.BookingIsPaid && (!booking.BookingRefunded.HasValue || !booking.BookingRefunded.Value) ? CurrentTheme?.Palette.Error : null),
-                new EntityField<BookingExportDto>(booking => booking.WaiverSigned, L["Waiver Signed"], "BookingWaiverSigned"),
+                new EntityField<BookingExportDto>(
+                    booking => booking.BookingIsPaid ? "Paid" :
+                        booking.BookingRefunded.HasValue && booking.BookingRefunded.Value ? "Refunded" :
+                        booking.BookingAmountOutstanding is > 0 ? "Partially Paid" : "Unpaid", L["Status"], "IsPaid",
+                    Color: booking =>
+                        !booking.BookingIsPaid && (!booking.BookingRefunded.HasValue || !booking.BookingRefunded.Value)
+                            ? CurrentTheme?.Palette.Error
+                            : null),
+                new EntityField<BookingExportDto>(booking => booking.WaiverSigned, L["Waiver Signed"],
+                    "BookingWaiverSigned"),
             ],
             enableAdvancedSearch: false,
             createAction: string.Empty,
@@ -190,28 +178,27 @@ public partial class Dashboard
             searchFunc: async (filter) =>
             {
                 var adaptedFilter = filter.Adapt<GetBookingItemsByDateRequest>();
-                adaptedFilter.Guests = Guests;
                 adaptedFilter.TourStartDate = DateTime.Now;
                 adaptedFilter.TourEndDate = DateTime.Now;
                 adaptedFilter.TourId = SearchTourId;
                 adaptedFilter.Description = SearchDescription;
+                adaptedFilter.TenantId = TenantInfo.Id;
 
                 var todaysTours = await DashboardService.GetTourBookingItemsByDateAsync(
                     adaptedFilter);
 
-                TodayTourDeparturesCount = todaysTours.TotalCount;
+                // TodayTourDeparturesCount = todaysTours.TotalCount;
                 return todaysTours.Adapt<EntityTable.PaginationResponse<BookingExportDto>>();
             },
             exportFunc: async (filter) =>
             {
-                var adaptedFilter = new ExportBookingsRequest()
+                var adaptedFilter = new ExportBookingsByDapperRequest()
                 {
-                    Guests = Guests,
-                    TourStartDate = DateTime.Now.Date + new TimeSpan(00, 00, 00),
-                    TourEndDate = DateTime.Now.Date + new TimeSpan(23, 59, 59),
-                    IsTourBookings = true,
+                    TourStartDate = DateTime.Now,
+                    TourEndDate = DateTime.Now,
                     TourId = SearchTourId,
-                    Description = SearchDescription
+                    Description = SearchDescription,
+                    TenantId = TenantInfo.Id,
                 };
                 return await BookingsService.ExportAsync(adaptedFilter);
             }
@@ -229,9 +216,16 @@ public partial class Dashboard
                 new EntityField<BookingExportDto>(booking => booking.GuestName, L["Guest"], "GuestName"),
                 new EntityField<BookingExportDto>(booking => booking.StartDate.TimeOfDay, L["Start Time"], "StartDate"),
                 new EntityField<BookingExportDto>(booking => booking.EndDate.TimeOfDay, L["End Time"], "EndDate"),
-                new EntityField<BookingExportDto>(booking => booking.BookingIsPaid ? "Paid" : booking.BookingRefunded.HasValue && booking.BookingRefunded.Value ? "Refunded" : booking.BookingAmountOutstanding.HasValue ? "Partially Paid" : "Unpaid", L["Status"], "IsPaid",
-                    Color: booking => !booking.BookingIsPaid && (!booking.BookingRefunded.HasValue || !booking.BookingRefunded.Value) ? CurrentTheme.Palette.Error : null),
-                new EntityField<BookingExportDto>(booking => booking.WaiverSigned, L["Waiver Signed"], "BookingWaiverSigned"),
+                new EntityField<BookingExportDto>(
+                    booking => booking.BookingIsPaid ? "Paid" :
+                        booking.BookingRefunded.HasValue && booking.BookingRefunded.Value ? "Refunded" :
+                        booking.BookingAmountOutstanding is > 0 ? "Partially Paid" : "Unpaid", L["Status"], "IsPaid",
+                    Color: booking =>
+                        !booking.BookingIsPaid && (!booking.BookingRefunded.HasValue || !booking.BookingRefunded.Value)
+                            ? CurrentTheme.Palette.Error
+                            : null),
+                new EntityField<BookingExportDto>(booking => booking.WaiverSigned, L["Waiver Signed"],
+                    "BookingWaiverSigned"),
             ],
             enableAdvancedSearch: false,
             createAction: string.Empty,
@@ -241,11 +235,11 @@ public partial class Dashboard
             searchFunc: async (filter) =>
             {
                 var adaptedFilter = filter.Adapt<GetBookingItemsByDateRequest>();
-                adaptedFilter.Guests = Guests;
                 adaptedFilter.TourStartDate = DateTime.Now.AddDays(1);
                 adaptedFilter.TourEndDate = DateTime.Now.AddDays(1);
                 adaptedFilter.TourId = SearchTomorrowTourId;
                 adaptedFilter.Description = SearchTomorrowDescription;
+                adaptedFilter.TenantId = TenantInfo.Id;
 
                 var todaysTours = await DashboardService.GetTourBookingItemsByDateAsync(
                     adaptedFilter);
@@ -254,19 +248,18 @@ public partial class Dashboard
             },
             exportFunc: async (filter) =>
             {
-                var adaptedFilter = new ExportBookingsRequest()
+                var adaptedFilter = new ExportBookingsByDapperRequest()
                 {
-                    Guests = Guests,
-                    TourStartDate = DateTime.Now.Date + new TimeSpan(00, 00, 00),
-                    TourEndDate = DateTime.Now.Date + new TimeSpan(23, 59, 59),
-                    IsTourBookings = true,
+                    TourStartDate = DateTime.Now,
+                    TourEndDate = DateTime.Now,
                     TourId = SearchTourId,
-                    Description = SearchDescription
+                    Description = SearchDescription,
+                    TenantId = TenantInfo.Id,
                 };
                 return await BookingsService.ExportAsync(adaptedFilter);
             }
         );
-        
+
         TodaysActivityContext = new EntityServerTableContext<BookingDto, DefaultIdType, BookingDto>(
             entityName: L["Booking"],
             entityNamePlural: L["Bookings"],
@@ -278,8 +271,13 @@ public partial class Dashboard
                 new EntityField<BookingDto>(booking => booking.GuestName, L["Guest"], "GuestName"),
                 new EntityField<BookingDto>(booking => booking.BookingDate, L["Booking Date"], "BookingDate"),
                 new EntityField<BookingDto>(booking => $"$ {booking.TotalAmount:n2}", L["Total Amount"], "TotalAmount"),
-                new EntityField<BookingDto>(booking => booking.IsPaid ? "Paid" : booking.Refunded.HasValue && booking.Refunded.Value ? "Refunded" : booking.AmountOutstanding.HasValue ? "Partially Paid" : "Unpaid", L["Status"], "IsPaid",
-                    Color: booking => !booking.IsPaid && (!booking.Refunded.HasValue || !booking.Refunded.Value) ? CurrentTheme.Palette.Error : null)
+                new EntityField<BookingDto>(
+                    booking => booking.IsPaid ? "Paid" :
+                        booking.Refunded.HasValue && booking.Refunded.Value ? "Refunded" :
+                        booking.AmountOutstanding is > 0 ? "Partially Paid" : "Unpaid", L["Status"], "IsPaid",
+                    Color: booking => !booking.IsPaid && (!booking.Refunded.HasValue || !booking.Refunded.Value)
+                        ? CurrentTheme.Palette.Error
+                        : null)
             ],
             enableAdvancedSearch: false,
             searchFunc: async filter => await SearchTourBookings(filter),
@@ -289,7 +287,7 @@ public partial class Dashboard
             viewAction: string.Empty,
             exportAction: string.Empty
         );
-        
+
         StaffBookingsContext = new EntityServerTableContext<StaffBookingDto, string, StaffBookingDto>(
             entityName: L["Staff"],
             entityNamePlural: L["Staff Bookings"],
@@ -301,13 +299,15 @@ public partial class Dashboard
                 new EntityField<StaffBookingDto>(user => user.ItemsCount, L["Total Items Booked"], "ItemsCount"),
                 new EntityField<StaffBookingDto>(user => $"$ {user.TotalBookingsAmount:n2}",
                     L["Total Bookings Revenue"], "TotalBookingsAmount"),
-                new EntityField<StaffBookingDto>(user => $"$ {user.TotalComission:n2}", L["Total Commission Amount"], "TotalComission")
+                new EntityField<StaffBookingDto>(user => $"$ {user.TotalComission:n2}", L["Total Commission Amount"],
+                    "TotalComission")
             ],
             searchFunc: async (filter) =>
             {
                 var adaptedFilter = filter.Adapt<StaffBookingsByDateRangeRequest>();
                 adaptedFilter.TenantId = TenantInfo.Id;
-                adaptedFilter.FromDate = SearchStaffBookingsDateRange.Start.Value.Date + new TimeSpan(0, 00, 00, 00, 00);
+                adaptedFilter.FromDate =
+                    SearchStaffBookingsDateRange.Start.Value.Date + new TimeSpan(0, 00, 00, 00, 00);
                 adaptedFilter.ToDate = SearchStaffBookingsDateRange.End.Value.Date + new TimeSpan(0, 23, 59, 59, 999);
 
                 var staffBookings = await BookingsService.StaffBookingsByDateRange(adaptedFilter);
@@ -327,29 +327,29 @@ public partial class Dashboard
             deleteAction: string.Empty,
             viewAction: string.Empty);
     }
-    
-    public void HandleOnTodayTourDeparturesCountSet(int departuresCount)
-    {
-        TodayTourDeparturesCount = departuresCount;
-    }
-    
+
     private async Task UpdateDashboard()
     {
         await Task.WhenAll(LoadData(),
             _staffBookingsTable.ReloadDataAsync(),
             _todaysDeparturesTable.Context != null ? _todaysDeparturesTable.ReloadDataAsync() : Task.CompletedTask,
             _todaysActivityTable.ReloadDataAsync(),
-            _tourBookingsBarChart.RenderAsync(),
-            _toursRevenuePieChart.RenderAsync(),
-            _tomorrowsDeparturesTable.Context != null ? _tomorrowsDeparturesTable.ReloadDataAsync() : Task.CompletedTask);
+            // _tourBookingsBarChart.RenderAsync(),
+            // _toursRevenuePieChart.RenderAsync(),
+            _tomorrowsDeparturesTable.Context != null
+                ? _tomorrowsDeparturesTable.ReloadDataAsync()
+                : Task.CompletedTask);
 
         await InvokeAsync(StateHasChanged);
     }
+
     private void ShowStaffReportDetails(StaffBookingDto request)
     {
         request.ShowDetails = !request.ShowDetails;
     }
+
     #region Search Fields
+
     private async Task<EntityTable.PaginationResponse<BookingDto>> SearchTourBookings(PaginationFilter filter)
     {
         var adaptedFilter = filter.Adapt<SearchBookingsRequest>();
@@ -434,12 +434,12 @@ public partial class Dashboard
 
         return request.Adapt<EntityTable.PaginationResponse<BookingDto>>();
     }
-    
+
     private string? _searchDescription;
 
-    private string SearchDescription
+    private string? SearchDescription
     {
-        get => _searchDescription ?? string.Empty;
+        get => _searchDescription ?? null;
         set
         {
             _searchDescription = value;
@@ -482,7 +482,7 @@ public partial class Dashboard
             _ = _tomorrowsDeparturesTable.ReloadDataAsync();
         }
     }
-    
+
     private DateRange? _searchStaffBookingsDateRange;
 
     private DateRange? SearchStaffBookingsDateRange
@@ -494,5 +494,6 @@ public partial class Dashboard
             _ = _staffBookingsTable.ReloadDataAsync();
         }
     }
+
     #endregion
 }

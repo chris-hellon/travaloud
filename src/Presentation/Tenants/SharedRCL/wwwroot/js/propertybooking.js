@@ -120,3 +120,16 @@ const addTourToBasket = (tourId, tourName, tourImageUrl, tourDateId, guestQuanti
         }
     });
 }
+
+// window.setInterval(function() {
+//     let checkInDate = $('#BookNowBanner_CheckInDate').val();
+//     let checkOutDate = $('#BookNowBanner_CheckOutDate').val();
+//    
+//     doPost({
+//         url : "GetCloudbedsData",
+//         fromData: { "checkInDate": checkInDate, "checkOutDate": checkOutDate },
+//         successCallback: (result) => {
+//             console.log(result);
+//         }
+//     });
+// }, 5000);

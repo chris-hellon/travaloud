@@ -16,4 +16,9 @@ public class TourDatesService : BaseService, ITourDatesService
     {
         return Mediator.Send(request);
     }
+    
+    public async Task<TourDateDto?> GetAsync(DefaultIdType id)
+    {
+        return await Mediator.Send(new GetTourDateRequest(id));
+    }
 }

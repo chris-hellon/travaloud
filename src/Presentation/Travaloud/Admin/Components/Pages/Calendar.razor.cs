@@ -6,6 +6,7 @@ using Travaloud.Application.Catalog.Bookings.Dto;
 using Travaloud.Application.Catalog.Interfaces;
 using Travaloud.Application.Dashboard;
 using Travaloud.Application.Identity.Users;
+using Travaloud.Infrastructure.Multitenancy;
 using Travaloud.Shared.Authorization;
 
 namespace Travaloud.Admin.Components.Pages;
@@ -16,6 +17,8 @@ public partial class Calendar
     [Inject] protected IToursService ToursService { get; set; } = default!;
     [Inject] private IUserService UserService { get; set; } = default!;
 
+    [CascadingParameter] private TravaloudTenantInfo? TenantInfo { get; set; }
+    
     protected List<CalendarItem> CalendarItems = [];
     private List<BookingExportDto>? BookingExports { get; set; }
     
@@ -27,7 +30,7 @@ public partial class Calendar
             TourEndDate = dateRange.End.Value,
             PageNumber = 1,
             PageSize = 99999,
-            Guests = await UserService.GetListAsync(TravaloudRoles.Guest)
+            TenantId = TenantInfo.Id
         };
 
         var todaysTours = await DashboardService.GetTourBookingItemsByDateAsync(
@@ -45,8 +48,8 @@ public partial class Calendar
         CalendarItems = todaysToursGrouped.Select(x => new CalendarItem()
         {
             Start = x.Tours.First().StartDate,
-            End = x.Tours.First().EndDate,
-            Text = $"{x.TourName}|{x.Tours.Count} Guest{(x.Tours.Count > 1 ? "s" : "")}|{x.Tours.First().TourId}"
+            End = x.Tours.First().StartDate,
+            Text = $"{x.TourName}|{x.Tours.Count} Guest{(x.Tours.Count > 1 ? "s" : "")}|{x.Tours.First().TourId}|{x.Tours.First().StartDate:hh:mm tt} - {x.Tours.First().EndDate:hh:mm tt}"
         }).ToList();
     }
     

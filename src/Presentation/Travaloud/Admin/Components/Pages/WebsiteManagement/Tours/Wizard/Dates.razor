@@ -13,6 +13,7 @@
     <ToolbarContent>
         <MudButton DisableElevation Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small" OnClick="@(() => InvokeDatesDialog(new TourDateRequest(), Tour, true))" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Surface" Class="me-1">@L["Add New Date Range"]</MudButton>
         <MudButton DisableElevation Variant="Variant.Filled" Color="Color.Info" Size="Size.Small" OnClick="@(() => InvokeDateDialog(new TourDateRequest(), Tour, true))" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Surface" Class="me-1">@L["Add New Date"]</MudButton>
+       
         @if (ShowCalendar)
         {
             <MudButton DisableElevation Variant="Variant.Filled" Color="Color.Tertiary" Size="Size.Small" OnClick="@(() => ToggleCalendar(false))" StartIcon="@Icons.Material.Filled.TableView" IconColor="Color.Surface">@L["Table View"]</MudButton>
@@ -107,10 +108,16 @@ else
 }
 
 @code {
+    [Inject] private ITourDatesService TourDatesService { get; set; }
+
     [Parameter] public required TourViewModel Tour { get; set; }
     [Parameter] public required EntityServerTableContext<TourDto, DefaultIdType, TourViewModel> Context { get; set; } = default!;
+    
+    private EntityTable<TourDateDto, DefaultIdType, TourDateRequest> _table = default!;
 
     private List<CalendarItem>? CalendarTourDates { get; set; }
+
+    private readonly List<string> _repeatConditions = ["Week(s)", "Month(s)", "Year(s)"];
 
     private string GetColor(Color color) => $"var(--mud-palette-{color.ToDescriptionString()})";
 
@@ -147,13 +154,13 @@ else
         DialogOptions options = new() {CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, DisableBackdropClick = true};
         DialogParameters parameters = new()
         {
-            {nameof(Dialogs.WebsiteManagement.Tours.TourDate.RequestModel), requestModel},
-            {nameof(Dialogs.WebsiteManagement.Tours.TourDate.Tour), tour},
-            {nameof(Dialogs.WebsiteManagement.Tours.TourDate.Context), Context},
-            {nameof(Dialogs.WebsiteManagement.Tours.TourDate.Id), isCreate ? null : requestModel.Id}
+            {nameof(TourDate.RequestModel), requestModel},
+            {nameof(TourDate.Tour), tour},
+            {nameof(TourDate.Context), Context},
+            {nameof(TourDate.Id), isCreate ? null : requestModel.Id}
         };
 
-        var dialog = await DialogService.ShowAsync<Dialogs.WebsiteManagement.Tours.TourDate>(string.Empty, parameters, options);
+        var dialog = await DialogService.ShowAsync<TourDate>(string.Empty, parameters, options);
 
         var result = await dialog.Result;
 
@@ -168,13 +175,13 @@ else
         DialogOptions options = new() {CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, DisableBackdropClick = true};
         DialogParameters parameters = new()
         {
-            {nameof(Dialogs.WebsiteManagement.Tours.TourDates.RequestModel), requestModel},
-            {nameof(Dialogs.WebsiteManagement.Tours.TourDates.Tour), tour},
-            {nameof(Dialogs.WebsiteManagement.Tours.TourDates.Context), Context},
-            {nameof(Dialogs.WebsiteManagement.Tours.TourDates.Id), isCreate ? null : requestModel.Id}
+            {nameof(TourDates.RequestModel), requestModel},
+            {nameof(TourDates.Tour), tour},
+            {nameof(TourDates.Context), Context},
+            {nameof(TourDates.Id), isCreate ? null : requestModel.Id}
         };
 
-        var dialog = await DialogService.ShowAsync<Dialogs.WebsiteManagement.Tours.TourDates>(string.Empty, parameters, options);
+        var dialog = await DialogService.ShowAsync<TourDates>(string.Empty, parameters, options);
 
         var result = await dialog.Result;
 
@@ -233,26 +240,7 @@ else
         var result = await dialog.Result;
         if (!result.Canceled)
         {
-            // if (tour.TourDates != null)
-            // {
-            //     var toursDates = tour.TourDates.Select(x => x.Id);
-            //     var tourDateIds = toursDates as Guid[] ?? toursDates.ToArray();
-            //     
-            //     var bookingsExists = await BookingsService.GetBookingsByDatesAsync(new BookingsByTourStartDatesRequest(tourDateIds));
-            //
-            //     if (bookingsExists.Any())
-            //     {
-            //         var matchedTourDates = tour.TourDates.Where(x => bookingsExists.Contains(x.Id));
-            //         tour.TourDates = matchedTourDates.ToList();
-            //     }
-            //     else
-            //     {
-            //         tour.TourDates = new List<TourDateRequest>();
-            //     }
-            // }
-
             Context.AddEditModal?.ForceRender();
         }
     }
-
 }

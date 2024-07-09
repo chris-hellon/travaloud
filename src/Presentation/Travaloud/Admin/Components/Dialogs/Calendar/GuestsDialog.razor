@@ -6,7 +6,7 @@
 <MudDialog>
     <TitleContent>
         <MudText Typo="Typo.h6">
-            Guests for @BookingExports.First().TourName @StartDate.ToString("hh:mm tt")
+            @BookingExports.Count Guests for @BookingExports.First().TourName @StartDate.ToString("hh:mm tt")
         </MudText>
     </TitleContent>
     <DialogContent>
@@ -17,6 +17,7 @@
                     <MudTh>Guest</MudTh>
                     <MudTh>Is Paid</MudTh>
                     <MudTh>Waiver Signed</MudTh>
+                    <MudTh>Pick Up Location</MudTh>
                     <MudTh Style="width:145px;"></MudTh>
                 </HeaderContent>
                 <RowTemplate>
@@ -24,6 +25,7 @@
                     <MudTd DataLabel="Guest">@context.GuestName</MudTd>
                     <MudTd DataLabel="Is Paid">@context.BookingIsPaid</MudTd>
                     <MudTd DataLabel="Waiver Signed">@context.WaiverSigned</MudTd>
+                    <MudTd DataLabel="Pick Up Location">@context.PickupLocation</MudTd>
                     <MudTd DataLabel="Actions"><MudButton Variant="Variant.Filled" Size="Size.Small" StartIcon="@Icons.Material.Filled.Edit" OnClick="@(() => InvokeEditGuestDialog(context.GuestId))" Color="Color.Secondary" Class="me-2">Edit Guest</MudButton></MudTd>
                 </RowTemplate>
             </MudTable>

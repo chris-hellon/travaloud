@@ -21,7 +21,8 @@ public class ExcelWriter : IExcelWriter
 
                 if (!exportAttribute.HideColumn)
                 {
-                    table.Columns.Add(exportAttribute.ColumnName, Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType);
+                    table.Columns.Add(exportAttribute.ColumnName,
+                        Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType);
                 }
             }
             else
@@ -43,12 +44,44 @@ public class ExcelWriter : IExcelWriter
 
                     if (exportAttribute != null && !exportAttribute.HideColumn && exportAttribute.ColumnName != null)
                     {
-                        row[exportAttribute.ColumnName] = prop.GetValue(item) ?? DBNull.Value;
+                        var value = prop.GetValue(item);
+                        if (prop.PropertyType == typeof(DateTime) || prop.PropertyType == typeof(DateTime?))
+                        {
+                            DateTime dateValue = (DateTime) (value ?? DateTime.MinValue);
+                            if (dateValue < new DateTime(1900, 1, 1))
+                            {
+                                row[exportAttribute.ColumnName] = DBNull.Value;
+                            }
+                            else
+                            {
+                                row[exportAttribute.ColumnName] = value ?? DBNull.Value;
+                            }
+                        }
+                        else
+                        {
+                            row[exportAttribute.ColumnName] = value ?? DBNull.Value;
+                        }
                     }
                 }
                 else
                 {
-                    row[prop.Name] = prop.GetValue(item) ?? DBNull.Value;
+                    var value = prop.GetValue(item);
+                    if (prop.PropertyType == typeof(DateTime) || prop.PropertyType == typeof(DateTime?))
+                    {
+                        DateTime dateValue = (DateTime) (value ?? DateTime.MinValue);
+                        if (dateValue < new DateTime(1900, 1, 1))
+                        {
+                            row[prop.Name] =DBNull.Value;
+                        }
+                        else
+                        {
+                            row[prop.Name] = value ?? DBNull.Value;
+                        }
+                    }
+                    else
+                    {
+                        row[prop.Name] = value ?? DBNull.Value;
+                    }
                 }
             }
 
@@ -56,8 +89,8 @@ public class ExcelWriter : IExcelWriter
         }
 
         using var wb = new XLWorkbook();
-        
-        var wsDep =  wb.Worksheets.Add(table);
+
+        var wsDep = wb.Worksheets.Add(table);
         wsDep.Columns().AdjustToContents();
 
         var dateFormatColumns = new[] {"Booking Date", "Date of Birth", "Tour Start Date", "Tour End Date"};
@@ -67,15 +100,15 @@ public class ExcelWriter : IExcelWriter
             var column = table.Columns[dateFormatColumn];
 
             if (column == null) continue;
-            
+
             var index = table.Columns.IndexOf(column);
 
             if (index < 0) continue;
-            
+
             var format = dateFormatColumn == "Date of Birth" ? "dd/MM/yyyy" : "dd/MM/yyyy HH:mm";
             wsDep.Column(index + 1).Style.DateFormat.Format = format;
         }
-        
+
         Stream stream = new MemoryStream();
         wb.SaveAs(stream);
         stream.Seek(0, SeekOrigin.Begin);

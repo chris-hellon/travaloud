@@ -58,9 +58,12 @@
                                             }
                                         }
                                     </div>
-                                    <div>
-                                        <span class="badge rounded-pill badge-primary tour-booking-feedback-label">@(Model.SelectedTourDate != null ? $"{Model.SelectedTourDate.AvailableSpaces} spaces available" : "Select a Date")</span>
-                                    </div>
+                                    @if (Model.Tour.TourPrices != null && Model.Tour.TourPrices.Any(x => x.PublishToWebsite.HasValue && x.PublishToWebsite.Value))
+                                    {
+                                        <div>
+                                            <span class="badge rounded-pill badge-primary tour-booking-feedback-label">@(Model.SelectedTourDate != null ? $"{Model.SelectedTourDate.AvailableSpaces} spaces available" : "Select a Date")</span>
+                                        </div>   
+                                    }
                                 </div>
 
 

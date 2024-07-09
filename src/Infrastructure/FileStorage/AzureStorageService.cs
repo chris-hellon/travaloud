@@ -56,7 +56,7 @@ public class AzureStorageService : IFileStorageService
                     HttpHeaders = new BlobHttpHeaders()
                     {
                         ContentType = MimeUtility.GetMimeMapping(fileName),
-                        CacheControl = "31536000"
+                        CacheControl = "max-age=31536000"
                     }
                 },
                 cancellationToken);

@@ -79,6 +79,18 @@ public class DapperRepository : IDapperRepository
         return CreateDbContext().Connection.QuerySingleAsync<T>(sql, param, transaction, commandType: commandType);
     }
 
+    public Task<T> QuerySingleAsync<T>(string sql, object? param = null,
+        CommandType? commandType = null, CancellationToken cancellationToken = default)
+        where T : class
+    {
+        if (CreateDbContext().Model.GetMultiTenantEntityTypes().All(t => t.ClrType != typeof(T)))
+        {
+            sql = sql.Replace("@tenant", CreateDbContext().TenantInfo.Id);
+        }
+
+        return CreateDbContext().Connection.QuerySingleAsync<T>(sql, param, commandType: commandType);
+    }
+    
     public Task<SqlMapper.GridReader> QueryMultipleAsync(string sql, object? param = null,
         IDbTransaction? transaction = null, CancellationToken cancellationToken = default)
     {

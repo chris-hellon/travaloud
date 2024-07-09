@@ -42,7 +42,7 @@ public class TourDetailsDto
     public IList<TourPriceDto>? TourPrices { get; set; }
     public IList<TourDateDto>? TourDates { get; set; }
     public IList<TourItineraryDto>? TourItineraries { get; set; }
-    // public IList<TourCategoryLookupDto>? TourCategoryLookups { get; set; }
+    public IList<TourCategoryLookupDto>? TourCategoryLookups { get; set; }
     public IList<TourCategoryDto>? TourCategories { get; set; }
     public IList<TourCategoryDto>? ParentTourCategories { get; set; }
     public IList<TourImageDto>? Images { get; set; }
