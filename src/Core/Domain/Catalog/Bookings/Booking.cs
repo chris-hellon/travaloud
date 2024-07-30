@@ -23,7 +23,8 @@ public class Booking : AuditableEntity, IAggregateRoot
     [MaxLength(128)] public string? BookingSource { get; private set; }
     public bool? ConfirmationEmailSent { get; private set; }
     public bool? Refunded { get; private set; }
-
+    public bool? Cancelled { get; private set; }
+    
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int InvoiceId { get; private set; }
 
@@ -89,7 +90,8 @@ public class Booking : AuditableEntity, IAggregateRoot
         DefaultIdType? createdBy = null, 
         bool doNotUpdateAmount = false,
         decimal? amountOutstanding = null,
-        string? updateStripeSessionId = null)
+        string? updateStripeSessionId = null,
+        bool? cancelled = null)
     {
         if (description is not null && Description != description)
             Description = description;
@@ -141,6 +143,9 @@ public class Booking : AuditableEntity, IAggregateRoot
         
         if (refunded is not null && Refunded != refunded)
             Refunded = refunded.Value;
+        
+        if (cancelled is not null && Cancelled != cancelled)
+            Cancelled = cancelled.Value;
 
         if (!createdBy.HasValue || CreatedBy == createdBy) return this;
         

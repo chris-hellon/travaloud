@@ -21,6 +21,10 @@ public class BookingItemDetailsDto
         }
     }
 
+    public string Status => Cancelled.HasValue && Cancelled.Value ? "Cancelled" :
+        NoShow.HasValue && NoShow.Value ? "No Show" :
+        CheckedIn.HasValue && CheckedIn.Value ? "Checked In" : "Paid";
+    
     public int? RoomQuantity { get; set; }
     public DefaultIdType? PropertyId { get; set; }
     public DefaultIdType? TourId { get; set; }
@@ -33,6 +37,9 @@ public class BookingItemDetailsDto
     public string? PickupLocation { get; set; }
     public bool? WaiverSigned { get;  set; }
     public DefaultIdType? TourCategoryId { get; set; }
+    public bool? NoShow { get; set; }
+    public bool? Cancelled { get; set; }
+    public bool? CheckedIn { get; set; }
     
     public TourDto? Tour { get; set; }
     public TourDateDto? TourDate { get; set; }

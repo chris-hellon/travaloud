@@ -145,6 +145,26 @@ public partial class Dashboard
         TotalBookingsRevenue = statsRequest.TotalBookingsRevenue;
     }
 
+    private string GetBookingStatus(BookingExportDto booking)
+    {
+        return booking.Cancelled.HasValue && booking.Cancelled.Value ? "Cancelled" :
+            booking.NoShow.HasValue && booking.NoShow.Value ? "No Show" :
+            booking.CheckedIn.HasValue && booking.CheckedIn.Value ? "Checked In" :
+            booking.BookingIsPaid ? "Paid" :
+            booking.BookingRefunded.HasValue && booking.BookingRefunded.Value ? "Refunded" :
+            booking.BookingAmountOutstanding is > 0 ? "Partially Paid" : "Unpaid";
+    }
+    
+    private string GetBookingStatus(BookingDto booking)
+    {
+        return booking.Cancelled.HasValue && booking.Cancelled.Value ? "Cancelled" :
+            booking.NoShow.HasValue && booking.NoShow.Value ? "No Show" :
+            booking.CheckedIn.HasValue && booking.CheckedIn.Value ? "Checked In" :
+            booking.IsPaid ? "Paid" :
+            booking.Refunded.HasValue && booking.Refunded.Value ? "Refunded" :
+            booking.AmountOutstanding is > 0 ? "Partially Paid" : "Unpaid";
+    }
+
     private void LoadTables()
     {
         TodaysDeparturesContext = new EntityServerTableContext<BookingExportDto, DefaultIdType, BookingExportDto>(
@@ -160,10 +180,8 @@ public partial class Dashboard
                 new EntityField<BookingExportDto>(booking => booking.StartDate.TimeOfDay, L["Start Time"], "StartDate"),
                 new EntityField<BookingExportDto>(booking => booking.EndDate.TimeOfDay, L["End Time"], "EndDate"),
                 new EntityField<BookingExportDto>(
-                    booking => booking.BookingIsPaid ? "Paid" :
-                        booking.BookingRefunded.HasValue && booking.BookingRefunded.Value ? "Refunded" :
-                        booking.BookingAmountOutstanding is > 0 ? "Partially Paid" : "Unpaid", L["Status"], "IsPaid",
-                    Color: booking =>
+                    GetBookingStatus, L["Status"], "IsPaid",
+                    Color: booking => (booking.Cancelled.HasValue && booking.Cancelled.Value) || (booking.NoShow.HasValue && booking.NoShow.Value) ||
                         !booking.BookingIsPaid && (!booking.BookingRefunded.HasValue || !booking.BookingRefunded.Value)
                             ? CurrentTheme?.Palette.Error
                             : null),
@@ -217,13 +235,11 @@ public partial class Dashboard
                 new EntityField<BookingExportDto>(booking => booking.StartDate.TimeOfDay, L["Start Time"], "StartDate"),
                 new EntityField<BookingExportDto>(booking => booking.EndDate.TimeOfDay, L["End Time"], "EndDate"),
                 new EntityField<BookingExportDto>(
-                    booking => booking.BookingIsPaid ? "Paid" :
-                        booking.BookingRefunded.HasValue && booking.BookingRefunded.Value ? "Refunded" :
-                        booking.BookingAmountOutstanding is > 0 ? "Partially Paid" : "Unpaid", L["Status"], "IsPaid",
-                    Color: booking =>
-                        !booking.BookingIsPaid && (!booking.BookingRefunded.HasValue || !booking.BookingRefunded.Value)
-                            ? CurrentTheme.Palette.Error
-                            : null),
+                    GetBookingStatus, L["Status"], "IsPaid",
+                    Color: booking => (booking.Cancelled.HasValue && booking.Cancelled.Value) || (booking.NoShow.HasValue && booking.NoShow.Value) ||
+                                      !booking.BookingIsPaid && (!booking.BookingRefunded.HasValue || !booking.BookingRefunded.Value)
+                        ? CurrentTheme?.Palette.Error
+                        : null),
                 new EntityField<BookingExportDto>(booking => booking.WaiverSigned, L["Waiver Signed"],
                     "BookingWaiverSigned"),
             ],
@@ -272,10 +288,8 @@ public partial class Dashboard
                 new EntityField<BookingDto>(booking => booking.BookingDate, L["Booking Date"], "BookingDate"),
                 new EntityField<BookingDto>(booking => $"$ {booking.TotalAmount:n2}", L["Total Amount"], "TotalAmount"),
                 new EntityField<BookingDto>(
-                    booking => booking.IsPaid ? "Paid" :
-                        booking.Refunded.HasValue && booking.Refunded.Value ? "Refunded" :
-                        booking.AmountOutstanding is > 0 ? "Partially Paid" : "Unpaid", L["Status"], "IsPaid",
-                    Color: booking => !booking.IsPaid && (!booking.Refunded.HasValue || !booking.Refunded.Value)
+                    GetBookingStatus, L["Status"], "IsPaid",
+                    Color: booking => booking.Cancelled.HasValue && booking.Cancelled.Value || booking.NoShow.HasValue && booking.NoShow.Value || !booking.IsPaid && (!booking.Refunded.HasValue || !booking.Refunded.Value)
                         ? CurrentTheme.Palette.Error
                         : null)
             ],

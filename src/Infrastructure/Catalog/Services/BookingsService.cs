@@ -120,12 +120,17 @@ public class BookingsService : BaseService, IBookingsService
         
         return new FileResponse(response);
     }
-    
+
     public Task<PaginationResponse<StaffBookingDto>> StaffBookingsByDateRange(StaffBookingsByDateRangeRequest request)
     {
         return Mediator.Send(request);
     }
-    
+
+    public Task<bool> CancelBooking(CancelBookingRequest request)
+    {
+        return Mediator.Send(request);
+    }
+
     public async Task<FileResponse> ExportStaffBookingsAsync(ExportStaffBookingsRequest filter)
     {
         var response = await Mediator.Send(filter);

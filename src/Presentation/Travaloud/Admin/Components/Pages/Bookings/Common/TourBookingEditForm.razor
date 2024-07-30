@@ -4,6 +4,7 @@
 @using Travaloud.Application.Common.Extensions
 @using Travaloud.Admin.Components.Dialogs.Bookings
 @using System.Text.Json
+@using Org.BouncyCastle.Ocsp
 @using Travaloud.Admin.Components.Dialogs
 @using Travaloud.Admin.Components.Dialogs.Guests
 @inject IStringLocalizer<TourBookingEditForm> L
@@ -161,6 +162,8 @@ else
 
     private bool FormDisabled { get; set; }
     
+    private bool BookingIsCancelled { get; set; }
+    
     private bool IsUpdate { get; set; }
     
     private bool CanDelete { get; set; }
@@ -170,7 +173,8 @@ else
         var authState = await AuthState.GetAuthenticationStateAsync();
         var user = authState.User;
         
-        FormDisabled = RequestModel.IsPaid || (RequestModel.Refunded.HasValue && RequestModel.Refunded.Value);
+        FormDisabled = RequestModel.IsPaid || (RequestModel.Refunded.HasValue && RequestModel.Refunded.Value) || (RequestModel.Cancelled.HasValue && RequestModel.Cancelled.Value);
+        BookingIsCancelled = (RequestModel.Cancelled.HasValue && RequestModel.Cancelled.Value);
         IsUpdate = RequestModel.Id != DefaultIdType.Empty;
 
         CanDelete = await AuthService.HasPermissionAsync(user, TravaloudAction.Delete, TravaloudResource.TourBookings); 
@@ -179,6 +183,22 @@ else
         {
             var staffMember = await UserService.GetAsync(RequestModel.CreatedBy.Value.ToString(), CancellationToken.None);
             RequestModel.StaffMember = staffMember;
+        }
+
+        if (RequestModel.Items.Any())
+        {
+            RequestModel.Items = RequestModel.Items.Select(x =>
+            {
+                if (x.TourCategoryId.HasValue) return x;
+                
+                var matchedTour = RequestModel.Tours.FirstOrDefault(t => t.Id == x.TourId);
+                if (matchedTour != null)
+                {
+                    x.TourCategoryId = matchedTour.TourCategoryId;
+                }
+
+                return x;
+            }).ToList();
         }
     }
 

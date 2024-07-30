@@ -41,8 +41,17 @@ public static class Startup
         return services;
     }
 
-    private static IGlobalConfiguration UseDatabase(this IGlobalConfiguration hangfireConfig, string dbProvider, string connectionString, IConfiguration config) =>
-        hangfireConfig.UseSqlServerStorage(connectionString, config.GetSection("HangfireSettings:Storage:Options").Get<SqlServerStorageOptions>());
+    private static IGlobalConfiguration UseDatabase(this IGlobalConfiguration hangfireConfig, string dbProvider,
+        string connectionString, IConfiguration config)
+    {
+        var settings = config.GetSection("HangfireSettings:Storage:Options").Get<SqlServerStorageOptions>();
+        
+        return hangfireConfig.UseSqlServerStorage(
+            () => new Microsoft.Data.SqlClient.SqlConnection(connectionString), settings);
+        //
+        // return hangfireConfig.UseSqlServerStorage(connectionString, settings);
+    }
+       
 
     internal static IApplicationBuilder UseHangfireDashboard(this IApplicationBuilder app, IConfiguration config, IWebHostEnvironment env, bool isBlazor)
     {

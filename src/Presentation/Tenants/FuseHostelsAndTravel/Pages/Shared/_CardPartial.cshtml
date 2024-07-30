@@ -24,7 +24,7 @@
             <div class="card rounded-0 offcut-image-border @(isLightbox ? "mb-4" : "")" @(isLightbox ? $"data-mdb-modal-init data-mdb-target=#{id} role=button" : "")>
                 @if (!string.IsNullOrEmpty(thumbnailImageSrc))
                 {
-                    <img src="@(thumbnailImageSrc)" alt="@($"{Model.Title} image")" width="@imageWidth" height="@imageHeight" class="card-img-top rounded-0 @(isLightbox ? "object-fit-cover" : "")"/>
+                    <img loading="lazy" src="@(thumbnailImageSrc)" alt="@($"{Model.Title} image")" width="@imageWidth" height="@imageHeight" class="card-img-top rounded-0 @(isLightbox ? "object-fit-cover" : "")"/>
                 }
 
                 @if (Model.LightboxImages == null || !Model.LightboxImages.Any())
@@ -57,7 +57,7 @@
     else
     {
         <div class="card h-100 rounded-0 offcut-image-border @(isLightbox ? "mb-4" : "")" @(isLightbox ? $"data-mdb-toggle=modal data-mdb-target=#{id} role=button" : "")>
-            <img src="@(thumbnailImageSrc)" alt="@($"{Model.Title} image")" width="@imageWidth" height="@imageHeight" class="card-img-top rounded-0 @(isLightbox ? "object-fit-cover" : "")" />
+            <img loading="lazy" src="@(thumbnailImageSrc)" alt="@($"{Model.Title} image")" width="@imageWidth" height="@imageHeight" class="card-img-top rounded-0 @(isLightbox ? "object-fit-cover" : "")" />
 
             @if (Model.LightboxImages == null || !Model.LightboxImages.Any())
             {

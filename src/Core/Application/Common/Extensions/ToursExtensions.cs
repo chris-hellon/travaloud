@@ -204,6 +204,47 @@ public static class ToursExtensions
 
         tour.TourCategoryLookups = tourCategoryLookups;
     }
+    
+     public static void ProcessTourCategories(this Tour tour, List<DefaultIdType>? selectedParentTourCategories, DefaultIdType userId)
+    {
+        var tourCategoryLookups = new List<TourCategoryLookup>();
+        
+        if (selectedParentTourCategories != null)
+        {
+            foreach (var lookup in selectedParentTourCategories)
+            {
+                var existingTourCategory = tour.TourCategoryLookups?.FirstOrDefault(td => td.TourCategoryId == lookup);
+
+                if (existingTourCategory is null)
+                {
+                    // Create a new TourItinerary
+                    tourCategoryLookups.Add(new TourCategoryLookup(lookup, null, tour.Id));
+                }
+                else
+                {
+                    // Update an existing TourItinerary
+                    existingTourCategory.Update(tour.Id, lookup, null);
+                    tourCategoryLookups.Add(existingTourCategory);
+                }
+            }
+        }
+
+        var destinationsToRemove = tour.TourCategoryLookups?
+            .Where(existingRoom => tourCategoryLookups.All(newRoom => newRoom.Id != existingRoom.Id))
+            .ToList();
+
+        if (destinationsToRemove != null && destinationsToRemove.Count != 0)
+        {
+            foreach (var destination in destinationsToRemove)
+            {
+                destination.DomainEvents.Add(EntityDeletedEvent.WithEntity(destination));
+                destination.FlagAsDeleted(userId);
+                tourCategoryLookups.Add(destination);
+            }
+        }
+
+        tour.TourCategoryLookups = tourCategoryLookups;
+    }
 
     public static void ProcessTourDestinations(this Tour tour, IEnumerable<TourDestinationLookupRequest>? request, DefaultIdType userId)
     {

@@ -29,7 +29,10 @@ public class BookingDto
     public bool? ConfirmationEmailSent { get; set; }
     public bool? Refunded { get; set; }
     public decimal? AmountOutstanding { get; set; }
-
+    public bool? Cancelled { get; set; }
+    public bool? NoShow { get; set; }
+    public bool? CheckedIn { get; set; }
+    
     public IList<BookingItemDetailsDto>? Items { get; set; }
     public UserDto? PrimaryGuest { get; set; }
 }

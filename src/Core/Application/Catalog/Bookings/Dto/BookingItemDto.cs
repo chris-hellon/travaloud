@@ -16,4 +16,7 @@ public class BookingItemDto
     public string? PickupLocation { get; set; }
     public bool? WaiverSigned { get;  set; }
     public DefaultIdType? TourCategoryId { get; set; }
+    public bool? NoShow { get; set; }
+    public bool? Cancelled { get; set; }
+    public bool? CheckedIn { get; set; }
 }

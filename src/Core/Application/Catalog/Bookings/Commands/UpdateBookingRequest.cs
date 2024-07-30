@@ -28,6 +28,7 @@ public class UpdateBookingRequest : IRequest<DefaultIdType>
     public string? BookingSource { get; set; }
     public bool DoNotUpdateAmount { get; set; }
     public decimal? AmountOutstanding { get; set; }
+    public bool? Cancelled {get; set; }
 
     public IList<UpdateBookingItemRequest> Items { get; set; } = [];
     public UserDetailsDto? Guest { get; set; }
@@ -90,7 +91,9 @@ public class UpdateBookingRequestHandler : IRequestHandler<UpdateBookingRequest,
             null,
             createdBy,
             request.DoNotUpdateAmount,
-            request.AmountOutstanding);
+            request.AmountOutstanding,
+            null, 
+            request.Cancelled);
         
         var userId = _currentUser.GetUserId();
         

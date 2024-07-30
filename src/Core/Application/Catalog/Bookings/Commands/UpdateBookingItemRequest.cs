@@ -8,6 +8,9 @@ public class UpdateBookingItemRequest : IRequest<DefaultIdType>
     public decimal? Amount { get; set; }
     public int? RoomQuantity { get; set; }
     public bool WaiverSigned { get; set; }
+    public bool? CheckedIn { get; set; }
+    public bool? NoShow { get; set; }
+    public bool? Cancelled { get; set; }
 
     public int GuestQuantity
     {

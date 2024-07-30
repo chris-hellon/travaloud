@@ -19,6 +19,9 @@ public class BookingItem : AuditableEntity, IAggregateRoot
     public int ConcurrencyVersion { get; set; }
     public string? PickupLocation { get; set; }
     public bool? WaiverSigned { get; private set; }
+    public bool? Cancelled { get; private set; }
+    public bool? NoShow { get; private set; }
+    public bool? CheckedIn { get; private set; }
     
     public virtual IList<BookingItemRoom>? Rooms { get; set; }
     public virtual Tour? Tour { get; set; }
@@ -72,7 +75,10 @@ public class BookingItem : AuditableEntity, IAggregateRoot
         string? pickupLocation,
         bool? waiverSigned,
         DefaultIdType? tourCategoryId,
-        DefaultIdType createdBy)
+        DefaultIdType createdBy,
+        bool? checkedIn,
+        bool? cancelled,
+        bool? noShow)
     {
         if (startDate is not null && StartDate != startDate)
             StartDate = startDate.Value;
@@ -103,6 +109,15 @@ public class BookingItem : AuditableEntity, IAggregateRoot
 
         if (rooms is not null && Rooms != rooms)
             Rooms = rooms;
+        
+        if (checkedIn is not null && CheckedIn != checkedIn)
+            CheckedIn = checkedIn.Value;
+        
+        if (cancelled is not null && Cancelled != cancelled)
+            Cancelled = cancelled.Value;
+        
+        if (noShow is not null && NoShow != noShow)
+            NoShow = noShow.Value;
         
         PickupLocation = pickupLocation;
         WaiverSigned = waiverSigned;

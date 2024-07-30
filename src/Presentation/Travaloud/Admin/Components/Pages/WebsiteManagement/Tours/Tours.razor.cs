@@ -284,24 +284,24 @@ public partial class Tours
 
         var parsedRequest = tour.Adapt<CreateTourRequest>();
 
-        // if (!string.IsNullOrEmpty(parsedRequest.SelectedParentTourCategoriesString) &&
-        //     parsedRequest.ParentTourCategories != null)
-        // {
-        //     parsedRequest.SelectedParentTourCategories = new List<Guid>();
-        //
-        //     foreach (var selectedCategory in parsedRequest.SelectedParentTourCategoriesString.Split(","))
-        //     {
-        //         var categoryParsed = selectedCategory.ToLower().Replace(" ", string.Empty);
-        //         var matchedCategory = parsedRequest.ParentTourCategories.FirstOrDefault(x =>
-        //             x.Name.ToLower().Replace(" ", string.Empty) == categoryParsed);
-        //
-        //         if (matchedCategory != null &&
-        //             parsedRequest.SelectedParentTourCategories.All(x => x != matchedCategory.Id))
-        //         {
-        //             parsedRequest.SelectedParentTourCategories.Add(matchedCategory.Id);
-        //         }
-        //     }
-        // }
+        if (!string.IsNullOrEmpty(parsedRequest.SelectedParentTourCategoriesString) &&
+            parsedRequest.ParentTourCategories != null)
+        {
+            parsedRequest.SelectedParentTourCategories = new List<Guid>();
+        
+            foreach (var selectedCategory in parsedRequest.SelectedParentTourCategoriesString.Split(","))
+            {
+                var categoryParsed = selectedCategory.ToLower().Replace(" ", string.Empty);
+                var matchedCategory = parsedRequest.ParentTourCategories.FirstOrDefault(x =>
+                    x.Name.ToLower().Replace(" ", string.Empty) == categoryParsed);
+        
+                if (matchedCategory != null &&
+                    parsedRequest.SelectedParentTourCategories.All(x => x != matchedCategory.Id))
+                {
+                    parsedRequest.SelectedParentTourCategories.Add(matchedCategory.Id);
+                }
+            }
+        }
 
         if (parsedRequest.Images?.Any() == true)
         {
@@ -365,6 +365,25 @@ public partial class Tours
                         Data = image.ImageInBytes, Extension = image.ImageExtension ?? string.Empty,
                         Name = $"{tour.Name}_{DefaultIdType.NewGuid():N}"
                     };
+                }
+            }
+        }
+        
+        if (!string.IsNullOrEmpty(tour.SelectedParentTourCategoriesString) &&
+            tour.ParentTourCategories != null)
+        {
+            tour.SelectedParentTourCategories = new List<Guid>();
+        
+            foreach (var selectedCategory in tour.SelectedParentTourCategoriesString.Split(","))
+            {
+                var categoryParsed = selectedCategory.ToLower().Replace(" ", string.Empty);
+                var matchedCategory = tour.ParentTourCategories.FirstOrDefault(x =>
+                    x.Name.ToLower().Replace(" ", string.Empty) == categoryParsed);
+        
+                if (matchedCategory != null &&
+                    tour.SelectedParentTourCategories.All(x => x != matchedCategory.Id))
+                {
+                    tour.SelectedParentTourCategories.Add(matchedCategory.Id);
                 }
             }
         }

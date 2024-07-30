@@ -122,8 +122,11 @@ public abstract class TourPageModel : ContactBasePageModel<EmailTemplates.TourEn
                 Tour.TourPrices = Tour.TourPrices.Where(x => x.PublishToWebsite.HasValue && x.PublishToWebsite.Value)
                     .ToList();
 
+            if (Tour.TourDates != null)
+                Tour.TourDates = Tour.TourDates.Where(x => x.TourPrice != null && (!x.TourPrice.InHouseOnly.HasValue || !x.TourPrice.InHouseOnly.Value)).ToList();
+            
             if (Tour.TourDates != null && !includeAllPrices)
-                Tour.TourDates = Tour.TourDates.Where(x => x.TourPrice is {PublishToWebsite: not null} && x.TourPrice.PublishToWebsite.Value).ToList();
+                Tour.TourDates = Tour.TourDates.Where(x => x.TourPrice is {PublishToWebsite: not null} && x.TourPrice.PublishToWebsite.Value && (!x.TourPrice.InHouseOnly.HasValue || !x.TourPrice.InHouseOnly.Value)).ToList();
             
             ViewData["Title"] = Tour?.Name;
 

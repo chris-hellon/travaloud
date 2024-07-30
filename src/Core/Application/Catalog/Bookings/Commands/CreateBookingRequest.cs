@@ -29,7 +29,7 @@ public class CreateBookingRequest : IRequest<DefaultIdType?>
     public string? StripeSessionId { get; set; }
     public decimal? AmountOutstanding { get; set; }
     public bool IsWebsite { get; set; }
-
+    
     public CreateBookingRequest()
     {
         

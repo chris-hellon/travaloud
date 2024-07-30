@@ -59,6 +59,9 @@ public class CreateTourRequest : IRequest<DefaultIdType>
     [Display(Name = "Pick Up Locations")]
     public IEnumerable<TourPickupLocationRequest>? TourPickupLocations { get; set; }
     
+    
+    public string? SelectedParentTourCategoriesString { get; set; }
+    public List<DefaultIdType>? SelectedParentTourCategories { get; set; }
     public IEnumerable<TourPickupLocationRequest>? SelectedPickupLocations = [];
     public IList<TourCategoryRequest>? ParentTourCategories { get; set; }
     public IEnumerable<TourDestinationLookupRequest>? TourDestinationLookups { get; set; }

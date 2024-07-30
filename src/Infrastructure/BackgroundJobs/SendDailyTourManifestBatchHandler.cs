@@ -1,76 +1,74 @@
+using System.Data;
+using Finbuckle.MultiTenant;
 using MediatR;
+using Travaloud.Application.BackgroundJobs;
 using Travaloud.Application.BackgroundJobs.Commands;
-using Travaloud.Application.Catalog.Destinations.Queries;
-using Travaloud.Application.Catalog.Interfaces;
-using Travaloud.Application.Catalog.TourDates.Specification;
-using Travaloud.Application.Catalog.Tours.Dto;
-using Travaloud.Application.Catalog.Tours.Queries;
-using Travaloud.Application.Catalog.Tours.Specification;
+using Travaloud.Application.Catalog.TourDates.Dto;
 using Travaloud.Application.Common.Interfaces;
 using Travaloud.Application.Common.Persistence;
-using Travaloud.Domain.Catalog.Tours;
+using Travaloud.Infrastructure.Multitenancy;
 
 namespace Travaloud.Infrastructure.BackgroundJobs;
 
 public class SendDailyTourManifestBatchHandler : IRequestHandler<SendDailyTourManifestBatch>
 {
-    private readonly IDestinationsService _destinationsService;
-    private readonly IToursService _toursService;
     private readonly IJobService _jobService;
-    private readonly IRepositoryFactory<TourDate> _tourDateRepository;
+    private readonly IDapperRepository _dapperRepository;
+    private readonly IMultiTenantContextAccessor<TravaloudTenantInfo> _multiTenantContextAccessor;
+    private readonly ITourManifestService _tourManifestService;
     
     public SendDailyTourManifestBatchHandler(
-        IDestinationsService destinationsService,
-        IToursService toursService,
-        IRepositoryFactory<TourDate> tourDateRepository, IJobService jobService)
+        IJobService jobService, 
+        IDapperRepository dapperRepository, 
+        IMultiTenantContextAccessor<TravaloudTenantInfo> multiTenantContextAccessor, 
+        ITourManifestService tourManifestService)
     {
-        _destinationsService = destinationsService;
-        _toursService = toursService;
-        _tourDateRepository = tourDateRepository;
         _jobService = jobService;
+        _dapperRepository = dapperRepository;
+        _multiTenantContextAccessor = multiTenantContextAccessor;
+        _tourManifestService = tourManifestService;
     }
 
     public async Task Handle(SendDailyTourManifestBatch request, CancellationToken cancellationToken)
     {
-        var destinations = await _destinationsService.SearchAsync(new SearchDestinationsRequest()
-        {
-            PageNumber = 1,
-            PageSize = int.MaxValue
-        });
-
-        if (destinations == null || destinations.Data.Count == 0) return;
+        var tenant = _multiTenantContextAccessor.MultiTenantContext?.TenantInfo;
         
-        foreach (var destination in destinations.Data)
+        var tenantId = tenant?.Id ??
+                       throw new Exception("No Tenant found.");
+
+        var currentDate = DateTime.Now + new TimeSpan(0, 0, 0);
+        
+        var tourDates = await _dapperRepository.QueryAsync<TourDailyManifestDto>("GetTodaysTourDatesForManifest", new
         {
-            var tours = await _toursService.GetToursByDestinations(
-                new GetToursByDestinationsRequest(new List<DefaultIdType>() { destination.Id }));
-
-            var tourWithoutDatesDtos = tours as TourWithoutDatesDto[] ?? tours.ToArray();
-            if (tourWithoutDatesDtos.Length == 0) continue;
-                
-            foreach (var tour in tourWithoutDatesDtos)
+            TenantId = tenantId,
+            CurrentDate = currentDate
+        }, commandType: CommandType.StoredProcedure, cancellationToken: cancellationToken);
+        
+        foreach (var tourDate in tourDates)
+        { 
+            var timeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            var nowInTimeZone = TimeZoneInfo.ConvertTime(DateTime.Now, timeZone);
+                    
+            var targetDateTime = tourDate.StartDate.AddHours(-1);
+            var targetDateTimeInTimeZone = TimeZoneInfo.ConvertTime(targetDateTime, timeZone);
+                    
+            var delay = targetDateTimeInTimeZone - nowInTimeZone;
+                    
+            if (delay < TimeSpan.Zero)
             {
-                var tourDates =
-                    await _tourDateRepository.ListAsync(new TourDatesByTourIdNoLimitSpec(tour.Id),
-                        cancellationToken);
-
-                tourDates = tourDates.Where(x => x.StartDate.Date == DateTime.Now.Date).ToList();
-
-                if (tourDates.Count == 0) continue;
-                
-                foreach (var tourDate in tourDates)
-                { 
-                    var jobId = $"{destination.Name}, {tour.Name} {tourDate.StartDate.TimeOfDay} Daily Tour Manifest";
-                        
-                    var cronExpression = $"{tourDate.StartDate.Minute} {tourDate.StartDate.AddHours(-1).Hour} * * *";
-                    _jobService.AddOrUpdate(jobId,
-                        new SendDailyTourManifest(tour.Id,
-                            tourDate.Id,
-                            destination.Id),
-                        cronExpression,
-                        TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
-                }
+                continue;
             }
+                    
+            _jobService.Schedule(() => _tourManifestService.ScheduleTourManifest(new SendDailyTourManifest(
+                tourDate.TourId,
+                tourDate.TourDateId,
+                tourDate.DestinationId,
+                tenantId,
+                tourDate.TourName!,
+                tourDate.StartDate,
+                tenant.Name,
+                tenant.LogoImageUrl,
+                tenant.PrimaryHoverColor), cancellationToken), delay);
         }
     }
 }

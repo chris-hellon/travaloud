@@ -198,7 +198,7 @@ public class IndexModel : TravaloudBasePageModel
                         var supplierEmailHtml =
                             await RazorPartialToStringRenderer.RenderPartialToStringAsync(
                                 $"/Pages/EmailTemplates/SupplierBookingConfirmation.cshtml", supplierEmailModel);
-
+                        
                         var supplierMailRequest = new MailRequest(
                             to: [supplier.Email!],
                             subject: $"{TenantName} Booking Confirmation",

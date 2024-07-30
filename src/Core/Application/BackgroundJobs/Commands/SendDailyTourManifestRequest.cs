@@ -17,12 +17,29 @@ public class SendDailyTourManifest : IRequest
     public DefaultIdType TourId { get; set; }
     public DefaultIdType TourDateId { get; set; }
     public DefaultIdType DestinationId { get; set; }
+    public string TourName { get; set; }
+    public DateTime TourStartDate { get; set; }
+    public string TenantId { get; set; }
+    public string TenantName { get; set; }
+    public string TenantLogoImageUrl { get; set; }
+    public string TenantBackgroundColor { get; set; }
 
-    public SendDailyTourManifest(DefaultIdType tourId, DefaultIdType tourDateId, DefaultIdType destinationId)
+    public SendDailyTourManifest(DefaultIdType tourId,
+        DefaultIdType tourDateId,
+        DefaultIdType destinationId,
+        string tenantId,
+        string tourName,
+        DateTime tourStartDate, string tenantName, string tenantLogoImageUrl, string tenantBackgroundColor)
     {
         TourId = tourId;
         TourDateId = tourDateId;
         DestinationId = destinationId;
+        TenantId = tenantId;
+        TourName = tourName;
+        TourStartDate = tourStartDate;
+        TenantName = tenantName;
+        TenantLogoImageUrl = tenantLogoImageUrl;
+        TenantBackgroundColor = tenantBackgroundColor;
     }
 }
 

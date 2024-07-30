@@ -264,6 +264,7 @@ public class UpdateTourRequestHandler : IRequestHandler<UpdateTourRequest, Defau
             var tourCategory = await _tourCategoryRepositor.GetByIdAsync(request.TourCategory?.Id, cancellationToken);
             updatedTour.TourCategory = tourCategory;
         }
+        else updatedTour.ProcessTourCategories(request.SelectedParentTourCategories, userId);
         
         updatedTour.ProcessTourPricesAndDates(request.TourPrices, request.TourDates, request.MaxCapacity ?? 99999, tour.MaxCapacity, userId);
         
@@ -271,7 +272,6 @@ public class UpdateTourRequestHandler : IRequestHandler<UpdateTourRequest, Defau
         
         await updatedTour.ProcessTourItineraries(request.TourItineraries, userId, _file, cancellationToken);
         
-        //updatedTour.ProcessTourCategories(request.TourCategoryId, request.SelectedParentTourCategories, request.TourCategoryLookups, userId);
         updatedTour.ProcessTourDestinations(request.TourDestinationLookups, userId);
         updatedTour.ProcessTourPickupLocations(request.TourPickupLocations, userId);
         

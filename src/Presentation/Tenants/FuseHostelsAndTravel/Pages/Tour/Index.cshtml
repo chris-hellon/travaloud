@@ -48,7 +48,7 @@
                                             <p>
                                                 <i class="fa-solid fa-clock me-2"></i> @duration
                                             </p>
-                                            
+
                                             if (Model.Tour.TourPrices != null && Model.Tour.TourPrices.Any())
                                             {
                                                 foreach (var price in Model.Tour.TourPrices)
@@ -62,7 +62,7 @@
                                     {
                                         <div>
                                             <span class="badge rounded-pill badge-primary tour-booking-feedback-label">@(Model.SelectedTourDate != null ? $"{Model.SelectedTourDate.AvailableSpaces} spaces available" : "Select a Date")</span>
-                                        </div>   
+                                        </div>
                                     }
                                 </div>
 

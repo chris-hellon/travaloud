@@ -68,14 +68,6 @@ internal class GetBookingItemsByDateRequestHandler : IRequestHandler<GetBookingI
                 tourIdsDt.Rows.Add(dataRow);
             }
         }
-
-        var tourStartDate = request.TourStartDate.HasValue
-            ? request.TourStartDate.Value.Date + new TimeSpan(00, 00, 00)
-            : new DateTime?();
-
-        var tourEndDate = request.TourEndDate.HasValue
-            ? request.TourEndDate.Value.Date + new TimeSpan(23, 59, 59)
-            : new DateTime?();
         
         var todaysTours = await _dapperRepository.QueryAsync<BookingExportDto>("GetBookingsExports", new
         {

@@ -45,9 +45,7 @@
         <meta property="twitter:image" content="@Model.MetaImageUrl()">
         <link href="/favicon.ico" rel="icon">
 
-        @* var loadCssUrl = Model.GetAzureBlobUrl("load.min.css", "css"); *@
-        @* *@
-        @* <link rel="stylesheet" href="@loadCssUrl"/> *@
+       
         
         <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
         <noscript>
@@ -56,6 +54,22 @@
         
         <link rel="stylesheet" href="/shared/css/theme.min.css"/>
         <link rel="stylesheet" href="/css/theme.min.css"/>
+        
+        @* <link rel="stylesheet" href="/css/load.min.css" /> *@
+        @* *@
+        @* var sharedThemeCssUrl = Model.GetAzureBlobUrl("theme.min.css", "css/shared"); *@
+        @* var themeCssUrl = Model.GetAzureBlobUrl("theme.min.css", "css"); *@
+        @* *@
+        @* <link rel="preload" href="@sharedThemeCssUrl" as="style" onload="this.onload=null;this.rel='stylesheet'"/> *@
+        @* <noscript> *@
+        @*     <link rel="stylesheet" href="@sharedThemeCssUrl"/> *@
+        @* </noscript> *@
+        @* *@
+        @* <link rel="preload" href="@themeCssUrl" as="style" onload="this.onload=null;this.rel='stylesheet'"/> *@
+        @* <noscript> *@
+        @*     <link rel="stylesheet" href="@themeCssUrl"/> *@
+        @* </noscript> *@
+
 
         if (url == $"{Model.WebsiteUrl}/" || url == Model.WebsiteUrl)
         {

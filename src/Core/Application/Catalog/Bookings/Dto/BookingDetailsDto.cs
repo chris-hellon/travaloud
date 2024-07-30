@@ -23,4 +23,6 @@ public class BookingDetailsDto
     public decimal? AmountOutstanding { get; set; }
     public DefaultIdType CreatedBy { get; set; }
     public IList<BookingItemDetailsDto>? Items { get; set; }
+    public bool? Cancelled { get; set; }
+
 }

@@ -52,7 +52,7 @@
                             </ColGroup>
                             <HeaderContent>
                                 <MudTh>Tour</MudTh>
-                                <MudTh>Additional Guests</MudTh>
+                                <MudTh>Guests</MudTh>
                                 <MudTh>Start Date</MudTh>
                                 <MudTh>End Date</MudTh>
                                 <MudTh>Pick Up Location</MudTh>
@@ -91,6 +91,7 @@
                                                     <col/>
                                                     <col/>
                                                     <col/>
+                                                    <col/>
                                                 </ColGroup>
                                                 <HeaderContent>
                                                     <MudTh>Guest Name</MudTh>
@@ -98,6 +99,7 @@
                                                     <MudTh>Nationality</MudTh>
                                                     <MudTh>Gender</MudTh>
                                                     <MudTh>Email</MudTh>
+                                                    <MudTh>Status</MudTh>
                                                 </HeaderContent>
                                                 <RowTemplate>
                                                     <MudTd DataLabel="Guest Name">@GuestContext.FullName</MudTd>
@@ -105,6 +107,7 @@
                                                     <MudTd DataLabel="Nationality">@GuestContext.Nationality?.TwoLetterCodeToCountry()</MudTd>
                                                     <MudTd DataLabel="Gender">@GuestContext.Gender?.GenderMatch()</MudTd>
                                                     <MudTd DataLabel="Email">@GuestContext.Email</MudTd>
+                                                    <MudTd DataLabel="Status">@GuestContext.Status</MudTd>
                                                 </RowTemplate>
                                             </MudTable>
                                         </td>

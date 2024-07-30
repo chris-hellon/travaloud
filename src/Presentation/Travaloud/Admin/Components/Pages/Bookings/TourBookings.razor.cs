@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.IdentityModel.Tokens;
 using MudBlazor;
 using QRCoder;
-using Travaloud.Admin.Components.Dialogs;
 using Travaloud.Admin.Components.Dialogs.Bookings;
 using Travaloud.Admin.Components.Dialogs.Guests;
 using Travaloud.Admin.Components.EntityTable;
@@ -26,7 +25,6 @@ using Travaloud.Application.Common.Models;
 using Travaloud.Application.Identity.Users;
 using Travaloud.Application.PaymentProcessing;
 using Travaloud.Application.PaymentProcessing.Commands;
-using Travaloud.Application.PaymentProcessing.Queries;
 using Travaloud.Infrastructure.Auth;
 using Travaloud.Infrastructure.Common.Services;
 using Travaloud.Infrastructure.Multitenancy;
@@ -106,17 +104,17 @@ public partial class TourBookings
                 new EntityField<BookingDto>(booking => booking.BookingDate, L["Booking Date"], "BookingDate"),
                 new EntityField<BookingDto>(booking => $"$ {booking.TotalAmount:n2}", L["Total Amount"], "TotalAmount"),
                 new EntityField<BookingDto>(
-                    booking => booking.IsPaid ? "Paid" :
+                    booking => booking.Cancelled.HasValue && booking.Cancelled.Value ? "Cancelled" : booking.IsPaid ? "Paid" :
                         booking.Refunded.HasValue && booking.Refunded.Value ? "Refunded" : booking.AmountOutstanding is > 0 ? "Partially Paid" : "Unpaid", L["Status"],
                     "IsPaid",
-                    Color: booking => !booking.IsPaid && (!booking.Refunded.HasValue || !booking.Refunded.Value)
+                    Color: booking => booking.Cancelled.HasValue && booking.Cancelled.Value || !booking.IsPaid && (!booking.Refunded.HasValue || !booking.Refunded.Value)
                         ? CurrentTheme.Palette.Error
                         : null)
             ],
             enableAdvancedSearch: false,
             canViewEntityFunc: booking => booking.IsPaid || (booking.Refunded.HasValue && booking.Refunded.Value),
-            canDeleteEntityFunc: booking => !booking.IsPaid,
-            // canUpdateEntityFunc: booking => !booking.IsPaid,
+            // canDeleteEntityFunc: booking => !booking.IsPaid,
+            canUpdateEntityFunc: booking => !booking.Cancelled.HasValue || !booking.Cancelled.Value,
             idFunc: booking => booking.Id,
             searchFunc: async filter => await SearchTourBookings(filter),
             hasExtraActionsFunc: () => true,
@@ -137,8 +135,9 @@ public partial class TourBookings
             getDetailsFunc: async id => await GetTourBooking(id),
             createFunc: async booking => await CreateTourBooking(booking),
             updateFunc: async (id, booking) => await UpdateTourBooking(id, booking),
-            deleteFunc: async id => await BookingsService.DeleteAsync(id),
-            exportFunc: async filter => await ExportTourBooking(filter)
+            // deleteFunc: async id => await BookingsService.DeleteAsync(id),
+            exportFunc: async filter => await ExportTourBooking(filter),
+            deleteAction: string.Empty
         );
     }
 
@@ -204,6 +203,26 @@ public partial class TourBookings
                 if (x.Items != null)
                     x.Items = x.Items.Select(i =>
                     {
+                        if (i.Guests == null)
+                        {
+                            i.Guests = new List<BookingItemGuestDto>();
+                        }
+                        
+                        i.Guests.Insert(0, new BookingItemGuestDto()
+                        {
+                            BookingItemId = i.Id,
+                            Cancelled = i.Cancelled,
+                            CheckedIn = i.CheckedIn,
+                            DateOfBirth = x.GuestDateOfBirth,
+                            Email = x.GuestEmail,
+                            FullName = x.GuestName,
+                            Gender = x.GuestGender,
+                            GuestId = DefaultIdType.Parse(x.GuestId),
+                            Id = DefaultIdType.NewGuid(),  
+                            Nationality = x.GuestNationality,
+                            NoShow = i.NoShow
+                        });
+                        
                         if (i.Guests != null)
                             i.Guests = i.Guests.Select(g =>
                             {
@@ -308,7 +327,7 @@ public partial class TourBookings
             {
                 var parameters = new DialogParameters
                 {
-                    {nameof(PartialRefundConfirmation.RefundAmount), existingBooking.TotalAmount - request.TotalAmount}
+                    {nameof(PartialRefundConfirmation.BookingAmount), existingBooking.TotalAmount - request.TotalAmount}
                 };
                 
                 var options = new DialogOptions {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, DisableBackdropClick = true};
@@ -317,17 +336,17 @@ public partial class TourBookings
 
                 if (!result.Canceled)
                 {
-                    var refundPercentageAmount = int.Parse(result.Data.ToString() ?? "0");
+                    var refundAmount = decimal.Parse(result.Data.ToString() ?? "0");
 
-                    if (refundPercentageAmount > 0)
+                    if (refundAmount > 0)
                     {
-                        var percentageAmount = RefundAmount.Value * (refundPercentageAmount / 100.0m);
+                        // var percentageAmount = RefundAmount.Value * (refundPercentageAmount / 100.0m);
 
-                       // refund and update
+                        // refund and update
                          await ServiceHelper.ExecuteCallGuardedAsync(
                              async () =>
                              {
-                                 await BookingsService.RefundBooking(new RefundBookingRequest(id, percentageAmount, false,
+                                 await BookingsService.RefundBooking(new RefundBookingRequest(id, refundAmount, false,
                                      true));
                                  await BookingsService.UpdateAsync(id, request);
                              },
@@ -503,28 +522,41 @@ public partial class TourBookings
     {
         var booking = await BookingsService.GetAsync(bookingId);
 
-        string deleteContent = L["You're sure you want to delete and refund {0} with id '{1}'?"];
         var parameters = new DialogParameters
         {
-            {
-                nameof(DeleteConfirmation.ContentText),
-                string.Format(deleteContent, Context.EntityName, booking.InvoiceId)
-            }
+            {nameof(PartialRefundConfirmation.BookingAmount),booking.TotalAmount},
+            {nameof(PartialRefundConfirmation.Title), "Cancel Booking"}
         };
-        var options = new DialogOptions
-            {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, DisableBackdropClick = true};
-        var dialog = await DialogService.ShowAsync<DeleteConfirmation>(L["Delete"], parameters, options);
+                
+        var options = new DialogOptions {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, DisableBackdropClick = true};
+        var dialog = await DialogService.ShowAsync<PartialRefundConfirmation>(L["Cancel Booking"], parameters, options);
         var result = await dialog.Result;
-
+        
         if (!result.Canceled)
         {
             await LoadingService.ToggleLoaderVisibility(true);
 
-            await ServiceHelper.ExecuteCallGuardedAsync(
-                () => BookingsService.RefundBooking(new RefundBookingRequest(bookingId, booking.TotalAmount, true)),
-                Snackbar,
-                Logger, "Booking Refunded Successfully");
+            var refundAmount = decimal.Parse(result.Data.ToString() ?? "0");
 
+            if (refundAmount > 0)
+            {
+                // refund and update
+                await ServiceHelper.ExecuteCallGuardedAsync(
+                    async () =>
+                    {
+                        await BookingsService.RefundBooking(new RefundBookingRequest(bookingId, refundAmount, false, true));
+                        await BookingsService.CancelBooking(new CancelBookingRequest(bookingId));
+                    },
+                    Snackbar,
+                    Logger, "Booking Cancelled & Refunded Successfully");
+                        
+                _ = _table.ReloadDataAsync();
+            }
+            else
+            {
+                await BookingsService.CancelBooking(new CancelBookingRequest(bookingId));
+            }
+            
             _ = _table.ReloadDataAsync();
             await LoadingService.ToggleLoaderVisibility(false);
         }
@@ -533,28 +565,43 @@ public partial class TourBookings
     private async Task Refund(DefaultIdType bookingId)
     {
         var booking = await BookingsService.GetAsync(bookingId);
-
-        string deleteContent = L["You're sure you want to refund {0} with id '{1}'?"];
+        
         var parameters = new DialogParameters
         {
-            {
-                nameof(DeleteConfirmation.ContentText),
-                string.Format(deleteContent, Context.EntityName, booking.InvoiceId)
-            }
+            {nameof(PartialRefundConfirmation.BookingAmount),booking.TotalAmount},
+            {nameof(PartialRefundConfirmation.Title), "Refund Booking"}
         };
-        var options = new DialogOptions
-            {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, DisableBackdropClick = true};
-        var dialog = await DialogService.ShowAsync<DeleteConfirmation>(L["Delete"], parameters, options);
+                
+        var options = new DialogOptions {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, DisableBackdropClick = true};
+        var dialog = await DialogService.ShowAsync<PartialRefundConfirmation>(L["Refund Booking"], parameters, options);
         var result = await dialog.Result;
 
         if (!result.Canceled)
         {
             await LoadingService.ToggleLoaderVisibility(true);
-            await ServiceHelper.ExecuteCallGuardedAsync(
-                () => BookingsService.RefundBooking(new RefundBookingRequest(bookingId, booking.TotalAmount, false)),
-                Snackbar,
-                Logger, "Booking Refunded Successfully");
+           
+            var refundAmount = decimal.Parse(result.Data.ToString() ?? "0");
 
+            if (refundAmount > 0)
+            {
+                // refund and update
+                await ServiceHelper.ExecuteCallGuardedAsync(
+                    async () =>
+                    {
+                        await BookingsService.RefundBooking(new RefundBookingRequest(bookingId, refundAmount, false, true));
+                    },
+                    Snackbar,
+                    Logger, "Booking Refunded Successfully");
+                        
+                _ = _table.ReloadDataAsync();
+            }
+            else
+            {
+                Snackbar.Add(
+                    "You must enter a value greater than zero to process a refund. Try cancelling the booking instead.",
+                    Severity.Info);
+            }
+            
             _ = _table.ReloadDataAsync();
             await LoadingService.ToggleLoaderVisibility(false);
         }

@@ -53,7 +53,7 @@
                             }
 
                             var thumbnailImageSrc = !string.IsNullOrEmpty(Model.ImageSrc) ? Model.ImageSrc.FormatImageUrl(imageWidth, "fuse") : "https://images.unsplash.com/photo-1504699439244-a7e34870c35d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=3540&q=80";
-                            <img class="img-fluid shadow-4 h-100 object-fit-cover" width="@imageWidth" height="@imageHeight" src="@(thumbnailImageSrc)" alt="@($"{Model.Title} image")">
+                            <img loading="lazy" class="img-fluid shadow-4 h-100 object-fit-cover" width="@imageWidth" height="@imageHeight" src="@(thumbnailImageSrc)" alt="@($"{Model.Title} image")">
                         }
                     </div>
                 }

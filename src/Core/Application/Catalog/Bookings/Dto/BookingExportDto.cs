@@ -38,6 +38,9 @@ public class BookingExportDto
     [ExportColumn(true)]
     public decimal Amount { get; set; }
     
+    [ExportColumn("Price Label")]
+    public string PriceLabel { get; set; }
+    
     [ExportColumn(true)]
     public decimal? BookingAmountOutstanding { get; set; }
     
@@ -45,7 +48,7 @@ public class BookingExportDto
     public string BookingCurrencyCode { get; set; }
 
     [ExportColumn("Status")]
-    public string Status => BookingIsPaid ? "Paid" :
+    public string Status => Cancelled.HasValue && Cancelled.Value ? "Cancelled" : NoShow.HasValue && NoShow.Value ? "No Show" : CheckedIn.HasValue && CheckedIn.Value ? "Checked In" : BookingIsPaid ? "Paid" :
         (BookingRefunded.HasValue && BookingRefunded.Value) ? "Refunded" : "Unpaid";
     
     [ExportColumn(true)]
@@ -97,4 +100,13 @@ public class BookingExportDto
     
     [ExportColumn(true)]
     public DefaultIdType CreatedBy { get; set; }
+    
+    [ExportColumn(true)]
+    public bool? Cancelled { get; set; }
+    
+    [ExportColumn(true)]
+    public bool? NoShow { get; set; }
+    
+    [ExportColumn(true)]
+    public bool? CheckedIn { get; set; }
 }

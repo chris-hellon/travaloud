@@ -93,6 +93,8 @@ function filterDates() {
             var startDate = new Date(v.startDate);
             startDate.setHours(0, 0, 0);
 
+            console.log(startDate);
+            
             tourDates.push(startDate.getTime());
         });
     }

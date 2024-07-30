@@ -3,15 +3,30 @@
 <MudDialog>
     <TitleContent>
         <MudText Typo="Typo.h6">
-            Refund Required
+            @Title
         </MudText>
     </TitleContent>
     <DialogContent>
         <div style="text-align: center">
-            <MudText Class="mb-2">As this booking has been paid for, a refund would be required for the amount of @($"${string.Format("{0:n2}", RefundAmount)}").</MudText>
-            <MudText Class="mb-4">Would you like to process this partial refund? Or continue without refunding.</MudText>
+            @if (Title == "Cancel Booking")
+            {
+                <MudText Class="mb-2">Would you like to process a refund before cancelling this booking?</MudText>
+                <MudText Class="mb-2">The total possible value would be for the amount of @($"${string.Format("{0:n2}", BookingAmount)}").</MudText>
+                <MudText Class="mb-4">Please enter an amount you would like to refund below, or leave as zero if you would not like to issue a refund.</MudText>
 
-            <MudNumericField For="@(() => RefundPercentage)" @bind-Value="@RefundPercentage" Variant="Variant.Outlined" Label="Select a Percentage to Refund" Min="0" Max="100"></MudNumericField>
+            }
+            else if (Title == "Refund Booking")
+            {
+                <MudText Class="mb-4">Please enter an amount you would like to refund below, the maximum amount to refund is @($"${string.Format("{0:n2}", BookingAmount)}").</MudText>
+
+            }
+            else
+            {
+                <MudText Class="mb-2">As this booking has been paid for, a refund would be required for the amount of @($"${string.Format("{0:n2}", BookingAmount)}").</MudText>
+                <MudText Class="mb-4">Please enter an amount you would like to refund below, or leave as zero if you would not like to issue a refund.</MudText>
+            }
+            
+            <MudNumericField For="@(() => RefundAmount)" @bind-Value="@RefundAmount" Variant="Variant.Outlined" Label="Enter an Amount to Refund" Min="0" Max="@BookingAmount"></MudNumericField>
         </div>
     </DialogContent>
     <DialogActions>
@@ -22,12 +37,13 @@
 
 @code {
     [CascadingParameter] private MudDialogInstance MudDialog { get; set; } = default!;
-    [Parameter] public decimal RefundAmount { get; set; }
-    public int RefundPercentage { get; set; }
+    [Parameter] public decimal BookingAmount { get; set; }
+    public decimal RefundAmount { get; set; }
+    [Parameter] public string Title { get; set; } = "Refund Required";
     
     void SubmitWithRefund()
     {
-        MudDialog.Close(DialogResult.Ok(RefundPercentage));
+        MudDialog.Close(DialogResult.Ok(RefundAmount));
     }
     
     void SubmitWithHalfRefund()

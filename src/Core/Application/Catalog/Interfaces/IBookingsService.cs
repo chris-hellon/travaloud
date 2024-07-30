@@ -44,4 +44,6 @@ public interface IBookingsService : ITransientService
     Task<DefaultIdType?> FlagBookingConfirmationEmailAsync(DefaultIdType id, FlagBookingConfirmationEmailRequest request);
 
     Task<FileResponse> ExportCalendarBookingsAsync(ExportCalendarBookingsRequest request);
+
+    Task<bool> CancelBooking(CancelBookingRequest request);
 }

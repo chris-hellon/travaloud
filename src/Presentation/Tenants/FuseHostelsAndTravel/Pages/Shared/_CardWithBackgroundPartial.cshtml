@@ -8,7 +8,7 @@
                 {
                     
                     var thumbnailImageSrc = Model.ImageSrc.FormatImageUrl(500, "fuse");
-                    <img alt="@Model.Title background image" class="h-100" width="500" height="400" style="object-fit: cover; @(!string.IsNullOrEmpty(Model.BackgroundColor) ? "filter: grayscale(100%);" : "")" src="@(!string.IsNullOrEmpty(thumbnailImageSrc) ? thumbnailImageSrc : "https://images.unsplash.com/photo-1504699439244-a7e34870c35d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=3540&q=80")" />
+                    <img loading="lazy" alt="@Model.Title background image" class="h-100" width="500" height="400" style="object-fit: cover; @(!string.IsNullOrEmpty(Model.BackgroundColor) ? "filter: grayscale(100%);" : "")" src="@(!string.IsNullOrEmpty(thumbnailImageSrc) ? thumbnailImageSrc : "https://images.unsplash.com/photo-1504699439244-a7e34870c35d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=3540&q=80")" />
                 }
             }
         </div>

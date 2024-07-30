@@ -143,7 +143,10 @@ public static class BookingsExtensions
                     updateItemRequest.PickupLocation,
                     updateItemRequest.WaiverSigned,
                     updateItemRequest.TourCategoryId,
-                    booking.CreatedBy);
+                    booking.CreatedBy,
+                    updateItemRequest.CheckedIn,
+                    updateItemRequest.Cancelled,
+                    updateItemRequest.NoShow);
                 
                 var currentGuestCount = currentBookingItem.Guests != null && currentBookingItem.Guests.Any()
                     ? currentBookingItem.Guests.Count + 1
