@@ -97,8 +97,7 @@ public abstract class ContactBasePageModel<T, T2> : TravaloudBasePageModel
             var mailRequest = new MailRequest(
                 to: [MailSettings.ToAddress],
                 subject: Subject(),
-                body: emailHtml,
-                bcc: MailSettings?.BccAddress != null ? MailSettings?.BccAddress.ToList() : []);
+                body: emailHtml);
         
             await MailService.SendAsync(mailRequest);
         }

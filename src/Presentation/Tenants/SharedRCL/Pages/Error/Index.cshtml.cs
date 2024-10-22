@@ -2,7 +2,7 @@
 
 public class IndexModel : TravaloudBasePageModel
 {
-    public override string MetaKeywords()
+    public override string MetaKeywords(string? overrideValue = null)
     {
         if (!StatusCodeValue.HasValue) return "error 500, server error, internal server error, website error";
         
@@ -14,7 +14,7 @@ public class IndexModel : TravaloudBasePageModel
         };
     }
 
-    public override string MetaDescription()
+    public override string MetaDescription(string? overrideValue = null)
     {
         if (!StatusCodeValue.HasValue)
             return

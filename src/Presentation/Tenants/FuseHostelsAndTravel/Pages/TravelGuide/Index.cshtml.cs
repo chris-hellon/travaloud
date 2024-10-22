@@ -19,12 +19,12 @@ public class IndexModel : TravaloudBasePageModel
         return (TravelGuide != null ? TravelGuide.ImagePath : base.MetaImageUrl()) ?? string.Empty;
     }
 
-    public override string MetaKeywords()
+    public override string MetaKeywords(string? overrideValue = null)
     {
         return (TravelGuide == null ? "budget hostels, cheap hostels, backpackers hostels, Vietnam travel" : TravelGuide.MetaKeywords) ?? string.Empty;
     }
 
-    public override string MetaDescription()
+    public override string MetaDescription(string? overrideValue = null)
     {
         return (TravelGuide == null ? base.MetaImageUrl() : TravelGuide.MetaDescription) ?? string.Empty;
     }

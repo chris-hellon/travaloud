@@ -46,4 +46,6 @@ public interface IBookingsService : ITransientService
     Task<FileResponse> ExportCalendarBookingsAsync(ExportCalendarBookingsRequest request);
 
     Task<bool> CancelBooking(CancelBookingRequest request);
+
+    Task UpdateBookingItemGuestStatus(UpdateBookingItemGuestStatusRequest request);
 }

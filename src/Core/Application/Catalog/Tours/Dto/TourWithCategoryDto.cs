@@ -23,4 +23,5 @@ public class TourWithCategoryDto
     public DefaultIdType? GroupParentCategoryId { get; set; }
     public int? SortOrder { get; set; }
     public bool? WaiverRequired { get; set; }
+    public bool? ShowBookingQRCode { get; set; }
 }

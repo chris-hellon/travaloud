@@ -65,6 +65,8 @@ public class UpdateTourRequest : IRequest<DefaultIdType>
     [Display(Name = "H2 Tag")]
     public string? H2 { get; set; }
     
+    public bool? ShowBookingQRCode { get; set; }
+    
     public FileUploadRequest? Image { get; set; }
     public FileUploadRequest? Video { get; set; }
     public FileUploadRequest? MobileVideo { get; set; }
@@ -257,7 +259,8 @@ public class UpdateTourRequestHandler : IRequestHandler<UpdateTourRequest, Defau
             request.WaiverRequired,
             request.SupplierId,
             request.SupplierEmailText,
-            request.TourCategory?.Id);
+            request.TourCategory?.Id,
+            request.ShowBookingQRCode);
 
         if (request.TourCategory?.Id != updatedTour.TourCategory?.Id)
         {

@@ -20,7 +20,7 @@
         {
             var searchClass = "mud-elevation-@Elevation";
 
-            <MudExpansionPanel @bind-IsExpanded="_advancedSearchExpanded"
+            <MudExpansionPanel @bind-IsExpanded="ExpandAdvancedSearch"
                                Style="padding:10px!important; margin-bottom:10px!important;border-radius: var(--mud-default-borderradius) !important;"
                                Class="@searchClass" Text="@L["Advanced Search"]" Dense="@(Elevation == 0 || Dense)">
                 <MudTextField @bind-Value="SearchString" Immediate="true"
@@ -85,12 +85,13 @@
                     </MudButton>
                 </div>
                 <MudSpacer/>
-                @if (_canSearch && !_advancedSearchExpanded)
+                @if (_canSearch && !ExpandAdvancedSearch)
                 {
                     <MudTextField @bind-Value="SearchString" Immediate="true" FullWidth="false"
                                   Placeholder="@($"{L["Search for"]} {Context.EntityNamePlural}")" Adornment="Adornment.End"
                                   AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0 mb-3"
-                                  TextChanged="OnSearchStringChanged">
+                                  DebounceInterval="500"
+                                  OnDebounceIntervalElapsed="OnSearchStringChanged">
                     </MudTextField>
                 }
             </ToolBarContent>
@@ -160,7 +161,7 @@
                 }
 
                 @{
-                    var tdWith = ExtraActions != null ? "text-align: right; width: 310px;" : "text-align: right; ";
+                    var tdWith = ExtraActions != null && HasActions ? "text-align: right; width: 310px;" : "text-align: right; ";
                 }
                 @if (!HideActionsColumn)
                 {
@@ -170,7 +171,7 @@
                             @ActionsContent(context)
                         }
 
-                        @if (HasActions)
+                        @if (HasActions || ExtraActions is not null)
                         {
                             if (ActionsContent is not null)
                             {

@@ -13,15 +13,20 @@ public class IndexModel : TravaloudBasePageModel
     {
         _travelGuidesService = travelGuidesService;
     }
-    
-    public override string MetaKeywords()
+
+    public override Guid? PageId()
     {
-        return "travel guides, what's on, what's happening, facebook events, fuse events";
+        return new Guid("e9274f45-9ebc-477a-165d-08dc304700d3");
+    }
+    
+    public override string MetaKeywords(string? overrideValue = null)
+    {
+        return base.MetaKeywords(  "travel guides, what's on, what's happening, facebook events, fuse events");
     }
 
-    public override string MetaDescription()
+    public override string MetaDescription(string? overrideValue = null)
     {
-        return "What's on at Fuse Hostels and Travel? View our weekly events.";
+        return base.MetaDescription( "What's on at Fuse Hostels and Travel? View our weekly events.");
     }
 
     [BindProperty] public HeaderBannerComponent? HeaderBanner { get; private set; }

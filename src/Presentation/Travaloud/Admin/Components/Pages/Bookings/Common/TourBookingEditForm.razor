@@ -4,6 +4,7 @@
 @using Travaloud.Application.Common.Extensions
 @using Travaloud.Admin.Components.Dialogs.Bookings
 @using System.Text.Json
+@using Azure.Core
 @using Org.BouncyCastle.Ocsp
 @using Travaloud.Admin.Components.Dialogs
 @using Travaloud.Admin.Components.Dialogs.Guests
@@ -12,14 +13,20 @@
 @if (IsUpdate)
 {
     <MudItem xs="12" md="12">
-        <MudAutocomplete @ref="@_staffList" T="UserDetailsDto" Label="@L["Booked By"]" For="@(() => RequestModel.StaffMember)"
-                         @bind-Value="RequestModel.StaffMember" CoerceText="true" SearchFuncWithCancel="@SearchStaff" AnchorOrigin="Origin.BottomCenter" Variant="Variant.Outlined" Required="false"
-                         ShowProgressIndicator="true"
-                         MinCharacters="3"
-                         DebounceInterval="300"
-                         KeyDownPreventDefault="true"
-                         ToStringFunc="@(e => e == null ? null : GetUserDetailsLabel(e))"/>
-
+        @if (RequestModel.CreatedBy.ToString() == RequestModel.GuestId)
+        {
+            <MudTextField Label="@L["Booked By"]" Value="@("Direct From Website")" Disabled="true" Variant="Variant.Outlined"/>
+        }
+        else
+        {
+            <MudAutocomplete @ref="@_staffList" T="UserDetailsDto" Label="@L["Booked By"]" For="@(() => RequestModel.StaffMember)"
+                             @bind-Value="RequestModel.StaffMember" CoerceText="true" SearchFuncWithCancel="@SearchStaff" AnchorOrigin="Origin.BottomCenter" Variant="Variant.Outlined" Required="false"
+                             ShowProgressIndicator="true"
+                             MinCharacters="3"
+                             DebounceInterval="300"
+                             KeyDownPreventDefault="true"
+                             ToStringFunc="@(e => e == null ? null : GetUserDetailsLabel(e))"/>
+        }
     </MudItem>
 }
 
@@ -130,7 +137,14 @@ else
 
                 </MudTd>
                 <MudTd DataLabel="Edit" Style="min-width: 0; width: 200px; text-align: right;">
-                    <MudButton Variant="Variant.Filled" Size="Size.Small" StartIcon="@Icons.Material.Filled.Edit" Class="me-2" Color="Color.Tertiary" OnClick="(() => InvokeBookingItemDialog(itemContext, RequestModel))">Edit</MudButton>
+                    @if (BookingIsCancelled)
+                    {
+                        <MudButton Variant="Variant.Filled" Size="Size.Small" StartIcon="@Icons.Material.Filled.ViewAgenda" Class="me-2" Color="Color.Tertiary" OnClick="(() => InvokeBookingItemDialog(itemContext, RequestModel))">View</MudButton>
+                    }
+                    else
+                    {
+                        <MudButton Variant="Variant.Filled" Size="Size.Small" StartIcon="@Icons.Material.Filled.Edit" Class="me-2" Color="Color.Tertiary" OnClick="(() => InvokeBookingItemDialog(itemContext, RequestModel))">Edit</MudButton>
+                    }
                     @if (!FormDisabled || RequestModel.Items.Count(x => x.TourId.HasValue) > 1 && CanDelete)
                     {
                         <MudButton Variant="Variant.Filled" Size="Size.Small" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="(() => RemoveItemRow(RequestModel, itemContext.Id))">Delete</MudButton>
@@ -147,11 +161,11 @@ else
     [Inject] protected IMultiTenantContextAccessor<TravaloudTenantInfo> TenantContextAccessor { get; set; } = default!;
 
     [Inject] protected IAuthorizationService AuthService { get; set; } = default!;
-    
+
     [Parameter] public required TourBookingViewModel RequestModel { get; set; }
 
     [Parameter] public EntityServerTableContext<BookingDto, DefaultIdType, TourBookingViewModel> Context { get; set; }
-    
+
     [CascadingParameter] private TravaloudTenantInfo? TenantInfo { get; set; }
 
     private MudAutocomplete<UserDetailsDto> _guestsList = default!;
@@ -161,26 +175,29 @@ else
     private MudTable<UpdateBookingItemRequest> _itemsTable = default!;
 
     private bool FormDisabled { get; set; }
-    
+
     private bool BookingIsCancelled { get; set; }
-    
+
     private bool IsUpdate { get; set; }
-    
+
     private bool CanDelete { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
         var authState = await AuthState.GetAuthenticationStateAsync();
         var user = authState.User;
-        
+
         FormDisabled = RequestModel.IsPaid || (RequestModel.Refunded.HasValue && RequestModel.Refunded.Value) || (RequestModel.Cancelled.HasValue && RequestModel.Cancelled.Value);
         BookingIsCancelled = (RequestModel.Cancelled.HasValue && RequestModel.Cancelled.Value);
         IsUpdate = RequestModel.Id != DefaultIdType.Empty;
 
-        CanDelete = await AuthService.HasPermissionAsync(user, TravaloudAction.Delete, TravaloudResource.TourBookings); 
-        
+        CanDelete = await AuthService.HasPermissionAsync(user, TravaloudAction.Delete, TravaloudResource.TourBookings);
+
         if (IsUpdate && RequestModel.CreatedBy.HasValue)
         {
+            if (RequestModel.CreatedBy == DefaultIdType.Empty && RequestModel.GuestId != null)
+                    RequestModel.CreatedBy = DefaultIdType.Parse(RequestModel.GuestId);
+
             var staffMember = await UserService.GetAsync(RequestModel.CreatedBy.Value.ToString(), CancellationToken.None);
             RequestModel.StaffMember = staffMember;
         }
@@ -190,7 +207,7 @@ else
             RequestModel.Items = RequestModel.Items.Select(x =>
             {
                 if (x.TourCategoryId.HasValue) return x;
-                
+
                 var matchedTour = RequestModel.Tours.FirstOrDefault(t => t.Id == x.TourId);
                 if (matchedTour != null)
                 {
@@ -276,6 +293,7 @@ else
             // {nameof(TourBookingItem.Tours), tourBooking.Tours},
             {nameof(TourBookingItem.TourCategories), tourBooking.Categories},
             {nameof(TourBookingItem.CanDelete), CanDelete},
+            {nameof(TourBookingItem.BookingIsCancelled), BookingIsCancelled},
         };
 
         var dialog = await DialogService.ShowAsync<TourBookingItem>(string.Empty, parameters, options);
@@ -348,4 +366,3 @@ else
     }
 
 }
-

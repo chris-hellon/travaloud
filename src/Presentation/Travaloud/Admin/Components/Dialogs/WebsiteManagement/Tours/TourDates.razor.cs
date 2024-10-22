@@ -2,6 +2,7 @@ using Blazored.FluentValidation;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using MudBlazor;
+using Org.BouncyCastle.Ocsp;
 using Travaloud.Admin.Components.EntityTable;
 using Travaloud.Admin.Components.Pages.WebsiteManagement.Tours;
 using Travaloud.Application.Catalog.Tours.Commands;
@@ -30,11 +31,14 @@ public partial class TourDates : ComponentBase
     private EditContext? EditContext { get; set; }
 
     private DateRange? DateRange { get; set; }
-    
+
+    private DefaultIdType AllPricesId { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
         EditContext = new EditContext(RequestModel);
-
+        AllPricesId = DefaultIdType.NewGuid();
+        
         await base.OnInitializedAsync();
     }
 
@@ -56,57 +60,15 @@ public partial class TourDates : ComponentBase
                     () =>
                     {
                         Tour.TourDates ??= new List<TourDateRequest>();
-                        
-                        var datePrice = Tour.TourPrices?.FirstOrDefault(x => x.Id == RequestModel.TourPriceId);
 
-                        if (datePrice == null || DateRange == null || !DateRange.Start.HasValue ||
-                            !DateRange.End.HasValue) return Task.CompletedTask;
+                        if (RequestModel.TourPriceId.HasValue && RequestModel.TourPriceId.Value != AllPricesId)
+                            AddPrices(RequestModel.TourPriceId);
+                        else
                         {
-                            var dates = GetDatesInRange(DateRange.Start.Value, DateRange.End.Value);
-
-                            const int yearLimit = 1;
-                            const int recordLimit = 500;
+                            if (Tour.TourPrices == null) return Task.CompletedTask;
                             
-                            for (var i = 0; i < dates.Count; i++)
-                            {
-                                var date = dates[i];
-                                var startDate = date.Date + RequestModel.StartTime;
-
-                                if (!startDate.HasValue) continue;
-                                
-                                if (startDate > DateTime.Now.AddYears(yearLimit))
-                                {
-                                    Snackbar.Add($"Dates greater than {DateTime.Now.AddYears(yearLimit).ToShortDateString()} were unable to be added.", Severity.Info);
-                                    break;
-                                }
-                                
-                                if (i + 1 >= recordLimit)
-                                {
-                                    Snackbar.Add($"A maximum of {recordLimit} dates can be added per request. Any dates from {startDate.Value.Date.ToShortDateString()} onwards have not been added.", Severity.Info);
-                                    break;
-                                }
-                                
-                                var startTime = startDate.Value.TimeOfDay;
-                                
-                                var endDate = DateTimeUtils.CalculateEndDate(startDate.Value, datePrice.DayDuration, datePrice.NightDuration, datePrice.HourDuration);
-                                var endTime = endDate.TimeOfDay;
-                                
-                                var dateRequest = new TourDateRequest()
-                                {
-                                    AvailableSpaces = Tour.MaxCapacity,
-                                    Id = DefaultIdType.NewGuid(),
-                                    PriceOverride = RequestModel.PriceOverride,
-                                    EndDate = endDate,
-                                    EndTime = endTime,
-                                    StartDate = startDate,
-                                    StartTime = startTime,
-                                    TourId = RequestModel.TourId,
-                                    TourPriceId = RequestModel.TourPriceId
-                                };
-
-                                Tour.TourDates?.Add(dateRequest);
-                                datePrice.Dates?.Add(dateRequest);
-                            }
+                            foreach (var price in Tour.TourPrices)
+                                AddPrices(price.Id);
                         }
 
                         return Task.CompletedTask;
@@ -125,7 +87,66 @@ public partial class TourDates : ComponentBase
 
         await LoadingService.ToggleLoaderVisibility(false);
     }
-    
+
+    private void AddPrices(DefaultIdType? tourPriceId)
+    {
+        var datePrice = Tour.TourPrices?.FirstOrDefault(x => x.Id == tourPriceId);
+
+        if (datePrice == null || DateRange == null || !DateRange.Start.HasValue ||
+            !DateRange.End.HasValue) return;
+        {
+            var dates = GetDatesInRange(DateRange.Start.Value, DateRange.End.Value);
+
+            const int yearLimit = 1;
+            const int recordLimit = 500;
+
+            for (var i = 0; i < dates.Count; i++)
+            {
+                var date = dates[i];
+                var startDate = date.Date + RequestModel.StartTime;
+
+                if (!startDate.HasValue) continue;
+
+                if (startDate > DateTime.Now.AddYears(yearLimit))
+                {
+                    Snackbar.Add(
+                        $"Dates greater than {DateTime.Now.AddYears(yearLimit).ToShortDateString()} were unable to be added.",
+                        Severity.Info);
+                    break;
+                }
+
+                if (i + 1 >= recordLimit)
+                {
+                    Snackbar.Add(
+                        $"A maximum of {recordLimit} dates can be added per request. Any dates from {startDate.Value.Date.ToShortDateString()} onwards have not been added.",
+                        Severity.Info);
+                    break;
+                }
+
+                var startTime = startDate.Value.TimeOfDay;
+
+                var endDate = DateTimeUtils.CalculateEndDate(startDate.Value, datePrice.DayDuration, datePrice.NightDuration, datePrice.HourDuration);
+                var endTime = endDate.TimeOfDay;
+
+                var dateRequest = new TourDateRequest()
+                {
+                    AvailableSpaces = Tour.MaxCapacity,
+                    Id = DefaultIdType.NewGuid(),
+                    PriceOverride = RequestModel.PriceOverride,
+                    EndDate = endDate,
+                    EndTime = endTime,
+                    StartDate = startDate,
+                    StartTime = startTime,
+                    TourId = RequestModel.TourId,
+                    TourPriceId = tourPriceId
+                };
+
+                Tour.TourDates?.Add(dateRequest);
+                datePrice.Dates?.Add(dateRequest);
+            }
+        }
+    }
+
     private static List<DateTime> GetDatesInRange(DateTime startDate, DateTime endDate)
     {
         var datesInRange = new List<DateTime>();
@@ -136,5 +157,20 @@ public partial class TourDates : ComponentBase
         }
 
         return datesInRange;
+    }
+
+    private string PriceToString(DefaultIdType? tourPriceId)
+    {
+        if (Tour.TourPrices == null) return string.Empty;
+
+        if (tourPriceId != null && tourPriceId.Value == AllPricesId)
+            return "All Prices";
+
+        if (!tourPriceId.HasValue) return string.Empty;
+        
+        var tourPrice = Tour.TourPrices.FirstOrDefault(x => x.Id == tourPriceId.Value);
+
+        return tourPrice != null ? $"${tourPrice.Price} {tourPrice.Title}" : string.Empty;
+
     }
 }

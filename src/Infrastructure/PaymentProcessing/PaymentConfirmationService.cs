@@ -33,7 +33,7 @@ public class PaymentConfirmationService : IPaymentConfirmationService
     }
 
     public async Task<CreateBookingRequest> CreateBookingRequest(DefaultIdType guestId, BasketModel basket,
-        string stripeSessionId)
+        string? stripeSessionId = null)
     {
         var propertyBookings = basket.Items.Where(x => x.PropertyId.HasValue);
         var tourBookings = basket.Items.Where(x => x.TourId.HasValue);

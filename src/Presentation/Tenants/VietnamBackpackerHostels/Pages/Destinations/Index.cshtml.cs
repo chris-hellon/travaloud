@@ -4,12 +4,12 @@ namespace VietnamBackpackerHostels.Pages.Destinations;
 
 public class IndexModel : TravaloudBasePageModel
 {
-    public override string MetaDescription()
+    public override string MetaDescription(string? overrideValue = null)
     {
         return "Discover comfortable and affordable backpacker hostels in Vietnam with Vietnam Backpacker Hostels. Choose from a range of locations across the country to find the perfect base for your travels.";
     }
 
-    public override string MetaKeywords()
+    public override string MetaKeywords(string? overrideValue = null)
     {
         return "Vietnam Backpacker Hostels, backpacker hostels, affordable hostels, comfortable hostels, Vietnam travel, backpacker accommodation, budget-friendly hostels.";
     }

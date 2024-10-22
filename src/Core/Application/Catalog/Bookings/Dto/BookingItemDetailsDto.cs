@@ -15,7 +15,7 @@ public class BookingItemDetailsDto
     {
         get
         {
-            if (Guests != null) return Amount * (Guests.Count + 1);
+            if (Guests != null && Guests.Count != 0) return Amount * (Guests.Count + 1);
 
             return Amount;
         }

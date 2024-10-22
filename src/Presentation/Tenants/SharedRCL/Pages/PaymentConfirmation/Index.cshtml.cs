@@ -5,6 +5,7 @@ using Travaloud.Application.Common.Extensions;
 using Travaloud.Application.Common.Interfaces;
 using Travaloud.Application.Common.Mailing;
 using Travaloud.Application.Identity.Users;
+using Travaloud.Application.Mailing;
 using Travaloud.Application.PaymentProcessing;
 using Travaloud.Application.PaymentProcessing.Commands;
 using Travaloud.Application.PaymentProcessing.Queries;
@@ -19,11 +20,11 @@ public class IndexModel : TravaloudBasePageModel
     private readonly IPaymentConfirmationService _paymentConfirmationService;
     private readonly IJobService _jobService;
     private readonly IUserService _userService;
-    
+
     public IndexModel(IStripeService stripeService,
         ICloudbedsService cloudbedsService,
         IPaymentConfirmationService paymentConfirmationService,
-        IJobService jobService, 
+        IJobService jobService,
         IUserService userService)
     {
         _stripeService = stripeService;
@@ -54,7 +55,7 @@ public class IndexModel : TravaloudBasePageModel
             return LocalRedirect("/order-failed");
 
         Logger.Information("Processing Payment for stripeSessionId: {StripeSessionId}", stripeSessionId);
-        
+
         try
         {
             var stripeStatus = await _stripeService.GetStripePaymentStatus(
@@ -62,158 +63,175 @@ public class IndexModel : TravaloudBasePageModel
 
             if (stripeStatus == null)
                 return LocalRedirect("/order-failed");
-            
-            Logger.Information("StripeSessionId {StripeSessionId} status is {Status}", stripeSessionId, stripeStatus.Status);
-            
+
+            Logger.Information("StripeSessionId {StripeSessionId} status is {Status}", stripeSessionId,
+                stripeStatus.Status);
+
             paymentIntentId = stripeStatus.PaymentIntentId;
-            var cardToken = stripeStatus.CustomerId; 
+            var cardToken = stripeStatus.CustomerId;
             paymentAuthorizationCode = stripeStatus.PaymentIntent.LatestChargeId;
-            
-            if (string.IsNullOrEmpty(paymentIntentId) || string.IsNullOrEmpty(cardToken) || string.IsNullOrEmpty(paymentAuthorizationCode))
+
+            if (string.IsNullOrEmpty(paymentIntentId) || string.IsNullOrEmpty(cardToken) ||
+                string.IsNullOrEmpty(paymentAuthorizationCode))
                 return await RefundAndFail(bookingId, paymentAuthorizationCode,
                     stripeStatus.PaymentIntentId, Basket.Total);
-                
+
             if (stripeStatus.Status == "complete")
-            { 
-                var guestId = Guid.Parse(stripeStatus.ClientReferenceId);
+            {
+                bookingId = Guid.Parse(stripeStatus.ClientReferenceId);
 
-                var errorMessages = new List<string>();
+                //var errorMessages = new List<string>();
 
-                // We need to check if availability has changed since the session was created 
-                Basket = await errorMessages.CheckCloudbedsReservations(Basket, TenantWebsiteService, _cloudbedsService, BasketService);
+                //// We need to check if availability has changed since the session was created 
+                // Basket = await errorMessages.CheckCloudbedsReservations(Basket, TenantWebsiteService, _cloudbedsService, BasketService);
+                //
+                // if (errorMessages.Count != 0)
+                // {
+                //     StatusMessage = string.Join(", ", errorMessages);
+                //     StatusSeverity = "danger";
+                //
+                //     return await RefundAndFail(bookingId, paymentAuthorizationCode,
+                //         stripeStatus.PaymentIntentId, Basket.Total);
+                // }
 
-                if (errorMessages.Count != 0)
-                {
-                    StatusMessage = string.Join(", ", errorMessages);
-                    StatusSeverity = "danger";
-
-                    return await RefundAndFail(bookingId, paymentAuthorizationCode,
-                        stripeStatus.PaymentIntentId, Basket.Total);
-                }
-
-                var createBookingRequest = await _paymentConfirmationService.CreateBookingRequest(guestId, Basket, stripeSessionId);
-                bookingId = await BookingService.CreateAsync(createBookingRequest);
-
+                // var createBookingRequest = await _paymentConfirmationService.CreateBookingRequest(guestId, Basket, stripeSessionId);
+                // bookingId = await BookingService.CreateAsync(createBookingRequest);
+                //
                 if (!bookingId.HasValue)
                 {
                     return await RefundAndFail(bookingId, paymentAuthorizationCode,
                         stripeStatus.PaymentIntentId, Basket.Total);
                 }
 
-                Logger.Information("Booking {BookingId} created for StripeSessionId {StripeSessionId} ", bookingId, stripeSessionId);
-                
+                Logger.Information("Booking {BookingId} created for StripeSessionId {StripeSessionId} ", bookingId,
+                    stripeSessionId);
+
                 var booking = await BookingService.GetAsync(bookingId.Value);
 
-                await _paymentConfirmationService.UpdatePaymentIntentDescription(
-                    new UpdatePaymentIntentDescriptionRequest(stripeStatus.PaymentIntent, booking.InvoiceId));
-                
-                var propertyBookingsProcessed = await _paymentConfirmationService.ProcessPropertyBookings(
-                    Basket,
-                    booking,
-                    cardToken,
-                    paymentAuthorizationCode,
-                    TenantWebsiteService,
-                    _cloudbedsService,
-                    BookingService
-                );
-                
-                if (!propertyBookingsProcessed)
-                    return await RefundAndFail(bookingId.Value, paymentAuthorizationCode,
-                        stripeStatus.PaymentIntentId, Basket.Total);
-                
-                await BookingService.FlagBookingAsPaidAsync(bookingId.Value, new FlagBookingAsPaidRequest()
+                // await _paymentConfirmationService.UpdatePaymentIntentDescription(
+                //     new UpdatePaymentIntentDescriptionRequest(stripeStatus.PaymentIntent, booking.InvoiceId));
+
+                // var propertyBookingsProcessed = await _paymentConfirmationService.ProcessPropertyBookings(
+                //     Basket,
+                //     booking,
+                //     cardToken,
+                //     paymentAuthorizationCode,
+                //     TenantWebsiteService,
+                //     _cloudbedsService,
+                //     BookingService
+                // );
+                //
+                // if (!propertyBookingsProcessed)
+                //     return await RefundAndFail(bookingId.Value, paymentAuthorizationCode,
+                //         stripeStatus.PaymentIntentId, Basket.Total);
+
+                if (!booking.IsPaid)
                 {
-                    Id = bookingId.Value
-                });
+                    await BookingService.FlagBookingAsPaidAsync(bookingId.Value, new FlagBookingAsPaidRequest()
+                    {
+                        Id = bookingId.Value
+                    });
+                }
 
                 BookingId = booking.InvoiceId;
                 BookingDate = booking.BookingDate;
 
-                Basket.Items = Basket.Items.Select(x =>
+                if (!booking.ConfirmationEmailSent.HasValue || !booking.ConfirmationEmailSent.Value)
                 {
-                    if (!x.TourId.HasValue) return x;
-                    if (Tours != null) x.Tour = AllTours.FirstOrDefault(t => t.Id == x.TourId);
-                    return x;
-                }).ToList();
-                
-                // Send confirmation email
-                var emailModel = new BookingConfirmationTemplateModel(
-                    TenantName,
-                    MailSettings.PrimaryBackgroundColor,
-                    MailSettings.SecondaryBackgroundColor,
-                    MailSettings.HeaderBackgroundColor,
-                    MailSettings.TextColor,
-                    MailSettings.LogoImageUrl,
-                    Basket,
-                    booking.InvoiceId,
-                    $"{HttpContextAccessor.HttpContext?.Request.Scheme}://{HttpContextAccessor.HttpContext?.Request.Host}{HttpContextAccessor.HttpContext?.Request.PathBase}/contact"
-                );
-
-                var emailHtml =
-                    await RazorPartialToStringRenderer.RenderPartialToStringAsync(
-                        $"/Pages/EmailTemplates/BookingConfirmation.cshtml", emailModel);
-
-                var mailRequest = new MailRequest(
-                    to: [Basket.Email!],
-                    subject: $"{TenantName} Order Confirmation",
-                    body: emailHtml,
-                    bcc: new List<string?> { MailSettings.ToAddress });
-                
-                _jobService.Enqueue(() => MailService.SendAsync(mailRequest));
-
-                var bookedTours = Basket.Items.Where(x => x.TourId.HasValue);
-
-                var basketItemModels = bookedTours as BasketItemModel[] ?? bookedTours.ToArray();
-                if (basketItemModels.Length != 0)
-                {
-                    var distinctSupplierIds = basketItemModels.Where(x => x.Tour != null).Select(x =>x.Tour.SupplierId.ToString()).Distinct().ToList();
-                    var suppliers = await _userService.SearchAsync(distinctSupplierIds, CancellationToken.None);
-                    
-                    foreach (var supplierId in distinctSupplierIds)
+                    Basket.Items = Basket.Items.Select(x =>
                     {
-                        if (string.IsNullOrEmpty(supplierId))
-                            continue;
-                        
-                        var supplier = suppliers.FirstOrDefault(x => x.Id == Guid.Parse(supplierId));
+                        if (!x.TourId.HasValue) return x;
+                        if (Tours != null) x.Tour = AllTours.FirstOrDefault(t => t.Id == x.TourId);
+                        return x;
+                    }).ToList();
 
-                        if (supplier == null || string.IsNullOrEmpty(supplier.Email))
-                            continue;
-                        
-                        // Send confirmation email
-                        var supplierEmailModel = new SupplierBookingConfirmationTemplateModel(
-                            TenantName,
-                            MailSettings.PrimaryBackgroundColor,
-                            MailSettings.SecondaryBackgroundColor,
-                            MailSettings.HeaderBackgroundColor,
-                            MailSettings.TextColor,
-                            MailSettings.LogoImageUrl,
-                            Basket,
-                            booking.InvoiceId,
-                            $"{HttpContextAccessor.HttpContext?.Request.Scheme}://{HttpContextAccessor.HttpContext?.Request.Host}{HttpContextAccessor.HttpContext?.Request.PathBase}/contact"
-                        )
+                    // Send confirmation email
+                    var emailModel = new BookingConfirmationTemplateModel(
+                        TenantName,
+                        MailSettings.PrimaryBackgroundColor,
+                        MailSettings.SecondaryBackgroundColor,
+                        MailSettings.HeaderBackgroundColor,
+                        MailSettings.TextColor,
+                        MailSettings.LogoImageUrl,
+                        Basket,
+                        booking.InvoiceId,
+                        $"{HttpContextAccessor.HttpContext?.Request.Scheme}://{HttpContextAccessor.HttpContext?.Request.Host}{HttpContextAccessor.HttpContext?.Request.PathBase}/contact"
+                    );
+
+                    var emailHtml =
+                        await RazorPartialToStringRenderer.RenderPartialToStringAsync(
+                            $"/Pages/EmailTemplates/BookingConfirmation.cshtml", emailModel);
+
+                    var mailRequest = new MailRequest(
+                        to: [Basket.Email!],
+                        subject: $"{TenantName} Order Confirmation",
+                        body: emailHtml,
+                        bcc: new List<string?> {MailSettings.ToAddress});
+
+                    _jobService.Enqueue(() => MailService.SendAsync(mailRequest));
+                    
+                    await BookingService.FlagBookingConfirmationEmailAsync(bookingId.Value,
+                        new FlagBookingConfirmationEmailRequest(bookingId.Value));
+
+                    var bookedTours = Basket.Items.Where(x => x.TourId.HasValue);
+
+                    var basketItemModels = bookedTours as BasketItemModel[] ?? bookedTours.ToArray();
+                    if (basketItemModels.Length != 0)
+                    {
+                        var distinctSupplierIds = basketItemModels.Where(x => x.Tour != null)
+                            .Select(x => x.Tour.SupplierId.ToString()).Distinct().ToList();
+                        var suppliers = await _userService.SearchAsync(distinctSupplierIds, CancellationToken.None);
+
+                        foreach (var supplierId in distinctSupplierIds)
                         {
-                            SupplierId = supplier.Id
-                        };
-                        
-                        var supplierEmailHtml =
-                            await RazorPartialToStringRenderer.RenderPartialToStringAsync(
-                                $"/Pages/EmailTemplates/SupplierBookingConfirmation.cshtml", supplierEmailModel);
-                        
-                        var supplierMailRequest = new MailRequest(
-                            to: [supplier.Email!],
-                            subject: $"{TenantName} Booking Confirmation",
-                            body: supplierEmailHtml,
-                            bcc: new List<string?> { MailSettings.ToAddress });
-                        
-                        _jobService.Enqueue(() => MailService.SendAsync(supplierMailRequest));
+                            if (string.IsNullOrEmpty(supplierId))
+                                continue;
+
+                            var supplier = suppliers.FirstOrDefault(x => x.Id == Guid.Parse(supplierId));
+
+                            if (supplier == null || string.IsNullOrEmpty(supplier.Email))
+                                continue;
+
+                            // Send confirmation email
+                            var supplierEmailModel = new SupplierBookingConfirmationTemplateModel(
+                                TenantName,
+                                MailSettings.PrimaryBackgroundColor,
+                                MailSettings.SecondaryBackgroundColor,
+                                MailSettings.HeaderBackgroundColor,
+                                MailSettings.TextColor,
+                                MailSettings.LogoImageUrl,
+                                Basket,
+                                booking.InvoiceId,
+                                $"{HttpContextAccessor.HttpContext?.Request.Scheme}://{HttpContextAccessor.HttpContext?.Request.Host}{HttpContextAccessor.HttpContext?.Request.PathBase}/contact"
+                            )
+                            {
+                                SupplierId = supplier.Id
+                            };
+
+                            var supplierEmailHtml =
+                                await RazorPartialToStringRenderer.RenderPartialToStringAsync(
+                                    $"/Pages/EmailTemplates/SupplierBookingConfirmation.cshtml", supplierEmailModel);
+
+                            var supplierMailRequest = new MailRequest(
+                                to: [supplier.Email!],
+                                subject: $"{TenantName} Booking Confirmation",
+                                body: supplierEmailHtml);
+
+                            _jobService.Enqueue(() => MailService.SendAsync(supplierMailRequest));
+                        }
                     }
+
+                    Logger.Information("Confirmation email sent for BookingId {BookingId}", bookingId);
                 }
 
-                Logger.Information("Confirmation email sent for BookingId {BookingId}", bookingId);
-                
                 if (!(bool) HttpContextAccessor.HttpContext?.Session.Keys.Contains("GuestId"))
                 {
                     HttpContextAccessor.HttpContext?.Session.Remove("GuestId");
+                }
+
+                if (!(bool) HttpContextAccessor.HttpContext?.Session.Keys.Contains("BookingId"))
+                {
+                    HttpContextAccessor.HttpContext?.Session.Remove("BookingId");
                 }
 
                 BasketService.EmptyBasket();
@@ -225,7 +243,7 @@ public class IndexModel : TravaloudBasePageModel
         {
             StatusMessage = ex.Message;
             StatusSeverity = "danger";
-            
+
             Logger.Error(ex.Message);
         }
 
@@ -245,7 +263,7 @@ public class IndexModel : TravaloudBasePageModel
             await BookingService.DeleteAsync(bookingId.Value);
 
         BasketService.EmptyBasket();
-        
+
         return LocalRedirect("/order-failed");
     }
 }

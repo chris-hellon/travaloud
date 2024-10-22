@@ -9,14 +9,19 @@ public class IndexModel : ContactPageModel
         
     }
     
-    public override string MetaKeywords()
+    public override Guid? PageId()
     {
-        return "contact us, get in touch, reach us, email us, phone us";
+        return new Guid("c919ea71-849c-4cc9-440d-08dc303eaa33");
+    }
+    
+    public override string MetaKeywords(string? overrideValue = null)
+    {
+        return base.MetaKeywords("contact us, get in touch, reach us, email us, phone us");
     }
 
-    public override string MetaDescription()
+    public override string MetaDescription(string? overrideValue = null)
     {
-        return "Need to get in touch with Fuse Hostels and Travels? Contact us by email or phone and we'll get back to you as soon as possible.";
+        return base.MetaDescription("Need to get in touch with Fuse Hostels and Travels? Contact us by email or phone and we'll get back to you as soon as possible.");
     }
 
     public IEnumerable<OvalContainerComponent>? OvalContainers { get; private set; } 

@@ -6,7 +6,7 @@
 <MudDialog>
     <TitleContent>
         <MudText Typo="Typo.h6">
-            @BookingExports.Count Guests for @BookingExports.First().TourName @StartDate.ToString("hh:mm tt")
+            @BookingExports.Count Guests for @BookingExports.First().TourName @StartDate.ToShortDateString() @StartDate.ToString("hh:mm tt")
         </MudText>
     </TitleContent>
     <DialogContent>

@@ -113,7 +113,7 @@ public partial class TourBookings
             ],
             enableAdvancedSearch: false,
             canViewEntityFunc: booking => booking.IsPaid || (booking.Refunded.HasValue && booking.Refunded.Value),
-            // canDeleteEntityFunc: booking => !booking.IsPaid,
+            canDeleteEntityFunc: booking => !booking.IsPaid,
             canUpdateEntityFunc: booking => !booking.Cancelled.HasValue || !booking.Cancelled.Value,
             idFunc: booking => booking.Id,
             searchFunc: async filter => await SearchTourBookings(filter),
@@ -135,9 +135,8 @@ public partial class TourBookings
             getDetailsFunc: async id => await GetTourBooking(id),
             createFunc: async booking => await CreateTourBooking(booking),
             updateFunc: async (id, booking) => await UpdateTourBooking(id, booking),
-            // deleteFunc: async id => await BookingsService.DeleteAsync(id),
-            exportFunc: async filter => await ExportTourBooking(filter),
-            deleteAction: string.Empty
+            deleteFunc: async id => await BookingsService.DeleteAsync(id),
+            exportFunc: async filter => await ExportTourBooking(filter)
         );
     }
 
@@ -425,34 +424,42 @@ public partial class TourBookings
     /// <param name="guestEmail"></param>
     private async Task GenerateBookingQrCode(DefaultIdType bookingId, string guestEmail)
     {
-        await LoadingService.ToggleLoaderVisibility(true);
-
-        var booking = await BookingsService.GetAsync(bookingId);
-
-        if (booking.IsPaid)
+        await ServiceHelper.ExecuteCallGuardedAsync(async () =>
         {
+            await LoadingService.ToggleLoaderVisibility(true);
+
+            var booking = await BookingsService.GetAsync(bookingId);
+
+            if (booking.IsPaid)
+            {
+                await LoadingService.ToggleLoaderVisibility(false);
+                throw new CustomException("Booking has already been paid, please refresh the page.");
+            }
+
+            var stripeCheckoutUrl = await StripeService.CreateStripeQrCodeUrl(new CreateStripeQrCodeRequest()
+            {
+                BookingId = bookingId,
+                GuestEmail = guestEmail
+            });
+
+            using MemoryStream ms = new();
+            QRCodeGenerator qrCodeGenerate = new();
+            var qrCodeData = qrCodeGenerate.CreateQrCode(stripeCheckoutUrl, QRCodeGenerator.ECCLevel.Q);
+            QRCode qrCode = new(qrCodeData);
+            using var qrBitMap = qrCode.GetGraphic(20);
+            qrBitMap.Save(ms, ImageFormat.Png);
+
+            var base64 = Convert.ToBase64String(ms.ToArray());
+            var qrCodeImageUrl = $"data:image/png;base64,{base64}";
+            
             await LoadingService.ToggleLoaderVisibility(false);
-            throw new CustomException("Booking has already been paid, please refresh the page.");
-        }
-
-        var stripeCheckoutUrl = await StripeService.CreateStripeQrCodeUrl(new CreateStripeQrCodeRequest()
-        {
-            BookingId = bookingId,
-            GuestEmail = guestEmail
-        });
-
-        using MemoryStream ms = new();
-        QRCodeGenerator qrCodeGenerate = new();
-        var qrCodeData = qrCodeGenerate.CreateQrCode(stripeCheckoutUrl, QRCodeGenerator.ECCLevel.Q);
-        QRCode qrCode = new(qrCodeData);
-        using var qrBitMap = qrCode.GetGraphic(20);
-        qrBitMap.Save(ms, ImageFormat.Png);
-
-        var base64 = Convert.ToBase64String(ms.ToArray());
-        var qrCodeImageUrl = $"data:image/png;base64,{base64}";
-
-        await LoadingService.ToggleLoaderVisibility(false);
-        await InvokeStripeQrCodeUrl(qrCodeImageUrl);
+            await InvokeStripeQrCodeUrl(qrCodeImageUrl);
+        },
+        Snackbar,
+        Logger);
+        
+        if (LoadingService.LoaderVisible)
+            await LoadingService.ToggleLoaderVisibility(false);
     }
 
     /// <summary>
@@ -462,24 +469,27 @@ public partial class TourBookings
     /// <param name="guestEmail"></param>
     private async Task GeneratePaymentEmail(DefaultIdType bookingId, string guestEmail)
     {
-        await LoadingService.ToggleLoaderVisibility(true);
-
-        var booking = await BookingsService.GetAsync(bookingId);
-
-        if (booking.IsPaid)
-        {
-            await LoadingService.ToggleLoaderVisibility(false);
-            throw new CustomException("Booking has already been paid, please refresh the page.");
-        }
-
-        var stripeCheckoutUrl = await StripeService.CreateStripeQrCodeUrl(new CreateStripeQrCodeRequest()
-        {
-            BookingId = booking.Id,
-            GuestEmail = guestEmail
-        });
-
         await ServiceHelper.ExecuteCallGuardedAsync(async () =>
             {
+                if (guestEmail.IsNullOrEmpty())
+                    throw new NotFoundException("The Guest does not have an email address. Please ensure an email address is allocated to the Guest.");
+        
+                await LoadingService.ToggleLoaderVisibility(true);
+        
+                var booking = await BookingsService.GetAsync(bookingId);
+
+                if (booking.IsPaid)
+                {
+                    await LoadingService.ToggleLoaderVisibility(false);
+                    throw new CustomException("Booking has already been paid, please refresh the page.");
+                }
+                
+                var stripeCheckoutUrl = await StripeService.CreateStripeQrCodeUrl(new CreateStripeQrCodeRequest()
+                {
+                    BookingId = booking.Id,
+                    GuestEmail = guestEmail
+                });
+                
                 var emailHtml = new ComponentRenderer<EmailTemplates.PaymentReminder>()
                     .Set(c => c.TenantName, TenantInfo.Name)
                     .Set(x => x.PrimaryBackgroundColor, TenantInfo.PrimaryHoverColor)
@@ -588,7 +598,9 @@ public partial class TourBookings
                 await ServiceHelper.ExecuteCallGuardedAsync(
                     async () =>
                     {
-                        await BookingsService.RefundBooking(new RefundBookingRequest(bookingId, refundAmount, false, true));
+                        var isPartialRefund = refundAmount < booking.TotalAmount;
+                        
+                        await BookingsService.RefundBooking(new RefundBookingRequest(bookingId, refundAmount, false, isPartialRefund));
                     },
                     Snackbar,
                     Logger, "Booking Refunded Successfully");

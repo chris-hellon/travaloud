@@ -40,6 +40,10 @@
 
     <MudItem xs="12" md="2">
         <MudSwitch @bind-Checked="@Tour.WaiverRequired" Color="Color.Primary" Label="Is a Waiver Required?" LabelPosition="LabelPosition.Start"/>
+        @if (!Tour.PublishToSite.HasValue || !Tour.PublishToSite.Value)
+        {
+            <MudSwitch @bind-Checked="@Tour.ShowBookingQRCode" Color="Color.Primary" Label="Show Booking QR Code?" LabelPosition="LabelPosition.Start"/>
+        }
     </MudItem>
 </MudGrid>
 

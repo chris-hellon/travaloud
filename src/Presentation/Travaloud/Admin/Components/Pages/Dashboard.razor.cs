@@ -3,6 +3,7 @@ using Mapster;
 using Microsoft.AspNetCore.Components;
 using Microsoft.IdentityModel.Tokens;
 using MudBlazor;
+using MudBlazor.Utilities;
 using Travaloud.Admin.Components.EntityTable;
 using Travaloud.Application.BackgroundJobs;
 using Travaloud.Application.BackgroundJobs.Commands;
@@ -27,6 +28,10 @@ public partial class Dashboard
     [Parameter] public decimal? TodaysBookingsRevenue { get; set; }
     [Parameter] public int? TotalBookingsCount { get; set; }
     [Parameter] public decimal? TotalBookingsRevenue { get; set; }
+    [Parameter] public int? TotalCancelledCount { get; set; }
+    [Parameter] public decimal? TotalCancelledRevenue { get; set; }
+    [Parameter] public int? TotalRefundedCount { get; set; }
+    [Parameter] public decimal? TotalRefundedRevenue { get; set; }
 
     [Parameter] public IEnumerable<BookingItemDetailsDto>? PaidTourBookings { get; set; }
     [Parameter] public IEnumerable<BookingItemDetailsDto>? AllTourBookings { get; set; }
@@ -143,6 +148,10 @@ public partial class Dashboard
         TodaysBookingsRevenue = statsRequest.TodaysBookingsRevenue;
         TotalBookingsCount = statsRequest.TotalBookingsCount;
         TotalBookingsRevenue = statsRequest.TotalBookingsRevenue;
+        TotalCancelledCount = statsRequest.TotalCancelledCount;
+        TotalCancelledRevenue = statsRequest.TotalCancelledRevenue;
+        TotalRefundedCount = statsRequest.TotalRefundedCount;
+        TotalRefundedRevenue = statsRequest.TotalRefundedRevenue;
     }
 
     private string GetBookingStatus(BookingExportDto booking)
@@ -155,6 +164,16 @@ public partial class Dashboard
             booking.BookingAmountOutstanding is > 0 ? "Partially Paid" : "Unpaid";
     }
     
+    private MudColor? GetBookingColor(BookingExportDto booking)
+    {
+        return (booking.Cancelled.HasValue && booking.Cancelled.Value) || (booking.NoShow.HasValue && booking.NoShow.Value) ||
+               !booking.BookingIsPaid && (!booking.BookingRefunded.HasValue || !booking.BookingRefunded.Value)
+            ? CurrentTheme?.Palette.Error
+            : booking.CheckedIn.HasValue && booking.CheckedIn.Value ?
+                new MudColor(Colors.Green.Default)
+                : null;
+    }
+    
     private string GetBookingStatus(BookingDto booking)
     {
         return booking.Cancelled.HasValue && booking.Cancelled.Value ? "Cancelled" :
@@ -165,6 +184,16 @@ public partial class Dashboard
             booking.AmountOutstanding is > 0 ? "Partially Paid" : "Unpaid";
     }
 
+    private MudColor? GetBookingColor(BookingDto booking)
+    {
+        return (booking.Cancelled.HasValue && booking.Cancelled.Value) || (booking.NoShow.HasValue && booking.NoShow.Value) ||
+               !booking.IsPaid && (!booking.Refunded.HasValue || !booking.Refunded.Value)
+            ? CurrentTheme?.Palette.Error
+            : booking.CheckedIn.HasValue && booking.CheckedIn.Value ?
+                new MudColor(Colors.Green.Default)
+                : null;
+    }
+    
     private void LoadTables()
     {
         TodaysDeparturesContext = new EntityServerTableContext<BookingExportDto, DefaultIdType, BookingExportDto>(
@@ -181,10 +210,7 @@ public partial class Dashboard
                 new EntityField<BookingExportDto>(booking => booking.EndDate.TimeOfDay, L["End Time"], "EndDate"),
                 new EntityField<BookingExportDto>(
                     GetBookingStatus, L["Status"], "IsPaid",
-                    Color: booking => (booking.Cancelled.HasValue && booking.Cancelled.Value) || (booking.NoShow.HasValue && booking.NoShow.Value) ||
-                        !booking.BookingIsPaid && (!booking.BookingRefunded.HasValue || !booking.BookingRefunded.Value)
-                            ? CurrentTheme?.Palette.Error
-                            : null),
+                    Color: GetBookingColor),
                 new EntityField<BookingExportDto>(booking => booking.WaiverSigned, L["Waiver Signed"],
                     "BookingWaiverSigned"),
             ],
@@ -199,7 +225,7 @@ public partial class Dashboard
                 adaptedFilter.TourStartDate = DateTime.Now;
                 adaptedFilter.TourEndDate = DateTime.Now;
                 adaptedFilter.TourId = SearchTourId;
-                adaptedFilter.Description = SearchDescription;
+                //adaptedFilter.Description = SearchDescription;
                 adaptedFilter.TenantId = TenantInfo.Id;
 
                 var todaysTours = await DashboardService.GetTourBookingItemsByDateAsync(
@@ -236,10 +262,7 @@ public partial class Dashboard
                 new EntityField<BookingExportDto>(booking => booking.EndDate.TimeOfDay, L["End Time"], "EndDate"),
                 new EntityField<BookingExportDto>(
                     GetBookingStatus, L["Status"], "IsPaid",
-                    Color: booking => (booking.Cancelled.HasValue && booking.Cancelled.Value) || (booking.NoShow.HasValue && booking.NoShow.Value) ||
-                                      !booking.BookingIsPaid && (!booking.BookingRefunded.HasValue || !booking.BookingRefunded.Value)
-                        ? CurrentTheme?.Palette.Error
-                        : null),
+                    Color: GetBookingColor),
                 new EntityField<BookingExportDto>(booking => booking.WaiverSigned, L["Waiver Signed"],
                     "BookingWaiverSigned"),
             ],
@@ -254,7 +277,7 @@ public partial class Dashboard
                 adaptedFilter.TourStartDate = DateTime.Now.AddDays(1);
                 adaptedFilter.TourEndDate = DateTime.Now.AddDays(1);
                 adaptedFilter.TourId = SearchTomorrowTourId;
-                adaptedFilter.Description = SearchTomorrowDescription;
+                //adaptedFilter.Description = SearchTomorrowDescription;
                 adaptedFilter.TenantId = TenantInfo.Id;
 
                 var todaysTours = await DashboardService.GetTourBookingItemsByDateAsync(
@@ -289,9 +312,7 @@ public partial class Dashboard
                 new EntityField<BookingDto>(booking => $"$ {booking.TotalAmount:n2}", L["Total Amount"], "TotalAmount"),
                 new EntityField<BookingDto>(
                     GetBookingStatus, L["Status"], "IsPaid",
-                    Color: booking => booking.Cancelled.HasValue && booking.Cancelled.Value || booking.NoShow.HasValue && booking.NoShow.Value || !booking.IsPaid && (!booking.Refunded.HasValue || !booking.Refunded.Value)
-                        ? CurrentTheme.Palette.Error
-                        : null)
+                    Color: GetBookingColor)
             ],
             enableAdvancedSearch: false,
             searchFunc: async filter => await SearchTourBookings(filter),

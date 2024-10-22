@@ -37,6 +37,7 @@ public class TourWithoutDatesDto
     public string? TermsAndConditions { get; set; }
     public DefaultIdType? SupplierId { get; set; }
     public string? SupplierEmailText { get; set; }
+    public bool? ShowBookingQRCode { get; set; }
     
     public IList<TourPriceDto>? TourPrices { get; set; }
     public IList<TourItineraryDto>? TourItineraries { get; set; }

@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using AspNetCore.ReCaptcha;
 using Travaloud.Application.Catalog.Interfaces;
+using Travaloud.Application.Catalog.Pages.Queries;
 using Travaloud.Application.Catalog.TourEnquiries.Commands;
 using Travaloud.Application.Catalog.Tours.Dto;
 using Travaloud.Application.Catalog.Tours.Queries;
@@ -21,15 +22,25 @@ public abstract class TourPageModel : ContactBasePageModel<EmailTemplates.TourEn
     {
         return "TourEnquiryTemplate";
     }
+    
+    // public override Guid? PageId()
+    // {
+    //     var page = PagesService.SearchAsync(new SearchPagesRequest() {Title = $"Tours - {Tour?.Name}"}).Result;
+    //
+    //     if (page.Data.Count > 0)
+    //         return page.Data.First().Id;
+    //
+    //     return null;
+    // }
 
-    public override string MetaKeywords()
+    public override string MetaKeywords(string? overrideValue = null)
     {
-        return Tour?.MetaKeywords ?? base.MetaKeywords();
+        return Tour?.MetaKeywords ?? base.MetaKeywords(overrideValue);
     }
 
-    public override string MetaDescription()
+    public override string MetaDescription(string? overrideValue = null)
     {
-        return Tour?.MetaDescription ?? base.MetaDescription();
+        return Tour?.MetaDescription ?? base.MetaDescription(overrideValue);
     }
 
     public override string MetaImageUrl()

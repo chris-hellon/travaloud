@@ -30,12 +30,12 @@ public class IndexModel : TravaloudBasePageModel
         _propertiesService = propertiesService;
     }
 
-    public override string MetaKeywords()
+    public override string MetaKeywords(string? overrideValue = null)
     {
         return $"{PropertyName}, hostel booking, budget travel, backpacker accommodation";
     }
 
-    public override string MetaDescription()
+    public override string MetaDescription(string? overrideValue = null)
     {
         return $"Looking for budget-friendly backpacker accommodation in Vietnam? Look no further than {TenantName} - {PropertyName}. Book your stay now for an unforgettable experience.";
     }

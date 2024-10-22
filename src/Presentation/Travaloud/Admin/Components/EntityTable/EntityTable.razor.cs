@@ -65,6 +65,8 @@ public partial class EntityTable<TEntity, TId, TRequest>
     
     [Parameter] public bool Dense { get; set; }
     
+    [Parameter] public bool ExpandAdvancedSearch { get; set; }
+    
     [Inject] protected IAuthorizationService AuthService { get; set; } = default!;
 
     private bool _canSearch;
@@ -75,8 +77,6 @@ public partial class EntityTable<TEntity, TId, TRequest>
     private bool _canView;
     private bool _editNavigateTo;
     private bool _createNavigateTo;
-
-    private bool _advancedSearchExpanded;
 
     private MudTable<TEntity> _table = default!;
     public IEnumerable<TEntity>? EntityList;

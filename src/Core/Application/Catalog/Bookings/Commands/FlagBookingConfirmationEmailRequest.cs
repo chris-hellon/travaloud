@@ -6,6 +6,11 @@ namespace Travaloud.Application.Catalog.Bookings.Commands;
 public class FlagBookingConfirmationEmailRequest : IRequest<DefaultIdType>
 {
     public DefaultIdType Id { get; set; }
+
+    public FlagBookingConfirmationEmailRequest(DefaultIdType id)
+    {
+        Id = id;
+    }
 }
 
 internal class FlagBookingConfirmationEmailRequestHandler : IRequestHandler<FlagBookingConfirmationEmailRequest, DefaultIdType>

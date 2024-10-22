@@ -10,6 +10,7 @@ using Travaloud.Application.Basket.Queries;
 using Travaloud.Application.Catalog.Bookings.Commands;
 using Travaloud.Application.Catalog.Destinations.Dto;
 using Travaloud.Application.Catalog.Interfaces;
+using Travaloud.Application.Catalog.Pages.Dto;
 using Travaloud.Application.Catalog.PageSorting.Dto;
 using Travaloud.Application.Catalog.PageSorting.Queries;
 using Travaloud.Application.Catalog.Properties.Dto;
@@ -53,6 +54,12 @@ public class TravaloudBasePageModel : PageModel
 
     protected IPropertiesService PropertiesService =>
         (_propertiesService ??= HttpContext.RequestServices.GetService<IPropertiesService>()) ??
+        throw new InvalidOperationException();
+    
+    private IPagesService? _pagesService;
+
+    protected IPagesService PagesService =>
+        (_pagesService ??= HttpContext.RequestServices.GetService<IPagesService>()) ??
         throw new InvalidOperationException();
 
     private IBookingsService? _bookingService;
@@ -460,21 +467,33 @@ public class TravaloudBasePageModel : PageModel
     /// <summary>
     /// Retrieves a Tenants default Meta Keywords from appsettings.json
     /// </summary>
-    public virtual string MetaKeywords()
+    public virtual string MetaKeywords(string? overrideValue = null)
     {
+        if (PageDetails?.MetaKeywords != null)
+            return PageDetails.MetaKeywords;
+
+        if (!string.IsNullOrEmpty(overrideValue))
+            return overrideValue;
+
         if (MetaDataSettings.MetaKeywords != null)
             return MetaDataSettings.MetaKeywords;
 
         throw new Exception("No MetaKeywords provided in appsettings.json.");
     }
-
+    
     /// <summary>
     /// Retrieves a Tenants default Meta Description from appsettings.json
     /// </summary>
-    public virtual string MetaDescription()
+    public virtual string MetaDescription(string? overrideValue = null)
     {
+        if (PageDetails?.MetaDescription != null)
+            return PageDetails.MetaDescription;
+        
         if (MetaDataSettings.MetaDescription != null)
             return MetaDataSettings.MetaDescription;
+        
+        if (!string.IsNullOrEmpty(overrideValue))
+            return overrideValue;
 
         throw new Exception("No MetaDescription provided in appsettings.json.");
     }
@@ -493,6 +512,29 @@ public class TravaloudBasePageModel : PageModel
     public virtual Guid? PageId()
     {
         return null;
+    }
+
+    /// <summary>
+    /// Retrieves a Tenants Email Display name for sending mail from appsettings.json
+    /// </summary>
+    private PageDetailsDto? _pageDetails;
+
+    protected PageDetailsDto? PageDetails
+    {
+        get
+        {
+            if (_pageDetails != null)
+                return _pageDetails;
+
+            if (!PageId().HasValue) 
+                return _pageDetails;
+            
+            var page = PagesService.GetAsync(PageId()!.Value).Result;
+
+            _pageDetails = page;
+
+            return _pageDetails;
+        }
     }
 
     /// <summary>
@@ -1409,16 +1451,16 @@ public class TravaloudBasePageModel : PageModel
         {
             var basket = await BasketService.GetBasket();
 
-            if (!(bool) HttpContextAccessor.HttpContext?.Session.Keys.Contains("GuestId"))
+            if (!(bool) HttpContextAccessor.HttpContext?.Session.Keys.Contains("BookingId"))
                 return new JsonResult(new {clientSecret = ""});
 
-            var guestId = Guid.Parse(HttpContextAccessor.HttpContext?.Session.GetString("GuestId") ?? string.Empty);
+            var bookingId = Guid.Parse(HttpContextAccessor.HttpContext?.Session.GetString("BookingId") ?? string.Empty);
 
             var session = await StripeService.CreateStripeSessionClientSecret(
                 new CreateStripeSessionClientSecretRequest()
                 {
                     Basket = basket,
-                    GuestId = guestId,
+                    BookingId = bookingId,
                 });
 
             return JsonSuccessResult(new {clientSecret = session.ClientSecret});

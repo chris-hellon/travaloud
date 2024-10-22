@@ -29,6 +29,7 @@ public class UpdateBookingRequest : IRequest<DefaultIdType>
     public bool DoNotUpdateAmount { get; set; }
     public decimal? AmountOutstanding { get; set; }
     public bool? Cancelled {get; set; }
+    public bool StaffMemberRequired { get; set; } = true;
 
     public IList<UpdateBookingItemRequest> Items { get; set; } = [];
     public UserDetailsDto? Guest { get; set; }
@@ -67,10 +68,10 @@ public class UpdateBookingRequestHandler : IRequestHandler<UpdateBookingRequest,
             throw new DBConcurrencyException("Booking has been updated by another user.");
         }
         
-        if (request.StaffMember == null)
+        if (request.StaffMember == null && request.StaffMemberRequired)
             throw new CustomException("Please Select a Staff Member");
         
-        var createdBy = DefaultIdType.Parse(request.StaffMember.Id);
+        var createdBy = request.StaffMemberRequired ? DefaultIdType.Parse(request.StaffMember.Id) : booking.CreatedBy;
 
         // Update the booking properties
         var updatedBooking = booking.Update(

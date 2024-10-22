@@ -62,26 +62,6 @@ public static class BookingsExtensions
             // If a new Booking item
             if (currentBookingItem == null)
             {
-                if (updateItemRequest is not {StartDate: not null, EndDate: not null, Amount: not null}) throw new CustomException("No Start or End Date provided.");
-                
-                // Create a new booking item if not found
-                var newBookingItem = new BookingItem(
-                    updateItemRequest.StartDate.Value,
-                    updateItemRequest.EndDate.Value,
-                    updateItemRequest.Amount.Value,
-                    updateItemRequest.RoomQuantity,
-                    updateItemRequest.PropertyId,
-                    updateItemRequest.TourId,
-                    updateItemRequest.TourDateId,
-                    updateItemRequest.CloudbedsReservationId,
-                    updateItemRequest.CloudbedsPropertyId,
-                    updateItemRequest.PickupLocation,
-                    updateItemRequest.WaiverSigned,
-                    updateItemRequest.TourCategoryId,
-                    booking.CreatedBy);
-                    
-                newBookingItem.ProcessBookingItemGuests(updateItemRequest.Guests, userId);
-
                 if (updateItemRequest is not {TourDateId: not null, TourDate: not null})  throw new CustomException("No Tour Date provided.");
                 
                 var tourDate = await tourDateRepository.FirstOrDefaultAsync(new TourDateByIdSpec(updateItemRequest.TourDateId.Value), cancellationToken);
@@ -90,15 +70,34 @@ public static class BookingsExtensions
                 {
                     throw new NotFoundException("No tour date found.");
                 }
-                        
+
                 if (tourDate.AvailableSpaces < updateItemRequest.GuestQuantity)
                 {
                     throw new DBConcurrencyException("The request Tour Date no longer has enough spaces available. Please refresh the page and try again.");
                 }
-                        
+                
+                if (updateItemRequest is not {StartDate: not null, Amount: not null}) throw new CustomException("No Start or Amount provided.");
+                
                 var endDate = DateTimeUtils.CalculateEndDate(tourDate.StartDate, tourDate.TourPrice.DayDuration, tourDate.TourPrice.NightDuration, tourDate.TourPrice.HourDuration);
-                newBookingItem.SetEndDate(endDate);
-                        
+                
+                // Create a new booking item if not found
+                var newBookingItem = new BookingItem(
+                    updateItemRequest.StartDate.Value,
+                    endDate,
+                    updateItemRequest.Amount.Value,
+                    updateItemRequest.RoomQuantity,
+                    updateItemRequest.PropertyId,
+                    updateItemRequest.TourId,
+                    updateItemRequest.TourDateId,
+                    updateItemRequest.CloudbedsReservationId,
+                    updateItemRequest.CloudbedsPropertyId,
+                    updateItemRequest.OtherPickupLocation ?? updateItemRequest.PickupLocation,
+                    updateItemRequest.WaiverSigned,
+                    updateItemRequest.TourCategoryId,
+                    booking.CreatedBy);
+                    
+                newBookingItem.ProcessBookingItemGuests(updateItemRequest.Guests, userId);
+                
                 if (tourDate.AvailableSpaces > 0)
                 {
                     tourDate.AvailableSpaces -= updateItemRequest.GuestQuantity;
@@ -140,7 +139,7 @@ public static class BookingsExtensions
                     updateItemRequest.CloudbedsReservationId,
                     updateItemRequest.CloudbedsPropertyId,
                     null,
-                    updateItemRequest.PickupLocation,
+                    updateItemRequest.OtherPickupLocation ?? updateItemRequest.PickupLocation,
                     updateItemRequest.WaiverSigned,
                     updateItemRequest.TourCategoryId,
                     booking.CreatedBy,

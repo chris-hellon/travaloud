@@ -1,4 +1,6 @@
-﻿namespace Travaloud.Tenants.SharedRCL.Models.EmailTemplates;
+﻿using Travaloud.Application.Mailing;
+
+namespace Travaloud.Tenants.SharedRCL.Models.EmailTemplates;
 
 public class ContactTemplateModel : EmailTemplateBaseModel
 {

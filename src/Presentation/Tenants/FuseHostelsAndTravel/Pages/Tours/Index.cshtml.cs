@@ -4,14 +4,19 @@ namespace FuseHostelsAndTravel.Pages.Tours;
 
 public class IndexModel : TravaloudBasePageModel
 {
-    public override string MetaKeywords()
+    public override Guid? PageId()
     {
-        return "Vietnam tours, budget tours, adventure tours, group tours, Vietnam travel";
+        return new Guid("8d0879af-df6d-4eb2-440b-08dc303eaa33");
+    }
+    
+    public override string MetaKeywords(string? overrideValue = null)
+    {
+        return base.MetaKeywords(  "Vietnam tours, budget tours, adventure tours, group tours, Vietnam travel");
     }
 
-    public override string MetaDescription()
+    public override string MetaDescription(string? overrideValue = null)
     {
-        return "Explore Vietnam with our affordable and exciting budget tours. Join a group tour or customize your own adventure and discover all that Vietnam has to offer.";
+        return base.MetaDescription( "Explore Vietnam with our affordable and exciting budget tours. Join a group tour or customize your own adventure and discover all that Vietnam has to offer.");
     }
 
     [BindProperty]

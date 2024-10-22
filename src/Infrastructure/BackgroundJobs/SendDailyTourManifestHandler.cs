@@ -76,7 +76,6 @@ public class SendDailyTourManifestHandler : IRequestHandler<SendDailyTourManifes
                     to: [property.EmailAddress],
                     subject: $"Today's Tour Manifests for {request.TourName} - {request.TourStartDate.TimeOfDay}",
                     body: emailHtml,
-                    bcc: ["admin@travaloud.com"]!,
                     attachmentData: destinationManifests);
 
                 _jobService.Enqueue(() => _mailService.SendAsync(mailRequest));

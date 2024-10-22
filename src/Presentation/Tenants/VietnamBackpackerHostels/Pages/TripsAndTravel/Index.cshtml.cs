@@ -9,13 +9,13 @@ public class IndexModel : TravaloudBasePageModel
         return new Guid("A723E122-C583-42BC-B565-EE860AE11712");
     }
 
-    public override string MetaKeywords()
+    public override string MetaKeywords(string? overrideValue = null)
     {
         return
             "Vietnam Backpacker Hostels, Vietnam travel, Vietnam tours, backpacker travel, adventure travel, travel activities, backpacker-friendly, budget-friendly travel";
     }
 
-    public override string MetaDescription()
+    public override string MetaDescription(string? overrideValue = null )
     {
         return
             "Get the most out of your Vietnam travel experience with Vietnam Backpacker Hostels. Browse our range of tours, travel options, and activities to create your perfect itinerary.\n\n";

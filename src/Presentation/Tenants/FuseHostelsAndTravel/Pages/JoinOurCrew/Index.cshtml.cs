@@ -13,19 +13,22 @@ public class IndexModel : JoinOurCrewPageModel
     {
         _jobVacanciesService = jobVacanciesService;
     }
-
-    public override string MetaKeywords()
+    
+    public override Guid? PageId()
     {
-        return
-            "Fuse Hostels & Travel, job opportunities, hospitality industry, travel industry, Vietnam jobs, backpacker jobs";
+        return new Guid("80d6e158-574c-460d-b52d-1ebf37e05841");
     }
 
-    public override string MetaDescription()
+    public override string MetaKeywords(string? overrideValue = null)
     {
-        return
-            "Join the Fuse Hostels & Travel crew and become a part of our team. We offer exciting job opportunities in the hospitality and travel industry in Vietnam.";
+        return base.MetaKeywords( "Fuse Hostels & Travel, job opportunities, hospitality industry, travel industry, Vietnam jobs, backpacker jobs");
     }
 
+    public override string MetaDescription(string? overrideValue = null)
+    {
+        return base.MetaDescription("Join the Fuse Hostels & Travel crew and become a part of our team. We offer exciting job opportunities in the hospitality and travel industry in Vietnam.");
+    }
+    
     [BindProperty] public HeaderBannerComponent? HeaderBanner { get; private set; }
 
     [BindProperty] public List<NavPill>? NavPills { get; private set; }

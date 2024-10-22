@@ -1,17 +1,18 @@
 using Travaloud.Application.Basket.Dto;
 using Travaloud.Application.Catalog.Bookings.Dto;
 
-namespace Travaloud.Tenants.SharedRCL.Models.EmailTemplates;
+namespace Travaloud.Application.Mailing;
 
-public class BookingConfirmationTemplateModel : EmailTemplateBaseModel
+public class SupplierBookingConfirmationTemplateModel : EmailTemplateBaseModel
 {
     public BasketModel? Basket { get; set; }
     public BookingDetailsDto? Booking { get; set; }
     public int? InvoiceId { get; set; }
     public string? ContactUrl { get; set; }
     public string? CustomerEmail { get; set; }
+    public Guid? SupplierId { get; set; }
 
-    public BookingConfirmationTemplateModel(
+    public SupplierBookingConfirmationTemplateModel(
         string tenantName,
         string? primaryBackgroundColor,
         string? secondaryBackgroundColor,
@@ -32,7 +33,7 @@ public class BookingConfirmationTemplateModel : EmailTemplateBaseModel
         ContactUrl = contactUrl;
     }
     
-    public BookingConfirmationTemplateModel(
+    public SupplierBookingConfirmationTemplateModel(
         string tenantName,
         string? primaryBackgroundColor,
         string? secondaryBackgroundColor,

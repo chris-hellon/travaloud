@@ -45,6 +45,8 @@ public partial class TourBookingItem : ComponentBase
     
     [Parameter] public bool CanDelete { get; set; }
     
+    [Parameter] public bool BookingIsCancelled { get; set; }
+    
     [CascadingParameter] private MudDialogInstance MudDialog { get; set; } = default!;
     
     private ICollection<TourDto>? Tours { get; set; }
@@ -85,7 +87,7 @@ public partial class TourBookingItem : ComponentBase
         TourPriceToStringConverter = GenerateTourPriceDisplayString;
         BookingRefunded = (TourBooking.Refunded.HasValue && TourBooking.Refunded.Value);
         UserIsAdmin = authState.User.IsInRole(TravaloudRoles.Admin);
-        FormDisabled = (TourBooking.IsPaid || BookingRefunded) && !UserIsAdmin;
+        FormDisabled = BookingIsCancelled || ((TourBooking.IsPaid || BookingRefunded) && !UserIsAdmin);
         EditContext = new EditContext(RequestModel);
 
         if (RequestModel is {TourId: not null, TourCategoryId: null})
@@ -141,6 +143,17 @@ public partial class TourBookingItem : ComponentBase
             TourPrices = tourPricesRequest.Result;
             TourPickupLocations = tourPickupLocationsRequest.Result;
 
+            if (TourPickupLocations != null)
+            {
+                var tourPickupLocations = TourPickupLocations.Select(x => x.PropertyName);
+
+                if (!tourPickupLocations.Contains(RequestModel.PickupLocation))
+                {
+                    RequestModel.OtherPickupLocation = RequestModel.PickupLocation;
+                    RequestModel.PickupLocation = "Other";
+                }
+            }
+            
             var tourDate = tourDates.Data.FirstOrDefault(x => x.Id == RequestModel.TourDateId);
             RequestModel.TourPriceId = tourDate?.TourPriceId;
 
@@ -341,7 +354,7 @@ public partial class TourBookingItem : ComponentBase
             });
 
             TourDates = tourDates.Data.Where(x => !UserIsAdmin ? x.StartDate > DateTime.Now : x.StartDate > DateTime.Now.AddMonths(-1)).ToList();
-                
+                 
             RequestModel.TourDateId = null;
 
             if (tourDates.Data.Count == 0)
@@ -354,6 +367,13 @@ public partial class TourBookingItem : ComponentBase
     
                 TourDates = TourDates.Where(x => !tourDateIds.Contains(x.Id)).ToList();
             }
+            
+            // if (TourDates.Count > 0 && UserIsAdmin)
+            // {
+            //     var closestDate = TourDates.MinBy(x => Math.Abs((x.StartDate - DateTime.Now).TotalDays));
+            //
+            //     RequestModel.TourDateId = closestDate?.Id;
+            // }
             
             StateHasChanged();
         }
@@ -377,6 +397,11 @@ public partial class TourBookingItem : ComponentBase
         StateHasChanged();
     }
 
+    private void OnTourPickupLocationChanged(string location)
+    {
+        
+    }
+    
     public async Task InvokeBookingItemGuestDialog(UpdateBookingItemRequest bookingItem, BookingItemGuestRequest? selectedGuest = null)
     {
         var initialModel =

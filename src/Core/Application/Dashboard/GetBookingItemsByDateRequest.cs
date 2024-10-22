@@ -12,13 +12,23 @@ public class GetBookingItemsByDateRequest : PaginationFilter, IRequest<Paginatio
     public required string TenantId { get; set; }
     public DateTime? TourStartDate { get; set; }
     public DateTime? TourEndDate { get; set; }
+    public TimeSpan? TourStartTime { get; set; }
     public DateTime? BookingStartDate { get; set; }
     public DateTime? BookingEndDate { get; set; }
     public DefaultIdType? TourId { get; set; }
     public DefaultIdType? TourDateId { get; set; }
     public IEnumerable<DefaultIdType>? TourIds { get; set; }
-    public string? Description { get; set; }
+    // public string? Description { get; set; }
     public bool HideRefunded { get; set; } = true;
+    public bool ApplyPagination { get; set; } = true;
+    
+    public List<BookingExportDto> Paginate(List<BookingExportDto> parsedTours)
+    {
+        if (!ApplyPagination) return parsedTours;
+        
+        var skip = (PageNumber - 1) * PageSize;
+        return parsedTours.Skip(skip).Take(PageSize).ToList();
+    }
 }
 
 internal class GetBookingItemsByDateRequestHandler : IRequestHandler<GetBookingItemsByDateRequest, PaginationResponse<BookingExportDto>>
@@ -26,7 +36,7 @@ internal class GetBookingItemsByDateRequestHandler : IRequestHandler<GetBookingI
     private readonly IRepositoryFactory<BookingItem> _repository;
     private readonly IUserService _userService;
     private readonly ICurrentUser _currentUser;
-    private IDapperRepository _dapperRepository;
+    private readonly IDapperRepository _dapperRepository;
     
     public GetBookingItemsByDateRequestHandler(
         IRepositoryFactory<BookingItem> repository, 
@@ -68,12 +78,20 @@ internal class GetBookingItemsByDateRequestHandler : IRequestHandler<GetBookingI
                 tourIdsDt.Rows.Add(dataRow);
             }
         }
+
+        var tourStartDate = request.TourStartDate.HasValue
+            ? request.TourStartDate.Value.Date + (request.TourStartTime ?? new TimeSpan(00, 00, 00))
+            : new DateTime?();
+
+        var tourEndDate = request.TourEndDate.HasValue
+            ? request.TourEndDate.Value.Date + (request.TourStartTime ?? new TimeSpan(23, 59, 59))
+            : new DateTime?();
         
         var todaysTours = await _dapperRepository.QueryAsync<BookingExportDto>("GetBookingsExports", new
         {
-            request.Description,
-            TourStartDate = request.TourStartDate.HasValue ? request.TourStartDate.Value.Date + new TimeSpan(00, 00, 00) : new DateTime?(),
-            TourEndDate = request.TourEndDate.HasValue ? request.TourEndDate.Value.Date + new TimeSpan(23, 59, 59) : new DateTime?(),
+            Description = request.Keyword,
+            TourStartDate = tourStartDate,
+            TourEndDate = tourEndDate,
             BookingStartDate = request.BookingStartDate.HasValue ? request.BookingStartDate.Value.Date + new TimeSpan(00, 00, 00) : new DateTime?(),
             BookingEndDate = request.BookingEndDate.HasValue ? request.BookingEndDate.Value.Date + new TimeSpan(23, 59, 59) :new DateTime?(),
             request.TourId,
@@ -121,10 +139,8 @@ internal class GetBookingItemsByDateRequestHandler : IRequestHandler<GetBookingI
 
         // Apply pagination after ordering
         var totalCount = parsedTours.Count;
-        var skip = (request.PageNumber - 1) * request.PageSize;
-        parsedTours = parsedTours.Skip(skip).Take(request.PageSize).ToList();
+        parsedTours = request.Paginate(parsedTours);
 
         return new PaginationResponse<BookingExportDto>(parsedTours, totalCount, request.PageNumber, request.PageSize);
-
     }
 }

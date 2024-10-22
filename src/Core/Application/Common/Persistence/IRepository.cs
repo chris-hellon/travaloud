@@ -33,5 +33,5 @@ public interface IRepositoryWithEvents<T> : IRepositoryBase<T>
 public interface IRepositoryFactory<TEntity> : IRepositoryBase<TEntity>
     where TEntity : class, IAggregateRoot
 {
-    
+    Task UpdateAsync(TEntity entity, bool saveChanges = true, CancellationToken cancellationToken = default);
 }

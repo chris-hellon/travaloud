@@ -19,7 +19,7 @@ public class IndexModel : TravaloudBasePageModel
         _toursService = toursService;
     }
 
-    public override string MetaKeywords()
+    public override string MetaKeywords(string? overrideValue = null)
         {
             if (DestinationProperty == null || string.IsNullOrEmpty(DestinationProperty.MetaKeywords))
                 return "budget hostels, cheap hostels, backpackers hostels, Vietnam travel";
@@ -27,7 +27,7 @@ public class IndexModel : TravaloudBasePageModel
             return DestinationProperty.MetaKeywords;
         }
 
-        public override string MetaDescription()
+        public override string MetaDescription(string? overrideValue = null)
         {
             if (DestinationProperty == null || string.IsNullOrEmpty(DestinationProperty.MetaDescription))
                 return "Our budget hostels in Vietnam offer comfortable and affordable accommodation for backpackers and budget travelers. Book now and start your Vietnam adventure!";

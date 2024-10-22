@@ -2,12 +2,12 @@
 
 public class IndexModel : TravaloudBasePageModel
 {
-    public override string MetaDescription()
+    public override string MetaDescription(string? overrideValue = null)
     {
         return $"At {TenantName}, we offer a range of services to make your stay as comfortable and convenient as possible. From airport transfers, to visa letters, we've got you covered.";
     }
 
-    public override string MetaKeywords()
+    public override string MetaKeywords(string? overrideValue = null)
     {
         return $"{TenantName}, hostel services, laundry services, airport transfers, travel services, backpacker-friendly";
     }

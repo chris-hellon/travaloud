@@ -4,6 +4,7 @@ public class BasketModel
 {
 	public DefaultIdType Id { get; set; } = DefaultIdType.NewGuid();
 	public IList<BasketItemModel> Items { get; set; } = new List<BasketItemModel>();
+	public DefaultIdType? BookingId { get; set; }
 	public decimal Total { get; set; }
 	public string? PromoCode { get; set; }
 	public int ItemsCount => Items.Count;
@@ -23,6 +24,11 @@ public class BasketModel
 	public void SetPromoCode(string promoCode)
 	{
 		PromoCode = promoCode;
+	}
+
+	public void SetBookingId(DefaultIdType bookingId)
+	{
+		BookingId = bookingId;
 	}
 
 	public void SetCreateId(string createId)

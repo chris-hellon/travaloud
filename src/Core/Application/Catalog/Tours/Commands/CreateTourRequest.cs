@@ -39,6 +39,7 @@ public class CreateTourRequest : IRequest<DefaultIdType>
     public string? CancellationPolicy { get; set; }
     public string? SupplierEmailText { get; set; }
     public string? SupplierId { get; set; }
+    public bool? ShowBookingQRCode { get; set; }
     
     [Display(Name = "Url Slug")] public string? UrlSlug { get; set; }
 
@@ -149,7 +150,8 @@ public class CreateTourRequestHandler : IRequestHandler<CreateTourRequest, Defau
             request.WaiverRequired,
             request.SupplierId,
             request.SupplierEmailText,
-            request.TourCategory?.Id);
+            request.TourCategory?.Id,
+            request.ShowBookingQRCode);
 
         // var tourCategory = await _tourCategoryRepository.GetByIdAsync(request.TourCategory?.Id, cancellationToken);
         // tour.TourCategory = tourCategory;

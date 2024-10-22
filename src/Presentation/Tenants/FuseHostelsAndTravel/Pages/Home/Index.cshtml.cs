@@ -22,6 +22,21 @@ public class IndexModel : TravaloudBasePageModel
 
     [BindProperty] public OvalContainerComponent? MarqueeOvals { get; private set; }
 
+    public override Guid? PageId()
+    {
+        return new Guid("db6b1983-9f8a-4b76-4409-08dc303eaa33");
+    }
+
+    public override string MetaKeywords(string? overrideValue = null)
+    {
+        return base.MetaKeywords( "FUSE hostels, FUSE tours, Hostel experience, Budget accommodation, Backpacker lodging, Vietnam travel experiences, Social spaces, Chill out spots, Hoi An Beachside, Hoi An Old Town, Nha Trang Beachside, Tailored tours, Bamboo boat tours, Bicycle tours, Paddleboarding tours, Jeep tours");
+    }
+
+    public override string MetaDescription(string? overrideValue = null)
+    {
+        return base.MetaDescription("Discover the ultimate hostel experience with FUSE Hostels & Tours. With two impressive locations opening in Hoi An in late 2022, our crew offers up everything travelers need to explore, kick back, and have fun in Vietnam. From our boutique-style beachside location with an ocean view and weekly pool parties to our prime location in Hoi An Old Town with weekly events, nightly BBQs, and surrounded by great street food and bars, we offer up the latest accommodation and travel experiences in Vietnam. Our tailored tours, including bamboo boat tours, bicycle tours, paddleboarding tours, and jeep tours, offer unique experiences for all our guests. Come discover the good vibes, safe environment, and friendly staff dedicated to making your stay unforgettable at FUSE Hostels & Tours.");
+    }
+    
     private readonly IEventsService _eventsService;
 
     public IndexModel(IEventsService eventsService)

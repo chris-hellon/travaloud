@@ -34,6 +34,7 @@ public class UpdateBookingItemRequest : IRequest<DefaultIdType>
     public DefaultIdType? TourCategoryId { get; set; }
     
     public string? PickupLocation { get; set; }
+    public string? OtherPickupLocation { get; set; }
 
     public string? CloudbedsReservationId { get; set; }
     public int? CloudbedsPropertyId { get; set; }

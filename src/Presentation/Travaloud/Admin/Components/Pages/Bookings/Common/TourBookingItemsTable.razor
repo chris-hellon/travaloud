@@ -68,7 +68,7 @@
                                 <MudTd DataLabel="End Date">@ItemContext.EndDate</MudTd>
                                 <MudTd DataLabel="End Date">@ItemContext.PickupLocation</MudTd>
                                 <MudTd DataLabel="Price">@($"$ {string.Format("{0:n2}", ItemContext.Amount)}")</MudTd>
-                                <MudTd DataLabel="Total Price">@($"$ {string.Format("{0:n2}", ItemContext.TotalAmount)}")</MudTd>
+                                <MudTd DataLabel="Total Price">@($"$ {string.Format("{0:n2}", ItemContext.Amount * ItemContext.Guests.Count)}")</MudTd>
                                 <MudTd DataLabel="Waiver Signed">@(ItemContext.WaiverSigned.HasValue && ItemContext.WaiverSigned.Value ? "Yes" : "No")</MudTd>
                                 <MudTd DataLabel="Actions" Style="@(ItemContext.Guests.Count > 0 ? "width:195px;" : "")">
                                     @if (ItemContext.Guests.Count > 0)
@@ -83,9 +83,10 @@
                                 @if (ItemContext.ShowGuestDetails)
                                 {
                                     <MudTr>
-                                        <td colspan="5">
+                                        <td colspan="7">
                                             <MudTable Items="@ItemContext.Guests" Context="GuestContext" Hover="true" Breakpoint="Breakpoint.Sm" Elevation="0">
                                                 <ColGroup>
+                                                    <col/>
                                                     <col/>
                                                     <col/>
                                                     <col/>

@@ -38,7 +38,7 @@ public partial class QRCodes
                 {
                     foreach (var tour in tours.Data)
                     {
-                        if (!tour.PublishToSite.HasValue || !tour.PublishToSite.Value)
+                        if ((!tour.PublishToSite.HasValue || !tour.PublishToSite.Value) && (!tour.ShowBookingQRCode.HasValue || !tour.ShowBookingQRCode.Value))
                             continue;
                         
                         using MemoryStream ms = new();

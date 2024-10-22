@@ -28,4 +28,9 @@ public class DashboardService : BaseService, IDashboardService
     {
         return Mediator.Send(request);
     }
+
+    public Task<IList<CalendarDto>> GetCalendar(GetCalendarRequest request)
+    {
+        return Mediator.Send(request);
+    }
 }

@@ -14,9 +14,9 @@ public class CreateTourRequestValidator : CustomValidator<CreateTourRequest>
             .MustAsync(async (name, ct) => await tourRepo.SingleOrDefaultAsync(new TourByNameSpec(name), ct) is null)
             .WithMessage((_, name) => string.Format(localizer["tour.alreadyexists"], name));
 
-        RuleFor(p => p.Description)
-            .NotEmpty()
-            .WithMessage("A Description is required.");
+        // RuleFor(p => p.Description)
+        //     .NotEmpty()
+        //     .WithMessage("A Description is required.");
 
         RuleFor(p => p.MinCapacity).
             NotEmpty()

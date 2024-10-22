@@ -45,6 +45,7 @@ public partial class NavMenu
     private bool _canViewTravelGuides;
     private bool _canViewGallery;
     private bool _canViewSettings;
+    private bool _canViewSuppliers;
     
     protected override async Task OnInitializedAsync()
     {
@@ -94,7 +95,7 @@ public partial class NavMenu
         _canViewTravelGuides = await AuthService.HasPermissionAsync(user, TravaloudAction.View, TravaloudResource.TravelGuides);
         _canViewGallery = await AuthService.HasPermissionAsync(user, TravaloudAction.View, TravaloudResource.Gallery);
         _canViewSettings = await AuthService.HasPermissionAsync(user, TravaloudAction.View, TravaloudResource.Settings);
-
+        _canViewSuppliers = await AuthService.HasPermissionAsync(user, TravaloudAction.View, TravaloudResource.Suppliers);
         _canViewTourGroups = TenantInfo?.Id switch
         {
             "fuse" => false,

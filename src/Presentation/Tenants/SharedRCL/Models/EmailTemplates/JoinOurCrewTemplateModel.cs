@@ -1,3 +1,5 @@
+using Travaloud.Application.Mailing;
+
 namespace Travaloud.Tenants.SharedRCL.Models.EmailTemplates;
 
 public class JoinOurCrewTemplateModel : EmailTemplateBaseModel

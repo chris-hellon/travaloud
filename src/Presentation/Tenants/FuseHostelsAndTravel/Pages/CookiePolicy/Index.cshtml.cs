@@ -4,16 +4,21 @@ namespace FuseHostelsAndTravel.Pages.CookiePolicy;
 
 public class IndexModel : TravaloudBasePageModel
 {
-    public override string MetaKeywords()
+    public override Guid? PageId()
     {
-        return "cookie policy, website cookies, cookie consent, cookie management";
+        return new Guid("393dbb36-9e5a-4d06-4410-08dc303eaa33");
     }
 
-    public override string MetaDescription()
+    public override string MetaKeywords(string? overrideValue = null)
     {
-        return "Learn about Fuse Hostels and Travels' use of cookies on our website and manage your cookie settings with our easy-to-use cookie consent tool.";
+        return base.MetaKeywords("contact us, get in touch, reach us, email us, phone us");
     }
 
+    public override string MetaDescription(string? overrideValue = null)
+    {
+        return base.MetaDescription("Learn about Fuse Hostels and Travels' use of cookies on our website and manage your cookie settings with our easy-to-use cookie consent tool.");
+    }
+    
     public IEnumerable<OvalContainerComponent>? OvalContainers { get; private set; }
 
     public async Task<IActionResult> OnGetAsync()

@@ -2,9 +2,6 @@
 @using Travaloud.Application.Catalog.Bookings.Dto
 @using Color = MudBlazor.Color
 @using Size = MudBlazor.Size
-@using ApexCharts
-@using Travaloud.Application.Dashboard
-@using Travaloud.Admin.Components.Dashboard
 
 @attribute [MustHavePermission(TravaloudAction.View, TravaloudResource.Dashboard)]
 @attribute [StreamRendering]
@@ -122,6 +119,92 @@
                     else
                     {
                         <MudText Typo="Typo.h5">@($"$ {TotalBookingsRevenue:n2}")</MudText>
+                    }
+                </div>
+            </MudPaper>
+        </MudItem>
+    }
+    
+    <MudItem xs="12" sm="@(UserIsAdmin ? 3 : 6)" md="@(UserIsAdmin ? 3 : 6)">
+        <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+            <MudIcon Icon="@Icons.Material.Filled.BookOnline" Color="Color.Primary" Class="mx-4"
+                     Style="width:54px; height:54px;">
+            </MudIcon>
+            <div>
+                <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">@L["Total Cancelled Bookings"]</MudText>
+
+                @if (!TotalCancelledCount.HasValue)
+                {
+                    <MudProgressCircular Color="Color.Secondary" Indeterminate="true" Size="Size.Small"/>
+                }
+                else
+                {
+                    <MudText Typo="Typo.h5">@TotalCancelledCount</MudText>
+                }
+            </div>
+        </MudPaper>
+    </MudItem>
+
+    if (UserIsAdmin)
+    {
+        <MudItem xs="12" sm="3" md="3">
+            <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                <MudIcon Icon="@Icons.Material.Filled.MonetizationOn" Color="Color.Primary" Class="mx-4"
+                         Style="width:54px; height:54px;">
+                </MudIcon>
+                <div>
+                    <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">@L["Total Cancelled Bookings Cost"]</MudText>
+
+                    @if (!TotalCancelledRevenue.HasValue)
+                    {
+                        <MudProgressCircular Color="Color.Secondary" Indeterminate="true" Size="Size.Small"/>
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.h5">@($"$ {TotalCancelledRevenue:n2}")</MudText>
+                    }
+                </div>
+            </MudPaper>
+        </MudItem>
+    }
+    
+    <MudItem xs="12" sm="@(UserIsAdmin ? 3 : 6)" md="@(UserIsAdmin ? 3 : 6)">
+        <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+            <MudIcon Icon="@Icons.Material.Filled.BookOnline" Color="Color.Primary" Class="mx-4"
+                     Style="width:54px; height:54px;">
+            </MudIcon>
+            <div>
+                <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">@L["Total Refunded Bookings"]</MudText>
+
+                @if (!TotalRefundedCount.HasValue)
+                {
+                    <MudProgressCircular Color="Color.Secondary" Indeterminate="true" Size="Size.Small"/>
+                }
+                else
+                {
+                    <MudText Typo="Typo.h5">@TotalRefundedCount</MudText>
+                }
+            </div>
+        </MudPaper>
+    </MudItem>
+
+    if (UserIsAdmin)
+    {
+        <MudItem xs="12" sm="3" md="3">
+            <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                <MudIcon Icon="@Icons.Material.Filled.MonetizationOn" Color="Color.Primary" Class="mx-4"
+                         Style="width:54px; height:54px;">
+                </MudIcon>
+                <div>
+                    <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">@L["Total Refunded Bookings Cost"]</MudText>
+
+                    @if (!TotalRefundedRevenue.HasValue)
+                    {
+                        <MudProgressCircular Color="Color.Secondary" Indeterminate="true" Size="Size.Small"/>
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.h5">@($"$ {TotalRefundedRevenue:n2}")</MudText>
                     }
                 </div>
             </MudPaper>

@@ -32,21 +32,21 @@ internal class CancelBookingRequestHandler : IRequestHandler<CancelBookingReques
 
     public async Task<bool> Handle(CancelBookingRequest request, CancellationToken cancellationToken)
     {
-        // var booking = await _repository.SingleOrDefaultAsync(new BookingByIdSpec(request.Id), cancellationToken);
-        //
-        // _ = booking ?? throw new NotFoundException(_localizer["booking.notfound"]);
-        //
-        // foreach (var item in booking.Items)
-        // {
-        //     if (!item.TourDateId.HasValue) continue;
-        //     
-        //     var date = await _tourDateRepository.GetByIdAsync(item.TourDateId.Value, cancellationToken);
-        //
-        //     if (date == null) continue;
-        //     
-        //     date.AvailableSpaces += (item.Guests?.Count + 1) ?? 1;
-        //     await _tourDateRepository.UpdateAsync(date, cancellationToken);
-        // }
+        var booking = await _repository.SingleOrDefaultAsync(new BookingByIdSpec(request.Id), cancellationToken);
+        
+        _ = booking ?? throw new NotFoundException(_localizer["booking.notfound"]);
+        
+        foreach (var item in booking.Items)
+        {
+            if (!item.TourDateId.HasValue) continue;
+            
+            var date = await _tourDateRepository.GetByIdAsync(item.TourDateId.Value, cancellationToken);
+        
+            if (date == null) continue;
+            
+            date.AvailableSpaces += (item.Guests?.Count + 1) ?? 1;
+            await _tourDateRepository.UpdateAsync(date, cancellationToken);
+        }
         
         await _dapperRepository.ExecuteAsync("CancelBooking", new
         {

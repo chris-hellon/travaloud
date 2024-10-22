@@ -8,4 +8,5 @@ public interface IDashboardService : ITransientService
     Task<StatsDto> GetAsync(GetStatsRequest request);
     Task<PaginationResponse<BookingExportDto>> GetTourBookingItemsByDateAsync(GetBookingItemsByDateRequest request);
     Task<GetDashboardResponse> GetCloudbedsDashboard(GetCloudbedsDashboardRequest request);
+    Task<IList<CalendarDto>> GetCalendar(GetCalendarRequest request);
 }

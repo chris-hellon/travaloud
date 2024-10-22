@@ -5,7 +5,7 @@ namespace Travaloud.Tenants.SharedRCL.Pages.TourCategory;
 
 public class IndexModel : TravaloudBasePageModel
 {
-    public override string MetaKeywords()
+    public override string MetaKeywords(string? overrideValue = null)
     {
         if (TourCategory == null && !string.IsNullOrEmpty(TourCategory?.MetaKeywords))
             return "budget hostels, cheap hostels, backpackers hostels, Vietnam travel";
@@ -13,7 +13,7 @@ public class IndexModel : TravaloudBasePageModel
         return TourCategory?.MetaKeywords ?? string.Empty;
     }
 
-    public override string MetaDescription()
+    public override string MetaDescription(string? overrideValue = null)
     {
         if (TourCategory == null && !string.IsNullOrEmpty(TourCategory?.MetaDescription))
             return "Our budget hostels in Vietnam offer comfortable and affordable accommodation for backpackers and budget travelers. Book now and start your Vietnam adventure!";

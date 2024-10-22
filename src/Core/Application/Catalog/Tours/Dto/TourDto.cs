@@ -29,6 +29,7 @@ public class TourDto
     public bool? PublishToSite { get; set; }
     public string FriendlyUrl => Name.UrlFriendly();
     public string? SupplierEmailText { get; set; }
+    public bool? ShowBookingQRCode { get; set; }
     public DefaultIdType? SupplierId { get; set; }
     public DefaultIdType? TourCategoryId { get; set; }
     public TourCategoryDto? TourCategory { get; set; }

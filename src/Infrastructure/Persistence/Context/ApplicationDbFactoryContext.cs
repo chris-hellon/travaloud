@@ -189,6 +189,17 @@ public abstract class ApplicationDbFactoryContext<TEntity> : IRepositoryBase<TEn
 
         return entity;
     }
+    
+    public async Task<TEntity> AddAsync(TEntity entity, bool saveChanges = true, CancellationToken cancellationToken = default)
+    {
+        await using var dbContext = CreateDbContext();
+        dbContext.Set<TEntity>().Add(entity);
+
+        if (saveChanges)
+            await SaveChangesAsync(dbContext, cancellationToken);
+
+        return entity;
+    }
 
     /// <inheritdoc/>
     public async Task<IEnumerable<TEntity>> AddRangeAsync(IEnumerable<TEntity> entities,
@@ -210,6 +221,16 @@ public abstract class ApplicationDbFactoryContext<TEntity> : IRepositoryBase<TEn
         dbContext.TenantNotSetMode = TenantNotSetMode.Overwrite;
         
         await SaveChangesAsync(dbContext, cancellationToken);
+    }
+    
+    public async Task UpdateAsync(TEntity entity, bool saveChanges = true, CancellationToken cancellationToken = default)
+    {
+        await using var dbContext = CreateDbContext();
+        dbContext.Set<TEntity>().Update(entity);
+        dbContext.TenantNotSetMode = TenantNotSetMode.Overwrite;
+        
+        if (saveChanges)
+            await SaveChangesAsync(dbContext, cancellationToken);
     }
 
     /// <inheritdoc/>
@@ -255,9 +276,10 @@ public abstract class ApplicationDbFactoryContext<TEntity> : IRepositoryBase<TEn
     }
 
     /// <inheritdoc/>
-    public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        throw new InvalidOperationException();
+        await using var dbContext = CreateDbContext();
+        return await dbContext.SaveChangesAsync(cancellationToken);
     }
 
     public async Task<int> SaveChangesAsync(ApplicationDbContext dbContext,

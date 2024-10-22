@@ -20,12 +20,12 @@ public class IndexModel : TravaloudBasePageModel
         _toursService = toursService;
     }
 
-    public override string MetaKeywords()
+    public override string MetaKeywords(string? overrideValue = null)
     {
         return (Property == null ? "budget hostels, cheap hostels, backpackers hostels, Vietnam travel" : Property.MetaKeywords) ?? string.Empty;
     }
 
-    public override string MetaDescription()
+    public override string MetaDescription(string? overrideValue = null)
     {
         return (Property == null ? "Our budget hostels in Vietnam offer comfortable and affordable accommodation for backpackers and budget travelers. Book now and start your Vietnam adventure!" : Property.MetaDescription) ?? string.Empty;
     }

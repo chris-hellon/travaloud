@@ -1,5 +1,3 @@
-@model Travaloud.Application.Mailing.SupplierBookingConfirmationTemplateModel
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -234,3 +232,9 @@
 
 </body>
 </html>
+
+@code {
+
+    [Parameter] public Application.Mailing.SupplierBookingConfirmationTemplateModel Model { get; set; }
+
+}

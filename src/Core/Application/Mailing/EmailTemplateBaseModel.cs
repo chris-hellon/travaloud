@@ -1,4 +1,4 @@
-﻿namespace Travaloud.Tenants.SharedRCL.Models.EmailTemplates;
+﻿namespace Travaloud.Application.Mailing;
 
 public abstract class EmailTemplateBaseModel
 {

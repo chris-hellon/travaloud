@@ -1,5 +1,3 @@
-@model Travaloud.Application.Mailing.BookingConfirmationTemplateModel
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -8,26 +6,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <style type="text/css">
-    body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
-    table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
-    img { -ms-interpolation-mode: bicubic; }
-    
-    img { border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
-    table { border-collapse: collapse !important; }
-    body { height: 100% !important; margin: 0 !important; padding: 0 !important; width: 100% !important; }
-    
-    
-    a[x-apple-data-detectors] {
-        color: inherit !important;
-        text-decoration: none !important;
-        font-size: inherit !important;
-        font-family: inherit !important;
-        font-weight: inherit !important;
-        line-height: inherit !important;
-    }
+        body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+        table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+        img { -ms-interpolation-mode: bicubic; }
 
-div[style*="margin: 16px 0;"] { margin: 0 !important; }
-</style>
+        img { border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
+        table { border-collapse: collapse !important; }
+        body { height: 100% !important; margin: 0 !important; padding: 0 !important; width: 100% !important; }
+
+
+        a[x-apple-data-detectors] {
+            color: inherit !important;
+            text-decoration: none !important;
+            font-size: inherit !important;
+            font-family: inherit !important;
+            font-weight: inherit !important;
+            line-height: inherit !important;
+        }
+
+        div[style*="margin: 16px 0;"] { margin: 0 !important; }
+    </style>
 </head>
 <body style="margin: 0 !important; padding: 0 !important; background-color: #eeeeee;" bgcolor="#eeeeee">
 
@@ -139,7 +137,7 @@ div[style*="margin: 16px 0;"] { margin: 0 !important; }
 
                                                                 if (item.Guests is {Count: > 0})
                                                                     guestCount += item.Guests.Count;
-                                                                
+
                                                                 label = $"{guestCount} guest{(guestCount > 1 ? "s" : "")} at {item.Tour.Name} on {string.Join(", ", item.StartDate.ToLongDateString())}";
                                                             }
                                                         }
@@ -176,7 +174,7 @@ div[style*="margin: 16px 0;"] { margin: 0 !important; }
                                     </table>
                                 </td>
                             </tr>
-                            
+
                             @if (Model.Booking is {Items: not null} && Model.Booking.Items.Any(x => x.Tour != null))
                             {
                                 <tr>
@@ -190,7 +188,7 @@ div[style*="margin: 16px 0;"] { margin: 0 !important; }
                                         </table>
                                     </td>
                                 </tr>
-                                
+
                                 foreach (var item in Model.Booking.Items.Where(x => x.Tour != null))
                                 {
                                     if (string.IsNullOrEmpty(item.Tour.BookingConfirmationEmailDetails))
@@ -207,7 +205,7 @@ div[style*="margin: 16px 0;"] { margin: 0 !important; }
                                         <td style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 15px 10px 5px 10px; border-bottom: 3px solid #eeeeee;">
                                             @if (!string.IsNullOrEmpty(item.Tour.BookingConfirmationEmailDetails))
                                             {
-                                                @Html.Raw(item.Tour.BookingConfirmationEmailDetails)
+                                                @((MarkupString)item.Tour.BookingConfirmationEmailDetails)
                                             }
                                         </td>
                                     </tr>
@@ -226,7 +224,7 @@ div[style*="margin: 16px 0;"] { margin: 0 !important; }
                                         </table>
                                     </td>
                                 </tr>
-                                
+
                                 foreach (var item in Model.Basket.Items.Where(x => x.Tour != null))
                                 {
                                     if (string.IsNullOrEmpty(item.Tour?.BookingConfirmationEmailDetails))
@@ -243,13 +241,13 @@ div[style*="margin: 16px 0;"] { margin: 0 !important; }
                                         <td style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 15px 10px 5px 10px; border-bottom: 3px solid #eeeeee;">
                                             @if (!string.IsNullOrEmpty(item.Tour.BookingConfirmationEmailDetails))
                                             {
-                                                @Html.Raw(item.Tour.BookingConfirmationEmailDetails)
+                                                @((MarkupString)item.Tour.BookingConfirmationEmailDetails)
                                             }
                                         </td>
                                     </tr>
                                 }
                             }
-                            
+
                             <tr>
                                 <td align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding-top: 10px;">
                                     <p style="font-size: 16px; font-weight: 400; line-height: 24px; color: #777777;">
@@ -318,3 +316,9 @@ div[style*="margin: 16px 0;"] { margin: 0 !important; }
 
 </body>
 </html>
+
+@code {
+
+    [Parameter] public Application.Mailing.BookingConfirmationTemplateModel Model { get; set; }
+
+}

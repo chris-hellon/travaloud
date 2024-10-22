@@ -137,4 +137,9 @@ public class BookingsService : BaseService, IBookingsService
         
         return new FileResponse(response);
     }
+
+    public Task UpdateBookingItemGuestStatus(UpdateBookingItemGuestStatusRequest request)
+    {
+        return Mediator.Send(request);
+    }
 }

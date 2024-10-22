@@ -22,7 +22,7 @@ public class CreateStripeSessionRequest : IRequest<Session>
 
     [Required] public string? CustomerEmail { get; }
     
-    [Required] public DefaultIdType? GuestId { get; set; }
+    // [Required] public DefaultIdType? GuestId { get; set; }
     
     public string UiMode { get; set; }
 
@@ -88,9 +88,12 @@ internal class CreateStripeSessionRequestHandler : IRequestHandler<CreateStripeS
         
         description = description.Trim().TrimStart(charsToTrim).TrimEnd(',');
 
+        if (request.InvoiceId.HasValue)
+            description += $" - Booking: {request.InvoiceId.Value.ToString()}";
+        
         var options = new SessionCreateOptions
         {
-            ClientReferenceId = request.GuestId.ToString(),
+            ClientReferenceId = request.BookingId.ToString(),
             LineItems = lineItems,
             Mode = "payment",
             PaymentIntentData = new SessionPaymentIntentDataOptions()

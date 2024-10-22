@@ -1,8 +1,10 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Identity;
 using MudBlazor;
+using Travaloud.Infrastructure.Auth;
 using Travaloud.Infrastructure.Multitenancy;
 using Travaloud.Shared.Authorization;
 using Travaloud.Shared.Multitenancy;
@@ -13,6 +15,8 @@ public partial class Login
 {
     public string? ErrorMessage;
 
+    [Inject] protected IAuthorizationService AuthService { get; set; } = default!;
+    
     [CascadingParameter] private HttpContext HttpContext { get; set; } = default!;
 
     [SupplyParameterFromForm] private LoginInputModel Input { get; set; } = new();
@@ -55,7 +59,7 @@ public partial class Login
     {
         BusySubmitting = true;
         
-        var user = await UserManager.FindByEmailAsync(Input.Email);
+        var user = await UserManager.FindByNameAsync(Input.Email);
         
         if (user is {IsActive: true})
         {
@@ -83,7 +87,15 @@ public partial class Login
                         BusySubmitting = false;
                         StateHasChanged();
 
-                        RedirectManager.RedirectTo(ReturnUrl);
+                        if (!await AuthService.HasPermissionAsync(HttpContext.User, TravaloudAction.View,
+                                TravaloudResource.Dashboard))
+                        {
+                            RedirectManager.RedirectTo("/management/destinations");
+                        }
+                        else
+                        {
+                            RedirectManager.RedirectTo(ReturnUrl);
+                        }
                     }
                     else
                     {

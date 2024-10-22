@@ -16,9 +16,9 @@ public class UpdateTourRequestValidator : CustomValidator<UpdateTourRequest>
                     is not Tour existingTour || existingTour.Id == tour.Id)
             .WithMessage((_, name) => string.Format(localizer["tour.alreadyexists"], name));
 
-        RuleFor(p => p.Description)
-            .NotEmpty()
-            .WithMessage("A Description is required.");
+        // RuleFor(p => p.Description)
+        //     .NotEmpty()
+        //     .WithMessage("A Description is required.");
 
         RuleFor(p => p.MinCapacity).
             NotEmpty()

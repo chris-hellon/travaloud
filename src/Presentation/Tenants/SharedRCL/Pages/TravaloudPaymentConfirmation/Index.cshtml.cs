@@ -3,6 +3,7 @@ using Travaloud.Application.Catalog.Bookings.Dto;
 using Travaloud.Application.Common.Interfaces;
 using Travaloud.Application.Common.Mailing;
 using Travaloud.Application.Identity.Users;
+using Travaloud.Application.Mailing;
 using Travaloud.Application.PaymentProcessing;
 using Travaloud.Application.PaymentProcessing.Commands;
 using Travaloud.Application.PaymentProcessing.Queries;
@@ -60,110 +61,109 @@ public class IndexModel : TravaloudBasePageModel
                             stripeStatus.PaymentIntentId, Booking.TotalAmount);
                     }
 
-                    await BookingService.FlagBookingAsPaidAsync(bookingId, new FlagBookingAsPaidRequest()
+                    if (!Booking.IsPaid)
                     {
-                        Id = bookingId
-                    });
-
+                        await BookingService.FlagBookingAsPaidAsync(bookingId, new FlagBookingAsPaidRequest()
+                        {
+                            Id = bookingId
+                        });
+                    }
+                    
                     BookingId = Booking.InvoiceId;
                     BookingDate = Booking.BookingDate;
 
                     Logger.Information("Booking {BookingId} flagged as paid for StripeSessionId {StripeSessionId} ",
                         bookingId, stripeSessionId);
 
-                    if (!Booking.ConfirmationEmailSent.HasValue || !Booking.ConfirmationEmailSent.Value)
+                    if (Booking.ConfirmationEmailSent.HasValue && Booking.ConfirmationEmailSent.Value) return Page();
+                    
+                    // Send confirmation email
+                    var emailModel = new BookingConfirmationTemplateModel(
+                        TenantName,
+                        MailSettings?.PrimaryBackgroundColor,
+                        MailSettings?.SecondaryBackgroundColor,
+                        MailSettings?.HeaderBackgroundColor,
+                        MailSettings?.TextColor,
+                        MailSettings?.LogoImageUrl,
+                        Booking,
+                        Booking.InvoiceId,
+                        $"{HttpContextAccessor.HttpContext?.Request.Scheme}://{HttpContextAccessor.HttpContext?.Request.Host}{HttpContextAccessor.HttpContext?.Request.PathBase}/contact",
+                        stripeStatus.CustomerDetails.Email
+                    );
+
+                    if (!string.IsNullOrEmpty(stripeStatus.CustomerDetails.Email))
                     {
-                        // Send confirmation email
-                        var emailModel = new BookingConfirmationTemplateModel(
-                            TenantName,
-                            MailSettings?.PrimaryBackgroundColor,
-                            MailSettings?.SecondaryBackgroundColor,
-                            MailSettings?.HeaderBackgroundColor,
-                            MailSettings?.TextColor,
-                            MailSettings?.LogoImageUrl,
-                            Booking,
-                            Booking.InvoiceId,
-                            $"{HttpContextAccessor.HttpContext?.Request.Scheme}://{HttpContextAccessor.HttpContext?.Request.Host}{HttpContextAccessor.HttpContext?.Request.PathBase}/contact",
-                            stripeStatus.CustomerDetails.Email
-                        );
+                        var emailHtml =
+                            await RazorPartialToStringRenderer.RenderPartialToStringAsync(
+                                $"/Pages/EmailTemplates/BookingConfirmation.cshtml", emailModel);
 
-                        if (!string.IsNullOrEmpty(stripeStatus.CustomerDetails.Email))
+                        var mailRequest = new MailRequest(
+                            to: [stripeStatus.CustomerDetails.Email!],
+                            subject: $"{TenantName} Order Confirmation",
+                            body: emailHtml);
+
+                        _jobService.Enqueue(() => MailService.SendAsync(mailRequest));
+                        
+                        var bookedTours = Booking.Items.Where(x => x.TourId.HasValue);
+
+                        var basketItemModels = bookedTours as BookingItemDetailsDto[] ?? bookedTours.ToArray();
+                        if (basketItemModels.Length != 0)
                         {
-                            var emailHtml =
-                                await RazorPartialToStringRenderer.RenderPartialToStringAsync(
-                                    $"/Pages/EmailTemplates/BookingConfirmation.cshtml", emailModel);
-
-                            var mailRequest = new MailRequest(
-                                to: [stripeStatus.CustomerDetails.Email!],
-                                subject: $"{TenantName} Order Confirmation",
-                                body: emailHtml);
-
-                            await MailService.SendAsync(mailRequest);
-
-                            var bookedTours = Booking.Items.Where(x => x.TourId.HasValue);
-
-                            var basketItemModels = bookedTours as BookingItemDetailsDto[] ?? bookedTours.ToArray();
-                            if (basketItemModels.Length != 0)
-                            {
-                                var distinctSupplierIds = basketItemModels.Select(x => x.Tour.SupplierId.ToString())
-                                    .Distinct().ToList();
+                            var distinctSupplierIds = basketItemModels.Select(x => x.Tour?.SupplierId.ToString())
+                                .Distinct().ToList();
                                 
-                                var suppliers =
-                                    await _userService.SearchAsync(distinctSupplierIds, CancellationToken.None);
+                            var suppliers =
+                                await _userService.SearchAsync(distinctSupplierIds, CancellationToken.None);
 
-                                if (suppliers.Count != 0)
+                            if (suppliers.Count != 0)
+                            {
+                                foreach (var supplierId in distinctSupplierIds)
                                 {
-                                    foreach (var supplierId in distinctSupplierIds)
+                                    if (string.IsNullOrEmpty(supplierId))
+                                        continue;
+                                        
+                                    var supplier = suppliers.FirstOrDefault(x => x.Id == Guid.Parse(supplierId));
+
+                                    if (supplier == null || string.IsNullOrEmpty(supplier.Email))
+                                        continue;
+
+                                    // Send confirmation email
+                                    var supplierEmailModel = new SupplierBookingConfirmationTemplateModel(
+                                        TenantName,
+                                        MailSettings.PrimaryBackgroundColor,
+                                        MailSettings.SecondaryBackgroundColor,
+                                        MailSettings.HeaderBackgroundColor,
+                                        MailSettings.TextColor,
+                                        MailSettings.LogoImageUrl,
+                                        Booking,
+                                        Booking.InvoiceId,
+                                        $"{HttpContextAccessor.HttpContext?.Request.Scheme}://{HttpContextAccessor.HttpContext?.Request.Host}{HttpContextAccessor.HttpContext?.Request.PathBase}/contact",
+                                        supplier.Email
+                                    )
                                     {
-                                        if (string.IsNullOrEmpty(supplierId))
-                                            continue;
+                                        SupplierId = supplier.Id
+                                    };
+
+                                    var supplierEmailHtml =
+                                        await RazorPartialToStringRenderer.RenderPartialToStringAsync(
+                                            $"/Pages/EmailTemplates/SupplierBookingConfirmation.cshtml",
+                                            supplierEmailModel);
+
+                                    var supplierMailRequest = new MailRequest(
+                                        to: [supplier.Email],
+                                        subject: $"{TenantName} Booking Confirmation",
+                                        body: supplierEmailHtml);
                                         
-                                        var supplier = suppliers.FirstOrDefault(x => x.Id == Guid.Parse(supplierId));
-
-                                        if (supplier == null || string.IsNullOrEmpty(supplier.Email))
-                                            continue;
-
-                                        // Send confirmation email
-                                        var supplierEmailModel = new SupplierBookingConfirmationTemplateModel(
-                                            TenantName,
-                                            MailSettings.PrimaryBackgroundColor,
-                                            MailSettings.SecondaryBackgroundColor,
-                                            MailSettings.HeaderBackgroundColor,
-                                            MailSettings.TextColor,
-                                            MailSettings.LogoImageUrl,
-                                            Booking,
-                                            Booking.InvoiceId,
-                                            $"{HttpContextAccessor.HttpContext?.Request.Scheme}://{HttpContextAccessor.HttpContext?.Request.Host}{HttpContextAccessor.HttpContext?.Request.PathBase}/contact",
-                                            supplier.Email
-                                        )
-                                        {
-                                            SupplierId = supplier.Id
-                                        };
-
-                                        var supplierEmailHtml =
-                                            await RazorPartialToStringRenderer.RenderPartialToStringAsync(
-                                                $"/Pages/EmailTemplates/SupplierBookingConfirmation.cshtml",
-                                                supplierEmailModel);
-
-                                        var supplierMailRequest = new MailRequest(
-                                            to: [supplier.Email],
-                                            subject: $"{TenantName} Booking Confirmation",
-                                            body: supplierEmailHtml);
-                                        
-                                        _jobService.Enqueue(() => MailService.SendAsync(supplierMailRequest));
-                                    }
+                                    _jobService.Enqueue(() => MailService.SendAsync(supplierMailRequest));
                                 }
                             }
                         }
-
-                        Logger.Information("Confirmation email sent for BookingId {BookingId}", bookingId);
-
-                        await BookingService.FlagBookingConfirmationEmailAsync(bookingId,
-                            new FlagBookingConfirmationEmailRequest
-                            {
-                                Id = bookingId
-                            });
                     }
+
+                    Logger.Information("Confirmation email sent for BookingId {BookingId}", bookingId);
+
+                    await BookingService.FlagBookingConfirmationEmailAsync(bookingId,
+                        new FlagBookingConfirmationEmailRequest(bookingId));
 
                     return Page();
                 }

@@ -10,21 +10,10 @@ public class StatsDto
     public decimal TodaysBookingsRevenue { get; init; }
     public int TotalBookingsCount { get; init; }
     public decimal TotalBookingsRevenue { get; init; }
-    // public int PropertyBookingsCount { get; init; }
-    // public int GuestsCount { get; init; }
-    // public int ToursCount { get; init; }
-    // public int PropertiesCount { get; init; }
-    // public List<BookingExportDto>? TodaysTours { get; set; }
-    //
-    // public List<ChartSeries> DataEnterBarChart { get; set; } = [];
-    // public Dictionary<string, double>? ProductByBrandTypePieChart { get; set; }
-    //
-    // public IEnumerable<BookingItemDetailsDto>? PaidTourBookings { get; init; }
-    // public IEnumerable<BookingItemDetailsDto>? AllTourBookings { get; init; }
-    //
-    // public List<TourBookingsBarChartSummary> TourBookingsBarChartSummaries { get; set; } = [];
-    //
-    // public GetDashboardResponse CloudbedsDashboard { get; set; } = new();
+    public int TotalCancelledCount { get; init; }
+    public decimal TotalCancelledRevenue { get; init; }
+    public int TotalRefundedCount { get; init; }
+    public decimal TotalRefundedRevenue { get; init; }
 }
 
 public class ChartSeries

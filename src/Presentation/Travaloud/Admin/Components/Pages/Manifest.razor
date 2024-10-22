@@ -1,0 +1,49 @@
+@page "/manifest"
+@using Travaloud.Application.Catalog.Bookings.Dto
+
+@attribute [MustHavePermission(TravaloudAction.View, TravaloudResource.TourBookings)]
+@attribute [StreamRendering]
+
+@inject IStringLocalizer<Manifest> L
+
+<TravaloudPageTitle Title="@L["Today's Manifest"]" />
+
+<EntityTable @ref="@_table" TEntity="BookingExportDto" TId="DefaultIdType" TRequest="BookingExportDto" Context="@Context" ModalWidth="MaxWidth.Large" ExpandAdvancedSearch="true">
+    <AdvancedSearchContent>
+        @if (Tours is {Count: > 0})
+        {
+            <MudSelect T="DefaultIdType?" @bind-Value="SearchTourId" Label="Filter by Tour" Clearable="true">
+                @foreach (var tour in Tours)
+                {
+                    <MudSelectItem T="DefaultIdType?" Value="tour.Id">@tour.Name</MudSelectItem>
+                }
+            </MudSelect>
+            
+            <MudSelect T="TimeSpan?" @bind-Value="SearchTourStartTime" Label="Filter by Time" Clearable="true">
+                @if (SelectedTourTimes != null)
+                {
+                    foreach (var timeSpan in SelectedTourTimes)
+                    {
+                        <MudSelectItem T="TimeSpan?" Value="timeSpan">@timeSpan</MudSelectItem>
+                    }
+                }
+            </MudSelect>
+        }
+    </AdvancedSearchContent>
+    <ExtraActions>
+       @if (!context.CheckedIn.HasValue || !context.CheckedIn.Value)
+       {
+           <MudMenuItem OnClick="@(() => CheckGuestIn(context))">@L["Check In"]</MudMenuItem>
+       }
+        
+        @if (!context.NoShow.HasValue || !context.NoShow.Value)
+        {
+            <MudMenuItem OnClick="@(() => FlagGuestAsNoShow(context))">@L["No Show"]</MudMenuItem>
+        }
+
+        @if (!context.Cancelled.HasValue || !context.Cancelled.Value)
+        {
+            <MudMenuItem OnClick="@(() => CancelGuest(context))">@L["Cancel"]</MudMenuItem>
+        }
+    </ExtraActions>
+</EntityTable>

@@ -37,6 +37,7 @@ public class TourDetailsDto
     public string? BookingConfirmationEmailDetails { get; set; }
     public bool? WaiverRequired { get; set; }
     public string? SupplierEmailText { get; set; }
+    public bool? ShowBookingQRCode { get; set; }
     public DefaultIdType? SupplierId { get; set; }
     
     public IList<TourPriceDto>? TourPrices { get; set; }

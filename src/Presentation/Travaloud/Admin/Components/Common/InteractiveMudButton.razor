@@ -13,11 +13,6 @@ else
    </MudButton>
 }
 
-@if (InteractiveSubmittingService.BusySubmitting)
-{
-   <p>twat</p>
-}
-
 @code {
    [Parameter] public string Label { get; set; } = default!;
    [Parameter] public string? StartIcon { get; set; }

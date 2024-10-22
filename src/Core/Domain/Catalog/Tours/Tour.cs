@@ -38,6 +38,7 @@ public class Tour : AuditableEntity, IAggregateRoot
     public bool? WaiverRequired { get; private set; }
     public string? SupplierId { get; private set; }
     public string? SupplierEmailText { get; private set; }
+    public bool? ShowBookingQRCode { get; private set; }
     public DefaultIdType? TourCategoryId { get; private set; }
     
     public virtual IList<TourCategoryLookup>? TourCategoryLookups { get; set; }
@@ -87,7 +88,8 @@ public class Tour : AuditableEntity, IAggregateRoot
         bool? waiverRequired,
         string? supplierId,
         string? supplierEmailText,
-        DefaultIdType? tourCategoryId)
+        DefaultIdType? tourCategoryId,
+        bool? showBookingQrCode)
     {
         Name = name;
         Description = description.FormatTextEditorString() ?? string.Empty;
@@ -123,6 +125,7 @@ public class Tour : AuditableEntity, IAggregateRoot
         SupplierId = supplierId;
         SupplierEmailText = supplierEmailText;
         TourCategoryId = tourCategoryId;
+        ShowBookingQRCode = showBookingQrCode;
     }
 
     public Tour Update(string? name,
@@ -158,7 +161,8 @@ public class Tour : AuditableEntity, IAggregateRoot
         bool? waiverRequired,
         string? supplierId,
         string? supplierEmailText,
-        DefaultIdType? tourCategoryId)
+        DefaultIdType? tourCategoryId,
+        bool? showBookingQrCode)
     {
         if (name is not null && Name?.Equals(name) is not true) Name = name;
         if (description is not null && Description?.Equals(description) is not true) Description = description.FormatTextEditorString() ?? string.Empty;
@@ -191,6 +195,7 @@ public class Tour : AuditableEntity, IAggregateRoot
         if (supplierEmailText is not null && SupplierEmailText?.Equals(supplierEmailText) is not true) SupplierEmailText = supplierEmailText.FormatTextEditorString();
 
         PublishToSite = publishToSite;
+        ShowBookingQRCode = showBookingQrCode;
         AdditionalGuestDetailsRequired = additionalGuestDetailsRequired;
         WaiverRequired = waiverRequired;
         SupplierId = supplierId;

@@ -11,15 +11,20 @@ public class IndexModel : TravaloudBasePageModel
     {
         _eventsService = eventsService;
     }
-
-    public override string MetaKeywords()
+    
+    public override Guid? PageId()
     {
-        return "budget hostels, cheap hostels, backpackers hostels, Vietnam travel";
+        return new Guid("4fc705ed-4860-4ba3-440a-08dc303eaa33");
     }
 
-    public override string MetaDescription()
+    public override string MetaKeywords(string? overrideValue = null)
     {
-        return "Our budget hostels in Vietnam offer comfortable and affordable accommodation for backpackers and budget travelers. Book now and start your Vietnam adventure!";
+        return base.MetaKeywords(  "budget hostels, cheap hostels, backpackers hostels, Vietnam travel");
+    }
+
+    public override string MetaDescription(string? overrideValue = null)
+    {
+        return base.MetaDescription("Our budget hostels in Vietnam offer comfortable and affordable accommodation for backpackers and budget travelers. Book now and start your Vietnam adventure!");
     }
 
     [BindProperty]

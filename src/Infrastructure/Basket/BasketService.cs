@@ -39,6 +39,16 @@ public class BasketService : IBasketService
         return basket;
     }
     
+    public async Task<BasketModel> SetBookingId(DefaultIdType bookingId)
+    {
+        var basket = await GetBasket();
+        basket.SetBookingId(bookingId);
+        
+        _session.UpdateObjectInSession(BasketKey, basket);
+
+        return basket;
+    }
+    
     public async Task<BasketModel> SetCreateId(string createId)
     {
         var basket = await GetBasket();

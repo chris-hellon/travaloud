@@ -11,10 +11,13 @@
 @{
     if (Model.Tour != null)
     {
-        <section id="headerBanner">
-            @Html.DisplayFor(x => x.HeaderBanner)
-        </section>
-
+        if (!string.IsNullOrEmpty(Model.Tour.ImagePath) && Model.Tour.ImagePath != "?w=1000")
+        {
+            <section id="headerBanner">
+                @Html.DisplayFor(x => x.HeaderBanner)
+            </section>
+        }
+        
         <section id="introduction" class="bg-light">
             <div class="container-fluid">
                 <div class="container pb-8 pt-8">
@@ -145,5 +148,4 @@
             <script src="/shared/js/tour.min.js" type="text/javascript"></script>
         }
     }
-}
 }

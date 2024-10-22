@@ -4,16 +4,21 @@ namespace FuseHostelsAndTravel.Pages.OurStory;
 
 public class IndexModel : TravaloudBasePageModel
 {
-    public override string MetaKeywords()
+    public override Guid? PageId()
     {
-        return "our story, hostel brand, backpacking, travel community";
+        return new Guid("4f1465bc-025c-404b-440c-08dc303eaa33");
+    }
+    
+    public override string MetaKeywords(string? overrideValue = null)
+    {
+        return base.MetaKeywords( "our story, hostel brand, backpacking, travel community");
     }
 
-    public override string MetaDescription()
+    public override string MetaDescription(string? overrideValue = null)
     {
-        return "Learn about the story behind Fuse Hostels and Travels. We're more than just a hostel brand, we're a community of like-minded travelers who share a passion for backpacking and exploring the world.";
+        return base.MetaDescription("Learn about the story behind Fuse Hostels and Travels. We're more than just a hostel brand, we're a community of like-minded travelers who share a passion for backpacking and exploring the world.");
     }
-
+    
     [BindProperty]
     public HeaderBannerComponent? HeaderBanner { get; private set; }
 

@@ -1,4 +1,5 @@
 ﻿using Travaloud.Application.Catalog.Services.Dto;
+using Travaloud.Application.Mailing;
 
 namespace Travaloud.Tenants.SharedRCL.Models.EmailTemplates;
 

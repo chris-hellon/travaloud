@@ -20,6 +20,7 @@ public class CreateBookingItemRequest
     public DefaultIdType? TourCategoryId { get; set; }
     
     public string? PickupLocation { get; set; }
+    public string? OtherPickupLocation { get; set; }
     public bool WaiverSigned { get; set; }
     public string? CloudbedsReservationId { get; set; }
     public int? CloudbedsPropertyId { get; set; }

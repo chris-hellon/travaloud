@@ -109,4 +109,7 @@ public class BookingExportDto
     
     [ExportColumn(true)]
     public bool? CheckedIn { get; set; }
+    
+    [ExportColumn(true)]
+    public DefaultIdType TourDateId { get; set; }
 }
