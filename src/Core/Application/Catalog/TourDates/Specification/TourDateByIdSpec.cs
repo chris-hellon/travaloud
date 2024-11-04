@@ -7,7 +7,14 @@ public class TourDateByIdSpec : Specification<TourDate>, ISingleResultSpecificat
 {
     public TourDateByIdSpec(DefaultIdType tourId) =>
         Query
-            .Include(x => x.TourPrice)
+            .Include(x => x.TourPrice).AsNoTracking()
+            .Where(p => p.Id == tourId);
+}
+
+public class TourDateByIdWithoutPriceSpec : Specification<TourDate>, ISingleResultSpecification<TourDate>
+{
+    public TourDateByIdWithoutPriceSpec(DefaultIdType tourId) =>
+        Query
             .Where(p => p.Id == tourId);
 }
 

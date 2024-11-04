@@ -20,7 +20,7 @@
                     <div class="col-md-6 mb-4">
                         <div class="bg-image hover-overlay shadow-2-strong" data-mdb-ripple-init data-mdb-ripple-color="light">
                             <img src="@firstImagePath" class="img-fluid" alt="@firstTravelGuide.Title image"/>
-                            <a asp-page="/TravelGuide/Index" asp-route-title="@firstTravelGuide.Title.UrlFriendly()">
+                            <a asp-page="/TravelGuide/Index" asp-route-title="@(firstTravelGuide.UrlFriendlyTitle ?? firstTravelGuide.Title.UrlFriendly())">
                                 <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
                             </a>
                         </div>
@@ -34,7 +34,7 @@
                         <p class="text-muted">
                             @Html.Raw(firstTravelGuide.ShortDescription)
                         </p>
-                        <a class="btn btn-primary" asp-page="/TravelGuide/Index" asp-route-title="@firstTravelGuide.Title.UrlFriendly()" data-mdb-ripple-init>Read more</a>
+                        <a class="btn btn-primary" asp-page="/TravelGuide/Index" asp-route-title="@(firstTravelGuide.UrlFriendlyTitle ?? firstTravelGuide.Title.UrlFriendly())" data-mdb-ripple-init>Read more</a>
                     </div>
                 </div>
             </div>
@@ -46,7 +46,7 @@
                     <div class="col-lg-4 col-md-12 mb-4 mb-lg-0">
                         <div class="bg-image hover-overlay shadow-1-strong mb-4" data-mdb-ripple-init data-mdb-ripple-color="light">
                             <img src="@imagePath" class="img-fluid" alt="@travelGuide.Title image"/>
-                            <a asp-page="/TravelGuide/Index" asp-route-title="@travelGuide.Title.UrlFriendly()">
+                            <a asp-page="/TravelGuide/Index" asp-route-title="@(firstTravelGuide.UrlFriendlyTitle ?? firstTravelGuide.Title.UrlFriendly())">
                                 <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
                             </a>
                         </div>
@@ -63,7 +63,7 @@
 
                         @Html.Raw(travelGuide.ShortDescription)
 
-                        <a class="btn btn-primary mt-3" asp-page="/TravelGuide/Index" asp-route-title="@travelGuide.Title.UrlFriendly()" data-mdb-ripple-init>Read more</a>
+                        <a class="btn btn-primary mt-3" asp-page="/TravelGuide/Index" asp-route-title="@(firstTravelGuide.UrlFriendlyTitle ?? firstTravelGuide.Title.UrlFriendly())" data-mdb-ripple-init>Read more</a>
                     </div>
                 }
             </div>

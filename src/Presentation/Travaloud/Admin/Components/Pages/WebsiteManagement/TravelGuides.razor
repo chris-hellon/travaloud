@@ -26,12 +26,15 @@
         <MudGrid>
             <MudItem xs="12" md="12">
                 <MudInputLabel Class="mb-3">@L["Full Description"]</MudInputLabel>
-                <MudExRichTextEdit @bind-Value="context.Description" For="@(() => context.Description)" BackgroundColor="MudExColor.Transparent" />
+                <MudExRichTextEdit @bind-Value="context.Description" For="@(() => context.Description)" BackgroundColor="MudExColor.Transparent" CustomUploadFunc="OnUpload" />
             </MudItem>
         </MudGrid>
     </WizardStep2Content>
     <WizardStep3Content>
         <MudGrid>
+            <MudItem xs="12" md="12">
+                <MudTextField Label="@L["URL Slug"]" For="@(() => context.UrlFriendlyTitle)" @bind-Value="context.UrlFriendlyTitle" HelperText="Enter a URL Slug" Variant="Variant.Outlined"/>
+            </MudItem>
             <MudItem xs="12" md="12">
                 <MudTextField Label="@L["Meta Keywords"]" For="@(() => context.MetaKeywords)" @bind-Value="context.MetaKeywords" HelperText="Enter Meta Keywords (recommended max limit of 20)" Variant="Variant.Outlined"/>
             </MudItem>

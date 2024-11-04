@@ -11,6 +11,7 @@ public class CreateTravelGuideRequest : IRequest<DefaultIdType>
     public string ShortDescription { get; set; } = default!;
     public string? MetaKeywords { get; set; }
     public string? MetaDescription { get; set; }
+    public string? UrlFriendlyTitle { get; set; }
     public FileUploadRequest? Image { get; set; }
     public IList<TravelGuideGalleryImageRequest>? TravelGuideGalleryImages { get; set; }
 }
@@ -40,7 +41,7 @@ public class CreateTravelGuideRequestHandler : IRequestHandler<CreateTravelGuide
             imagePath,
             request.MetaKeywords,
             request.MetaDescription,
-            request.Title.UrlFriendly()
+            request.UrlFriendlyTitle ?? request.Title.UrlFriendly()
         );
 
         await travelGuide.ProcessImages(request.TravelGuideGalleryImages, _currentUser.GetUserId(), _file, cancellationToken);

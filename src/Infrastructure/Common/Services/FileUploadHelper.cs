@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components.Forms;
 using MudBlazor;
+using MudBlazor.Extensions.Components;
 using Travaloud.Infrastructure.FileStorage;
 
 namespace Travaloud.Infrastructure.Common.Services;
@@ -46,6 +47,52 @@ public static class FileUploadHelper
         
         await stream.CopyToAsync(memoryStream);
 
+        var buffer = memoryStream.ToArray();
+                    
+        var base64 = Convert.ToBase64String(buffer);
+                    
+        fileUploadDetails.FileInBytes = $"data:{(isImage ? ApplicationConstants.StandardImageFormat : ApplicationConstants.StandardVideoFormat)};base64,{base64}";
+
+        return fileUploadDetails;
+    }
+    
+    public static async Task<FileUploadDetails?> UploadFile(UploadableFile e, ISnackbar snackbar, bool isImage = true)
+    {
+        var extension = Path.GetExtension(e.FileName);
+
+        if (isImage)
+        {
+            if (!ApplicationConstants.SupportedImageFormats.Contains(extension.ToLower()))
+            {
+                snackbar.Add("Image Format Not Supported.", Severity.Error);
+                return null;
+            }
+
+            if (e.Size > ApplicationConstants.MaxAllowedImageSize)
+            {
+                snackbar.Add("Image File too large, please select a file less than 2mb.", Severity.Error);
+                return null;
+            }
+        }
+        else
+        {
+            if (!ApplicationConstants.SupportedVideoFormats.Contains(extension.ToLower()))
+            {
+                snackbar.Add("Video Format Not Supported.", Severity.Error);
+                return null;
+            }
+
+            if (e.Size > ApplicationConstants.MaxAllowedVideoSize)
+            {
+                snackbar.Add("Video File too large, please select a file less than 10mb.", Severity.Error);
+                return null;
+            }
+        }
+
+        var fileUploadDetails = new FileUploadDetails(extension);
+        
+        using var memoryStream = new MemoryStream(e.Data);
+        
         var buffer = memoryStream.ToArray();
                     
         var base64 = Convert.ToBase64String(buffer);

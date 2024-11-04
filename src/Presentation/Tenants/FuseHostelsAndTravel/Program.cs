@@ -1,4 +1,5 @@
 using FuseHostelsAndTravel.Configurations;
+using Microsoft.AspNetCore.Rewrite;
 using Serilog;
 using Travaloud.Application;
 using Travaloud.Infrastructure;
@@ -28,9 +29,32 @@ try
 
     app.UseTenantWebsiteInfrastructure(builder.Configuration, builder.Environment);
     app.MapRazorPages();
+
+    var rewriteOptions = new RewriteOptions().AddRedirectToNonWwwPermanent();
+    app.UseRewriter(rewriteOptions);
     
     Log.Information("Application running successfully");
 
+    app.Use(async (context, next) =>
+    {
+        var tenantWebsiteService = context.RequestServices.GetRequiredService<ITenantWebsiteService>();
+        var redirects = await tenantWebsiteService.GetSeoRedirects(new CancellationToken());
+        
+        var requestUrl = context.Request.Path.Value;
+        foreach (var redirect in from redirect in redirects
+                 let normalizedRedirectUrl = redirect.Url.TrimStart('/')
+                 let normalizedRequestUrl = requestUrl.TrimStart('/')
+                 where string.Equals(normalizedRequestUrl,
+                     normalizedRedirectUrl,
+                     StringComparison.OrdinalIgnoreCase)
+                 select redirect)
+        {
+            context.Response.Redirect(redirect.RedirectUrl, true);
+            return;
+        }
+
+        await next();
+    });
     app.Run();
 }
 catch (Exception ex) when (!ex.GetType().Name.Equals("StopTheHostException", StringComparison.Ordinal))

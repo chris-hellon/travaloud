@@ -2,6 +2,7 @@ using Mapster;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.JSInterop;
+using MudBlazor.Extensions.Components;
 using Travaloud.Admin.Components.EntityTable;
 using Travaloud.Application.Catalog.Interfaces;
 using Travaloud.Application.Catalog.TravelGuides.Commands;
@@ -265,6 +266,28 @@ public partial class TravelGuides
         image.DeleteCurrentImage = true;
         Context.AddEditModal.RequestModel.TravelGuideGalleryImages?.Remove(image);
         Context.AddEditModal.ForceRender();
+    }
+    
+    private async Task<string> OnUpload(UploadableFile arg)
+    {        
+        Snackbar.Add("Uploading file...");
+        
+        var fileUploadDetails = await FileUploadHelper.UploadFile(arg, Snackbar);
+
+        if (fileUploadDetails != null)
+        {
+            var extension = Path.GetExtension(arg.FileName);
+            var imageUrl = await FileStorageService.UploadAsync<TravelGuides>(new FileUploadRequest()
+            {
+                Extension = extension,
+                Data = fileUploadDetails.FileInBytes,
+                Name = arg.FileName
+            }, FileType.Image);
+            
+            return await Task.FromResult(imageUrl);
+        }
+
+        return string.Empty;
     }
 }
 

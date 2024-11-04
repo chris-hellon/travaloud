@@ -14,6 +14,7 @@ public class UpdateTravelGuideRequest : IRequest<DefaultIdType>
     public bool DeleteCurrentImage { get; set; }
     public string? MetaKeywords { get; set; }
     public string? MetaDescription { get; set; }
+    public string? UrlFriendlyTitle { get; set; }
     public FileUploadRequest? Image { get; set; }
     public IList<TravelGuideGalleryImageRequest>? TravelGuideGalleryImages { get; set; }
 }
@@ -63,7 +64,7 @@ public class UpdateTravelGuideRequestHandler : IRequestHandler<UpdateTravelGuide
             imagePath,
             request.MetaKeywords,
             request.MetaDescription,
-            request.Title.UrlFriendly());
+            request.UrlFriendlyTitle ?? request.Title.UrlFriendly());
 
         await updatedTravelGuide.ProcessImages(request.TravelGuideGalleryImages, _currentUser.GetUserId(), _file, cancellationToken);
         

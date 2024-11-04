@@ -39,6 +39,7 @@ public static class TravaloudResource
     public const string TravelGuides = nameof(TravelGuides);
     public const string Gallery = nameof(Gallery);
     public const string Settings = nameof(Settings);
+    public const string Seo = nameof(Seo);
 }
 
 public static class TravaloudPermissions
@@ -154,6 +155,12 @@ public static class TravaloudPermissions
             new("Export Gallery", TravaloudAction.Export, TravaloudResource.Gallery),
             new("View Settings", TravaloudAction.View, TravaloudResource.Settings),
             new("Update Settings", TravaloudAction.Update, TravaloudResource.Settings),
+            new("View Seo", TravaloudAction.View, TravaloudResource.Seo),
+            new("Search Seo", TravaloudAction.Search, TravaloudResource.Seo),
+            new("Create Seo", TravaloudAction.Create, TravaloudResource.Seo),
+            new("Update Seo", TravaloudAction.Update, TravaloudResource.Seo),
+            new("Delete Seo", TravaloudAction.Delete, TravaloudResource.Seo),
+            new("Export Seo", TravaloudAction.Export, TravaloudResource.Seo),
             new("View Tenants", TravaloudAction.View, TravaloudResource.Tenants, IsRoot: true),
             new("Create Tenants", TravaloudAction.Create, TravaloudResource.Tenants, IsRoot: true),
             new("Update Tenants", TravaloudAction.Update, TravaloudResource.Tenants, IsRoot: true),

@@ -10,6 +10,7 @@ using Travaloud.Domain.Catalog.JobVacancies;
 using Travaloud.Domain.Catalog.Pages;
 using Travaloud.Domain.Catalog.Partners;
 using Travaloud.Domain.Catalog.Properties;
+using Travaloud.Domain.Catalog.SEO;
 using Travaloud.Domain.Catalog.Services;
 using Travaloud.Domain.Catalog.Tours;
 using Travaloud.Domain.Catalog.TravelGuides;
@@ -300,6 +301,22 @@ public class GalleriesConfig : IEntityTypeConfiguration<Gallery>
 public class TravelGuidesConfig : IEntityTypeConfiguration<TravelGuide>
 {
     public void Configure(EntityTypeBuilder<TravelGuide> builder)
+    {
+        builder.IsMultiTenant();
+    }
+}
+
+public class SeoConfig : IEntityTypeConfiguration<Seo>
+{
+    public void Configure(EntityTypeBuilder<Seo> builder)
+    {
+        builder.IsMultiTenant();
+    }
+}
+
+public class SeoRedirectConfig : IEntityTypeConfiguration<SeoRedirect>
+{
+    public void Configure(EntityTypeBuilder<SeoRedirect> builder)
     {
         builder.IsMultiTenant();
     }

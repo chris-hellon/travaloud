@@ -12,4 +12,5 @@ public class TravelGuideDto
     public string CreatedBy { get; set; } = default!;
     public string? MetaKeywords { get; set; }
     public string? MetaDescription { get; set; }
+    public string? UrlFriendlyTitle { get; set; } = default!;
 }

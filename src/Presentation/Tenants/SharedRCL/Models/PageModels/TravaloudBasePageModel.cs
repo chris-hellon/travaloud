@@ -14,6 +14,7 @@ using Travaloud.Application.Catalog.Pages.Dto;
 using Travaloud.Application.Catalog.PageSorting.Dto;
 using Travaloud.Application.Catalog.PageSorting.Queries;
 using Travaloud.Application.Catalog.Properties.Dto;
+using Travaloud.Application.Catalog.Seo;
 using Travaloud.Application.Catalog.Services.Dto;
 using Travaloud.Application.Catalog.Tours.Dto;
 using Travaloud.Application.Catalog.Tours.Queries;
@@ -250,6 +251,8 @@ public class TravaloudBasePageModel : PageModel
     /// </summary>
     public IEnumerable<PageSortingDto>? PageSortings { get; set; }
 
+    public SeoDetailsDto? SeoDetails { get; set; }
+    
     #endregion
 
     #region Properties
@@ -606,15 +609,17 @@ public class TravaloudBasePageModel : PageModel
         var toursTask = Task.Run(() => TenantWebsiteService.GetTours(cancellationToken), cancellationToken);
         var servicesTask = Task.Run(() => TenantWebsiteService.GetServices(cancellationToken), cancellationToken);
         var destinationsTask = Task.Run(() => TenantWebsiteService.GetDestinations(cancellationToken), cancellationToken);
-
-        await Task.WhenAll(propertiesTask, toursTask, servicesTask, destinationsTask);
+        var seoDetailsTask = Task.Run(() => PagesService.GetSeoAsync(new GetSeoRequest()), cancellationToken);
+        
+        await Task.WhenAll(propertiesTask, toursTask, servicesTask, destinationsTask, seoDetailsTask);
         
         Properties = propertiesTask.Result;
         Tours = toursTask.Result.Where(x => x.PublishToSite.HasValue && x.PublishToSite.Value);
         AllTours = toursTask.Result;
         Services = servicesTask.Result;
         Destinations = destinationsTask.Result;
-    
+        SeoDetails = seoDetailsTask.Result;
+        
         if (TenantId != "fuse")
         {
             var toursWithCategoriesTask = TenantWebsiteService.GetToursWithCategories(TenantId, cancellationToken);

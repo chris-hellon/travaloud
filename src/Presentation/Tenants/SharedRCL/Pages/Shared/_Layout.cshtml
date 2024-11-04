@@ -127,6 +127,17 @@
         }
     }
 
+    @if (!string.IsNullOrEmpty(Model.SeoDetails?.Breadcrumbs))
+    {
+        @Html.Raw(Model.SeoDetails.Breadcrumbs);
+    }
+
+    @if (!string.IsNullOrEmpty(Model.SeoDetails?.SearchAction))
+    {
+        @Html.Raw(Model.SeoDetails.SearchAction);
+    }
+  
+    @await RenderSectionAsync("LdJson", required: false)
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>

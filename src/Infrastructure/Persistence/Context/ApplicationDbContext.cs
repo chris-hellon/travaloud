@@ -13,6 +13,7 @@ using Travaloud.Domain.Catalog.JobVacancies;
 using Travaloud.Domain.Catalog.Pages;
 using Travaloud.Domain.Catalog.Partners;
 using Travaloud.Domain.Catalog.Properties;
+using Travaloud.Domain.Catalog.SEO;
 using Travaloud.Domain.Catalog.Services;
 using Travaloud.Domain.Catalog.Tours;
 using Travaloud.Domain.Catalog.TravelGuides;
@@ -77,6 +78,8 @@ public class ApplicationDbContext : BaseDbContext
     public DbSet<TravelGuide> TravelGuides => Set<TravelGuide>();
     public DbSet<TravelGuideGalleryImage> TravelGuideGalleryImages => Set<TravelGuideGalleryImage>();
     public DbSet<TourPickupLocation> TourPickupLocations => Set<TourPickupLocation>();
+    public DbSet<Seo> Seo => Set<Seo>();
+    public DbSet<SeoRedirect> SeoRedirects => Set<SeoRedirect>();
     
     // #region Stock 
     // public DbSet<Barcode> Barcodes => Set<Barcode>();

@@ -1,5 +1,43 @@
 @page
+
+@inject IHttpContextAccessor HttpContextAccessor
+
+@using System.Web
 @model FuseHostelsAndTravel.Pages.TravelGuide.IndexModel
+
+@{
+    var url = $"{HttpContextAccessor.HttpContext.Request.Scheme}://{HttpContextAccessor.HttpContext.Request.Host}{HttpContextAccessor.HttpContext.Request.PathBase}{HttpContextAccessor.HttpContext.Request.Path}{HttpContextAccessor.HttpContext.Request.QueryString}";
+}
+
+@section LdJson {
+
+    <script type="application/ld+json">
+        {
+          "@@context": "https://schema.org",
+          "@@type": "BlogPosting",
+          "headline": "@Model.TravelGuide?.Title",
+          "author": {
+            "@@type": "Person",
+            "name": "@Model.UserName"
+          },
+          "datePublished": "@Model.TravelGuide?.CreatedOn.ToShortDateString()",
+          "image": "@Model.TravelGuide?.ImagePath",
+          "articleBody": "@HttpUtility.HtmlDecode(Model.TravelGuide?.DescriptionFormatted)",
+          "publisher": {
+            "@@type": "Organization",
+            "name": "Fuse Hostels and Travel", 
+            "logo": {
+              "@@type": "ImageObject",
+              "url": "https://travaloud.azureedge.net/fuse/assets/images/Fuse-primary-logo.svg"
+            }
+          },
+          "mainEntityOfPage": {
+            "@@type": "WebPage",
+            "@@id": "@url"
+          }
+        }
+    </script>
+}
 
 @section Styles {
     <link rel="stylesheet" href="https://mdbcdn.b-cdn.net/wp-content/themes/mdbootstrap4/docs-app/css/dist/mdb5/plugins/standard/multi-carousel.min.css"/>

@@ -9,6 +9,7 @@ using Travaloud.Application.Catalog.PageSorting.Dto;
 using Travaloud.Application.Catalog.PageSorting.Queries;
 using Travaloud.Application.Catalog.Properties.Dto;
 using Travaloud.Application.Catalog.Properties.Queries;
+using Travaloud.Application.Catalog.Seo;
 using Travaloud.Application.Catalog.Services.Dto;
 using Travaloud.Application.Catalog.Services.Queries;
 using Travaloud.Application.Catalog.Tours.Dto;
@@ -48,6 +49,17 @@ public class TenantWebsiteService : BaseService, ITenantWebsiteService
         return _cache.GetOrSetAsync(
             cacheKey,
             () => Mediator.Send(new GetPropertiesByPublishToWebsiteRequest(), cancellationToken),
+            cancellationToken: cancellationToken);
+    }
+    
+    public Task<List<SeoRedirectDto>> GetSeoRedirects(CancellationToken cancellationToken)
+    {
+        var currentDate = DateTime.Now;
+        var cacheKey = _cacheKeys.GetCacheKey($"{_tenantKey}-SeoRedirects", $"{currentDate:yyyy-MM-dd-HH}");
+        
+        return _cache.GetOrSetAsync(
+            cacheKey,
+            () => Mediator.Send(new GetSeoRedirectsFullRequest(), cancellationToken),
             cancellationToken: cancellationToken);
     }
 

@@ -1,0 +1,23 @@
+@page "/management/page-management/page-redirects"
+
+@using Travaloud.Application.Catalog.Interfaces
+@using Travaloud.Application.Catalog.Seo;
+
+@inject IPagesService PagesService
+@inject IStringLocalizer<PageRedirects> L
+
+<TravaloudPageTitle Title="@L["Page Redirects"]" Description="@L["Page Redirects"]"/>
+
+<EntityTable @ref="_table" TEntity="SeoRedirectDto" TId="DefaultIdType" TRequest="UpdateSeoRedirectRequest" Context="@Context" ModalWidth="MaxWidth.Medium">
+    <EditFormContent>
+        <MudGrid>
+            <MudItem xs="12" md="12">
+                <MudTextField Label="@L["Url"]" For="@(() => context.Url)" @bind-Value="context.Url" Required="true" Placeholder="Enter a Url" Variant="Variant.Outlined" HelperText="Please only include the url slug, not the full Url eg. this-page-to-redirect"/>
+            </MudItem>
+
+            <MudItem xs="12" md="12">
+                <MudTextField Label="@L["Redirect Url"]" For="@(() => context.RedirectUrl)" @bind-Value="context.RedirectUrl" Required="true" Placeholder="Enter a Redirect Url" Variant="Variant.Outlined" HelperText="Please only include the url slug, not the full Url eg. redirect-to-this-page"/>
+            </MudItem>
+        </MudGrid>
+    </EditFormContent>
+</EntityTable>

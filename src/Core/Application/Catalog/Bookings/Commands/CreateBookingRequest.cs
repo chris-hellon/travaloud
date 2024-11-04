@@ -253,7 +253,7 @@ public class CreateBookingRequestHandler : IRequestHandler<CreateBookingRequest,
                     {
                         var tourDate =
                             await _tourDateRepository.FirstOrDefaultAsync(
-                                new TourDateByIdSpec(itemRequest.TourDateId!.Value), cancellationToken);
+                                new TourDateByIdWithoutPriceSpec(itemRequest.TourDateId!.Value), cancellationToken);
 
                         if (tourDate == null)
                         {

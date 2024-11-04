@@ -9,7 +9,6 @@ using Travaloud.Admin.PaymentProcessing;
 using Travaloud.Application;
 using Travaloud.Infrastructure;
 using Travaloud.Infrastructure.Common;
-using Travaloud.Infrastructure.PaymentProcessing;
 
 StaticLogger.EnsureInitialized();
 Log.Information("Server Booting Up...");
@@ -82,7 +81,7 @@ try
     {
         app.UseResponseCompression();
     }
-    
+
     Log.Information("Application running successfully");
 
     app.Run();

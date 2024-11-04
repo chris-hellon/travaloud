@@ -8,24 +8,24 @@
     {
         <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">@L["Dashboard"]</MudNavLink>
     }
-    
+
     @if (_canViewCalendar)
     {
         <MudNavLink Href="/calendar" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.CalendarToday">@L["Calendar"]</MudNavLink>
     }
-    
+
     @if (_canViewTourBookings)
     {
         <MudNavLink Href="/manifest" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Checklist">@L["Manifest"]</MudNavLink>
     }
-    
+
     <MudDivider/>
-    
+
     @if (_canViewHangfire)
     {
         <MudNavLink Href="@_hangfireUrl" Match="NavLinkMatch.All" Target="_blank" Icon="@Icons.Material.Filled.Work">@L["Hangfire"]</MudNavLink>
     }
-    
+
     @if (_canViewTourBookings && _canViewPropertyBookings)
     {
         <MudNavGroup Title="@L["Bookings"]" Expanded="@ShouldExpand("/bookings")" Icon="@Icons.Material.Filled.Payments">
@@ -41,7 +41,7 @@
     {
         <MudNavLink Href="/bookings/property-bookings" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Payments">@L["Property Bookings"]</MudNavLink>
     }
-    
+
     @if (_canViewProperties || _canViewTours || _canViewDestinations || _canViewEvents || _canViewServices || _canViewJobVacancies || _canViewTravelGuides || _canViewGallery || _canViewPages)
     {
         <MudNavGroup Title="@L["Management"]" Expanded="@ShouldExpand("/management")" Icon="@Icons.Material.Filled.Web">
@@ -62,21 +62,21 @@
                     {
                         <MudNavLink Href="/management/tours/tour-groups" Match="NavLinkMatch.All">@L["Groups"]</MudNavLink>
                     }
-                    
+
                     @if (_canViewSuppliers)
                     {
-                        <MudNavLink Href="/management/tours/suppliers" Match="NavLinkMatch.Prefix">@L["Suppliers"]</MudNavLink>   
+                        <MudNavLink Href="/management/tours/suppliers" Match="NavLinkMatch.Prefix">@L["Suppliers"]</MudNavLink>
                     }
                 </MudNavGroup>
             }
-            
+
             @if (_canViewProperties)
             {
                 <MudNavLink Href="/management/properties" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.LocationCity">
                     @L["Properties"]
                 </MudNavLink>
             }
-            
+
             @if (_canViewEvents)
             {
                 <MudNavLink Href="/management/events" Match="NavLinkMatch.All"Icon="@Icons.Material.Filled.Event">
@@ -117,8 +117,15 @@
                 <MudNavGroup Title="@L["Page Management"]" Expanded="@ShouldExpand("/management/page-management")" Icon="@Icons.Material.Filled.Pageview">
                     <MudNavLink Href="/management/page-management/pages" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Book">@L["Pages"]</MudNavLink>
                     <MudNavLink Href="/management/page-management/page-modals" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.AddAlert">@L["Page Modals"]</MudNavLink>
+                    
+                    @if (_canViewSeo)
+                    {
+                        <MudNavLink Href="/management/page-management/global-seo" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Bookmarks">@L["Global SEO"]</MudNavLink>
+                        <MudNavLink Href="/management/page-management/page-redirects" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Refresh">@L["Page Redirects"]</MudNavLink>
+                    }
                 </MudNavGroup>
             }
+
         </MudNavGroup>
     }
 
@@ -141,12 +148,12 @@
     }
 
     <MudDivider/>
-    
+
     @if (_canViewGuests)
     {
         <MudNavLink Match="NavLinkMatch.Prefix" Href="/guests" Icon="@Icons.Material.Filled.Groups">@L["Guests"]</MudNavLink>
     }
-    
+
     @if (CanViewAdministrationGroup)
     {
         @if (_canViewUsers)
