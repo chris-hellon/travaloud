@@ -28,3 +28,26 @@
 <section id="bookBanner" class="bg-gray px-3 px-lg-0 py-5">
     @Html.DisplayFor(x => x.BookNowBanner)
 </section>
+
+@section LdJson {
+    <script type="application/ld+json">
+            {
+              "@@context": "https://schema.org",
+                  "@@type": "BreadcrumbList",
+                  "itemListElement": [
+                    {
+                      "@@type": "ListItem",
+                      "position": 1,
+                      "name": "Home",
+                      "item": "https://fusehostelsandtravel.com"
+                    },
+                    {
+                      "@@type": "ListItem",
+                      "position": 2,
+                      "name": "Hostels",
+                      "item": "https://fusehostelsandtravel.com/hostels"
+                    }
+                  ]
+                }
+        </script>
+}

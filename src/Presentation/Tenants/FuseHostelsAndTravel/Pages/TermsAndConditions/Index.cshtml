@@ -1,12 +1,17 @@
 ﻿@page "/terms-and-conditions"
+@using Travaloud.Application.Common.Extensions
 @model FuseHostelsAndTravel.Pages.TermsAndConditions.IndexModel
+
+@{
+    var (title, subTitle, subSubTitle) = Model.PageDetails.GetTitleSubTitleAndSubSubTitle();
+}
 
 <section id="termsAndConditions" class="bg-light overflow-hidden position-relative">
     <div class="container-fluid">
         <div class="container pt-8 pb-8">
             <div class="row d-flex justify-content-center text-center">
                 <div class="col-lg-10 text-start">
-                    <h1 class="display-3 mb-4 text-center">TERMS & CONDITIONS</h1>
+                    <h1 class="display-3 mb-4 text-center">@title</h1>
 
                     <p>
                         Please read carefully these Terms & Conditions of use before proceeding. If you do not agree to these terms of use, you must refrain from using the Site.
@@ -144,3 +149,26 @@
         @Html.DisplayFor(x => x.OvalContainers)
     </div>
 </section>
+
+@section LdJson {
+    <script type="application/ld+json">
+            {
+              "@@context": "https://schema.org",
+                  "@@type": "BreadcrumbList",
+                  "itemListElement": [
+                    {
+                      "@@type": "ListItem",
+                      "position": 1,
+                      "name": "Home",
+                      "item": "https://fusehostelsandtravel.com"
+                    },
+                    {
+                      "@@type": "ListItem",
+                      "position": 2,
+                      "name": "Terms And Conditions",
+                      "item": "https://fusehostelsandtravel.com/terms-and-conditions"
+                    }
+                  ]
+                }
+        </script>
+}

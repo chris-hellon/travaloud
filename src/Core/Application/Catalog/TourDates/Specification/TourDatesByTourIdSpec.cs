@@ -10,7 +10,8 @@ public class TourDatesByTourIdNoLimitSpec : Specification<TourDate, TourDateDto>
         Query
             .Include(x => x.TourPrice)
             .OrderBy(c => c.StartDate)
-            .Where(p => p.TourId == tourId);
+            .Where(p => p.TourId == tourId)
+            .AsSplitQuery();
     // .Where(x => x.AvailableSpaces > 0 && x.AvailableSpaces >= request.RequestedSpaces);
 }
 
@@ -20,5 +21,6 @@ public class TourDatesByTourIdsWithinRangeSpec : Specification<TourDate, TourDat
         Query
             .Include(x => x.TourPrice)
             .OrderBy(c => c.StartDate)
-            .Where(p => tourIds.Contains(p.TourId) && p.StartDate >= fromDate && p.EndDate <= toDate);
+            .Where(p => tourIds.Contains(p.TourId) && p.StartDate >= fromDate && p.EndDate <= toDate)
+            .AsSplitQuery();
 }

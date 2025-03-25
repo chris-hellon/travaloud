@@ -8,5 +8,5 @@ public class BookingItemsByDateSpec : Specification<BookingItem>
     public BookingItemsByDateSpec(DateTime startDate) =>
         Query.Where(p => p.StartDate.Date == startDate.Date && p.TourDateId.HasValue)
             .Include(x => x.Tour)
-            .Include(x => x.TourDate);
+            .Include(x => x.TourDate).AsSplitQuery();
 }

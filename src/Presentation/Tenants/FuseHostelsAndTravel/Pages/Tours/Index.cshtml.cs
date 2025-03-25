@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Travaloud.Application.Common.Extensions;
 
 namespace FuseHostelsAndTravel.Pages.Tours;
 
@@ -31,7 +32,9 @@ public class IndexModel : TravaloudBasePageModel
         
         await base.OnGetDataAsync();
 
-        HeaderBanner = new HeaderBannerComponent("HOI AN & NHA TRANG", "HOSTEL TOURS", "", "https://travaloudcdn.azureedge.net/fuse/assets/images/146f0d66-95b1-42fb-9902-d5466890e60d.jpg?w=2000", new List<OvalContainerComponent>()
+        var (title, subTitle, subSubTitle) = PageDetails.GetTitleSubTitleAndSubSubTitle();
+        
+        HeaderBanner = new HeaderBannerComponent(@title, @subTitle, "", "https://travaloudcdn.azureedge.net/fuse/assets/images/146f0d66-95b1-42fb-9902-d5466890e60d.jpg?w=2000", new List<OvalContainerComponent>()
         {
             new("hostelPageHeaderBannerOvals1", -160, null, -45, null)
         });

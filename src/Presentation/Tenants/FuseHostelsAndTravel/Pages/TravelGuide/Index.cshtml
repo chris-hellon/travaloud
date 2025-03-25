@@ -1,16 +1,35 @@
 @page
 
-@inject IHttpContextAccessor HttpContextAccessor
-
 @using System.Web
 @model FuseHostelsAndTravel.Pages.TravelGuide.IndexModel
 
-@{
-    var url = $"{HttpContextAccessor.HttpContext.Request.Scheme}://{HttpContextAccessor.HttpContext.Request.Host}{HttpContextAccessor.HttpContext.Request.PathBase}{HttpContextAccessor.HttpContext.Request.Path}{HttpContextAccessor.HttpContext.Request.QueryString}";
-}
-
 @section LdJson {
-
+    <script type="application/ld+json">
+        {
+          "@@context": "https://schema.org",
+                  "@@type": "BreadcrumbList",
+                  "itemListElement": [
+                    {
+                      "@@type": "ListItem",
+                      "position": 1,
+                      "name": "Home",
+                      "item": "https://fusehostelsandtravel.com"
+                    },
+                    {
+                      "@@type": "ListItem",
+                      "position": 2,
+                      "name": "Travel Guides",
+                      "item": "https://fusehostelsandtravel.com/travel-guides"
+                    },
+                    {
+                      "@@type": "ListItem",
+                      "position": 3,
+                      "name": "@(Html.Raw(Model.TravelGuide?.Title))",
+                      "item": "https://fusehostelsandtravel.com/travel-guides/@(Model.TravelGuide?.UrlFriendlyTitle)"
+                    }
+                  ]
+                }
+    </script>
     <script type="application/ld+json">
         {
           "@@context": "https://schema.org",
@@ -33,34 +52,38 @@
           },
           "mainEntityOfPage": {
             "@@type": "WebPage",
-            "@@id": "@url"
+            "@@id": "https://fusehostelsandtravel.com/travel-guides/@(Model.TravelGuide?.UrlFriendlyTitle)"
           }
         }
     </script>
 }
 
 @section Styles {
-    <link rel="stylesheet" href="https://mdbcdn.b-cdn.net/wp-content/themes/mdbootstrap4/docs-app/css/dist/mdb5/plugins/standard/multi-carousel.min.css"/>
-    <link rel="stylesheet" href="/css/travelguides.min.css"/>
+    <link rel="stylesheet"
+          href="https://mdbcdn.b-cdn.net/wp-content/themes/mdbootstrap4/docs-app/css/dist/mdb5/plugins/standard/multi-carousel.min.css"/>
+    <link rel="stylesheet" href="/css/travelguides.min.css" asp-append-version="true"/>
 }
 
-<section id="headerBanner">
-    @Html.DisplayFor(x => x.HeaderBanner)
-</section>
+
+@Html.DisplayFor(x => x.CarouselComponent)
+
+@* <section id="headerBanner"> *@
+@*     @Html.DisplayFor(x => x.HeaderBanner) *@
+@* </section> *@
 
 <section id="introduction" class="bg-light">
     <div class="container-fluid">
-        <div class="container pb-8 pt-8">
+        <div class="container pt-8">
             <div class="row">
-                <div class="col-md-12 col-lg-9 mb-5 mb-lg-0 has-parallax-scroll">
-                    <h1 class="display-3">@Model.TravelGuide?.Title.ToUpper()</h1>
-
+                <div class="col-md-12 col-lg-9 mb-5 mb-lg-3 has-parallax-scroll">
+                    <h2 class="display-4" id="@Model.NavPills?.First().IdTitle">@Model.TravelGuide?.SubTitle.ToUpper()</h2>
                 </div>
                 <div class="col-md-3 mb-4">
                     <div class="row align-items-center mb-4">
-                        <div class="col-lg-12 text-center text-lg-end mb-3">
-                            <small> Published <u>@Model.TravelGuide?.CreatedOn.ToShortDateString()</u> by @Model.UserName</small>
-                        </div>
+                        @* <div class="col-lg-12 text-center text-lg-end mb-3"> *@
+                        @*     <small> Published <u>@Model.TravelGuide?.CreatedOn.ToShortDateString()</u> *@
+                        @*         by @Model.UserName</small> *@
+                        @* </div> *@
 
                         @{
                             var urlToShare = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}{HttpContext.Request.PathBase}{HttpContext.Request.Path}{HttpContext.Request.QueryString}";
@@ -86,85 +109,89 @@
                     </div>
                 </div>
 
-                <div class="col-md-12 col-lg-12 mb-5 mb-lg-0 has-parallax-scroll">
-                    <h3 class="mb-3">@Model.TravelGuide?.SubTitle.ToUpper()</h3>
-                    @Html.Raw(Model.TravelGuide?.Description)
 
-                    @if (Model.TravelGuide != null && Model.TravelGuide.TravelGuideGalleryImages.Any())
-                    {
-                        <div class="lightbox mt-3" data-mdb-lightbox-init>
-                            <div class="multi-carousel" data-mdb-multi-carousel-init>
-                                <div class="multi-carousel-inner">
-                                    @if (Model.TravelGuide.TravelGuideGalleryImages.Any())
+
+                @if (Model.NavPills != null && Model.NavPills.Any())
+                {
+                    <div class="col-md-12 col-lg-3 mb-5 mb-lg-0 has-parallax-scroll">
+                        @* @if (Model.TravelGuide != null && Model.TravelGuide.TravelGuideGalleryImages.Any()) *@
+                        @* { *@
+                        @*     <div class="lightbox mb-3" data-mdb-lightbox-init> *@
+                        @*         <!-- Carousel wrapper --> *@
+                        @*         <div id="travelGuidesSlideshow" class="carousel slide carousel-fade" data-mdb-ride="carousel" data-mdb-carousel-init> *@
+                        @*             <!-- Inner --> *@
+                        @*             <div class="carousel-inner"> *@
+                        @*                 @if (Model.TravelGuide.TravelGuideGalleryImages.Any()) *@
+                        @*                 { *@
+                        @*                     foreach (var image in Model.TravelGuide.TravelGuideGalleryImages) *@
+                        @*                     { *@
+                        @*                         if (!string.IsNullOrEmpty(image.ImagePath)) *@
+                        @*                         { *@
+                        @*                             var formattedImagePath = image.ImagePath.FormatImageUrl(700, Model.TenantId); *@
+                        @* *@
+                        @*                             <div class="carousel-item @(image == Model.TravelGuide.TravelGuideGalleryImages.First() ? "active" : "")"> *@
+                        @*                                 <img *@
+                        @*                                     src="@formattedImagePath" *@
+                        @*                                     data-mdb-img="@image.ImagePath" *@
+                        @*                                     alt="@Model.TravelGuide.Title" *@
+                        @*                                     class="w-100"/> *@
+                        @*                             </div> *@
+                        @*                         } *@
+                        @*                     } *@
+                        @*                 } *@
+                        @*             </div> *@
+                        @*             <!-- Inner --> *@
+                        @* *@
+                        @*             <!-- Controls --> *@
+                        @*             <button class="carousel-control-prev" type="button" data-mdb-target="#travelGuidesSlideshow" data-mdb-slide="prev"> *@
+                        @*                 <span class="carousel-control-prev-icon" aria-hidden="true"></span> *@
+                        @*                 <span class="visually-hidden">Previous</span> *@
+                        @*             </button> *@
+                        @*             <button class="carousel-control-next" type="button" data-mdb-target="#travelGuidesSlideshow" data-mdb-slide="next"> *@
+                        @*                 <span class="carousel-control-next-icon" aria-hidden="true"></span> *@
+                        @*                 <span class="visually-hidden">Next</span> *@
+                        @*             </button> *@
+                        @*         </div> *@
+                        @*     </div> *@
+                        @* } *@
+                        <div class="card sticky-top">
+                            <div class="card-header">
+                                <p><strong>Table of Contents</strong></p>
+                            </div>
+                            <div class="card-body">
+                                <ul class="nav flex-column nav-pills menu-sidebar">
+                                    @foreach (var navPill in Model.NavPills)
                                     {
-                                        foreach (var image in Model.TravelGuide.TravelGuideGalleryImages)
-                                        {
-                                            if (!string.IsNullOrEmpty(image.ImagePath))
-                                            {
-                                                var formattedImagePath = image.ImagePath.FormatImageUrl(700, Model.TenantId);
-
-                                                <div class="multi-carousel-item">
-                                                    <img
-                                                        src="@formattedImagePath"
-                                                        data-mdb-img="@image.ImagePath"
-                                                        alt="@Model.TravelGuide.Title"
-                                                        class="w-100"/>
-                                                </div>
-                                            }
-                                        }
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="#@navPill.IdTitle">@Html.Raw(navPill.Title)</a>
+                                        </li>
                                     }
-                                </div>
-                                <button
-                                    class="carousel-control-prev"
-                                    type="button"
-                                    tabindex="0"
-                                    data-mdb-slide="prev">
-                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                </button>
-                                <button
-                                    class="carousel-control-next"
-                                    type="button"
-                                    tabindex="0"
-                                    data-mdb-slide="next">
-                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                </button>
+                                </ul>
                             </div>
                         </div>
-                    }
+                    </div>
+                }
+
+                <div
+                    class="col-md-12 col-lg-@(Model.NavPills != null && Model.NavPills.Any() ? "9" : "12") mb-5 mb-lg-0 has-parallax-scroll">
+                    @* <h2 class="mb-4 travel-guide-subtitle" *@
+                    @*     id="@Model.NavPills?.First().IdTitle">@Model.TravelGuide?.SubTitle.ToUpper()</h2> *@
+                    @Html.Raw(Model.TravelGuide?.Description)
                 </div>
                 
-                
-                @* <div class="col-md-12 mb-4 mb-lg-0 border-top mt-4"> *@
-                @*     <p class="text-muted pt-3">More Like This</p> *@
-                @*     @if (Model.RelatedTravelGuide != null) *@
-                @*     { *@
-                @*         if (!string.IsNullOrEmpty(Model.RelatedTravelGuide.ImagePath)) *@
-                @*         { *@
-                @*             var formattedImagePath = Model.RelatedTravelGuide.ImagePath.FormatImageUrl(700, Model.TenantId); *@
-                @* *@
-                @*             <div class="bg-image hover-overlay shadow-1-strong mb-4 mt-3" data-mdb-ripple-init data-mdb-ripple-color="light"> *@
-                @*                 <img src="@formattedImagePath" class="img-fluid" alt="@Model.RelatedTravelGuide.Title"/> *@
-                @*                 <a asp-page="/TravelGuide/Index" asp-route-title="@Model.RelatedTravelGuide.Title.UrlFriendly()"> *@
-                @*                     <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div> *@
-                @*                 </a> *@
-                @*             </div> *@
-                @*         } *@
-                @* *@
-                @*         <h5>@Model.RelatedTravelGuide.Title</h5> *@
-                @* *@
-                @*         @Html.Raw(Model.RelatedTravelGuide.ShortDescription) *@
-                @* *@
-                @*         <div class="d-flex justify-content-between"> *@
-                @*             <a class="btn btn-primary mt-3" asp-page="/TravelGuide/Index" asp-route-title="@Model.RelatedTravelGuide.Title.UrlFriendly()" data-mdb-ripple-init>Read more</a> *@
-                @*             <a class="btn btn-outline-primary mt-3" asp-page="/TravelGuides/Index" asp-route-pageNumber="" data-mdb-ripple-init>View All</a> *@
-                @*         </div> *@
-                @*     } *@
-                @* </div> *@
+                <div class="col-md-12 border-top mt-4">
+                    @if (Model.RelatedTravelGuides.Any())
+                    {
+                        @Html.DisplayFor(x => x.RelatedTravelGuidesCards)
+                    }
+                </div>
             </div>
         </div>
     </div>
 </section>
 
 @section Scripts {
-    <script src="https://mdbcdn.b-cdn.net/wp-content/themes/mdbootstrap4/docs-app/js/dist/mdb5/plugins/standard/multi-carousel.min.js"></script>
+    <script
+        src="https://mdbcdn.b-cdn.net/wp-content/themes/mdbootstrap4/docs-app/js/dist/mdb5/plugins/standard/multi-carousel.min.js"
+        defer></script>
 }

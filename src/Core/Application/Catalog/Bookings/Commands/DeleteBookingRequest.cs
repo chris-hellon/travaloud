@@ -48,7 +48,34 @@ public class DeleteBookingRequestHandler : IRequestHandler<DeleteBookingRequest,
             if (date == null) continue;
             
             date.AvailableSpaces += (item.Guests?.Count + 1) ?? 1;
-            await _tourDateRepository.UpdateAsync(date, cancellationToken);
+            
+            var tourDatesToUpdate = new List<TourDate>();
+            
+            lock (tourDatesToUpdate)
+            {
+                tourDatesToUpdate.Add(date);
+            }
+            
+            var sameTourDates = await _tourDateRepository.ListAsync(
+                new SameTourDatesSpec(item.TourId.Value, date.StartDate, date.EndDate,
+                    date.Id), cancellationToken);
+
+            if (sameTourDates.Count != 0)
+            {
+                sameTourDates = sameTourDates.Select(x =>
+                {
+                    if (x.AvailableSpaces > 0)
+                        x.AvailableSpaces += (item.Guests?.Count + 1) ?? 1;
+                    return x;
+                }).ToList();
+                
+                lock (tourDatesToUpdate)
+                {
+                    tourDatesToUpdate.AddRange(sameTourDates);
+                }
+            }
+            
+            await _tourDateRepository.UpdateRangeAsync(tourDatesToUpdate, cancellationToken);
         }
 
         // Add Domain Events to be raised after the commit

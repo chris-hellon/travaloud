@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Travaloud.Application.Common.Extensions;
 
 namespace FuseHostelsAndTravel.Pages.OurStory;
 
@@ -44,7 +45,9 @@ public class IndexModel : TravaloudBasePageModel
             new NavPill("OUR CORE VALUES", 1800)
         ];
 
-        HeaderBanner = new HeaderBannerComponent("FUSE HOSTELS & TRAVEL?", "WHO IS", null, "https://travaloudcdn.azureedge.net/fuse/assets/images/our-story.jpg?w=2000", new List<OvalContainerComponent>()
+        var (title, subTitle, subSubTitle) = PageDetails.GetTitleSubTitleAndSubSubTitle();
+
+        HeaderBanner = new HeaderBannerComponent(title, subTitle, null, "https://travaloudcdn.azureedge.net/fuse/assets/images/our-story.jpg?w=2000", new List<OvalContainerComponent>()
         {
             new("aboutPageHeaderBannerOvals1", 15, null, -30, null)
         });

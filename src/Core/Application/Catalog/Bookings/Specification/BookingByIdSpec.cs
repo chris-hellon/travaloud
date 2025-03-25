@@ -12,7 +12,8 @@ public class BookingByIdSpec : Specification<Booking, BookingDetailsDto>, ISingl
             .Where(p => p.Id == id)
             .Include(p => p.Items).ThenInclude(x => x.Rooms)
             .Include(p => p.Items).ThenInclude(x => x.TourDate).ThenInclude(x => x.TourPrice)
-            .Include(p => p.Items).ThenInclude(x => x.Guests);
+            .Include(p => p.Items).ThenInclude(x => x.Guests)
+            .AsSplitQuery();
 }
 
 public class BookingByIdWithDetailsSpec : Specification<Booking>, ISingleResultSpecification<Booking>
@@ -22,5 +23,5 @@ public class BookingByIdWithDetailsSpec : Specification<Booking>, ISingleResultS
             .Where(p => p.Id == id)
             .Include(p => p.Items).ThenInclude(x => x.Rooms)
             .Include(p => p.Items).ThenInclude(x => x.TourDate).ThenInclude(x => x.TourPrice)
-            .Include(p => p.Items).ThenInclude(x => x.Guests);
+            .Include(p => p.Items).ThenInclude(x => x.Guests).AsSplitQuery();
 }

@@ -1,5 +1,6 @@
 using System.Data;
 using Travaloud.Application.Catalog.Bookings.Commands;
+using Travaloud.Application.Catalog.Bookings.Specification;
 using Travaloud.Application.Catalog.TourDates.Specification;
 using Travaloud.Application.Catalog.Tours.Specification;
 using Travaloud.Application.Common.Utils;
@@ -11,10 +12,11 @@ namespace Travaloud.Application.Common.Extensions;
 
 public static class BookingsExtensions
 {
-    public static void ProcessBookingItemGuests(this BookingItem bookingItem, IList<BookingItemGuestRequest>? request, DefaultIdType userId)
+    public static void ProcessBookingItemGuests(this BookingItem bookingItem, IList<BookingItemGuestRequest>? request,
+        DefaultIdType userId)
     {
         var guests = new List<BookingItemGuest>();
-        
+
         if (request?.Any() == true)
         {
             foreach (var guestRequest in request)
@@ -32,7 +34,7 @@ public static class BookingsExtensions
                 }
             }
         }
-        
+
         var directionsToRemove = bookingItem.Guests?
             .Where(existingRoom => guests.All(newRoom => newRoom.Id != existingRoom.Id))
             .ToList();
@@ -50,21 +52,27 @@ public static class BookingsExtensions
         bookingItem.Guests = guests;
     }
 
-    public static async Task ProcessBookingItems(this Booking updatedBooking, Booking booking, IList<UpdateBookingItemRequest>? request, DefaultIdType userId, IRepositoryFactory<TourDate> tourDateRepository, CancellationToken cancellationToken)
+    public static async Task ProcessBookingItems(this Booking updatedBooking, Booking booking,
+        IList<UpdateBookingItemRequest>? request, DefaultIdType userId, IRepositoryFactory<TourDate> tourDateRepository,
+        CancellationToken cancellationToken)
     {
         var bookingItems = new List<BookingItem>();
-        
+        var tourDatesToUpdate = new List<TourDate>();
+
         // Update the booking item list
         foreach (var updateItemRequest in request)
         {
             var currentBookingItem = booking.Items.FirstOrDefault(i => i.Id == updateItemRequest.Id);
-            
+
             // If a new Booking item
             if (currentBookingItem == null)
             {
-                if (updateItemRequest is not {TourDateId: not null, TourDate: not null})  throw new CustomException("No Tour Date provided.");
-                
-                var tourDate = await tourDateRepository.FirstOrDefaultAsync(new TourDateByIdSpec(updateItemRequest.TourDateId.Value), cancellationToken);
+                if (updateItemRequest is not {TourDateId: not null, TourDate: not null})
+                    throw new CustomException("No Tour Date provided.");
+
+                var tourDate =
+                    await tourDateRepository.FirstOrDefaultAsync(
+                        new TourDateByIdSpec(updateItemRequest.TourDateId.Value), cancellationToken);
 
                 if (tourDate == null)
                 {
@@ -73,13 +81,16 @@ public static class BookingsExtensions
 
                 if (tourDate.AvailableSpaces < updateItemRequest.GuestQuantity)
                 {
-                    throw new DBConcurrencyException("The request Tour Date no longer has enough spaces available. Please refresh the page and try again.");
+                    throw new DBConcurrencyException(
+                        "The request Tour Date no longer has enough spaces available. Please refresh the page and try again.");
                 }
-                
-                if (updateItemRequest is not {StartDate: not null, Amount: not null}) throw new CustomException("No Start or Amount provided.");
-                
-                var endDate = DateTimeUtils.CalculateEndDate(tourDate.StartDate, tourDate.TourPrice.DayDuration, tourDate.TourPrice.NightDuration, tourDate.TourPrice.HourDuration);
-                
+
+                if (updateItemRequest is not {StartDate: not null, Amount: not null})
+                    throw new CustomException("No Start or Amount provided.");
+
+                var endDate = DateTimeUtils.CalculateEndDate(tourDate.StartDate, tourDate.TourPrice.DayDuration,
+                    tourDate.TourPrice.NightDuration, tourDate.TourPrice.HourDuration);
+
                 // Create a new booking item if not found
                 var newBookingItem = new BookingItem(
                     updateItemRequest.StartDate.Value,
@@ -95,15 +106,45 @@ public static class BookingsExtensions
                     updateItemRequest.WaiverSigned,
                     updateItemRequest.TourCategoryId,
                     booking.CreatedBy);
-                    
+
                 newBookingItem.ProcessBookingItemGuests(updateItemRequest.Guests, userId);
-                
+
                 if (tourDate.AvailableSpaces > 0)
                 {
                     tourDate.AvailableSpaces -= updateItemRequest.GuestQuantity;
                     tourDate.ConcurrencyVersion++;
 
-                    await tourDateRepository.UpdateAsync(tourDate, cancellationToken);
+                    lock (tourDatesToUpdate)
+                    {
+                        if (tourDatesToUpdate.All(x => x.Id != tourDate.Id))
+                            tourDatesToUpdate.Add(tourDate);
+                    }
+
+                    var sameTourDates = await tourDateRepository.ListAsync(
+                        new SameTourDatesSpec(updateItemRequest.TourId.Value, tourDate.StartDate, tourDate.EndDate,
+                            tourDate.Id), cancellationToken);
+
+                    if (sameTourDates.Count != 0)
+                    {
+                        sameTourDates = sameTourDates.Select(x =>
+                        {
+                            if (x.AvailableSpaces <= 0) return x;
+
+                            x.AvailableSpaces -= updateItemRequest.GuestQuantity;
+                            x.ConcurrencyVersion++;
+
+                            return x;
+                        }).ToList();
+
+                        lock (tourDatesToUpdate)
+                        {
+                            foreach (var sameTourDate in sameTourDates.Where(sameTourDate =>
+                                         tourDatesToUpdate.All(x => x.Id != sameTourDate.Id)))
+                            {
+                                tourDatesToUpdate.Add(sameTourDate);
+                            }
+                        }
+                    }
                 }
                 else
                 {
@@ -112,9 +153,9 @@ public static class BookingsExtensions
 
                 // Add the new booking item to the booking
                 bookingItems.Add(newBookingItem);
-                        
+
                 if (updateItemRequest.Rooms?.Any() != true) continue;
-                
+
                 newBookingItem.AddRooms(updateItemRequest);
             }
             else
@@ -124,7 +165,7 @@ public static class BookingsExtensions
                     // Handle concurrency conflict scenario
                     throw new DBConcurrencyException("Booking Item has been updated by another user.");
                 }
-                
+
                 currentBookingItem.ConcurrencyVersion++;
 
                 // Update the existing booking item properties
@@ -146,26 +187,63 @@ public static class BookingsExtensions
                     updateItemRequest.CheckedIn,
                     updateItemRequest.Cancelled,
                     updateItemRequest.NoShow);
-                
+
                 var currentGuestCount = currentBookingItem.Guests != null && currentBookingItem.Guests.Any()
                     ? currentBookingItem.Guests.Count + 1
                     : 1;
-                
+
                 newBookingItem.ProcessBookingItemGuests(updateItemRequest.Guests, userId);
 
                 var newGuestCount = newBookingItem.Guests?.Where(x => !x.DeletedOn.HasValue).Count() + 1;
                 var currentAndNewGuestCountDifference = currentGuestCount - newGuestCount;
-                
+
                 //If selecting a new date
-                if (updateItemRequest.TourDateId.HasValue && updateItemRequest.TourDateId != currentBookingItem.TourDate?.Id && updateItemRequest.TourDate != null)
+                if (updateItemRequest.TourDateId.HasValue &&
+                    updateItemRequest.TourDateId != currentBookingItem.TourDate?.Id &&
+                    updateItemRequest.TourDate != null)
                 {
                     var currentTourDate = currentBookingItem.TourDate;
                     currentTourDate.AvailableSpaces += currentGuestCount;
                     currentTourDate.ConcurrencyVersion++;
-                    
-                    await tourDateRepository.UpdateAsync(currentTourDate, cancellationToken);
-                    
-                    var tourDate = await tourDateRepository.FirstOrDefaultAsync(new TourDateByIdSpec(updateItemRequest.TourDateId.Value), cancellationToken);
+
+                    lock (tourDatesToUpdate)
+                    {
+                        if (tourDatesToUpdate.All(x => x.Id != currentTourDate.Id))
+                            tourDatesToUpdate.Add(currentTourDate);
+                        
+                    }
+
+                    var sameTourDates = await tourDateRepository.ListAsync(
+                        new SameTourDatesSpec(updateItemRequest.TourId.Value, currentTourDate.StartDate,
+                            currentTourDate.EndDate,
+                            currentTourDate.Id,
+                            tourDatesToUpdate.Select(x => x.Id).ToList()), cancellationToken);
+
+                    if (sameTourDates.Count != 0)
+                    {
+                        sameTourDates = sameTourDates.Select(x =>
+                        {
+                            if (x.AvailableSpaces <= 0) return x;
+
+                            x.AvailableSpaces += currentGuestCount;
+                            x.ConcurrencyVersion++;
+
+                            return x;
+                        }).ToList();
+
+                        lock (tourDatesToUpdate)
+                        {
+                            foreach (var sameTourDate in sameTourDates.Where(sameTourDate =>
+                                         tourDatesToUpdate.All(x => x.Id != sameTourDate.Id)))
+                            {
+                                tourDatesToUpdate.Add(sameTourDate);
+                            }
+                        }
+                    }
+
+                    var tourDate =
+                        await tourDateRepository.FirstOrDefaultAsync(
+                            new TourDateByIdSpec(updateItemRequest.TourDateId.Value), cancellationToken);
 
                     if (tourDate == null)
                     {
@@ -174,12 +252,14 @@ public static class BookingsExtensions
 
                     if (tourDate.AvailableSpaces < updateItemRequest.GuestQuantity)
                     {
-                        throw new DBConcurrencyException("The request Tour Date no longer has enough spaces available. Please refresh the page and try again.");
+                        throw new DBConcurrencyException(
+                            "The request Tour Date no longer has enough spaces available. Please refresh the page and try again.");
                     }
 
-                    var endDate = DateTimeUtils.CalculateEndDate(tourDate.StartDate, tourDate.TourPrice.DayDuration, tourDate.TourPrice.NightDuration, tourDate.TourPrice.HourDuration);
+                    var endDate = DateTimeUtils.CalculateEndDate(tourDate.StartDate, tourDate.TourPrice.DayDuration,
+                        tourDate.TourPrice.NightDuration, tourDate.TourPrice.HourDuration);
                     newBookingItem.SetEndDate(endDate);
-                    
+
                     if (tourDate.AvailableSpaces > 0)
                     {
                         tourDate.AvailableSpaces -= updateItemRequest.GuestQuantity;
@@ -202,7 +282,9 @@ public static class BookingsExtensions
                 }
                 else if (updateItemRequest.TourDateId.HasValue)
                 {
-                    var tourDate = currentBookingItem.TourDate ?? await tourDateRepository.GetByIdAsync(updateItemRequest.TourDateId.Value, cancellationToken);
+                    var tourDate = currentBookingItem.TourDate ??
+                                   await tourDateRepository.GetByIdAsync(updateItemRequest.TourDateId.Value,
+                                       cancellationToken);
 
                     if (tourDate == null)
                     {
@@ -213,18 +295,51 @@ public static class BookingsExtensions
                     {
                         tourDate.AvailableSpaces += currentAndNewGuestCountDifference.Value;
                         tourDate.ConcurrencyVersion++;
+
+                        lock (tourDatesToUpdate)
+                        {
+                            if (tourDatesToUpdate.All(x => x.Id != tourDate.Id))
+                                tourDatesToUpdate.Add(tourDate);
+                        }
+
+                        var sameTourDates = await tourDateRepository.ListAsync(
+                            new SameTourDatesSpec(updateItemRequest.TourId.Value, tourDate.StartDate, tourDate.EndDate,
+                                tourDate.Id,
+                                tourDatesToUpdate.Select(x => x.Id).ToList()), cancellationToken);
+
+                        if (sameTourDates.Count != 0)
+                        {
+                            sameTourDates = sameTourDates.Select(x =>
+                            {
+                                if (x.AvailableSpaces <= 0) return x;
+
+                                x.AvailableSpaces += currentAndNewGuestCountDifference.Value;
+                                x.ConcurrencyVersion++;
+
+                                return x;
+                            }).ToList();
+
+                            lock (tourDatesToUpdate)
+                            {
+                                foreach (var sameTourDate in sameTourDates.Where(sameTourDate =>
+                                             tourDatesToUpdate.All(x => x.Id != sameTourDate.Id)))
+                                {
+                                    tourDatesToUpdate.Add(sameTourDate);
+                                }
+                            }
+                        }
                     }
                 }
 
                 // Add the new booking item to the booking
                 bookingItems.Add(newBookingItem);
-                
+
                 if (updateItemRequest.Rooms?.Any() != true) continue;
-                
+
                 newBookingItem.AddRooms(updateItemRequest);
             }
         }
-        
+
         var itemsToRemove = booking.Items?
             .Where(existingItem => bookingItems.All(newItem => newItem.Id != existingItem.Id))
             .ToList();
@@ -236,25 +351,59 @@ public static class BookingsExtensions
                 bookingItem.DomainEvents.Add(EntityDeletedEvent.WithEntity(bookingItem));
                 bookingItem.FlagAsDeleted(userId);
                 bookingItems.Add(bookingItem);
-                
-                var tourDate = bookingItem.TourDate ?? await tourDateRepository.GetByIdAsync(bookingItem.TourDateId.Value, cancellationToken);
+
+                var tourDate = bookingItem.TourDate ??
+                               await tourDateRepository.GetByIdAsync(bookingItem.TourDateId.Value, cancellationToken);
 
                 if (tourDate == null) continue;
-                
+
                 var currentGuestCount = bookingItem.Guests != null && bookingItem.Guests.Any()
                     ? bookingItem.Guests.Count + 1
                     : 1;
 
                 tourDate.AvailableSpaces += currentGuestCount;
-                    
-                await tourDateRepository.UpdateAsync(tourDate, cancellationToken);
 
+                lock (tourDatesToUpdate)
+                {
+                    if (tourDatesToUpdate.All(x => x.Id != tourDate.Id))
+                        tourDatesToUpdate.Add(tourDate);
+                }
+
+                var sameTourDates = await tourDateRepository.ListAsync(
+                    new SameTourDatesSpec(bookingItem.TourId.Value, tourDate.StartDate, tourDate.EndDate,
+                        tourDate.Id,
+                        tourDatesToUpdate.Select(x => x.Id).ToList()), cancellationToken);
+
+                if (sameTourDates.Count != 0)
+                {
+                    sameTourDates = sameTourDates.Select(x =>
+                    {
+                        if (x.AvailableSpaces <= 0) return x;
+
+                        x.AvailableSpaces += currentGuestCount;
+                        x.ConcurrencyVersion++;
+
+                        return x;
+                    }).ToList();
+
+                    lock (tourDatesToUpdate)
+                    {
+                        foreach (var sameTourDate in sameTourDates.Where(sameTourDate =>
+                                     tourDatesToUpdate.All(x => x.Id != sameTourDate.Id)))
+                        {
+                            tourDatesToUpdate.Add(sameTourDate);
+                        }
+                    }
+                }
             }
         }
-        
+
+        if (tourDatesToUpdate.Any())
+            await tourDateRepository.UpdateRangeAsync(tourDatesToUpdate, cancellationToken);
+
         booking.Items = bookingItems;
     }
-    
+
     private static void AddRooms(this BookingItem bookingItem, UpdateBookingItemRequest updateItemRequest)
     {
         // Update the booking item rooms

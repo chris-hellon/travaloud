@@ -46,6 +46,11 @@
         {
             <MudMenuItem OnClick="@(() => GenerateBookingQrCode(context.Id, context.GuestEmail))">@L["Generate Payment QR"]</MudMenuItem>
             <MudMenuItem OnClick="@(() => GeneratePaymentEmail(context.Id, context.GuestEmail))">@L["Send Payment Email"]</MudMenuItem>
+
+            if (CanRefund)
+            {
+                <MudMenuItem OnClick="@(() => FlagBookingAsPaid(context.Id))">@L["Flag as Paid"]</MudMenuItem>
+            }
         }
         else if (context.IsPaid && CanRefund && (!context.Cancelled.HasValue || !context.Cancelled.Value))
         {

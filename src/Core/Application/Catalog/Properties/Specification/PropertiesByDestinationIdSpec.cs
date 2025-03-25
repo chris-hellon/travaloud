@@ -10,6 +10,6 @@ public class PropertiesByDestinationIdSpec : Specification<Property, PropertyDto
         Query.Include(p => p.PropertyDestinationLookups)
             .ThenInclude(x => x.Destination)
             .Where(p => p.PropertyDestinationLookups != null &&
-                        p.PropertyDestinationLookups.Any(x => x.DestinationId == id));
+                        p.PropertyDestinationLookups.Any(x => x.DestinationId == id)).AsSplitQuery();
     }
 }

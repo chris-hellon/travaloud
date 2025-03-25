@@ -69,6 +69,7 @@ public partial class TourBookings
     private ICollection<TourDto> Tours { get; set; } = default!;
 
     private bool CanRefund { get; set; }
+    private bool UserIsAdmin { get; set; }
     
     private decimal? RefundAmount { get; set; }
 
@@ -417,6 +418,26 @@ public partial class TourBookings
         request.ShowDetails = !request.ShowDetails;
     }
 
+    private async Task FlagBookingAsPaid(DefaultIdType bookingId)
+    {
+        await ServiceHelper.ExecuteCallGuardedAsync(async () =>
+        {
+            await LoadingService.ToggleLoaderVisibility(true);
+            await BookingsService.FlagBookingAsPaidAsync(bookingId, new FlagBookingAsPaidRequest()
+            {
+                Id = bookingId
+            });
+        },
+            Snackbar,
+            Logger, "Booking Flagged As Paid");
+        
+        _ = _table.ReloadDataAsync();
+        
+        if (LoadingService.LoaderVisible)
+            await LoadingService.ToggleLoaderVisibility(false);
+            
+    }
+    
     /// <summary>
     /// Generates a Stripe QR Code dialog for Guest to pay for unpaid tour.
     /// </summary>

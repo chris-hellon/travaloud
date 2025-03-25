@@ -29,6 +29,7 @@ public class UpdatePropertyRequest : IRequest<DefaultIdType>
     public bool DeleteCurrentVideo { get; set; }
     public bool DeleteCurrentMobileVideo { get; set; }
     public bool? PublishToSite { get; set; }
+    public string? SeoPageTitle { get; set; }
 
     [Display(Name = "Url Slug")] public string? UrlSlug { get; set; }
 
@@ -36,6 +37,8 @@ public class UpdatePropertyRequest : IRequest<DefaultIdType>
 
     [Display(Name = "H2 Tag")] public string? H2 { get; set; }
 
+    public string? CustomSeoScripts { get; set; }
+    
     public FileUploadRequest? Image { get; set; }
     public FileUploadRequest? Video { get; set; }
     public FileUploadRequest? MobileVideo { get; set; }
@@ -146,7 +149,9 @@ public class UpdatePropertyRequestHandler : IRequestHandler<UpdatePropertyReques
             propertyVideoPath,
             propertyMobileVideoPath,
             request.CloudbedsApiKey,
-            request.CloudbedsPropertyId);
+            request.CloudbedsPropertyId,
+            request.CustomSeoScripts,
+            request.SeoPageTitle);
 
         var userId = _currentUser.GetUserId();
 
@@ -168,7 +173,7 @@ public class UpdatePropertyRequestHandler : IRequestHandler<UpdatePropertyReques
         if (page != null)
         {
             var updatedPage = page.Update($"Hostels - {request.Name}", request.MetaKeywords, request.MetaDescription,
-                propertyImagePath);
+                propertyImagePath, string.Empty, request.UrlSlug, request.H1, request.H2, null, request.SeoPageTitle);
 
             page.DomainEvents.Add(EntityUpdatedEvent.WithEntity(page));
 
@@ -177,7 +182,7 @@ public class UpdatePropertyRequestHandler : IRequestHandler<UpdatePropertyReques
         else
         {
             page = new Page($"Hostels - {request.Name}", request.MetaKeywords, request.MetaDescription,
-                propertyImagePath);
+                propertyImagePath, string.Empty, request.UrlSlug, request.H1, request.H2, null, request.SeoPageTitle);
 
             page.DomainEvents.Add(EntityCreatedEvent.WithEntity(page));
 

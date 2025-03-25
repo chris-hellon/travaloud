@@ -28,9 +28,11 @@
 
                     <div class="col-md-6 mb-4">
                         <span class="badge bg-danger px-2 py-1 shadow-1-strong mb-3">Latest Travel Guide</span>
-                        <h4>
-                            <strong>@firstTravelGuide.Title</strong>
-                        </h4>
+                        <a asp-page="/TravelGuide/Index" asp-route-title="@(firstTravelGuide.UrlFriendlyTitle ?? firstTravelGuide.Title.UrlFriendly())" style="color:var(--mdb-body-color)">
+                            <h4>
+                                <strong>@firstTravelGuide.Title</strong>
+                            </h4>
+                        </a>
                         <p class="text-muted">
                             @Html.Raw(firstTravelGuide.ShortDescription)
                         </p>
@@ -46,14 +48,16 @@
                     <div class="col-lg-4 col-md-12 mb-4 mb-lg-0">
                         <div class="bg-image hover-overlay shadow-1-strong mb-4" data-mdb-ripple-init data-mdb-ripple-color="light">
                             <img src="@imagePath" class="img-fluid" alt="@travelGuide.Title image"/>
-                            <a asp-page="/TravelGuide/Index" asp-route-title="@(firstTravelGuide.UrlFriendlyTitle ?? firstTravelGuide.Title.UrlFriendly())">
+                            <a asp-page="/TravelGuide/Index" asp-route-title="@(travelGuide.UrlFriendlyTitle ?? travelGuide.Title.UrlFriendly())">
                                 <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
                             </a>
                         </div>
 
                         <div class="row mb-3">
                             <div class="col-8 d-flex align-items-center">
-                                <h5 class="mb-0 pb-0">@travelGuide.Title</h5>
+                                <a asp-page="/TravelGuide/Index" asp-route-title="@(travelGuide.UrlFriendlyTitle ?? travelGuide.Title.UrlFriendly())" style="color:var(--mdb-body-color)">
+                                    <h5 class="mb-0 pb-0">@travelGuide.Title</h5>
+                                </a>
                             </div>
 
                             <div class="col-4 text-end justify-content-end d-flex align-items-center">
@@ -63,7 +67,7 @@
 
                         @Html.Raw(travelGuide.ShortDescription)
 
-                        <a class="btn btn-primary mt-3" asp-page="/TravelGuide/Index" asp-route-title="@(firstTravelGuide.UrlFriendlyTitle ?? firstTravelGuide.Title.UrlFriendly())" data-mdb-ripple-init>Read more</a>
+                        <a class="btn btn-primary mt-3" asp-page="/TravelGuide/Index" asp-route-title="@(travelGuide.UrlFriendlyTitle ?? travelGuide.Title.UrlFriendly())" data-mdb-ripple-init>Read more</a>
                     </div>
                 }
             </div>
@@ -109,3 +113,26 @@
     </div>
 
 </section>
+
+@section LdJson {
+    <script type="application/ld+json">
+            {
+              "@@context": "https://schema.org",
+                  "@@type": "BreadcrumbList",
+                  "itemListElement": [
+                    {
+                      "@@type": "ListItem",
+                      "position": 1,
+                      "name": "Home",
+                      "item": "https://fusehostelsandtravel.com"
+                    },
+                    {
+                      "@@type": "ListItem",
+                      "position": 2,
+                      "name": "Travel Guides",
+                      "item": "https://fusehostelsandtravel.com/travel-guides"
+                    }
+                  ]
+                }
+        </script>
+}

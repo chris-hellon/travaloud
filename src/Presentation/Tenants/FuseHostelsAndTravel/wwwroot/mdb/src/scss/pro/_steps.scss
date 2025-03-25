@@ -91,7 +91,7 @@
   &-after {
     display: flex;
     font-size: var(--#{$prefix}steps-head-text-after-font-size);
-    content: attr(data-content);
+    content: attr(data-mdb-content);
   }
 }
 

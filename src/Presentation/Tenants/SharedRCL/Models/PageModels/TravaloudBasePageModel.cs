@@ -522,7 +522,7 @@ public class TravaloudBasePageModel : PageModel
     /// </summary>
     private PageDetailsDto? _pageDetails;
 
-    protected PageDetailsDto? PageDetails
+    public PageDetailsDto? PageDetails
     {
         get
         {
@@ -538,6 +538,7 @@ public class TravaloudBasePageModel : PageModel
 
             return _pageDetails;
         }
+        set => _pageDetails = value;
     }
 
     /// <summary>
@@ -607,17 +608,17 @@ public class TravaloudBasePageModel : PageModel
         var cancellationToken = new CancellationToken();
         var propertiesTask = Task.Run(() => TenantWebsiteService.GetProperties(cancellationToken), cancellationToken);
         var toursTask = Task.Run(() => TenantWebsiteService.GetTours(cancellationToken), cancellationToken);
-        var servicesTask = Task.Run(() => TenantWebsiteService.GetServices(cancellationToken), cancellationToken);
-        var destinationsTask = Task.Run(() => TenantWebsiteService.GetDestinations(cancellationToken), cancellationToken);
+        //var servicesTask = Task.Run(() => TenantWebsiteService.GetServices(cancellationToken), cancellationToken);
+       // var destinationsTask = Task.Run(() => TenantWebsiteService.GetDestinations(cancellationToken), cancellationToken);
         var seoDetailsTask = Task.Run(() => PagesService.GetSeoAsync(new GetSeoRequest()), cancellationToken);
         
-        await Task.WhenAll(propertiesTask, toursTask, servicesTask, destinationsTask, seoDetailsTask);
+        await Task.WhenAll(propertiesTask, toursTask, seoDetailsTask);
         
         Properties = propertiesTask.Result;
         Tours = toursTask.Result.Where(x => x.PublishToSite.HasValue && x.PublishToSite.Value);
         AllTours = toursTask.Result;
-        Services = servicesTask.Result;
-        Destinations = destinationsTask.Result;
+        //Services = servicesTask.Result;
+        //Destinations = destinationsTask.Result;
         SeoDetails = seoDetailsTask.Result;
         
         if (TenantId != "fuse")

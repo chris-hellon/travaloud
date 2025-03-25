@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Reflection;
+using AspNetCore.SEOHelper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;

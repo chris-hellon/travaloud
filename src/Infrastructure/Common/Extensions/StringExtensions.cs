@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Travaloud.Infrastructure.Common.Extensions;
 
@@ -158,6 +159,9 @@ public static class StringExtensions
         var textinfo = new CultureInfo("en-US", false).TextInfo;
         var formattedTitle = "";
 
+        // Remove special characters
+        value = Regex.Replace(value, @"[^a-zA-Z0-9\s]", "");
+
         if (value.Contains(' '))
         {
             var splitValues = value.Split(" ").ToList();
@@ -171,10 +175,17 @@ public static class StringExtensions
                     formattedTitle += textinfo.ToTitleCase(splitValue.ToLower());
             }
         }
-        else formattedTitle = value.ToLower();
+        else
+        {
+            formattedTitle = value.ToLower();
+        }
 
         if (additionalValue != null)
+        {
+            // Remove special characters from additionalValue as well
+            additionalValue = Regex.Replace(additionalValue, @"[^a-zA-Z0-9]", "");
             formattedTitle += additionalValue;
+        }
 
         return formattedTitle;
     }

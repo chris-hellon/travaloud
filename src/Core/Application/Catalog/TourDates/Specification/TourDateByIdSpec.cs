@@ -8,7 +8,8 @@ public class TourDateByIdSpec : Specification<TourDate>, ISingleResultSpecificat
     public TourDateByIdSpec(DefaultIdType tourId) =>
         Query
             .Include(x => x.TourPrice).AsNoTracking()
-            .Where(p => p.Id == tourId);
+            .Where(p => p.Id == tourId)
+            .AsSplitQuery();
 }
 
 public class TourDateByIdWithoutPriceSpec : Specification<TourDate>, ISingleResultSpecification<TourDate>

@@ -1,12 +1,17 @@
 ﻿@page "/contact"
+@using Travaloud.Application.Common.Extensions
 @model FuseHostelsAndTravel.Pages.Contact.IndexModel
+
+@{
+    var (title, subTitle, subSubTitle) = Model.PageDetails.GetTitleSubTitleAndSubSubTitle();
+}
 
 <section id="getInTouch" class="bg-light overflow-hidden position-relative">
     <div class="container-fluid">
         <div class="container pt-8 pb-8">
             <div class="row d-flex justify-content-center text-center">
                 <div class="col-lg-6 has-parallax-scroll">
-                    <h1 class="display-3 mb-4">GET IN TOUCH</h1>
+                    <h1 class="display-3 mb-4">@title</h1>
                     <p class="mb-0">Do you have a question? Or, do you want to know more about our hostels and tours? Reach out to our team via the enquiry form. We’re happy to help!</p>
                     <div class="card mt-5">
                         <div class="card-body p-5">
@@ -29,18 +34,45 @@
             <div class="row align-items-center">
                 <div class="col-lg-3 mb-3 mb-lg-0 text-center text-lg-end">
                     <!-- Instagram -->
-                    <a class="btn btn-floating m-1" href="https://www.instagram.com/fusehostels" target="_blank" role="button"><i class="fab fa-instagram display-7 text-light-purple"></i></a>
+                    <a class="btn btn-floating m-1" href="https://www.instagram.com/fusehostels" target="_blank" role="button">
+                        <i class="fab fa-instagram display-7 text-light-purple"></i>
+                    </a>
                 </div>
                 <div class="col-lg-6 mb-3 mb-lg-0 text-center">
                     <p class="text-white">Follow us to keep up to date with our latest news and events!</p>
                 </div>
                 <div class="col-lg-3 text-center text-lg-start">
                     <!-- Facebook -->
-                    <a class="btn btn-floating m-1" href="https://www.facebook.com/fusehostelsandtravel" target="_blank" role="button"><i class="fab fa-facebook display-7 text-light-purple"></i></a>
+                    <a class="btn btn-floating m-1" href="https://www.facebook.com/fusehostelsandtravel" target="_blank" role="button">
+                        <i class="fab fa-facebook display-7 text-light-purple"></i>
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<partial name="Shared/_HostelDetailsPartial" model="Model.Properties" />
+<partial name="Shared/_HostelDetailsPartial" model="Model.Properties"/>
+
+@section LdJson {
+    <script type="application/ld+json">
+            {
+              "@@context": "https://schema.org",
+                  "@@type": "BreadcrumbList",
+                  "itemListElement": [
+                    {
+                      "@@type": "ListItem",
+                      "position": 1,
+                      "name": "Home",
+                      "item": "https://fusehostelsandtravel.com"
+                    },
+                    {
+                      "@@type": "ListItem",
+                      "position": 2,
+                      "name": "Contact",
+                      "item": "https://fusehostelsandtravel.com/contact"
+                    }
+                  ]
+                }
+        </script>
+}

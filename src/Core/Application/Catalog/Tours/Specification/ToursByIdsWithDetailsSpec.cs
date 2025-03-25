@@ -15,5 +15,6 @@ public class ToursByIdsWithDetailsSpec : Specification<Tour, TourWithoutDatesDto
             .Include(p => p.TourItineraries)
             .ThenInclude(p => p.Sections)
             .ThenInclude(p => p.Images)
-            .Where(p => request.TourIds.Contains(p.Id));
+            .Where(p => request.TourIds.Contains(p.Id))
+            .AsSplitQuery();
 }

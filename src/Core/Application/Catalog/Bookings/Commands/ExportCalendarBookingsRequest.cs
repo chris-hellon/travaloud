@@ -1,16 +1,17 @@
 using Travaloud.Application.Catalog.Bookings.Dto;
 using Travaloud.Application.Common.Exporters;
+using Travaloud.Application.Dashboard;
 using Travaloud.Application.Identity.Users;
 
 namespace Travaloud.Application.Catalog.Bookings.Commands;
 
 public class ExportCalendarBookingsRequest : IRequest<Stream>
 {
-    public List<BookingExportDto> Exports { get; set; }
+    public GetBookingItemsByDateRequest Request { get; set; }
 
-    public ExportCalendarBookingsRequest(List<BookingExportDto> exports)
+    public ExportCalendarBookingsRequest(GetBookingItemsByDateRequest request)
     {
-        Exports = exports;
+        Request = request;
     }
 }
 
@@ -18,24 +19,32 @@ public class ExportCalendarBookingsRequestHandler : IRequestHandler<ExportCalend
 {
     private readonly IExcelWriter _excelWriter;
     private readonly IUserService _userService;
+    private readonly IDashboardService _dashboardService;
     
     public ExportCalendarBookingsRequestHandler(
         IExcelWriter excelWriter, 
-        IUserService userService)
+        IUserService userService, IDashboardService dashboardService)
     {
         _excelWriter = excelWriter;
         _userService = userService;
+        _dashboardService = dashboardService;
     }
 
     public async Task<Stream> Handle(ExportCalendarBookingsRequest request, CancellationToken cancellationToken)
     {
-        var staffIds = request.Exports.Select(x => x.CreatedBy.ToString()).ToList();
+        var bookingExportsRequest = await _dashboardService.GetTourBookingItemsByDateAsync(
+            request.Request);
+
+        var bookingExports = bookingExportsRequest.Data;
+        
+        
+        var staffIds = bookingExports.Select(x => x.CreatedBy.ToString()).ToList();
 
         var staff = await _userService.SearchAsync(staffIds, CancellationToken.None);
 
-        if (staff.Count == 0) return _excelWriter.WriteToStream(request.Exports);
+        if (staff.Count == 0) return _excelWriter.WriteToStream(bookingExports);
         {
-            var bookings = request.Exports.Select(x =>
+            var bookings = bookingExports.Select(x =>
             {
                 var staffMember = staff.FirstOrDefault(s => s.Id == x.CreatedBy);
 
@@ -44,9 +53,9 @@ public class ExportCalendarBookingsRequestHandler : IRequestHandler<ExportCalend
                 return x;
             });
 
-            request.Exports = bookings.ToList();
+            bookingExports = bookings.ToList();
         }
 
-        return _excelWriter.WriteToStream(request.Exports);
+        return _excelWriter.WriteToStream(bookingExports);
     }
 }

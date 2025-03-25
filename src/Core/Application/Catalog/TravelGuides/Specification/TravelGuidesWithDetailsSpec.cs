@@ -10,5 +10,6 @@ public class TravelGuidesWithDetailsSpec : EntitiesByPaginationFilterSpec<Travel
         : base(request) =>
         Query
             .Include(x => x.TravelGuideGalleryImages)
-            .OrderByDescending(c => c.CreatedOn, !request.HasOrderBy());
+            .OrderByDescending(c => c.CreatedOn, !request.HasOrderBy())
+            .AsSplitQuery();
 }

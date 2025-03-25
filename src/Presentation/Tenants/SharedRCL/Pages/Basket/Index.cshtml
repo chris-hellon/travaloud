@@ -68,5 +68,34 @@
         var basket = @Html.Raw(Json.Serialize(Model.Basket));
     </script>
 
-    <script src="/shared/js/basket.min.js"></script>
+    <script src="/shared/js/basket.min.js" defer></script>
+}
+
+@section LdJson {
+    <script type="application/ld+json">
+                {
+                  "@@context": "https://schema.org",
+                  "@@type": "BreadcrumbList",
+                  "itemListElement": [
+                    {
+                      "@@type": "ListItem",
+                      "position": 1,
+                      "name": "Home",
+                      "item": "https://fusehostelsandtravel.com"
+                    },
+                    {
+                      "@@type": "ListItem",
+                      "position": 2,
+                      "name": "Tours",
+                      "item": "https://fusehostelsandtravel.com/tours"
+                    },
+                    {
+                      "@@type": "ListItem",
+                      "position": 3,
+                      "name": "Basket",
+                      "item": "https://fusehostelsandtravel.com/basket"
+                    }
+                  ]
+                }
+            </script>
 }

@@ -23,6 +23,7 @@ public class CreatePropertyRequest : IRequest<DefaultIdType>
     public string? MetaKeywords { get; set; }
     public string? MetaDescription { get; set; }
     public bool? PublishToSite { get; private set; }
+    public string? SeoPageTitle { get; set; }
     public FileUploadRequest? Image { get; set; }
     public FileUploadRequest? Video { get; set; }
     public FileUploadRequest? MobileVideo { get; set; }
@@ -35,6 +36,8 @@ public class CreatePropertyRequest : IRequest<DefaultIdType>
 
     [Display(Name = "H2 Tag")]
     public string? H2 { get; set; }
+    
+    public string? CustomSeoScripts { get; set; }
 
     public IList<PropertyDestinationLookupRequest>? PropertyDestinationLookups { get; set; }
     public IList<PropertyDirectionRequest>? Directions { get; set; }
@@ -86,7 +89,9 @@ public class CreatePropertyRequestHandler : IRequestHandler<CreatePropertyReques
             videoPath,
             mobileVideoPath,
             request.CloudbedsApiKey,
-            request.CloudbedsPropertyId);
+            request.CloudbedsPropertyId,
+            request.CustomSeoScripts,
+            request.SeoPageTitle);
 
         var userId = _currentUser.GetUserId();
         
@@ -104,7 +109,16 @@ public class CreatePropertyRequestHandler : IRequestHandler<CreatePropertyReques
 
         await _repository.AddAsync(property, cancellationToken);
         
-        var page = new Page($"Hostels - {request.Name}", property.MetaKeywords, property.MetaDescription, productImagePath);
+        var page = new Page($"Hostels - {request.Name}",
+            property.MetaKeywords,
+            property.MetaDescription,
+            productImagePath,
+            string.Empty,
+            property.UrlSlug,
+            property.H1,
+            property.H2,
+            null,
+            property.SeoPageTitle);
         
         page.DomainEvents.Add(EntityCreatedEvent.WithEntity(page));
         

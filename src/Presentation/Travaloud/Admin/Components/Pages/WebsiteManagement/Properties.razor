@@ -195,20 +195,26 @@
 <WizardStep5Content>
     <MudGrid>
         <MudItem xs="12" md="12">
+            <MudTextField Label="@L["Page Title"]" For="@(() => context.SeoPageTitle)" @bind-Value="context.SeoPageTitle" HelperText="Enter a Page Title (this will replace the <title> tag)" Variant="Variant.Outlined"/>
+        </MudItem>
+        <MudItem xs="12" md="12">
+            <MudTextField Label="@L["Title"]" For="@(() => context.H2)" @bind-Value="context.H2" HelperText="Enter a Title (h1)" Variant="Variant.Outlined"/>
+        </MudItem>
+        <MudItem xs="12" md="12">
+            <MudTextField Label="@L["Sub Title"]" For="@(() => context.H1)" @bind-Value="context.H1" HelperText="Enter a Sub Title (h2)" Variant="Variant.Outlined"/>
+        </MudItem>
+        <MudItem xs="12" md="12">
+            <MudTextField Label="@L["Url Slug"]" For="@(() => context.UrlSlug)" @bind-Value="context.UrlSlug" HelperText="Enter a Url Slug eg. this-property" Variant="Variant.Outlined"/>
+        </MudItem>
+        <MudItem xs="12" md="12">
             <MudTextField Label="@L["Meta Keywords"]" For="@(() => context.MetaKeywords)" @bind-Value="context.MetaKeywords" HelperText="Enter Meta Keywords (recommended max limit of 20)" Variant="Variant.Outlined"/>
         </MudItem>
         <MudItem xs="12" md="12">
             <MudTextField Label="@L["Meta Description"]" Lines="5" For="@(() => context.MetaDescription)" @bind-Value="context.MetaDescription" HelperText="Enter a Meta Description" Variant="Variant.Outlined"/>
         </MudItem>
-        @* <MudItem xs="12" md="4"> *@
-        @*     <MudTextField Label="@L["Url Slug"]" For="@(() => context.UrlSlug)" @bind-Value="context.UrlSlug" HelperText="Enter a Url Slug eg. this-property" Variant="Variant.Outlined"/> *@
-        @* </MudItem> *@
-        @* <MudItem xs="12" md="4"> *@
-        @*     <MudTextField Label="@L["H1 Tag"]" For="@(() => context.H1)" @bind-Value="context.H1" HelperText="Enter a H1 tag (the page title)" Variant="Variant.Outlined"/> *@
-        @* </MudItem> *@
-        @* <MudItem xs="12" md="4"> *@
-        @*     <MudTextField Label="@L["H2 Tag"]" For="@(() => context.H2)" @bind-Value="context.H2" HelperText="Enter a H2 tag (the page sub title)" Variant="Variant.Outlined"/> *@
-        @* </MudItem> *@
+        <MudItem xs="12" md="12">
+            <MudTextField Label="Seo Scripts" T="string" Lines="10" Variant="Variant.Outlined" @bind-Value="@context.CustomSeoScripts" For="@(() => context.CustomSeoScripts)" AutoGrow="true" HelperText="Please ensure you wrap the markup in <script> tags"/>
+        </MudItem>
     </MudGrid>
 </WizardStep5Content>
 <WizardStep6Content>

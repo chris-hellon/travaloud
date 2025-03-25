@@ -184,7 +184,7 @@
 
 
 @section Scripts {
-    <script type="text/javascript">
+    <script type="text/javascript" defer>
         const propertyId = '@Model.PropertyId';
         const propertyName = '@Model.PropertyName';
         const propertyImageUrl = '@Model.Property.ImagePath';
@@ -315,13 +315,12 @@
             }
         });</script>
 
-    <script type="text/javascript" src="/shared/js/propertybooking.min.js"></script>
+    <script type="text/javascript" src="/shared/js/propertybooking.min.js" defer></script>
 
    
 
 <!-- Google tag (gtag.js) --> <script async src="https://www.googletagmanager.com/gtag/js?id=AW-11265968954"></script> <script> window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'AW-11265968954'); </script>
 <!-- Event snippet for Website traffic conversion page --> <script> gtag('event', 'conversion', {'send_to': 'AW-11265968954/eCtkCMG7nc8YELqWhPwp'}); </script>
-   
 }
 
 @section Styles {
@@ -332,4 +331,33 @@
 
     </style>
 
+}
+
+@section LdJson {
+    <script type="application/ld+json">
+        {
+          "@@context": "https://schema.org",
+                  "@@type": "BreadcrumbList",
+                  "itemListElement": [
+                    {
+                      "@@type": "ListItem",
+                      "position": 1,
+                      "name": "Home",
+                      "item": "https://fusehostelsandtravel.com"
+                    },
+                    {
+                      "@@type": "ListItem",
+                      "position": 2,
+                      "name": "Properties",
+                      "item": "https://fusehostelsandtravel.com/properties"
+                    },
+                    {
+                      "@@type": "ListItem",
+                      "position": 3,
+                      "name": "Property Booking",
+                      "item": "https://fusehostelsandtravel.com/property-booking"
+                    }
+                  ]
+                }
+    </script>
 }

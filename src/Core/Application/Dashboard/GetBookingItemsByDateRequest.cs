@@ -21,6 +21,7 @@ public class GetBookingItemsByDateRequest : PaginationFilter, IRequest<Paginatio
     // public string? Description { get; set; }
     public bool HideRefunded { get; set; } = true;
     public bool ApplyPagination { get; set; } = true;
+    public bool PaidOnly { get; set; }
     
     public List<BookingExportDto> Paginate(List<BookingExportDto> parsedTours)
     {
@@ -98,7 +99,8 @@ internal class GetBookingItemsByDateRequestHandler : IRequestHandler<GetBookingI
             request.TourDateId,
             TourIds = tourIdsDt.AsTableValuedParameter(),
             request.HideRefunded,
-            request.TenantId
+            request.TenantId,
+            request.PaidOnly
         }, commandType: CommandType.StoredProcedure, cancellationToken: cancellationToken);
         
         if (todaysTours.Count == 0)

@@ -46,7 +46,10 @@ public class CreateTourRequest : IRequest<DefaultIdType>
     [Display(Name = "H1 Tag")] public string? H1 { get; set; }
 
     [Display(Name = "H2 Tag")] public string? H2 { get; set; }
-
+    
+    public string? CustomSeoScripts { get; set; }
+    public string? SeoPageTitle { get; set; }
+    
     public FileUploadRequest? Image { get; set; }
     public FileUploadRequest? Video { get; set; }
     public FileUploadRequest? MobileVideo { get; set; }
@@ -151,7 +154,9 @@ public class CreateTourRequestHandler : IRequestHandler<CreateTourRequest, Defau
             request.SupplierId,
             request.SupplierEmailText,
             request.TourCategory?.Id,
-            request.ShowBookingQRCode);
+            request.ShowBookingQRCode,
+            request.CustomSeoScripts,
+            request.SeoPageTitle);
 
         // var tourCategory = await _tourCategoryRepository.GetByIdAsync(request.TourCategory?.Id, cancellationToken);
         // tour.TourCategory = tourCategory;
@@ -181,7 +186,14 @@ public class CreateTourRequestHandler : IRequestHandler<CreateTourRequest, Defau
             }, request.SupplierId);
         }
         
-        var page = new Page($"Tours - {request.Name}", request.MetaKeywords, request.MetaDescription, tourImagePath);
+        var page = new Page($"Tours - {request.Name}",
+            request.MetaKeywords,
+            request.MetaDescription,
+            tourImagePath,
+            string.Empty,
+            request.UrlSlug,
+            request.H1,
+            request.H2, null, request.SeoPageTitle);
 
         page.DomainEvents.Add(EntityCreatedEvent.WithEntity(page));
 

@@ -59,7 +59,7 @@ else
         const bookingsSerialized = @Html.Raw(Json.Serialize(@Model.Bookings));
     </script>
     
-    <script type="text/javascript" src="/shared/js/guestbookings.min.js"></script>
+    <script type="text/javascript" src="/shared/js/guestbookings.min.js" defer></script>
 }
 
 @section Styles {

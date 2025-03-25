@@ -349,7 +349,7 @@ public partial class TourBookingItem : ComponentBase
             {
                 PriceId = tourPriceId.Value,
                 RequestedSpaces = 1,
-                EndDate = DateTime.Now.AddMonths(6),
+                StartDate = DateTime.Now.AddMonths(6),
                 UserIsAdmin = UserIsAdmin
             });
 

@@ -93,7 +93,7 @@
 </section>
 
 @section Scripts {
-    <script type="text/javascript">$(document).ready(function() {
+    <script type="text/javascript" defer>$(document).ready(function() {
           // Add a click event handler to elements with class 'nav-link' and 'href' containing '#'
             $('.nav-link[href*="#"]').click(function (e) {
 
@@ -113,4 +113,27 @@
             }, 300); // You can adjust the duration (in milliseconds) as needed
           });
         });</script>
+}
+
+@section LdJson {
+    <script type="application/ld+json">
+            {
+              "@@context": "https://schema.org",
+                  "@@type": "BreadcrumbList",
+                  "itemListElement": [
+                    {
+                      "@@type": "ListItem",
+                      "position": 1,
+                      "name": "Home",
+                      "item": "https://fusehostelsandtravel.com"
+                    },
+                    {
+                      "@@type": "ListItem",
+                      "position": 2,
+                      "name": "Our Story",
+                      "item": "https://fusehostelsandtravel.com/our-story"
+                    }
+                  ]
+                }
+        </script>
 }

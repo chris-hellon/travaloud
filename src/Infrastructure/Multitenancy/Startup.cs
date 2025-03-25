@@ -85,7 +85,12 @@ internal static class Startup
 
         var subdomains = host.Split('.');
 
-        return subdomains.Length <= 1 ? "root" : subdomains[0];
+        var returnTenant = subdomains.Length <= 1 ? "root" : subdomains[0];
+        
+        if (returnTenant == "fusehostelsandtraveldev")
+            returnTenant = "fusehostelsandtravel";
+
+        return returnTenant;
     }
 
     private static TenantSettings? GetTenantSettings(IConfiguration config) =>

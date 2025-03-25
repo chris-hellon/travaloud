@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Travaloud.Application.Catalog.Events.Queries;
+using Travaloud.Application.Common.Extensions;
 
 
 namespace FuseHostelsAndTravel.Pages.Events;
@@ -51,7 +52,9 @@ public class IndexModel  : TravaloudBasePageModel
             new("HOSTELS", 1800)
         };
         
-        HeaderBanner = new HeaderBannerComponent("AT FUSE HOSTELS & TRAVEL?", "WHAT'S ON", null, "https://travaloudcdn.azureedge.net/fuse/assets/images/26885dcf-2138-4b69-8540-5203a35e65dd.jpg", new List<OvalContainerComponent>()
+        var (title, subTitle, subSubTitle) = PageDetails.GetTitleSubTitleAndSubSubTitle();
+        
+        HeaderBanner = new HeaderBannerComponent(title, subTitle, null, "https://travaloudcdn.azureedge.net/fuse/assets/images/26885dcf-2138-4b69-8540-5203a35e65dd.jpg", new List<OvalContainerComponent>()
         {
             new("aboutPageHeaderBannerOvals1", 15, null, -30, null)
         });

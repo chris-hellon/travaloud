@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Travaloud.Application.Catalog.Events.Queries;
+using Travaloud.Application.Common.Extensions;
 
 namespace FuseHostelsAndTravel.Pages.Properties;
 
@@ -56,7 +57,9 @@ public class IndexModel : TravaloudBasePageModel
         
         EventsCards = await WebComponentsBuilder.FuseHostelsAndTravel.GetEventsCarouselCardsAsync(events.Data);
 
-        HeaderBanner = new HeaderBannerComponent("HOSTELS", "VIETNAM", "Looking for good people, great times, and gorgeous scenery? Check out our Vietnam hostels!", "https://images.unsplash.com/photo-1466378284817-a6b7fd50cc68?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2880&q=80", new List<OvalContainerComponent>()
+        var (title, subTitle, subSubTitle) = PageDetails.GetTitleSubTitleAndSubSubTitle();
+        
+        HeaderBanner = new HeaderBannerComponent(title, subTitle, "Looking for good people, great times, and gorgeous scenery? Check out our Vietnam hostels!", "https://images.unsplash.com/photo-1466378284817-a6b7fd50cc68?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2880&q=80", new List<OvalContainerComponent>()
         {
             new("hostelPageHeaderBannerOvals1", -160, null, -45, null)
         });

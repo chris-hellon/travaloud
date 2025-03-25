@@ -33,4 +33,9 @@ public class DashboardService : BaseService, IDashboardService
     {
         return Mediator.Send(request);
     }
+    
+    public Task<IEnumerable<CalendarItemDto>> GetCalendarItems(GetCalendarItemsRequest request)
+    {
+        return Mediator.Send(request);
+    }
 }

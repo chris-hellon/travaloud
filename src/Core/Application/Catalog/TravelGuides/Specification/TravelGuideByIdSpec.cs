@@ -8,5 +8,5 @@ public class TravelGuideByIdSpec : Specification<TravelGuide, TravelGuideDetails
     public TravelGuideByIdSpec(DefaultIdType id) =>
         Query
             .Where(p => p.Id == id)
-            .Include(p => p.TravelGuideGalleryImages);
+            .Include(p => p.TravelGuideGalleryImages).AsSplitQuery();
 }

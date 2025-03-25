@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using Travaloud.Application.Catalog.Bookings.Specification;
 using Travaloud.Application.Catalog.TourDates.Specification;
 using Travaloud.Application.Catalog.Tours.Specification;
 using Travaloud.Application.Common.Utils;
@@ -202,11 +203,31 @@ public class CreateBookingRequestHandler : IRequestHandler<CreateBookingRequest,
                         {
                             tourDate.AvailableSpaces -= itemRequest.GuestQuantity!.Value;
                             tourDate.ConcurrencyVersion++;
-                            
+
                             lock (tourDatesToUpdate)
                             {
                                 tourDatesToUpdate.Add(tourDate);
                             }
+                            
+                            var sameTourDates = await _tourDateRepository.ListAsync(
+                                new SameTourDatesSpec(itemRequest.TourId.Value, tourDate.StartDate, tourDate.EndDate,
+                                    tourDate.Id), cancellationToken);
+
+                            if (sameTourDates.Count != 0)
+                            {
+                                sameTourDates = sameTourDates.Select(x =>
+                                {
+                                    if (x.AvailableSpaces > 0)
+                                        x.AvailableSpaces -= itemRequest.GuestQuantity!.Value;
+                                    return x;
+                                }).ToList();
+                                
+                                lock (tourDatesToUpdate)
+                                {
+                                    tourDatesToUpdate.AddRange(sameTourDates);
+                                }
+                            }
+
                         }
                         else
                         {

@@ -40,10 +40,6 @@
   --#{$prefix}datatable-sm-pagination-padding: #{$datatable-sm-pagination-padding};
   --#{$prefix}datatable-bordered-th-td-border-width: #{$datatable-bordered-th-td-border-width};
   --#{$prefix}datatable-hover-tbody-tr-transition: #{$datatable-hover-tbody-tr-transition};
-  --#{$prefix}datatable-dark-select-arrow-input-color: #{$datatable-dark-select-arrow-input-color};
-  --#{$prefix}datatable-dark-border-color: #{$datatable-dark-border-color};
-  --#{$prefix}datatable-dark-check-border-color: #{$datatable-dark-check-border-color};
-  --#{$prefix}datatable-dark-datatable-progress-opacity: #{$datatable-dark-datatable-progress-opacity};
   // scss-docs-end datatable-css-vars
 
   font-size: var(--#{$prefix}datatable-font-size);
@@ -266,7 +262,8 @@
         color: var(--#{$prefix}datatable-striped-color);
 
         td {
-          background-color: var(--#{$prefix}datatable-accent-bg);
+          background-color: inherit;
+          color: inherit;
         }
       }
     }
@@ -278,9 +275,11 @@
         transition: var(--#{$prefix}datatable-hover-tbody-tr-transition) !important;
         &:hover {
           background-color: var(--#{$prefix}datatable-hover-bg) !important;
+          color: var(--#{$prefix}datatable-hover-color);
 
           td {
-            background-color: var(--mdb-table-hover-bg);
+            background-color: inherit;
+            color: inherit;
           }
         }
       }
@@ -294,48 +293,13 @@
 
         &.active {
           background-color: var(--#{$prefix}datatable-hover-bg);
+
+          td {
+            background-color: inherit;
+            color: inherit;
+          }
         }
       }
-    }
-  }
-
-  &.datatable-dark {
-    --#{$prefix}datatable-color: #{$datatable-dark-color};
-    --#{$prefix}datatable-border-color: #{$datatable-dark-border-color};
-    --#{$prefix}datatable-active-color: #{$datatable-dark-active-color};
-    --#{$prefix}datatable-striped-color: #{$datatable-dark-striped-color};
-    --#{$prefix}datatable-accent-bg: #{$datatable-dark-accent-bg};
-    --#{$prefix}datatable-hover-bg: #{$datatable-dark-hover-bg};
-    --#{$prefix}datatable-hover-color: #{$datatable-dark-hover-color};
-
-    .select-wrapper {
-      .select-arrow,
-      input {
-        color: var(--#{$prefix}datatable-dark-select-arrow-input-color);
-      }
-
-      .form-outline .form-control:focus ~ .form-notch .form-notch-leading,
-      .form-notch-trailing {
-        border-color: var(--#{$prefix}datatable-dark-border-color) !important;
-      }
-      .form-notch-leading,
-      .form-notch-middle,
-      .form-notch-trailing {
-        border-color: var(--#{$prefix}datatable-dark-border-color) !important;
-      }
-
-      .form-outline .form-control:focus ~ .form-notch .form-notch-leading {
-        border-color: var(--#{$prefix}datatable-dark-border-color) !important;
-      }
-    }
-
-    .form-check-input[type='checkbox']:checked {
-      background-color: transparent;
-      border-color: var(--#{$prefix}datatable-dark-check-border-color);
-    }
-
-    .datatable-progress {
-      opacity: var(--#{$prefix}datatable-dark-datatable-progress-opacity);
     }
   }
 

@@ -1,12 +1,17 @@
 ﻿@page "/privacy-policy"
+@using Travaloud.Application.Common.Extensions
 @model FuseHostelsAndTravel.Pages.PrivacyPolicy.IndexModel
+
+@{
+    var (title, subTitle, subSubTitle) = Model.PageDetails.GetTitleSubTitleAndSubSubTitle();
+}
 
 <section id="privacyPolicy" class="bg-light overflow-hidden position-relative">
     <div class="container-fluid">
         <div class="container pt-8 pb-8">
             <div class="row d-flex justify-content-center text-center">
                 <div class="col-lg-10 text-start">
-                    <h1 class="display-3 mb-4 text-center">PRIVACY POLICY</h1>
+                    <h1 class="display-3 mb-4 text-center">@title</h1>
 
                     <p>Last updated: Dec 20th, 2022</p>
                     <h5>
@@ -110,3 +115,26 @@
         @Html.DisplayFor(x => x.OvalContainers)
     </div>
 </section>
+
+@section LdJson {
+    <script type="application/ld+json">
+            {
+              "@@context": "https://schema.org",
+                  "@@type": "BreadcrumbList",
+                  "itemListElement": [
+                    {
+                      "@@type": "ListItem",
+                      "position": 1,
+                      "name": "Home",
+                      "item": "https://fusehostelsandtravel.com"
+                    },
+                    {
+                      "@@type": "ListItem",
+                      "position": 2,
+                      "name": "Privacy Policy",
+                      "item": "https://fusehostelsandtravel.com/privacy-policy"
+                    }
+                  ]
+                }
+        </script>
+}

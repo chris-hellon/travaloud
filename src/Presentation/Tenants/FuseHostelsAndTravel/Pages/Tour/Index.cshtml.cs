@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Travaloud.Application.Catalog.Pages.Queries;
 using Travaloud.Infrastructure.Common.Extensions;
 
 namespace FuseHostelsAndTravel.Pages.Tour;
@@ -12,7 +13,7 @@ public class Index : TourPageModel
     public override async Task<IActionResult> OnGetAsync(string? tourName = null, Guid? tourDate = null, int? guestQuantity = null, string? userId = null)
     {
         await OnGetTourAsync(tourName, tourDate, guestQuantity);
-
+        
         var thumbnailImageSrc = Tour?.ImagePath?.FormatImageUrl(2000, TenantId);
 
         HeaderBanner = new HeaderBannerComponent(thumbnailImageSrc);

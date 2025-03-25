@@ -120,6 +120,11 @@ public abstract class TourPageModel : ContactBasePageModel<EmailTemplates.TourEn
 
             if (Tour == null) return Page();
 
+            var page = await PagesService.GetPageByTitle(new GetPageByTitleRequest($"Tours - {Tour?.Name}"));
+        
+            if (page != null)
+                PageDetails = page;
+            
             if (Tour.TourPickupLocations != null && Tour.TourPickupLocations.Any())
             {
                 if (Tour.TourPickupLocations.Count == 1)

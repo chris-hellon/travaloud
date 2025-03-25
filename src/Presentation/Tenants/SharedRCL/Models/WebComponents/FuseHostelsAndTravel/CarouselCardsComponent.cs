@@ -3,7 +3,9 @@
 public class CarouselCardsComponent : AlternatingCardHeightComponent
 {
     public string PartialView { get; private set; }
-
+    public int? HeaderPaddingTop { get; set; }
+    public int? HeaderPaddingBottom { get; set; }
+    
     public CarouselCardsComponent()
     {
 

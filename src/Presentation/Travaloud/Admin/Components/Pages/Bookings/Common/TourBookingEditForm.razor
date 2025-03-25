@@ -21,6 +21,7 @@
         {
             <MudAutocomplete @ref="@_staffList" T="UserDetailsDto" Label="@L["Booked By"]" For="@(() => RequestModel.StaffMember)"
                              @bind-Value="RequestModel.StaffMember" CoerceText="true" SearchFuncWithCancel="@SearchStaff" AnchorOrigin="Origin.BottomCenter" Variant="Variant.Outlined" Required="false"
+                             Disabled="@(!CanChangeSalesPerson)"
                              ShowProgressIndicator="true"
                              MinCharacters="3"
                              DebounceInterval="300"
@@ -33,7 +34,7 @@
 @if (FormDisabled)
 {
     <MudItem xs="12" md="12">
-        <MudAutocomplete @ref="@_guestsList" T="UserDetailsDto" Disabled="true" Label="@L["Primary Guest"]" For="@(() => RequestModel.Guest)"
+        <MudAutocomplete @ref="@_guestsList" T="UserDetailsDto" Disabled="@(!CanChangeSalesPerson)" Label="@L["Primary Guest"]" For="@(() => RequestModel.Guest)"
                          @bind-Value="RequestModel.Guest" CoerceText="true" SearchFuncWithCancel="@SearchGuests" AnchorOrigin="Origin.BottomCenter" Variant="Variant.Outlined" Required="false"
                          ShowProgressIndicator="true"
                          MinCharacters="3"
@@ -46,7 +47,7 @@ else
 {
     <MudItem xs="12" md="10">
         <MudAutocomplete @ref="@_guestsList" T="UserDetailsDto" Label="@L["Search Primary Guest"]" HelperText="Search for a Primary Guest" For="@(() => RequestModel.Guest)"
-                         @bind-Value="RequestModel.Guest" CoerceText="true" SearchFuncWithCancel="@SearchGuests" AnchorOrigin="Origin.BottomCenter" Variant="Variant.Outlined" Required="false"
+                         @bind-Value="RequestModel.Guest" CoerceText="true" SearchFuncWithCancel="@SearchGuests" AnchorOrigin="Origin.BottomCenter" Variant="Variant.Outlined" Required="true"
                          ShowProgressIndicator="true"
                          MinCharacters="3"
                          DebounceInterval="300"
@@ -59,10 +60,10 @@ else
 }
 
 <MudItem xs="12" md="12">
-    <MudTextField Label="@L["Description"]" For="@(() => RequestModel.Description)" HelperText="Enter a description for the Booking" @bind-Value="RequestModel.Description" Variant="Variant.Outlined"/>
+    <MudTextField Label="@L["Description"]" Required="true" For="@(() => RequestModel.Description)" HelperText="Enter a description for the Booking" @bind-Value="RequestModel.Description" Variant="Variant.Outlined"/>
 </MudItem>
 <MudItem xs="12" md="12">
-    <MudSelect T="string?" For="@(() => RequestModel.BookingSource)" @bind-Value="RequestModel.BookingSource" Label="Booking Source" HelperText="Select a Booking Source" Clearable="true" Variant="Variant.Outlined">
+    <MudSelect T="string?" For="@(() => RequestModel.BookingSource)" @bind-Value="RequestModel.BookingSource" Label="Booking Source" HelperText="Select a Booking Source" Required="true" Clearable="true" Variant="Variant.Outlined">
         <MudSelectItem T="string?" Value="@("Website")">Website</MudSelectItem>
         <MudSelectItem T="string?" Value="@("Online")">Online</MudSelectItem>
         @if (RequestModel.Properties != null)
@@ -182,6 +183,8 @@ else
 
     private bool CanDelete { get; set; }
 
+    private bool CanChangeSalesPerson { get; set; }
+    
     protected override async Task OnParametersSetAsync()
     {
         var authState = await AuthState.GetAuthenticationStateAsync();
@@ -192,6 +195,7 @@ else
         IsUpdate = RequestModel.Id != DefaultIdType.Empty;
 
         CanDelete = await AuthService.HasPermissionAsync(user, TravaloudAction.Delete, TravaloudResource.TourBookings);
+        CanChangeSalesPerson = await AuthService.HasPermissionAsync(user, TravaloudAction.Update, TravaloudResource.Users);
 
         if (IsUpdate && RequestModel.CreatedBy.HasValue)
         {

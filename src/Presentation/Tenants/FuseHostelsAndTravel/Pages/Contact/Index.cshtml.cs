@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Travaloud.Application.Catalog.Pages.Queries;
 
 namespace FuseHostelsAndTravel.Pages.Contact;
 

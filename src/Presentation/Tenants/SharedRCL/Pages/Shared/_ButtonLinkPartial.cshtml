@@ -17,6 +17,11 @@
         var href = Model.Href.Split("?jobVacancy=");
         <a class="btn @(Model.CssClass) mt-4 pe-4 ps-4" asp-page="@href[0]" asp-route-jobVacancy="@href[1]">@(string.IsNullOrEmpty(Model.ButtonText) ? "Find Out More" : Model.ButtonText)</a>
     }
+    else if (Model.Href.Contains("?title="))
+    {
+        var href = Model.Href.Split("?title=");
+        <a class="btn @(Model.CssClass) mt-4 pe-4 ps-4" asp-page="@href[0]" asp-route-title="@href[1]">@(string.IsNullOrEmpty(Model.ButtonText) ? "Find Out More" : Model.ButtonText)</a>
+    }
     else
     {
         <a class="btn @(Model.CssClass) mt-4 pe-4 ps-4" asp-page="@Model.Href">@(string.IsNullOrEmpty(Model.ButtonText) ? "Find Out More" : Model.ButtonText)</a>

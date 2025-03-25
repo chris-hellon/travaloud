@@ -5,9 +5,43 @@
 {
     ViewData["Title"] = Model.Property.Name;
 
+    @section LdJson {
+        @if (!string.IsNullOrEmpty(Model.Property.CustomSeoScripts))
+        {
+            @Html.Raw(Model.Property.CustomSeoScripts)
+        }
+
+        <script type="application/ld+json">
+            {
+              "@@context": "https://schema.org",
+                  "@@type": "BreadcrumbList",
+                  "itemListElement": [
+                    {
+                      "@@type": "ListItem",
+                      "position": 1,
+                      "name": "Home",
+                      "item": "https://fusehostelsandtravel.com"
+                    },
+                    {
+                      "@@type": "ListItem",
+                      "position": 2,
+                      "name": "Hostels",
+                      "item": "https://fusehostelsandtravel.com/hostels"
+                    },
+                    {
+                      "@@type": "ListItem",
+                      "position": 3,
+                      "name": "@(Html.Raw(Model.Property.Name))",
+                      "item": "https://fusehostelsandtravel.com/hostels/@(Model.Property.FriendlyUrl)"
+                    }
+                  ]
+                }
+        </script>
+    }
+    
     <section id="headerBanner">
         @Html.DisplayFor(x => x.HeaderBanner)
-        <partial name="_NavPillsPartial" model="Model.NavPills" />
+        <partial name="_NavPillsPartial" model="Model.NavPills"/>
     </section>
 
     <section id="about" class="overflow-hidden inherit-sticky-parent">
@@ -59,11 +93,13 @@
                 var label = $"{id}Label";
 
                 var checkInDate = DateTime.Now.ToString("yyyy-MM-dd");
-                var checkOutDate  = DateTime.Now.AddDays(1).ToString("yyyy-MM-dd");
+                var checkOutDate = DateTime.Now.AddDays(1).ToString("yyyy-MM-dd");
                 var url = $"/hostel-booking/{Model.Property.Name.UrlFriendly()}/{checkInDate}/{checkOutDate}{(Model.UserId != null ? $"/{Model.UserId}" : "")}";
 
                 <div class="modal fade lightbox-modal" id="@id" tabindex="-1" aria-labelledby="@label" aria-hidden="true">
-                    <button type="button" class="text-white btn-close" data-mdb-dismiss="modal" aria-label="Close"><i class="fa fa-xmark"></i></button>
+                    <button type="button" class="text-white btn-close" data-mdb-dismiss="modal" aria-label="Close">
+                        <i class="fa fa-xmark"></i>
+                    </button>
 
                     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable pt-5 pt-lg-0">
                         <div class="modal-content rounded-0 bg-transparent">
@@ -106,8 +142,8 @@
                                             @{
                                                 var thumbnailImageSrc = accommodation.ImageSrc?.Replace("tr=w-800", $"w=1600").Replace("tr=w-700", $"w=700").Replace("tr=w-1600", $"w=1600").Replace("https://ik.imagekit.io/rqlzhe7ko/", $"https://travaloudcdn.azureedge.net/fuse/assets/images/");
                                             }
-                
-                                            <img class="object-fit-cover img-fluid h-100" src="@thumbnailImageSrc" alt="@accommodation carousel image" />
+
+                                            <img class="object-fit-cover img-fluid h-100" src="@thumbnailImageSrc" alt="@accommodation carousel image"/>
                                         </div>
                                     </div>
                                 </div>
@@ -122,5 +158,5 @@
 }
 
 @section Scripts {
-    <script type="text/javascript" src="/shared/js/property.min.js"></script>
+    <script type="text/javascript" src="/shared/js/property.min.js" defer></script>
 }

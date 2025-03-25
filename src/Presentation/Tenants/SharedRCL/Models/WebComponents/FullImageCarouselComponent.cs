@@ -9,6 +9,11 @@ public class FullImageCarouselComponent
 	public List<ImageDto> CarouselImages { get; private set; }
 
 	public bool FullCoverMask { get; private set; }
+	
+	public bool FullCoverOneTitle { get; set; }
+	
+	public string? Title { get; set; }
+	public string? SubTitle { get; set; }
 
 	public FullImageCarouselComponent()
 	{

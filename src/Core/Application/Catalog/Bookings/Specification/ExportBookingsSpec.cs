@@ -40,6 +40,6 @@ public class ExportBookingsSpec : EntitiesByBaseFilterSpec<BookingItem, BookingE
             .Where(
                 x => x.StartDate >= request.CheckInDate.Value &&
                      x.StartDate <= request.CheckOutDate.Value,
-                condition: request is {CheckInDate: not null, CheckOutDate: not null});
+                condition: request is {CheckInDate: not null, CheckOutDate: not null}).AsSplitQuery();
     }
 }

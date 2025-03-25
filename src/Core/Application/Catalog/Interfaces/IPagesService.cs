@@ -30,4 +30,6 @@ public interface IPagesService : ITransientService
     Task DeleteSeoRedirectAsync(DeleteSeoRedirectRequest request);
 
     Task<SeoRedirectDto> GetSeoRedirect(GetSeoRedirectRequest request);
+
+    Task<PageDetailsDto?> GetPageByTitle(GetPageByTitleRequest request);
 }

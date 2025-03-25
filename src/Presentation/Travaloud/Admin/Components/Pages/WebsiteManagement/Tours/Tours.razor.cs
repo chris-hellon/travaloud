@@ -101,6 +101,9 @@ public partial class Tours
     {
         var tour = await ToursService.GetAsync(id);
         var parsedModel = tour.Adapt<TourViewModel>();
+        if (string.IsNullOrEmpty(parsedModel.H1))
+            parsedModel.H1 = parsedModel.Name;
+        
         if (tour != null)
         {
             parsedModel.UseTourGroup = tour.TourCategoryId.HasValue;

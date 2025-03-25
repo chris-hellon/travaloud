@@ -1,6 +1,8 @@
 ﻿@page "/tours"
 @model FuseHostelsAndTravel.Pages.Tours.IndexModel
 
+
+
 <section id="headerBanner" class="bg-light">
     @Html.DisplayFor(x => x.HeaderBanner)
 </section>
@@ -32,3 +34,27 @@
         </div>
     </div>
 </section>
+
+@section LdJson
+{
+    <script type="application/ld+json">
+        {
+          "@@context": "https://schema.org",
+          "@@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://fusehostelsandtravel.com/"
+            },
+            {
+              "@@type": "ListItem",
+              "position": 2,
+              "name": "Tours",
+              "item": "https://fusehostelsandtravel.com/tours"
+            }
+          ]
+        }
+    </script>
+}

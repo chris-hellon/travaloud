@@ -99,11 +99,17 @@ public class UpdateBookingRequestHandler : IRequestHandler<UpdateBookingRequest,
         var userId = _currentUser.GetUserId();
         
         await updatedBooking.ProcessBookingItems(booking, request.Items, userId, _tourDateRepository, cancellationToken);
+
+        updatedBooking.Items = updatedBooking.Items.Select(x =>
+        {
+            x.TourDate = null;
+            return x;
+        }).ToList();
         
         booking.ConcurrencyVersion++;
 
         // Save the changes to the repository
-        await _bookingRepository.UpdateAsync(booking, cancellationToken);
+        await _bookingRepository.UpdateAsync(updatedBooking, cancellationToken);
 
         return booking.Id;
     }

@@ -64,8 +64,8 @@ public static class Startup
             options.Conventions.AddPageRoute("/Tour/Index", tourUrl + "/{tourName}/{tourDate?}/{guestQuantity?}");
             options.Conventions.AddPageRoute("/StaffBooking/Tour/Index", tourUrl + "/staff-booking/{tourName}/{userId}");
             options.Conventions.AddPageRoute("/JoinOurCrew/Index", "join-our-crew/{tourName?}");
-            options.Conventions.AddPageRoute("/TravelGuides/Index", "travel-guides/{pageNumber:int?}");
-            options.Conventions.AddPageRoute("/TravelGuide/Index", "travel-guides/{title}");
+            options.Conventions.AddPageRoute("/TravelGuides/Index", "blogs-and-tips/{pageNumber:int?}");
+            options.Conventions.AddPageRoute("/TravelGuide/Index", "blogs-and-tips/{title}");
 
             if (!string.IsNullOrEmpty(tourCategoryUrl))
             {
@@ -117,7 +117,7 @@ public static class Startup
         services.AddWebOptimizer(pipeline =>
         {
             var provider = new PhysicalFileProvider(libraryPath);
-
+            
             pipeline.AddScssBundle("/css/theme.min.css",
                 "/css/load.min.css",
                     "/mdb/src/scss/mdb.pro.scss")

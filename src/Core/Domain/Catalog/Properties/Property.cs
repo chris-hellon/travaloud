@@ -28,7 +28,9 @@ public class Property : AuditableEntity, IAggregateRoot
     public string? H2 { get; private set; }
     public string? VideoPath { get; private set; }
     public string? MobileVideoPath { get; private set; }
-
+    public string? CustomSeoScripts { get; private set; }
+    public string? SeoPageTitle { get; private set; }
+    
     public virtual IList<TourPropertyLookup> TourPropertyLookups { get; set; } = default!;
     public virtual IList<PropertyDestinationLookup> PropertyDestinationLookups { get; set; } = default!;
     public virtual IList<PropertyDirection> Directions { get; set; } = default!;
@@ -64,7 +66,9 @@ public class Property : AuditableEntity, IAggregateRoot
         string? videoPath,
         string? mobileVideoPath,
         string? cloudbedsApiKey,
-        string? cloudbedsPropertyId)
+        string? cloudbedsPropertyId, 
+        string? customSeoScripts,
+        string? seoPageTitle)
     {
         Name = name;
         Description = description.FormatTextEditorString();;
@@ -89,6 +93,8 @@ public class Property : AuditableEntity, IAggregateRoot
         H2 = h2;
         VideoPath = videoPath;
         MobileVideoPath = mobileVideoPath;
+        CustomSeoScripts = customSeoScripts;
+        SeoPageTitle = seoPageTitle;
     }
 
     public Property Update(string? name,
@@ -113,7 +119,9 @@ public class Property : AuditableEntity, IAggregateRoot
         string? videoPath,
         string? mobileVideoPath,
         string? cloudbedsApiKey,
-        string? cloudbedsPropertyId)
+        string? cloudbedsPropertyId, 
+        string? customSeoScripts,
+        string? seoPageTitle)
     {
         if (name is not null && Name?.Equals(name) is not true) Name = name;
         if (description is not null && Description?.Equals(description) is not true) Description = description.FormatTextEditorString();;
@@ -138,7 +146,9 @@ public class Property : AuditableEntity, IAggregateRoot
         if (h2 is not null && H2?.Equals(h2) is not true) H2 = h2;
         if (videoPath is not null && VideoPath?.Equals(videoPath) is not true) VideoPath = videoPath;
         if (mobileVideoPath is not null && MobileVideoPath?.Equals(mobileVideoPath) is not true) MobileVideoPath = mobileVideoPath;
-
+        if (customSeoScripts is not null && CustomSeoScripts?.Equals(customSeoScripts) is not true) CustomSeoScripts = customSeoScripts;
+        if (seoPageTitle is not null && SeoPageTitle?.Equals(seoPageTitle) is not true) SeoPageTitle = seoPageTitle;
+        
         PublishToSite = publishToSite;
 
         return this;

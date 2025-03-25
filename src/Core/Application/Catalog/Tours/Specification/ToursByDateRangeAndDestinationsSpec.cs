@@ -15,5 +15,5 @@ public class ToursByDateRangeAndDestinationsSpec : Specification<Tour, TourWitho
                         x.TourDates.Any(tourDate =>
                             tourDate.StartDate >= request.FromDate && tourDate.StartDate <= request.ToDate))
             .Where(x => x.TourPrices != null && x.TourPrices.Any(p => p.PublishToWebsite.HasValue && p.PublishToWebsite.Value))
-            .OrderBy(x => x.Name);
+            .OrderBy(x => x.Name).AsSplitQuery();
 }

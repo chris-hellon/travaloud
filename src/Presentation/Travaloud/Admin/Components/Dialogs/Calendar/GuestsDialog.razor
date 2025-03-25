@@ -2,11 +2,12 @@
 @using Travaloud.Application.Catalog.Bookings.Commands
 @using Travaloud.Application.Catalog.Interfaces
 @using Travaloud.Admin.Components.Dialogs.Guests
+@using Travaloud.Application.Dashboard
 
 <MudDialog>
     <TitleContent>
         <MudText Typo="Typo.h6">
-            @BookingExports.Count Guests for @BookingExports.First().TourName @StartDate.ToShortDateString() @StartDate.ToString("hh:mm tt")
+            @BookingExports.Count Guests for @TourName @StartDate.ToShortDateString() @StartDate.ToString("hh:mm tt")
         </MudText>
     </TitleContent>
     <DialogContent>
@@ -15,15 +16,13 @@
                 <HeaderContent>
                     <MudTh>Reference</MudTh>
                     <MudTh>Guest</MudTh>
-                    <MudTh>Is Paid</MudTh>
                     <MudTh>Waiver Signed</MudTh>
                     <MudTh>Pick Up Location</MudTh>
                     <MudTh Style="width:145px;"></MudTh>
                 </HeaderContent>
                 <RowTemplate>
-                    <MudTd DataLabel="Reference">@context.BookingInvoiceId</MudTd>
+                    <MudTd DataLabel="Reference">@context.Reference</MudTd>
                     <MudTd DataLabel="Guest">@context.GuestName</MudTd>
-                    <MudTd DataLabel="Is Paid">@context.BookingIsPaid</MudTd>
                     <MudTd DataLabel="Waiver Signed">@context.WaiverSigned</MudTd>
                     <MudTd DataLabel="Pick Up Location">@context.PickupLocation</MudTd>
                     <MudTd DataLabel="Actions"><MudButton Variant="Variant.Filled" Size="Size.Small" StartIcon="@Icons.Material.Filled.Edit" OnClick="@(() => InvokeEditGuestDialog(context.GuestId))" Color="Color.Secondary" Class="me-2">Edit Guest</MudButton></MudTd>
@@ -44,15 +43,17 @@
 </MudDialog>
 
 @code {
-    [Parameter] public required List<BookingExportDto> BookingExports { get; set; }
+    [Parameter] public required List<CalendarItemDto> BookingExports { get; set; }
     [Parameter] public required DateTime StartDate { get; set; }
     [Parameter] public required DateTime EndDate { get; set; }
+    [Parameter] public required string TourName { get; set; }
+    [Parameter] public required GetBookingItemsByDateRequest ExportRequest { get; set; }
     [CascadingParameter] private MudDialogInstance MudDialog { get; set; } = default!;
     [Inject] private IBookingsService BookingsService { get; set; } = default!;
     [Inject] private IJSRuntime JS { get; set; } = default!;
     
     private bool Loading { get; set; } = true;
-    private MudTable<BookingExportDto> _guestsTable = default!;
+    private MudTable<CalendarItemDto> _guestsTable = default!;
 
     protected override Task OnParametersSetAsync()
     {
@@ -67,13 +68,11 @@
     {
         await LoadingService.ToggleLoaderVisibility(true);
         
-        var export = await BookingsService.ExportCalendarBookingsAsync(new ExportCalendarBookingsRequest(BookingExports));
+        var export = await BookingsService.ExportCalendarBookingsAsync(new ExportCalendarBookingsRequest(ExportRequest));
         
         using var streamRef = new DotNetStreamReference(export.Stream);
-
-        var tourName = BookingExports.First().TourName;
         
-        await JS.InvokeVoidAsync("downloadFileFromStream", $"{tourName} {StartDate:hh:mm tt}.xlsx", streamRef);
+        await JS.InvokeVoidAsync("downloadFileFromStream", $"{TourName} {StartDate:hh:mm tt}.xlsx", streamRef);
 
         await LoadingService.ToggleLoaderVisibility(false);
     }

@@ -11,7 +11,7 @@ public class ToursByDestinationIdSpec : Specification<Tour, TourWithoutDatesDto>
         Query.Include(p => p.TourDestinationLookups)
             .ThenInclude(x => x.Destination)
             .Where(p => p.TourDestinationLookups != null &&
-                        p.TourDestinationLookups.Any(x => x.DestinationId == id));
+                        p.TourDestinationLookups.Any(x => x.DestinationId == id)).AsSplitQuery();
     }
 }
 
@@ -27,7 +27,7 @@ public class ToursByDestinationsSpec : Specification<Tour, TourWithoutDatesDto>
             .ThenInclude(p => p.Images)
             .Where(p => p.TourDestinationLookups != null && p.TourDestinationLookups.Any(lookup => request.DestinationIds.Contains(lookup.DestinationId)))
         
-            .Where(p => p.PublishToSite.HasValue && p.PublishToSite.Value);
+            .Where(p => p.PublishToSite.HasValue && p.PublishToSite.Value).AsSplitQuery();
 }
 
 public class ToursWithDetailsByDestinationsSpec : Specification<Tour, TourDetailsDto>
@@ -41,5 +41,6 @@ public class ToursWithDetailsByDestinationsSpec : Specification<Tour, TourDetail
             .Include(p => p.TourItineraries)
             .ThenInclude(p => p.Sections)
             .ThenInclude(p => p.Images)
-            .Where(p => p.TourDestinationLookups != null && p.TourDestinationLookups.Any(lookup => request.DestinationIds.Contains(lookup.DestinationId)));
+            .Where(p => p.TourDestinationLookups != null && p.TourDestinationLookups.Any(lookup => request.DestinationIds.Contains(lookup.DestinationId)))
+            .AsSplitQuery();
 }

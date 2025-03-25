@@ -1,12 +1,17 @@
 ﻿@page "/cookie-policy"
+@using Travaloud.Application.Common.Extensions
 @model FuseHostelsAndTravel.Pages.CookiePolicy.IndexModel
+
+@{
+    var (title, subTitle, subSubTitle) = Model.PageDetails.GetTitleSubTitleAndSubSubTitle();
+}
 
 <section id="cookiePolicy" class="bg-light overflow-hidden position-relative">
     <div class="container-fluid">
         <div class="container pt-8 pb-8">
             <div class="row d-flex justify-content-center text-center">
                 <div class="col-lg-10 text-start">
-                    <h1 class="display-3 mb-4 text-center">COOKIE POLICY</h1>
+                    <h1 class="display-3 mb-4 text-center">@title</h1>
 
                     <p>
                         Our website uses cookies, as almost all websites do, to help provide you with the best experience we can. Cookies are small text files that are placed on your computer or mobile phone when you browse websites.
@@ -87,3 +92,26 @@
         @Html.DisplayFor(x => x.OvalContainers)
     </div>
 </section>
+
+@section LdJson {
+    <script type="application/ld+json">
+            {
+              "@@context": "https://schema.org",
+                  "@@type": "BreadcrumbList",
+                  "itemListElement": [
+                    {
+                      "@@type": "ListItem",
+                      "position": 1,
+                      "name": "Home",
+                      "item": "https://fusehostelsandtravel.com"
+                    },
+                    {
+                      "@@type": "ListItem",
+                      "position": 2,
+                      "name": "Cookie Policy",
+                      "item": "https://fusehostelsandtravel.com/cookie-policy"
+                    }
+                  ]
+                }
+        </script>
+}

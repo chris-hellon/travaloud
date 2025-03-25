@@ -3,16 +3,16 @@
 <div class="container-fluid p-0 m-0 position-relative overflow-hidden">
     @if (Model.Header != null)
     {
-        <div class="container @(Model.Header.Title != null ? "pt-8 pb-8" : "pb-5") text-center ovals-container-parent">
+        <div class="container @(!string.IsNullOrEmpty(Model.Header.Title) ? $"pt-{Model.HeaderPaddingTop ?? 8} pb-{Model.HeaderPaddingBottom ?? 8}" : "pb-5") text-center ovals-container-parent">
             <div class="row justify-content-lg-center has-parallax-scroll">
                 @if (Model.Header.Title != null)
                 {
                     <div class="col-12">
-                        <h2 class="@(Model.Header.Body == null ? "mb-0" : "")">@Html.Raw(Model.Header.Title)</h2>
+                        <h2 class="@(string.IsNullOrEmpty(Model.Header.Body) ? "mb-0" : "")">@Html.Raw(Model.Header.Title)</h2>
                     </div>
                 }
 
-                @if (Model.Header.Body != null)
+                @if (!string.IsNullOrEmpty(Model.Header.Body))
                 {
                     <p>@Html.Raw(Model.Header.Body)</p>
                 }

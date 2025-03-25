@@ -31,13 +31,13 @@
                         </div>
                     </button>
 
-                    <div class="collapse navbar-collapse" id="@navbarId">
-                        <div class="col-lg-3 d-none d-lg-flex justify-content-start pt-5 pt-lg-0">
+                    <div class="collapse navbar-collapse justify-content-lg-between d-lg-flex" id="@navbarId">
+                        <div class="col-lg-2 d-none d-lg-block pt-5 pt-lg-0">
                             <a class="navbar-brand navbar-brand-desktop nav-link" asp-page="/Home/Index">
                                 <img src="@navigationConfiguration.NavBrandLogo" alt="@($"{Model.TenantName} Brand Logo")" height="@(Model.TenantId == "fuse" ? 90 : 65)"/>
                             </a>
                         </div>
-                        <div class="col-md-12 col-lg-@(navigationConfiguration.LinksRightAligned ? "9" : "6") d-lg-flex justify-content-lg-@(navigationConfiguration.LinksRightAligned ? "end" : "center") pt-5 pt-lg-0">
+                        <div class="pt-5 pt-lg-0">
                             <ul class="navbar-nav">
                                 @if (navigationConfiguration.NavigationLinks.Any())
                                 {
@@ -148,7 +148,7 @@
 
                         @if (navigationConfiguration.LinksCentreAligned)
                         {
-                            <div class="col-md-12 col-lg-3 d-flex justify-content-lg-end">
+                            <div>
                                 <partial name="_LoginNavigationPartial" model="Model.TravaloudSettings"/>
                             </div>
                         }

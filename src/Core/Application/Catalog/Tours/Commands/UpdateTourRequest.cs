@@ -65,7 +65,9 @@ public class UpdateTourRequest : IRequest<DefaultIdType>
     [Display(Name = "H2 Tag")]
     public string? H2 { get; set; }
     
+    public string? CustomSeoScripts { get; set; }
     public bool? ShowBookingQRCode { get; set; }
+    public string? SeoPageTitle { get; set; }
     
     public FileUploadRequest? Image { get; set; }
     public FileUploadRequest? Video { get; set; }
@@ -260,7 +262,9 @@ public class UpdateTourRequestHandler : IRequestHandler<UpdateTourRequest, Defau
             request.SupplierId,
             request.SupplierEmailText,
             request.TourCategory?.Id,
-            request.ShowBookingQRCode);
+            request.ShowBookingQRCode,
+            request.CustomSeoScripts,
+            request.SeoPageTitle);
 
         if (request.TourCategory?.Id != updatedTour.TourCategory?.Id)
         {
@@ -285,7 +289,14 @@ public class UpdateTourRequestHandler : IRequestHandler<UpdateTourRequest, Defau
         
         if (page != null)
         {
-            var updatedPage = page.Update($"Tours - {request.Name}", request.MetaKeywords, request.MetaDescription, tourImagePath);
+            var updatedPage = page.Update($"Tours - {request.Name}",
+                request.MetaKeywords,
+                request.MetaDescription,
+                tourImagePath,
+                string.Empty,
+                request.UrlSlug,
+                request.H1,
+                request.H2, null, request.SeoPageTitle);
             
             page.DomainEvents.Add(EntityUpdatedEvent.WithEntity(page));
             
@@ -293,7 +304,14 @@ public class UpdateTourRequestHandler : IRequestHandler<UpdateTourRequest, Defau
         }
         else
         { 
-            page = new Page($"Tours - {request.Name}", request.MetaKeywords, request.MetaDescription, tourImagePath);
+            page = new Page($"Tours - {request.Name}",
+                request.MetaKeywords,
+                request.MetaDescription,
+                tourImagePath,
+                string.Empty,
+                request.UrlSlug,
+                request.H1,
+                request.H2, null, request.SeoPageTitle);
         
             page.DomainEvents.Add(EntityCreatedEvent.WithEntity(page));
         

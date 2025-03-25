@@ -1,6 +1,7 @@
 ﻿using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Travaloud.Application.Catalog.Events.Queries;
+using Travaloud.Application.Catalog.Pages.Queries;
 using Travaloud.Application.Catalog.Properties.Dto;
 using Travaloud.Application.Catalog.Tours.Dto;
 using Travaloud.Application.Catalog.Tours.Queries;
@@ -71,7 +72,7 @@ public class IndexModel : TravaloudBasePageModel
     public async Task<IActionResult> OnGet(string? propertyName = null)
     {
         await OnGetDataAsync();
-
+        
         var events = await _eventsService.SearchAsync(new SearchEventsRequest()
         {
             PageNumber = 1,
@@ -102,8 +103,8 @@ public class IndexModel : TravaloudBasePageModel
 
                 if (Property != null)
                 {
-                    var pageTitle = Property.PageTitle ?? Property.Name;
-                    var pageSubTitle = Property.PageSubTitle ?? "";
+                    var pageTitle = !string.IsNullOrEmpty(Property.H1) ? Property.H1 : !string.IsNullOrEmpty(Property.H2) ? Property.H2 : Property.Name;
+                    var pageSubTitle = string.IsNullOrEmpty(Property.H1) && Property.H2 != pageTitle || !string.IsNullOrEmpty(Property.H1) ? Property.H2 : null;
 
                     var thumbnailImageSrc = Property.ImagePath?.Replace("tr=w-2000", $"w=2000").Replace("https://ik.imagekit.io/rqlzhe7ko/", $"https://travaloudcdn.azureedge.net/fuse/assets/images/");
 
@@ -144,12 +145,15 @@ public class IndexModel : TravaloudBasePageModel
 
                     var facilitiesTable = Task.Run(() => WebComponentsBuilder.FuseHostelsAndTravel.GetHostelFacilitiesAsync(Property));
 
-                    await Task.WhenAll(directionsNavPills, toursCards, accommodationCards, facilitiesTable);
+                    var page = PagesService.GetPageByTitle(new GetPageByTitleRequest($"Hostels - {Property.Name}"));
+
+                    await Task.WhenAll(directionsNavPills, toursCards, accommodationCards, facilitiesTable, page);
 
                     DirectionsNavPills = directionsNavPills.Result;
                     ToursCards = toursCards.Result;
                     AccommodationCards = accommodationCards.Result;
                     FacilitiesTable = facilitiesTable.Result;
+                    PageDetails = page.Result;
 
                     var introductionBannerImage = Property.Id == new Guid("8e1f2b64-6ef8-4321-b6ab-b9b578e0e6cb") ? "https://travaloudcdn.azureedge.net/fuse/assets/images/99c08e57-cd8a-4fd0-aaad-ffb87a6c581d.jpg?w=1600" : "https://travaloudcdn.azureedge.net/fuse/assets/images/OT soft opening _ more (40 of 154).jpg?w=600";
                     

@@ -10,6 +10,6 @@ public class PageByIdSpec : Specification<Page>, ISingleResultSpecification<Page
             .Include(x => x.PageSortings)
             .Include(x => x.PageModalLookups)!
             .ThenInclude(x => x.PageModal)
-            .Where(p => p.Id == id);
+            .Where(p => p.Id == id).AsSplitQuery();
     }
 }

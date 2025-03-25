@@ -28,6 +28,8 @@ public class PropertyDetailsDto
     public string? H1 { get; set; }
     public string? H2 { get; set; }
     public string? VideoPath { get; set; }
+    public string? CustomSeoScripts { get; set; }
+    public string? SeoPageTitle { get; set; }
 
     public IList<PropertyDestinationLookupDto>? PropertyDestinationLookups { get; set; }
     public IList<PropertyDirectionDto>? Directions { get; set; }

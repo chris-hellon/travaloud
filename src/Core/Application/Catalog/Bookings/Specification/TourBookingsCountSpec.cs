@@ -8,5 +8,5 @@ public class TourBookingsCountSpec : Specification<Booking, BookingDetailsDto>
     public TourBookingsCountSpec(DateTime? fromDate, DateTime? toDate) =>
         Query.Where(p => p.Items.Any(x => x.TourId.HasValue))
             .Where(b => b.BookingDate >= fromDate.Value && b.BookingDate <= toDate.Value, condition: fromDate.HasValue && toDate.HasValue)
-            .Include(x => x.Items);
+            .Include(x => x.Items).AsSplitQuery();
 }

@@ -13,6 +13,6 @@ public class ToursBySearchSpec : EntitiesByPaginationFilterSpec<Tour, TourDto>
             .Include(t => t.TourCategory)
             .Where(p => p.Name.Equals(request.Name), request.Name != null)
             .Where(x => x.TourCategoryId == request.TourCategoryId,
-                condition: request.TourCategoryId.HasValue);
+                condition: request.TourCategoryId.HasValue).AsSplitQuery();
 }
 

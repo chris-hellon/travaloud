@@ -4,6 +4,7 @@ using Travaloud.Application.Catalog.Events.DTO;
 using Travaloud.Application.Catalog.Properties.Dto;
 using Travaloud.Application.Catalog.Services.Dto;
 using Travaloud.Application.Catalog.Tours.Dto;
+using Travaloud.Application.Catalog.TravelGuides.Dto;
 
 namespace Travaloud.Tenants.SharedRCL.Utils;
 
@@ -126,6 +127,41 @@ public static class WebComponentsBuilder
             return toursCards;
         }
 
+        public static Task<CarouselCardsComponent> GetTravelGuidesCarouselCardsAsync(IEnumerable<TravelGuideDto> travelGuides)
+        {
+            return Task.Run(() => GetTravelGuidesCarouselCards(travelGuides));
+        }
+
+        private static CarouselCardsComponent GetTravelGuidesCarouselCards(IEnumerable<TravelGuideDto> travelGuides)
+        {
+            var travelGuidesCards =
+                new CarouselCardsComponent(new GenericBannerComponent("Related Travel Guides", ""), null, "onScroll")
+                {
+                    HeaderPaddingBottom = 4,
+                    HeaderPaddingTop = 4
+                };
+
+            if (!travelGuides.Any()) return travelGuidesCards;
+
+            foreach (var item in travelGuides)
+            {
+                travelGuidesCards.Cards.Add(new CardComponent(
+                    item.Title,
+                    item.ShortDescription,
+                    item.ImagePath,
+                    item.ImagePath,
+                    null, null, null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    new ButtonComponent("btn-outline-primary align-bottom",
+                        $"/TravelGuide/Index?title={item.UrlFriendlyTitle ?? item.Title.UrlFriendly()}", "Read More")));
+            }
+
+            return travelGuidesCards;
+        }
+        
         public static Task<CarouselCardsComponent> GetEventsCarouselCardsAsync(IEnumerable<EventDto> events)
         {
             return Task.Run(() => GetEventsCarouselCards(events));

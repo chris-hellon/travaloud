@@ -40,6 +40,8 @@ public class Tour : AuditableEntity, IAggregateRoot
     public string? SupplierEmailText { get; private set; }
     public bool? ShowBookingQRCode { get; private set; }
     public DefaultIdType? TourCategoryId { get; private set; }
+    public string? CustomSeoScripts { get; private set; }
+    public string? SeoPageTitle { get; private set; }
     
     public virtual IList<TourCategoryLookup>? TourCategoryLookups { get; set; }
     public virtual IList<TourPropertyLookup>? TourPropertyLookups { get; private set; }
@@ -89,7 +91,9 @@ public class Tour : AuditableEntity, IAggregateRoot
         string? supplierId,
         string? supplierEmailText,
         DefaultIdType? tourCategoryId,
-        bool? showBookingQrCode)
+        bool? showBookingQrCode, 
+        string? customSeoScripts,
+        string? seoPageTitle)
     {
         Name = name;
         Description = description.FormatTextEditorString() ?? string.Empty;
@@ -126,6 +130,8 @@ public class Tour : AuditableEntity, IAggregateRoot
         SupplierEmailText = supplierEmailText;
         TourCategoryId = tourCategoryId;
         ShowBookingQRCode = showBookingQrCode;
+        CustomSeoScripts = customSeoScripts;
+        SeoPageTitle = seoPageTitle;
     }
 
     public Tour Update(string? name,
@@ -162,7 +168,9 @@ public class Tour : AuditableEntity, IAggregateRoot
         string? supplierId,
         string? supplierEmailText,
         DefaultIdType? tourCategoryId,
-        bool? showBookingQrCode)
+        bool? showBookingQrCode,
+        string? customSeoScripts,
+        string? seoPageTitle)
     {
         if (name is not null && Name?.Equals(name) is not true) Name = name;
         if (description is not null && Description?.Equals(description) is not true) Description = description.FormatTextEditorString() ?? string.Empty;
@@ -193,7 +201,9 @@ public class Tour : AuditableEntity, IAggregateRoot
         if (termsAndConditions is not null && TermsAndConditions?.Equals(termsAndConditions) is not true) TermsAndConditions = termsAndConditions.FormatTextEditorString();
         if (cancellationPolicy is not null && CancellationPolicy?.Equals(cancellationPolicy) is not true) CancellationPolicy = cancellationPolicy.FormatTextEditorString();
         if (supplierEmailText is not null && SupplierEmailText?.Equals(supplierEmailText) is not true) SupplierEmailText = supplierEmailText.FormatTextEditorString();
-
+        if (customSeoScripts is not null && CustomSeoScripts?.Equals(customSeoScripts) is not true) CustomSeoScripts = customSeoScripts;
+        if (seoPageTitle is not null && SeoPageTitle?.Equals(seoPageTitle) is not true) SeoPageTitle = seoPageTitle;
+        
         PublishToSite = publishToSite;
         ShowBookingQRCode = showBookingQrCode;
         AdditionalGuestDetailsRequired = additionalGuestDetailsRequired;

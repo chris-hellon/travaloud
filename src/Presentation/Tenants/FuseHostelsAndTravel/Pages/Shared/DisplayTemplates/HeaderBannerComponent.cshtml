@@ -3,9 +3,9 @@
 <div class="container-fluid p-0 header-banner">
     @if (Model.SlideshowImages != null && Model.SlideshowImages.Any())
     {
-        <div class="d-flex justify-content-center align-items-end header-banner-image-background">
+        <div class="d-flex justify-content-center align-items-end header-banner-image-background" style="@(Model.FullHeight ? "height:calc(100vh - 81px) !important;" : "")">
             <!-- Carousel wrapper -->
-            <div id="hostelSlideshow" class="carousel slide carousel-fade position-absolute start-0 w-100 h-100 top-0" data-mdb-ride="carousel">
+            <div id="hostelSlideshow" class="carousel slide carousel-fade position-absolute start-0 w-100 h-100 top-0" data-mdb-ride="carousel" data-mdb-carousel-init>
                 <!-- Inner -->
                 <div class="carousel-inner h-100">
                     @for (int i = 0; i < Model.SlideshowImages.Count; i++)

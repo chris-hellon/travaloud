@@ -219,7 +219,7 @@ $autocomplete-scrollbar-thumb-background-color: var(--#{$prefix}scrollbar-thumb-
 
 // Sidenav
 
-$sidenav-transform: translateX(-100%) !default;
+$sidenav-transform: translateX(-100%) #{'/*!rtl:translate(100%)*/'} !default;
 $sidenav-color: var(--#{$prefix}surface-color) !default;
 $sidenav-background-color: var(--#{$prefix}surface-bg) !default;
 $sidenav-width: 240px !default;
@@ -245,7 +245,7 @@ $sidenav-link-height: 3rem !default;
 $sidenav-link-border-radius: 5px !default;
 $sidenav-link-transition: all 0.3s linear !default;
 
-$sidenav-link-hover-color: $primary !default;
+$sidenav-link-hover-color: inherit !default;
 $sidenav-link-hover-background-color: var(--#{$prefix}highlight-bg-color) !default;
 
 $sidenav-link-active-focus-color: $sidenav-link-hover-color !default;
@@ -389,7 +389,7 @@ $timepicker-item-middle-dot-top: 50% !default;
 $timepicker-item-middle-dot-left: 50% !default;
 $timepicker-item-middle-dot-width: 6px !default;
 $timepicker-item-middle-dot-height: $timepicker-item-middle-dot-width !default;
-$timepicker-item-middle-dot-transform: translate(-50%, -50%) !default;
+$timepicker-item-middle-dot-transform: translate(-50%, -50%) #{'/*!rtl:translate(50%, -50%)*/'} !default;
 $timepicker-item-middle-dot-border-radius: 50% !default;
 $timepicker-item-middle-dot-bg: $primary !default;
 
@@ -442,7 +442,7 @@ $timepicker-icon-btn-height: 30px !default;
 $timepicker-input-color: $primary !default;
 
 $timepicker-btn-icon-right: -10px !default;
-$timepicker-btn-icon-transform: translate(-50%, -50%) !default;
+$timepicker-btn-icon-transform: translate(-50%, -50%) #{'/*!rtl:translate(50%, -50%)*/'} !default;
 $timepicker-btn-icon-top: 50% !default;
 $timepicker-btn-icon-transition: all 0.3s ease !default;
 $timepicker-btn-icon-hover-color: $primary !default;
@@ -643,7 +643,7 @@ $datepicker-cell-color: var(--#{$prefix}surface-color) !default;
 $datepicker-small-cell-width: 40px !default;
 $datepicker-small-cell-height: $datepicker-small-cell-width !default;
 
-$datepicker-small-cell-content-width: 36px !default;
+$datepicker-small-cell-content-width: 40px !default;
 $datepicker-small-cell-content-height: $datepicker-small-cell-content-width !default;
 $datepicker-small-cell-content-line-height: $datepicker-small-cell-content-height !default;
 $datepicker-small-cell-content-border-radius: 50% !default;
@@ -676,6 +676,9 @@ $datepicker-footer-btn-letter-spacing: 0.1rem !default;
 $datepicker-footer-btn-border-radius: 10px !default;
 $datepicker-footer-btn-margin-bottom: 10px !default;
 $datepicker-footer-btn-state-background-color: var(--#{$prefix}highlight-bg-color) !default;
+
+$datepicker-date-range-month-header-height: 1.6rem !default;
+$datepicker-date-range-month-header-font-size: 1rem !default;
 
 // Datetimepicker
 
@@ -764,19 +767,6 @@ $datatable-sm-th-td-padding-y: 0.5rem !default;
 $datatable-sm-th-td-padding-x: 1.4rem !default;
 $datatable-sm-tbody-tr-last-child-height: 55px !default;
 $datatable-sm-pagination-padding: 0.2rem !default;
-
-$datatable-dark-check-border-color: $white !default;
-$datatable-dark-select-background: url("data:image/svg+xml !default;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='white'><polygon points='0,0 100,0 50,50'/></svg>") !default;
-$datatable-dark-datatable-progress-opacity: 0.8 !default;
-$datatable-dark-select-arrow-input-color: white !default;
-$datatable-dark-border-color: rgb(251, 251, 251) !default;
-$datatable-dark-color: #fff !default;
-$datatable-dark-border-color: #fff !default;
-$datatable-dark-striped-color: white !default;
-$datatable-dark-accent-bg: rgba(255, 255, 255, 0.05) !default;
-$datatable-dark-hover-color: white !default;
-$datatable-dark-hover-bg: rgb(63, 63, 63) !default;
-$datatable-dark-active-color: rgba(255, 255, 255, 0.2) !default;
 
 $datatable-hover-tbody-tr-transition: background-color 0.2s ease-in !default;
 $datatable-bordered-th-td-border-width: 1px !default;

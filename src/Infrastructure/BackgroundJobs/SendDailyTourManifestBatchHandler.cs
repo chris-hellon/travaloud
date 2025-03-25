@@ -36,7 +36,8 @@ public class SendDailyTourManifestBatchHandler : IRequestHandler<SendDailyTourMa
         var tenantId = tenant?.Id ??
                        throw new Exception("No Tenant found.");
 
-        var currentDate = DateTime.Now + new TimeSpan(0, 0, 0);
+        var timeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+        var currentDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone);
         
         var tourDates = await _dapperRepository.QueryAsync<TourDailyManifestDto>("GetTodaysTourDatesForManifest", new
         {
@@ -46,8 +47,7 @@ public class SendDailyTourManifestBatchHandler : IRequestHandler<SendDailyTourMa
         
         foreach (var tourDate in tourDates)
         { 
-            var timeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
-            var nowInTimeZone = TimeZoneInfo.ConvertTime(DateTime.Now, timeZone);
+            var nowInTimeZone = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone);
                     
             var targetDateTime = tourDate.StartDate.AddHours(-1);
             var targetDateTimeInTimeZone = TimeZoneInfo.ConvertTime(targetDateTime, timeZone);

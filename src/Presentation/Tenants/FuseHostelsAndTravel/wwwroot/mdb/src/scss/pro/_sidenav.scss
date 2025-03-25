@@ -21,9 +21,11 @@
   --#{$prefix}sidenav-link-height: #{$sidenav-link-height};
   --#{$prefix}sidenav-link-border-radius: #{$sidenav-link-border-radius};
   --#{$prefix}sidenav-link-transition: #{$sidenav-link-transition};
+  --#{$prefix}sidenav-link-hover-color: #{$sidenav-link-hover-color};
   --#{$prefix}sidenav-link-hover-background-color: #{$sidenav-link-hover-background-color};
   --#{$prefix}sidenav-link-active-focus-background-color: #{$sidenav-link-active-focus-background-color};
   --#{$prefix}sidenav-link-active-color: #{$sidenav-link-active-color};
+  --#{$prefix}sidenav-link-active-focus-color: #{$sidenav-link-active-focus-color};
   --#{$prefix}sidenav-subheading-font-size: #{$sidenav-subheading-font-size};
   --#{$prefix}sidenav-subheading-padding-y: #{$sidenav-subheading-padding-y};
   --#{$prefix}sidenav-subheading-padding-x: #{$sidenav-subheading-padding-x};
@@ -207,11 +209,19 @@
   $blue: blue($value);
 
   .sidenav-#{$color} {
+    --#{$prefix}sidenav-link-hover-background-color: rgba(#{$red}, #{$green}, #{$blue}, 0.05);
+    --#{$prefix}sidenav-link-active-focus-background-color: rgba(
+      #{$red},
+      #{$green},
+      #{$blue},
+      0.05
+    );
+
     .sidenav-item {
       .sidenav-link {
         &:hover {
-          color: inherit;
-          background-color: rgba($red, $green, $blue, 0.05);
+          color: var(--#{$prefix}sidenav-link-hover-color);
+          background-color: var(--#{$prefix}sidenav-link-hover-background-color);
         }
       }
     }
@@ -219,12 +229,12 @@
     .sidenav-link {
       &:active,
       &:focus {
-        color: inherit;
-        background-color: rgba($red, $green, $blue, 0.05);
+        color: var(--#{$prefix}sidenav-link-active-focus-color);
+        background-color: var(--#{$prefix}sidenav-link-active-focus-background-color);
       }
 
       &.active {
-        color: inherit;
+        color: var(--#{$prefix}sidenav-link-active-color);
       }
     }
   }

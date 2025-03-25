@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Travaloud.Application.Catalog.Events.Queries;
 using Travaloud.Application.Catalog.Images.Dto;
+using Travaloud.Application.Common.Extensions;
 
 namespace FuseHostelsAndTravel.Pages.Home;
 
@@ -96,6 +97,11 @@ public class IndexModel : TravaloudBasePageModel
 
     public Task<List<ImageDto>> GetHomePageCarouselImages()
     {
+        var (title, subTitle, subSubTitle) = PageDetails.GetTitleSubTitleAndSubSubTitle(
+            "FUSE",
+            "COME TOGETHER AT", 
+            "HOSTELS AND TRAVEL");
+        
         return Task.FromResult(new List<ImageDto>()
         {
             new() {
@@ -105,9 +111,9 @@ public class IndexModel : TravaloudBasePageModel
                     "https://travaloudcdn.azureedge.net/fuse/assets/images/POOLPARTY_23-03-22-12-min.jpg?w=2000",
                 ThumbnailImagePath =
                     "https://travaloudcdn.azureedge.net/fuse/assets/images/POOLPARTY_23-03-22-08-min.jpg?w=2000",
-                Title = "FUSE",
-                SubTitle1 = "COME TOGETHER AT",
-                SubTitle2 = "HOSTELS AND TRAVEL"
+                Title = title,
+                SubTitle1 = subTitle,
+                SubTitle2 = subSubTitle
             }
         });
     }

@@ -38,9 +38,11 @@ public class IndexModel : TravaloudBasePageModel
     public DateTime? BookingDate { get; set; }
 
     public BasketModel? Basket { get; set; }
+    public string StripeSessionId { get; set; }
 
     public async Task<IActionResult> OnGetAsync(string stripeSessionId)
     {
+        StripeSessionId = stripeSessionId;
         await OnGetDataAsync();
 
         Basket = await BasketService.GetBasket();

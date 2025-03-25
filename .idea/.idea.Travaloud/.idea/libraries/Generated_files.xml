@@ -2,12 +2,18 @@
   <library name="Generated files" type="javaScript">
     <properties>
       <sourceFilesUrls>
+        <item url="file://$PROJECT_DIR$/src/Presentation/Tenants/FuseHostelsAndTravel/wwwroot/js/site.min.js" />
         <item url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/js/tour.min.js" />
+        <item url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/lib/jquery-validation/dist/jquery.validate.min.min.js" />
+        <item url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/lib/jquery/dist/jquery.min.min.js" />
       </sourceFilesUrls>
     </properties>
     <CLASSES>
       <root url="file://$PROJECT_DIR$/src/Presentation/Tenants/FuseHostelsAndTravel/wwwroot/azure/Shared/theme.min.js" />
+      <root url="file://$PROJECT_DIR$/src/Presentation/Tenants/FuseHostelsAndTravel/wwwroot/js/site.min.js" />
       <root url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/js/tour.min.js" />
+      <root url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/lib/jquery-validation/dist/jquery.validate.min.min.js" />
+      <root url="file://$PROJECT_DIR$/src/Presentation/Tenants/SharedRCL/wwwroot/lib/jquery/dist/jquery.min.min.js" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

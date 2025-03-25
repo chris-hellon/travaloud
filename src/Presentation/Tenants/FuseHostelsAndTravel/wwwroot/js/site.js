@@ -1,6 +1,7 @@
 ﻿const bindFuseJs = ()=> {
     adjustCardMargain();
     adjustCircularImages();
+    adjustFullPageCarouselHeight();
 
     let inheritStickyParent = $('.inherit-sticky-parent');
     if (inheritStickyParent.length > 0) {
@@ -9,6 +10,20 @@
             $(this).css('margin-top', '-' + stickyHeight + 'px');
             $(this).find('.offset-background').css('background-image', '-webkit-linear-gradient(-50deg, #FFFFFF 70%, #D1AC00 50%)');
         });
+    }
+
+    $('#showLightboxGallery').on('click', function () {
+        const lightbox = document.getElementById('fullImageCarouselLightbox');
+        const lightboxInstance = mdb.Lightbox.getInstance(lightbox);
+
+        lightboxInstance.open(0);
+    });
+}
+
+const adjustFullPageCarouselHeight = () => {
+    if ($('#fullPageCarousel').length > 0 && $('.navbar').hasClass('always-shadow')) {
+        let navbarHeight = $('.navbar').outerHeight();
+        $('#fullPageCarousel .carousel-inner').css('height', 'calc(100vh - ' + navbarHeight + 'px)');
     }
 }
 

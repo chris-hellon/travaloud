@@ -38,6 +38,8 @@ public class TourDetailsDto
     public bool? WaiverRequired { get; set; }
     public string? SupplierEmailText { get; set; }
     public bool? ShowBookingQRCode { get; set; }
+    public string? CustomSeoScripts { get; set; }
+    public string? SeoPageTitle { get; set; }
     public DefaultIdType? SupplierId { get; set; }
     
     public IList<TourPriceDto>? TourPrices { get; set; }

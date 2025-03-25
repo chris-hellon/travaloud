@@ -12,4 +12,5 @@ public class ImageDto
     public string? Html { get; set; }
     public string? VideoPath { get; set; }
     public string? ThumbnailVideoPath { get; set; }
+    public string? AltText { get; set; }
 }

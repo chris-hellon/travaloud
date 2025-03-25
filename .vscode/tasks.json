@@ -1,0 +1,18 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Deploy Admin to Digital Ocean",
+        "type": "shell",
+        "command": "bash",
+        "args": [
+          "/Users/chrishellon/Work/NET Core 8/Travaloud/src/Presentation/Travaloud/Admin/deploy.sh"
+        ],
+        "problemMatcher": [],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        }
+      }
+    ]
+  }

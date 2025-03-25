@@ -20,5 +20,10 @@ public class PropertyDto
     public string? CloudbedsPropertyId { get; set; }
     public string? MetaKeywords { get; set; }
     public string? MetaDescription { get; set; }
-    public string FriendlyUrl => Name.UrlFriendly();
+    public string FriendlyUrl => !string.IsNullOrEmpty(UrlSlug) ? UrlSlug : Name.UrlFriendly();
+    public string? VideoPath { get; set; }
+    public string? UrlSlug { get; set; }
+    public string? SeoPageTitle { get; set; }
+    public DateTime? LastModifiedOn { get; set; }
+    public DateTime CreatedOn { get; set; }
 }

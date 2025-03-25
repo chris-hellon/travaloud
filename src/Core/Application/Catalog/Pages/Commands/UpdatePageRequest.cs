@@ -10,6 +10,12 @@ public class UpdatePageRequest : IRequest<DefaultIdType>
     public string? MetaKeywords { get; set; }
     public string? MetaDescription { get; set; }
     public string? MetaImageUrl { get; set; }
+    public string? CustomSeoScripts { get; set; }
+    public string? UrlSlug { get; set; }
+    public string? H1 { get; set; }
+    public string? H2 { get; set; }
+    public string? H3 { get; set; }
+    public string? SeoPageTitle { get; set; }
     public List<DefaultIdType>? SelectedModals { get; set; }
 }
 
@@ -30,7 +36,16 @@ internal class UpdatePageRequestHandler : IRequestHandler<UpdatePageRequest, Def
         var page = await _repository.GetByIdAsync(request.Id, cancellationToken) ??
                    throw new NotFoundException(string.Format(_localizer["page.notfound"], request.Id));
 
-        var updatedPage = page.Update(request.Title, request.MetaKeywords, request.MetaDescription, request.MetaImageUrl);
+        var updatedPage = page.Update(request.Title,
+            request.MetaKeywords,
+            request.MetaDescription,
+            request.MetaImageUrl,
+            request.CustomSeoScripts,
+            request.UrlSlug,
+            request.H1,
+            request.H2,
+            request.H3,
+            request.SeoPageTitle);
         
         updatedPage.DomainEvents.Add(EntityUpdatedEvent.WithEntity(page));
 

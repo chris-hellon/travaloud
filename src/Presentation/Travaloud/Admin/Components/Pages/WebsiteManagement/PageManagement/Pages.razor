@@ -24,10 +24,30 @@
             @if (!context.Title.Contains("Tours - ") && !context.Title.Contains("Hostels - "))
             {
                 <MudItem xs="12" md="12">
+                    <MudTextField Label="@L["Page Title"]" For="@(() => context.SeoPageTitle)" @bind-Value="context.SeoPageTitle" HelperText="Enter a Page Title (this will replace the <title> tag)" Variant="Variant.Outlined"/>
+                </MudItem>
+                <MudItem xs="12" md="12">
+                    <MudTextField Label="@L["Title 1"]" For="@(() => context.H1)" @bind-Value="context.H1" HelperText="Enter a Title 1" Variant="Variant.Outlined"/>
+                </MudItem>
+                <MudItem xs="12" md="12">
+                    <MudTextField Label="@L["Title 2"]" For="@(() => context.H2)" @bind-Value="context.H2" HelperText="Enter a Title 2" Variant="Variant.Outlined"/>
+                </MudItem>
+
+                if (context.Title == "Home")
+                {
+                     <MudItem xs="12" md="12">
+                        <MudTextField Label="@L["Title 3"]" For="@(() => context.H3)" @bind-Value="context.H3" HelperText="Enter a Title 3" Variant="Variant.Outlined"/>
+                    </MudItem>
+                }
+
+                <MudItem xs="12" md="12">
                     <MudTextField Label="@L["Meta Keywords"]" For="@(() => context.MetaKeywords)" Disabled="@(context.Title.Contains("Tours - ") || context.Title.Contains("Hostels - "))" AutoGrow Lines="3" @bind-Value="context.MetaKeywords" Placeholder="Enter some Meta Keywords, comma separated." Variant="Variant.Outlined"/>
                 </MudItem>
                 <MudItem xs="12" md="12">
                     <MudTextField Label="@L["Meta Description"]" For="@(() => context.MetaDescription)" Disabled="@(context.Title.Contains("Tours - ") || context.Title.Contains("Hostels - "))" AutoGrow Lines="4" @bind-Value="context.MetaDescription" Placeholder="Enter a Meta Description" Variant="Variant.Outlined"/>
+                </MudItem>
+                <MudItem xs="12" md="12">
+                    <MudTextField Label="Seo Scripts" T="string" Lines="10" Variant="Variant.Outlined" @bind-Value="@context.CustomSeoScripts" For="@(() => context.CustomSeoScripts)" AutoGrow="true" HelperText="Please ensure you wrap the markup in <script> tags"/>
                 </MudItem>
             }
 

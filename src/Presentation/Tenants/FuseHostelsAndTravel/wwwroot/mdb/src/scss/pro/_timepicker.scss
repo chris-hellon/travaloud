@@ -142,6 +142,7 @@
     --#{$prefix}timepicker-wrapper-inline-border-radius: #{$timepicker-wrapper-inline-border-radius};
 
     border-radius: var(--#{$prefix}timepicker-wrapper-inline-border-radius);
+    overflow: hidden;
   }
 
   &-elements {
@@ -543,6 +544,7 @@
     transform: var(--#{$prefix}timepicker-btn-icon-transform);
     transition: var(--#{$prefix}timepicker-btn-icon-transition);
     cursor: pointer;
+    padding-inline: 6px;
 
     &:hover {
       color: var(--#{$prefix}timepicker-btn-icon-hover-color);

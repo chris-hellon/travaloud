@@ -9,7 +9,8 @@ public class CreateBookingRequestValidator : CustomValidator<CreateBookingReques
     public CreateBookingRequestValidator(IRepositoryFactory<Booking> repo)
     {
         RuleFor(b => b.Description)
-            .NotEmpty();
+            .NotEmpty()
+            .WithMessage("Please enter a Description.");
 
         RuleFor(b => b.TotalAmount)
             .GreaterThan(0);
@@ -23,6 +24,10 @@ public class CreateBookingRequestValidator : CustomValidator<CreateBookingReques
         RuleFor(b => b.Guest)
             .NotEmpty()
             .WithMessage("Please select a Primary Guest.");
+
+        RuleFor(b => b.BookingSource)
+            .NotEmpty()
+            .WithMessage("Please select a Booking Source.");
 
         RuleFor(b => b)
             .MustAsync(async (request, cancellationToken) =>

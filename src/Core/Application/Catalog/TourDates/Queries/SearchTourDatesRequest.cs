@@ -14,6 +14,8 @@ public class SearchTourDatesRequest : PaginationFilter, IRequest<PaginationRespo
     
     public DateTime? EndDate { get; set; }
     
+    public DateTime? StartDate { get; set; }
+    
     public bool UserIsAdmin { get; set; }
 }
 

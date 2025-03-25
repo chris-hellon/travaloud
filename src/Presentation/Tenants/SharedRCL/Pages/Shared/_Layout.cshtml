@@ -22,17 +22,15 @@
         var url = $"{Context.Request.Scheme}://{Context.Request.Host}{Context.Request.PathBase}{Context.Request.Path}{Context.Request.QueryString}";
         var websiteUrl = Model.WebsiteUrl;
 
+        if (Model.PageDetails != null && !string.IsNullOrEmpty(Model.PageDetails.SeoPageTitle))
+            title = Model.PageDetails.SeoPageTitle;
+        
         <title>@title</title>
-        
-        @if (Environment.IsStaging() || Environment.IsDevelopment())
-        {
-            <meta name="robots" content="noindex, nofollow">
-        }
-        
-        <meta name="description" content="@Model.MetaDescription()"/>
-        <meta name="keywords" content="@Model.MetaKeywords()"/>
         <link href="@websiteUrl" rel="home"/>
         <link rel="canonical" href="@url"/>
+        <link href="/favicon.ico" rel="icon">
+        <meta name="description" content="@Model.MetaDescription()"/>
+        <meta name="keywords" content="@Model.MetaKeywords()"/>
         <meta property="og:site_name" content="@websiteUrl.Replace("https://", "")">
         <meta property="og:description" content="@Model.MetaDescription()">
         <meta property="og:title" content="@title">
@@ -43,52 +41,22 @@
         <meta property="twitter:title" content="@title">
         <meta property="twitter:card" content="summary_large_image">
         <meta property="twitter:image" content="@Model.MetaImageUrl()">
-        <link href="/favicon.ico" rel="icon">
-
-       
+        if (url == $"{Model.WebsiteUrl}/" || url == Model.WebsiteUrl)
+        {
+            <meta name="google-site-verification" content="@Model.GoogleSiteVerificationKey"/>
+        }
+        if (Environment.IsStaging() || Environment.IsDevelopment())
+        {
+            <meta name="robots" content="noindex, nofollow">
+        }
         
         <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
         <noscript>
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
         </noscript>
-        
+
         <link rel="stylesheet" href="/shared/css/theme.min.css"/>
         <link rel="stylesheet" href="/css/theme.min.css"/>
-        
-        @* <link rel="stylesheet" href="/css/load.min.css" /> *@
-        @* *@
-        @* var sharedThemeCssUrl = Model.GetAzureBlobUrl("theme.min.css", "css/shared"); *@
-        @* var themeCssUrl = Model.GetAzureBlobUrl("theme.min.css", "css"); *@
-        @* *@
-        @* <link rel="preload" href="@sharedThemeCssUrl" as="style" onload="this.onload=null;this.rel='stylesheet'"/> *@
-        @* <noscript> *@
-        @*     <link rel="stylesheet" href="@sharedThemeCssUrl"/> *@
-        @* </noscript> *@
-        @* *@
-        @* <link rel="preload" href="@themeCssUrl" as="style" onload="this.onload=null;this.rel='stylesheet'"/> *@
-        @* <noscript> *@
-        @*     <link rel="stylesheet" href="@themeCssUrl"/> *@
-        @* </noscript> *@
-
-
-        if (url == $"{Model.WebsiteUrl}/" || url == Model.WebsiteUrl)
-        {
-            <meta name="google-site-verification" content="@Model.GoogleSiteVerificationKey"/>
-        }
-    }
-
-    @if (Model.TenantId == "vbh")
-    {
-        <!-- Google Tag Manager -->
-        <script>(function (w, d, s, l, i) {
-                w[l] = w[l] || []; w[l].push({
-                    'gtm.start':
-                        new Date().getTime(), event: 'gtm.js'
-                }); var f = d.getElementsByTagName(s)[0],
-                    j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
-                        'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
-            })(window, document, 'script', 'dataLayer', 'GTM-MW6FWDV');</script>
-        <!-- End Google Tag Manager -->
     }
 
     @{
@@ -136,7 +104,12 @@
     {
         @Html.Raw(Model.SeoDetails.SearchAction);
     }
-  
+
+    @if (Model.PageDetails != null && !string.IsNullOrEmpty(Model.PageDetails.CustomSeoScripts))
+    {
+        @Html.Raw(Model.PageDetails.CustomSeoScripts)
+    }
+    
     @await RenderSectionAsync("LdJson", required: false)
     @await RenderSectionAsync("Styles", required: false)
 </head>

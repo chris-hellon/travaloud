@@ -11,10 +11,10 @@ public class PropertyByIdSpec : Specification<Property, PropertyDetailsDto>, ISi
             .Include(p => p.Directions).ThenInclude(x => x.Content)
             .Include(p => p.Rooms)
             .Include(p => p.Facilities)
-            .Include(p => p.Images);
+            .Include(p => p.Images).AsSplitQuery();
 
         Query.Include(p => p.PropertyDestinationLookups)
             .ThenInclude(x => x.Destination)
-            .Where(p => p.PropertyDestinationLookups != null);
+            .Where(p => p.PropertyDestinationLookups != null).AsSplitQuery();
     }
 }

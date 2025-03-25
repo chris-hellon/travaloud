@@ -8,5 +8,5 @@ public class TravelGuideByFriendlyTitleSpec : Specification<TravelGuide, TravelG
     public TravelGuideByFriendlyTitleSpec(string title) =>
         Query
             .Where(p => p.UrlFriendlyTitle == title)
-            .Include(p => p.TravelGuideGalleryImages);
+            .Include(p => p.TravelGuideGalleryImages).AsSplitQuery();
 }

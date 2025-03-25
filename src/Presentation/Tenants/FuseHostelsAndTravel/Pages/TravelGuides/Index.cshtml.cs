@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Travaloud.Application.Catalog.TravelGuides.Dto;
 using Travaloud.Application.Catalog.TravelGuides.Queries;
+using Travaloud.Application.Common.Extensions;
 using Travaloud.Application.Common.Models;
 
 namespace FuseHostelsAndTravel.Pages.TravelGuides;
@@ -39,7 +40,9 @@ public class IndexModel : TravaloudBasePageModel
 
         await base.OnGetDataAsync();
         
-        HeaderBanner = new HeaderBannerComponent("TRAVEL GUIDES", "VIETNAM", null, "https://travaloudcdn.azureedge.net/fuse/assets/images/20f8de8d-fea6-403e-8b79-f171b314d7fe.jpg?w=2000", new List<OvalContainerComponent>()
+        var (title, subTitle, subSubTitle) = PageDetails.GetTitleSubTitleAndSubSubTitle();
+        
+        HeaderBanner = new HeaderBannerComponent(title, subTitle, null, "https://travaloudcdn.azureedge.net/fuse/assets/images/20f8de8d-fea6-403e-8b79-f171b314d7fe.jpg?w=2000", new List<OvalContainerComponent>()
         {
             new("aboutPageHeaderBannerOvals1", 15, null, -30, null)
         });

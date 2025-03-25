@@ -9,5 +9,6 @@ public class TourDateByEarliestStartTimeSpec : Specification<TourDate>, ISingleR
             .Include(x => x.TourPrice)
             .Where(p => p.Id == tourId)
             .Where(p => p.StartDate > DateTime.Now)
-            .OrderBy(p => p.StartDate);
+            .OrderBy(p => p.StartDate)
+            .AsSplitQuery();
 }

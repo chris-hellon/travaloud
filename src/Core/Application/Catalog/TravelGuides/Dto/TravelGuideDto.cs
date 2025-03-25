@@ -13,4 +13,5 @@ public class TravelGuideDto
     public string? MetaKeywords { get; set; }
     public string? MetaDescription { get; set; }
     public string? UrlFriendlyTitle { get; set; } = default!;
+    public DateTime? LastModifiedOn { get; set; }
 }

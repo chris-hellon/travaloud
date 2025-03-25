@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Travaloud.Application.Catalog.JobVacancies.Dto;
 using Travaloud.Application.Catalog.JobVacancies.Queries;
+using Travaloud.Application.Common.Extensions;
 
 namespace FuseHostelsAndTravel.Pages.JoinOurCrew;
 
@@ -88,7 +89,9 @@ public class IndexModel : JoinOurCrewPageModel
             new NavPill("HOSTELS", 2000)
         ];
 
-        HeaderBanner = new HeaderBannerComponent("JOIN OUR CREW", null, null,
+        var (title, subTitle, subSubTitle) = PageDetails.GetTitleSubTitleAndSubSubTitle();
+        
+        HeaderBanner = new HeaderBannerComponent(@title, @subTitle, null,
             "https://travaloudcdn.azureedge.net/fuse/assets/images/72067649-43d3-4961-93c7-58e37399860f.jpg?w=2000",
             new List<OvalContainerComponent>()
             {

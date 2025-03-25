@@ -2,10 +2,25 @@
 
 <MudGrid>
     <MudItem xs="12" md="12">
+        <MudTextField Label="@L["Page Title"]" For="@(() => Tour.SeoPageTitle)" @bind-Value="Tour.SeoPageTitle" HelperText="Enter a Page Title (this will replace the <title> tag)" Variant="Variant.Outlined"/>
+    </MudItem>
+    <MudItem xs="12" md="12">
+        <MudTextField Label="@L["Title"]" For="@(() => Tour.H1)" @bind-Value="Tour.H1" HelperText="Enter a Title (h1)" Variant="Variant.Outlined"/>
+    </MudItem>
+    <MudItem xs="12" md="12">
+        <MudTextField Label="@L["Sub Title"]" For="@(() => Tour.H2)" @bind-Value="Tour.H2" HelperText="Enter a Sub Title (h2)" Variant="Variant.Outlined"/>
+    </MudItem>
+    <MudItem xs="12" md="12">
+        <MudTextField Label="@L["Url Slug"]" For="@(() => Tour.UrlSlug)" @bind-Value="Tour.UrlSlug" HelperText="Enter a Url Slug eg. this-tour" Variant="Variant.Outlined"/>
+    </MudItem>
+    <MudItem xs="12" md="12">
         <MudTextField Label="@L["Meta Keywords"]" For="@(() => Tour.MetaKeywords)" @bind-Value="Tour.MetaKeywords" HelperText="Enter Meta Keywords (recommended max limit of 20)" Variant="Variant.Outlined"/>
     </MudItem>
     <MudItem xs="12" md="12">
         <MudTextField Label="@L["Meta Description"]" Lines="5" For="@(() => Tour.MetaDescription)" @bind-Value="Tour.MetaDescription" HelperText="Enter a Meta Description" Variant="Variant.Outlined"/>
+    </MudItem>
+    <MudItem xs="12" md="12">
+        <MudTextField Label="Seo Scripts" T="string" Lines="10" Variant="Variant.Outlined" @bind-Value="@Tour.CustomSeoScripts" For="@(() => Tour.CustomSeoScripts)" AutoGrow="true" HelperText="Please ensure you wrap the markup in <script> tags"/>
     </MudItem>
 </MudGrid>
 

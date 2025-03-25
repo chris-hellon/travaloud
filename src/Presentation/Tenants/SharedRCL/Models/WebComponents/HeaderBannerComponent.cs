@@ -9,6 +9,7 @@ public class HeaderBannerComponent
     public decimal? BackgroundTop { get; set; }
     public IEnumerable<OvalContainerComponent>? OvalContainers { get; private set; }
     public List<string>? SlideshowImages { get; set; }
+    public bool FullHeight { get; set; }
 
     public HeaderBannerComponent()
     {

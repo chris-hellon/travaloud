@@ -77,4 +77,8 @@ public class PagesService : BaseService, IPagesService
         return Mediator.Send(request);
     }
 
+    public Task<PageDetailsDto?> GetPageByTitle(GetPageByTitleRequest request)
+    {
+        return Mediator.Send(request);
+    }
 }

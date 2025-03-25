@@ -17,6 +17,6 @@ public class BookingsByGuestSpec : EntitiesByPaginationFilterSpec<Booking, Booki
             .ThenInclude(item => item.TourDate)
             .Include(x => x.Items)
             .ThenInclude(item => item.Property)
-            .Where(x => x.GuestId == request.GuestId && x.Items.Count > 0);
+            .Where(x => x.GuestId == request.GuestId && x.Items.Count > 0).AsSplitQuery();
     }
 }

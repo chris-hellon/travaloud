@@ -27,9 +27,14 @@ public class TourDto
     public string? CancellationPolicy { get; set; }
     public bool? WaiverRequired { get; set; }
     public bool? PublishToSite { get; set; }
-    public string FriendlyUrl => Name.UrlFriendly();
+    public string FriendlyUrl => !string.IsNullOrEmpty(UrlSlug) ? UrlSlug : Name.UrlFriendly();
     public string? SupplierEmailText { get; set; }
     public bool? ShowBookingQRCode { get; set; }
+    public string? UrlSlug { get; set; }
+    public string? CustomSeoScripts { get; set; }
+    public string? SeoPageTitle { get; set; }
+    public DateTime? LastModifiedOn { get; set; }
+    public DateTime CreatedOn { get; set; }
     public DefaultIdType? SupplierId { get; set; }
     public DefaultIdType? TourCategoryId { get; set; }
     public TourCategoryDto? TourCategory { get; set; }

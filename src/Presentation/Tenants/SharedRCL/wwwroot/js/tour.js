@@ -26,7 +26,7 @@ $("document").ready(function () {
         let value = $(this).val();
         if (value.length > 0 && parseInt(value) > 0)
         {
-            if (pickUpLocation.val() == "")
+            if (pickUpLocation.val() === "")
             {
                 setFeedbackLabel('Select a Pick Up Location');
             }
@@ -92,8 +92,6 @@ function filterDates() {
         $(tourDatesParsed).each(function (i, v) {
             var startDate = new Date(v.startDate);
             startDate.setHours(0, 0, 0);
-
-            console.log(startDate);
             
             tourDates.push(startDate.getTime());
         });
@@ -197,7 +195,7 @@ const addTourToBasket = (tourId, tourName, tourImageUrl) => {
                 let guestQuantityControl = $('#GuestQuantity');
                 setFeedbackLabel('Select a Date');
 
-                $('#TourDate, #TourDateStartTime, #PickUpLocation').val('').removeClass('active');
+                $('#TourDate, #TourDateStartTime').val('').removeClass('active');
                 $('#TourDate').prop('disabled', false);
                 guestQuantityControl.val('').prop('disabled', true).removeClass('active');
                 $('#TourDateStartTime').html('<option value="" hidden></option>').val('').prop('disabled', true);
